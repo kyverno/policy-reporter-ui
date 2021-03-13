@@ -2,9 +2,9 @@
 
 ## Motivation
 
-Policy Reporter supports different kinds of targets and a metrics Endpoint to provide as many informations about your (Cluster)PolicyReports as possible but this targets and also the Dashboards have external dependencies. You need tools like Grafana, Kibana or Discord to make informations visible.
+Policy Reporter supports different kinds of targets and a metrics Endpoint to provide as many information about your (Cluster)PolicyReports as possible but this targets and also the Dashboards have external dependencies. You need tools like Grafana, Kibana or Discord to make informations visible.
 
-In the most production Clusters are Monitoring solutions available so it is not big deal. If you don't have any monitoring solution running because it is only a test environment or you only want to try things out, its additional work and it needs not insignificant resources.
+In the most production Clusters are Monitoring solutions available so it is not big deal. If you don't have any (supported) monitoring solution, it is additional work and it needs not insignificant resources.
 
 To make policy reporters more accessible, this additional tool adds a standalone, minimal UI on top of Policy Reporter. It offers the same information as Grafana Dashboards and can be enabled as optional Subchart for PolicyReporter.
 
