@@ -1,9 +1,9 @@
 <template>
-  <v-card full-height style="height: 100%">
+  <v-card full-height style="height: 100%" min-height="300">
     <v-card-title class="pb-0">
       Failing Cluster Policies
     </v-card-title>
-    <v-card-text style="height: calc(100% - 48px); font-size: 13rem!important;" class="text-center text-h1 d-flex justify-center align-center">
+    <v-card-text style="height: calc(100% - 48px); font-size: 11rem!important;" class="text-center text-h1 d-flex justify-center align-center">
       {{ failing }}
     </v-card-text>
   </v-card>

@@ -1,11 +1,16 @@
 <template>
-<v-col cols="6" v-if="!this.optional ? true : !!options.series[0].data.length">
+<v-col cols="12" md="6" v-if="!this.optional ? true : !!options.series[0].data.length">
   <v-card min-height="300" height="100%">
       <v-card-title class="pb-0">
       {{ statusText }} Policy Results per Namespace
       </v-card-title>
       <v-card-text class="pt-0 d-flex align-end" style="height: calc(100% - 48px)">
-      <apexchart :options="options" :series="options.series" :height="height" v-if="show" style="width: 100%" />
+      <apexchart :options="options"
+                 :series="options.series"
+                 :height="renderHeight"
+                 v-if="show"
+                 style="width: 100%"
+      />
       </v-card-text>
   </v-card>
 </v-col>
@@ -17,7 +22,7 @@ import { Result } from '@/models';
 
 type Props = { optional: boolean; minHeight?: number; statusText: string; results: Result[] };
 
-export default Vue.extend<{ show: boolean }, {}, { height: number; options: any }, Props>({
+export default Vue.extend<{ show: boolean }, {}, { renderHeight: number; height: number; options: any }, Props>({
   name: 'PolicyStatusPerNamespace',
   props: {
     optional: { default: false, type: Boolean },
@@ -27,25 +32,27 @@ export default Vue.extend<{ show: boolean }, {}, { height: number; options: any 
   },
   data: () => ({ show: false }),
   watch: {
-    height(height: number) {
-      if (!height) return;
-
-      this.$emit('height-change', height);
+    height: {
+      immediate: true,
+      handler(height: number) {
+        this.$emit('height-change', height);
+      },
     },
   },
   computed: {
-    height(): number {
-      const height = 80 + this.options.series[0].data.length * 36;
+    renderHeight(): number {
+      if (this.height > 200 && this.height > (this.minHeight || 0)) {
+        return this.height;
+      }
 
-      if (this.minHeight && height < this.minHeight) {
+      if (this.minHeight && this.minHeight > 200) {
         return this.minHeight;
       }
 
-      if (height < 200) {
-        return 200;
-      }
-
-      return height;
+      return 200;
+    },
+    height(): number {
+      return 80 + this.options.series[0].data.length * 36;
     },
     options() {
       const unordnered = this.results.reduce<{ [namspace: string]: number }>((acc, item) => {

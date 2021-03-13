@@ -3,7 +3,7 @@
     <v-row>
         <v-col>
             <v-toolbar elevation="1">
-                <div style="max-width: 600px;">
+                <div style="width: 475px;">
                   <policy-autocomplete v-model="policies" :reports="clusterReports" />
                 </div>
             </v-toolbar>
@@ -21,16 +21,16 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-col cols="3">
+      <v-col cols="12" sm="6" md="3">
         <cluster-policy-status color="green" :count="passingResults.length" :statusText="statusText('pass')" />
       </v-col>
-      <v-col cols="3">
+      <v-col cols="12" sm="6" md="3">
         <cluster-policy-status color="warning" :count="warningResults.length" :statusText="statusText('warn')" />
       </v-col>
-      <v-col cols="3">
+      <v-col cols="12" sm="6" md="3">
         <cluster-policy-status color="error" :count="failingResults.length" :statusText="statusText('fail')" />
       </v-col>
-      <v-col cols="3">
+      <v-col cols="12" sm="6" md="3">
         <cluster-policy-status color="error" :count="errorResults.length" :statusText="statusText('error')" />
       </v-col>
     </v-row>

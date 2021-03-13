@@ -3,7 +3,7 @@
     <v-row>
         <v-col>
             <v-toolbar elevation="1">
-                <div style="max-width: 600px;">
+                <div style="width: 475px;">
                   <policy-autocomplete v-model="policies" :reports="reports" />
                 </div>
             </v-toolbar>
@@ -21,29 +21,29 @@
       </v-col>
     </v-row>
     <v-row>
-      <policy-status-per-namespace @height-change="updateHeight($event)"
+      <policy-status-per-namespace @height-change="updateHeight('pass', $event)"
                                   :minHeight="minHeight"
                                   :results="passingResults"
                                   :statusText="statusText('pass')"
       />
-      <policy-status-per-namespace @height-change="updateHeight($event)"
+      <policy-status-per-namespace @height-change="updateHeight('fail', $event)"
                                   :minHeight="minHeight"
                                   :results="failingResults"
                                   :statusText="statusText('fail')"
       />
-      <policy-status-per-namespace @height-change="updateHeight($event)"
+      <policy-status-per-namespace @height-change="updateHeight('warn', $event)"
                                   :minHeight="minHeight"
                                   :results="warningResults"
                                   :statusText="statusText('warn')"
                                   optional
       />
-      <policy-status-per-namespace @height-change="updateHeight($event)"
+      <policy-status-per-namespace @height-change="updateHeight('error', $event)"
                                   :minHeight="minHeight"
                                   :results="errorResults"
                                   :statusText="statusText('error')"
                                   optional
       />
-      <policy-status-per-namespace @height-change="updateHeight($event)"
+      <policy-status-per-namespace @height-change="updateHeight('skip', $event)"
                                   :minHeight="minHeight"
                                   :results="skippedResults"
                                   :statusText="statusText('skip')"
@@ -98,8 +98,11 @@ const flatResults = (policies: string[], reports: Array<PolicyReport>) => report
   return acc;
 }, []);
 
-type Data = { minHeight: number }
-type Methods = { updateHeight(height: number): void; statusText(status: string): string }
+type Data = { heights: { [key in Status]: number } }
+type Methods = {
+  updateHeight(status: string, height: number): void;
+  statusText(status: string): string;
+}
 type Computed = {
   reports: PolicyReport[];
   results: Result[];
@@ -109,6 +112,7 @@ type Computed = {
   failingResults: Result[];
   errorResults: Result[];
   policies: string[];
+  minHeight: number;
 }
 
 export default Vue.extend<Data, Methods, Computed, {}>({
@@ -119,15 +123,23 @@ export default Vue.extend<Data, Methods, Computed, {}>({
   },
   name: 'PolicyReport',
   data: () => ({
-    minHeight: 0,
-  }),
-  watch: {
-    policies() {
-      this.minHeight = 0;
+    heights: {
+      [Status.SKIP]: 0,
+      [Status.PASS]: 0,
+      [Status.WARN]: 0,
+      [Status.FAIL]: 0,
+      [Status.ERROR]: 0,
     },
-  },
+  }),
   computed: {
     ...mapState(['reports']),
+    minHeight() {
+      return Object.values(this.heights).reduce<number>((acc, height) => {
+        if (acc > height) return acc;
+
+        return height;
+      }, 0);
+    },
     results(): Result[] {
       return flatResults(this.policies, this.reports);
     },
@@ -164,10 +176,8 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     },
   },
   methods: {
-    updateHeight(height: number) {
-      if (height < this.minHeight) return;
-
-      this.minHeight = height;
+    updateHeight(status: string, height: number) {
+      this.heights = { ...this.heights, [status as Status]: height };
     },
     statusText(status: string): string {
       switch (status) {

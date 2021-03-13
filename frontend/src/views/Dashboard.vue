@@ -1,12 +1,12 @@
 <template>
   <v-container fluid class="py-8 px-6">
     <v-row>
-      <v-col cols="8">
+      <v-col cols="12" md="8">
         <v-card>
           <failing-per-namespace :reports="reports" />
         </v-card>
       </v-col>
-      <v-col cols="4">
+      <v-col cols="12" md="4">
         <failing-cluster-policies :reports="clusterReports" />
       </v-col>
     </v-row>

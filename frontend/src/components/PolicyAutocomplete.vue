@@ -1,5 +1,26 @@
 <template>
-    <v-autocomplete dense multiple :items="items" outlined hide-details label="Policies" :value="value" v-bind="$attrs" v-on="$listeners" />
+    <v-autocomplete dense
+                    multiple
+                    :items="items"
+                    outlined
+                    hide-details
+                    label="Policies"
+                    :value="value"
+                    v-bind="$attrs"
+                    v-on="$listeners"
+    >
+    <template v-slot:selection="{ item, index }">
+        <v-chip small v-if="index <= 1" label outlined>
+          <span>{{ item }}</span>
+        </v-chip>
+        <span
+          v-if="index === 2"
+          class="grey--text caption"
+        >
+          (+{{ value.length - 2 }} others)
+        </span>
+      </template>
+    </v-autocomplete>
 </template>
 
 <script lang="ts">
