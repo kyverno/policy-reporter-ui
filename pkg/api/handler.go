@@ -19,6 +19,7 @@ func PolicyReportHandler(development bool, client client.Client) http.HandlerFun
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			return
 		}
 
 		_, err = io.Copy(w, resp.Body)
@@ -40,6 +41,7 @@ func ClusterPolicyReportHandler(development bool, client client.Client) http.Han
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			return
 		}
 
 		_, err = io.Copy(w, resp.Body)
