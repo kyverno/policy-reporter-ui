@@ -4,7 +4,7 @@
         <v-col>
             <v-toolbar elevation="1">
                 <div style="width: 475px;">
-                  <policy-autocomplete v-model="policies" :reports="clusterReports" />
+                  <policy-autocomplete v-model="policies" :policies="availablePolicies" />
                 </div>
             </v-toolbar>
         </v-col>
@@ -69,6 +69,7 @@ import { ClusterPolicyReport, Result, Status } from '@/models';
 import PolicyAutocomplete from '@/components/PolicyAutocomplete.vue';
 import ClusterPolicyTable from '@/components/ClusterPolicyTable.vue';
 import ClusterPolicyStatus from '@/components/ClusterPolicyStatus.vue';
+import { flatPolicies } from '@/mapper';
 
 const flatResults = (policies: string[], reports: Array<ClusterPolicyReport>) => reports.reduce<Result[]>((acc, item) => {
   item.results.forEach((result: Result) => {
@@ -86,6 +87,7 @@ type Data = { minHeight: number }
 type Methods = { updateHeight(height: number): void; statusText(status: string): string }
 type Computed = {
   clusterReports: ClusterPolicyReport[];
+  availablePolicies: string[];
   results: Result[];
   skippedResults: Result[];
   passingResults: Result[];
@@ -112,6 +114,13 @@ export default Vue.extend<Data, Methods, Computed, {}>({
   },
   computed: {
     ...mapState(['clusterReports']),
+    availablePolicies() {
+      const policies = flatPolicies(this.clusterReports);
+
+      policies.sort();
+
+      return policies;
+    },
     results(): Result[] {
       return flatResults(this.policies, this.clusterReports);
     },

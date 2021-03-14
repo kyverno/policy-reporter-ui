@@ -13,14 +13,20 @@ import (
 )
 
 var (
-	backendURL string
-	port       int
+	backendURL  string
+	development bool
+	port        int
 )
 
 func main() {
 	flag.StringVar(&backendURL, "backend", "", "PolicyReporter Host")
 	flag.IntVar(&port, "port", 8080, "PolicyReporter UI port")
+	flag.BoolVar(&development, "dev", false, "Enable CORS Header for development")
 	flag.Parse()
+
+	if development {
+		log.Println("[INFO] Development Mode enabled")
+	}
 
 	c, err := client.NewClient(backendURL)
 	if err != nil {
@@ -30,9 +36,9 @@ func main() {
 	router := mux.NewRouter()
 
 	apiRouter := router.PathPrefix("/api/").Subrouter()
-	apiRouter.HandleFunc("/targets", api.TargetHandler(c)).Methods("GET")
-	apiRouter.HandleFunc("/policy-reports", api.PolicyReportHandler(c)).Methods("GET")
-	apiRouter.HandleFunc("/cluster-policy-reports", api.ClusterPolicyReportHandler(c)).Methods("GET")
+	apiRouter.HandleFunc("/targets", api.TargetHandler(development, c)).Methods("GET")
+	apiRouter.HandleFunc("/policy-reports", api.PolicyReportHandler(development, c)).Methods("GET")
+	apiRouter.HandleFunc("/cluster-policy-reports", api.ClusterPolicyReportHandler(development, c)).Methods("GET")
 
 	handler := http.FileServer(http.Dir("dist"))
 
@@ -40,6 +46,10 @@ func main() {
 	router.PathPrefix("/css").Handler(handler).Methods("GET")
 	router.PathPrefix("/favicon.ico").Handler(handler).Methods("GET")
 	router.PathPrefix("/").Handler(IndexHandler("/dist/index.html")).Methods("GET")
+
+	if development {
+		log.Printf("[INFO] Running on Port %d\n", port)
+	}
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", port), router)
 	if err != nil {

@@ -1,8 +1,11 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import { Target, ClusterPolicyReport, PolicyReport } from '@/models';
+import {
+  Target, ClusterPolicyReport, PolicyReport, NamespacePolicyMap, GlobalPolicyReportMap,
+} from '@/models';
 import api from '@/api';
+import { convertPolicyReports, generateGlobalPolicyReports } from '@/mapper';
 
 Vue.use(Vuex);
 
@@ -18,6 +21,8 @@ export type State = {
   targets: Target[];
   reports: PolicyReport[];
   clusterReports: ClusterPolicyReport[];
+  namespacePolicyMap: NamespacePolicyMap;
+  globalPolicyMap: GlobalPolicyReportMap;
 }
 
 export default new Vuex.Store<State>({
@@ -25,6 +30,8 @@ export default new Vuex.Store<State>({
     targets: [],
     reports: [],
     clusterReports: [],
+    namespacePolicyMap: {},
+    globalPolicyMap: {},
   },
   mutations: {
     [SET_TARGETS]: (state, targets: Target[]) => {
@@ -32,6 +39,8 @@ export default new Vuex.Store<State>({
     },
     [SET_REPORTS]: (state, reports: PolicyReport[]) => {
       state.reports = reports;
+      state.namespacePolicyMap = convertPolicyReports(reports);
+      state.globalPolicyMap = generateGlobalPolicyReports(reports);
     },
     [SET_CLUSTER_REPORTS]: (state, clusterReports: ClusterPolicyReport[]) => {
       state.clusterReports = clusterReports;

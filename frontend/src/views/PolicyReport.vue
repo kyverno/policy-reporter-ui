@@ -4,7 +4,7 @@
         <v-col>
             <v-toolbar elevation="1">
                 <div style="width: 475px;">
-                  <policy-autocomplete v-model="policies" :reports="reports" />
+                  <policy-autocomplete v-model="policies" :policies="availablePolicies" />
                 </div>
             </v-toolbar>
         </v-col>
@@ -21,26 +21,26 @@
       </v-col>
     </v-row>
     <v-row>
-      <policy-status-per-namespace @height-change="updateHeight('pass', $event)"
-                                  :minHeight="minHeight"
-                                  :results="passingResults"
-                                  :statusText="statusText('pass')"
-      />
       <policy-status-per-namespace @height-change="updateHeight('fail', $event)"
                                   :minHeight="minHeight"
                                   :results="failingResults"
                                   :statusText="statusText('fail')"
       />
-      <policy-status-per-namespace @height-change="updateHeight('warn', $event)"
+      <policy-status-per-namespace @height-change="updateHeight('pass', $event)"
                                   :minHeight="minHeight"
-                                  :results="warningResults"
-                                  :statusText="statusText('warn')"
-                                  optional
+                                  :results="passingResults"
+                                  :statusText="statusText('pass')"
       />
       <policy-status-per-namespace @height-change="updateHeight('error', $event)"
                                   :minHeight="minHeight"
                                   :results="errorResults"
                                   :statusText="statusText('error')"
+                                  optional
+      />
+      <policy-status-per-namespace @height-change="updateHeight('warn', $event)"
+                                  :minHeight="minHeight"
+                                  :results="warningResults"
+                                  :statusText="statusText('warn')"
                                   optional
       />
       <policy-status-per-namespace @height-change="updateHeight('skip', $event)"
@@ -81,21 +81,17 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import { PolicyReport, Result, Status } from '@/models';
+import { GlobalPolicyReportMap, Result, Status } from '@/models';
 import PolicyStatusPerNamespace from '@/components/PolicyStatusPerNamespace.vue';
 import PolicyTable from '@/components/PolicyTable.vue';
 import PolicyAutocomplete from '@/components/PolicyAutocomplete.vue';
 
-const flatResults = (policies: string[], reports: Array<PolicyReport>) => reports.reduce<Result[]>((acc, item) => {
-  item.results.forEach((result: Result) => {
-    if (!policies.includes(result.policy)) {
-      return;
-    }
+const flatResults = (policies: string[], reports: GlobalPolicyReportMap) => policies.reduce<Result[]>((acc, policy) => {
+  if (!reports[policy]) {
+    return acc;
+  }
 
-    acc.push(result);
-  });
-
-  return acc;
+  return [...acc, ...reports[policy].results];
 }, []);
 
 type Data = { heights: { [key in Status]: number } }
@@ -104,7 +100,8 @@ type Methods = {
   statusText(status: string): string;
 }
 type Computed = {
-  reports: PolicyReport[];
+  globalPolicyMap: GlobalPolicyReportMap;
+  availablePolicies: string[];
   results: Result[];
   skippedResults: Result[];
   passingResults: Result[];
@@ -132,7 +129,7 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     },
   }),
   computed: {
-    ...mapState(['reports']),
+    ...mapState(['globalPolicyMap']),
     minHeight() {
       return Object.values(this.heights).reduce<number>((acc, height) => {
         if (acc > height) return acc;
@@ -140,8 +137,11 @@ export default Vue.extend<Data, Methods, Computed, {}>({
         return height;
       }, 0);
     },
+    availablePolicies(): string[] {
+      return Object.keys(this.globalPolicyMap);
+    },
     results(): Result[] {
-      return flatResults(this.policies, this.reports);
+      return flatResults(this.policies, this.globalPolicyMap);
     },
     skippedResults() {
       return this.results.filter((r) => r.status === Status.SKIP);

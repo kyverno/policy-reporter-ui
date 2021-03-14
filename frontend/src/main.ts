@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { mapPriority } from '@/models';
+import { mapPriority } from '@/mapper';
 import VueApexCharts from 'vue-apexcharts';
 import App from './App.vue';
 import router from './router';

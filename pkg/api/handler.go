@@ -8,8 +8,11 @@ import (
 	"github.com/fjogeleit/policy-reporter-ui/pkg/client"
 )
 
-func PolicyReportHandler(client client.Client) http.HandlerFunc {
+func PolicyReportHandler(development bool, client client.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
+		if development {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 		resp, err := client.Get("/policy-reports")
@@ -26,8 +29,11 @@ func PolicyReportHandler(client client.Client) http.HandlerFunc {
 	}
 }
 
-func ClusterPolicyReportHandler(client client.Client) http.HandlerFunc {
+func ClusterPolicyReportHandler(development bool, client client.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
+		if development {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 		resp, err := client.Get("/cluster-policy-reports")
@@ -44,8 +50,11 @@ func ClusterPolicyReportHandler(client client.Client) http.HandlerFunc {
 	}
 }
 
-func TargetHandler(client client.Client) http.HandlerFunc {
+func TargetHandler(development bool, client client.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
+		if development {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 		resp, err := client.Get("/targets")

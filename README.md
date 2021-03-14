@@ -2,11 +2,11 @@
 
 ## Motivation
 
-Policy Reporter supports different kinds of targets and a metrics Endpoint to provide as many information about your (Cluster)PolicyReports as possible but this targets and also the Dashboards have external dependencies. You need tools like Grafana, Kibana or Discord to make informations visible.
+Policy Reporter supports different kinds of targets and a metrics Endpoint to provide as many information about your (Cluster)PolicyReports as possible, but this targets and also the dashboards have external dependencies. You need tools like Grafana, Kibana or Discord to make information visible.
 
-In the most production Clusters are Monitoring solutions available so it is not big deal. If you don't have any (supported) monitoring solution, it is additional work and it needs not insignificant resources.
+In the most production clusters are monitoring solutions available, so it is not big deal. If you don't have any (supported) monitoring solution, it is additional work and it needs not insignificant resources.
 
-To make policy reporters more accessible, this additional tool adds a standalone, minimal UI on top of Policy Reporter. It offers the same information as Grafana Dashboards and can be enabled as optional Subchart for PolicyReporter.
+To make Policy Reporter more accessible, this additional tool adds a standalone, minimal UI. It offers the same information as the provided Grafana Dashboards and is installable as optional SubChart in the Policy Reporter Helm Chart.
 
 ## Requirements
 
@@ -18,6 +18,7 @@ Policy Reporter runs with the enabled REST API endpoints.
 
 * `-backend` is the URL to the Policy Reporter REST API
 * `-port` is the default port for the UI (`8080` by default)
+* `-dev` enables development mode and adds CORS Headers to the REST API Endpoints
 
 ## Running with Docker
 

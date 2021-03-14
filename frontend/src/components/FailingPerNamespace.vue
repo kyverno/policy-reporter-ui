@@ -11,12 +11,12 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { PolicyReport } from '@/models';
+import { NamespacePolicyMap } from '@/models';
 
-export default Vue.extend<{ show: boolean }, {}, { height: number; options: any }, { reports: PolicyReport[] }>({
+export default Vue.extend<{ show: boolean }, {}, { height: number; options: any }, { reports: NamespacePolicyMap }>({
   name: 'FailingPerNamespace',
   props: {
-    reports: { required: true, type: Array },
+    reports: { required: true, type: Object },
   },
   data: () => ({ show: false }),
   computed: {
@@ -30,24 +30,18 @@ export default Vue.extend<{ show: boolean }, {}, { height: number; options: any 
       return height;
     },
     options() {
-      const unordnered = (this.reports as PolicyReport[]).reduce<{ [namspace: string]: number }>((acc, item) => {
-        if (item.summary.fail === 0) {
+      const result = Object.keys(this.reports).reduce<{ [namspace: string]: number }>((acc, item) => {
+        if (this.reports[item].summary.fail === 0) {
           return acc;
         }
 
-        acc[item.namespace] = (acc[item.namespace] || 0) + item.summary.fail;
+        acc[item] = this.reports[item].summary.fail;
 
         return acc;
       }, {});
 
-      const ordered = Object.keys(unordnered).sort().reduce<{ [namspace: string]: number }>((acc, key) => {
-        acc[key] = unordnered[key];
-
-        return acc;
-      }, {});
-
-      const data = Object.values(ordered);
-      const categories = Object.keys(ordered);
+      const data = Object.values(result);
+      const categories = Object.keys(result);
 
       return {
         series: [{

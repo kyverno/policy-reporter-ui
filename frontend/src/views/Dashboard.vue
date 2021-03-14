@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12" md="8">
         <v-card>
-          <failing-per-namespace :reports="reports" />
+          <failing-per-namespace :reports="namespacePolicyMap" />
         </v-card>
       </v-col>
       <v-col cols="12" md="4">
@@ -29,14 +29,12 @@ import { mapState } from 'vuex';
 import FailingPerNamespace from '@/components/FailingPerNamespace.vue';
 import FailingClusterPolicies from '@/components/FailingClusterPolicies.vue';
 import {
-  ClusterPolicyReport, PolicyReport, Result, Status,
+  ClusterPolicyReport, NamespacePolicyReport, Result, Status,
 } from '@/models';
 import ClusterPolicyTable from '@/components/ClusterPolicyTable.vue';
 import PolicyTable from '@/components/PolicyTable.vue';
 
-type PolicyResultMap = { [policy: string]: Result[] }
-
-const convertReports = (reports: Array<PolicyReport|ClusterPolicyReport>) => reports.reduce<Result[]>((acc, item) => {
+const convertReports = (reports: Array<NamespacePolicyReport|ClusterPolicyReport>) => reports.reduce<Result[]>((acc, item) => {
   item.results.forEach((result: Result) => {
     if (![Status.FAIL, Status.ERROR].includes(result.status)) {
       return;
@@ -55,10 +53,10 @@ export default Vue.extend({
   name: 'Dashboard',
   data: () => ({}),
   computed: {
-    ...mapState(['reports', 'clusterReports']),
+    ...mapState(['namespacePolicyMap', 'clusterReports']),
     results(): { [type: string]: Result[] } {
       return {
-        reportResults: convertReports(this.reports),
+        reportResults: convertReports(Object.values(this.namespacePolicyMap)),
         clusterReportResults: convertReports(this.clusterReports),
       };
     },

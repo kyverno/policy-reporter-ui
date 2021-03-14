@@ -49,6 +49,17 @@ export type PolicyReport = {
     creationTimesamp: Date;
 }
 
+export type NamespacePolicyReport = {
+    namespace: string;
+    summary: Summary;
+    results: Result[];
+}
+
+export type GlobalPolicyReport = {
+    summary: Summary;
+    results: Result[];
+}
+
 export type ClusterPolicyReport = {
     name: string;
     summary: Summary;
@@ -62,11 +73,5 @@ export type Target = {
     skipExistingOnStartup: boolean;
 }
 
-const priorityToColor: { [key in Priority]: string } = {
-  [Priority.DEBUG]: 'light-blue lighten-2',
-  [Priority.INFO]: 'green darken-1',
-  [Priority.WARNING]: 'orange lighten-1',
-  [Priority.ERROR]: 'red darken-3',
-};
-
-export const mapPriority = (priority: Priority): string => priorityToColor[priority] || priorityToColor[Priority.DEBUG];
+export type NamespacePolicyMap = { [namespace: string]: NamespacePolicyReport };
+export type GlobalPolicyReportMap = { [policy: string]: GlobalPolicyReport };
