@@ -3,7 +3,7 @@
     <v-row>
         <v-col>
             <v-toolbar elevation="1">
-                <div style="width: 475px;">
+                <div style="width: 550px;">
                   <policy-autocomplete v-model="policies" :policies="availablePolicies" />
                 </div>
             </v-toolbar>

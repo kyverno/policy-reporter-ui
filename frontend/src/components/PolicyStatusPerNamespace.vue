@@ -4,14 +4,16 @@
       <v-card-title class="pb-0">
       {{ statusText }} Policy Results per Namespace
       </v-card-title>
-      <v-card-text class="pt-0 d-flex align-end" style="height: calc(100% - 48px)">
-      <apexchart :options="options"
-                 :series="options.series"
-                 :height="renderHeight"
-                 v-if="show"
-                 style="width: 100%"
-      />
-      </v-card-text>
+        <wait>
+          <v-card-text class="pt-0 d-flex align-end" style="height: calc(100% - 48px)">
+              <apexchart :options="options"
+                        :series="options.series"
+                        :height="renderHeight"
+                        v-if="show"
+                        style="width: 100%"
+              />
+          </v-card-text>
+        </wait>
   </v-card>
 </v-col>
 </template>
@@ -19,10 +21,12 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Result } from '@/models';
+import Wait from './Wait.vue';
 
 type Props = { optional: boolean; minHeight?: number; statusText: string; results: Result[] };
 
 export default Vue.extend<{ show: boolean }, {}, { renderHeight: number; height: number; options: any }, Props>({
+  components: { Wait },
   name: 'PolicyStatusPerNamespace',
   props: {
     optional: { default: false, type: Boolean },

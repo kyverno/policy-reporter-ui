@@ -3,8 +3,12 @@
     <v-row>
         <v-col>
             <v-toolbar elevation="1">
-                <div style="width: 475px;">
+                <div style="width: 550px;" class="mr-2">
                   <policy-autocomplete v-model="policies" :policies="availablePolicies" />
+                </div>
+                <v-spacer />
+                <div style="width: 450px;">
+                  <namespace-autocomplete v-model="namespaces" />
                 </div>
             </v-toolbar>
         </v-col>
@@ -85,20 +89,31 @@ import { GlobalPolicyReportMap, Result, Status } from '@/models';
 import PolicyStatusPerNamespace from '@/components/PolicyStatusPerNamespace.vue';
 import PolicyTable from '@/components/PolicyTable.vue';
 import PolicyAutocomplete from '@/components/PolicyAutocomplete.vue';
+import NamespaceAutocomplete from '@/components/NamespaceAutocomplete.vue';
 
-const flatResults = (policies: string[], reports: GlobalPolicyReportMap) => policies.reduce<Result[]>((acc, policy) => {
+const flatResults = (policies: string[], namespaces: string[], reports: GlobalPolicyReportMap) => policies.reduce<Result[]>((acc, policy) => {
   if (!reports[policy]) {
     return acc;
+  }
+
+  if (namespaces.length > 0) {
+    return [...acc, ...reports[policy].results.filter((result) => namespaces.includes(result.resource.namespace as string))];
   }
 
   return [...acc, ...reports[policy].results];
 }, []);
 
-type Data = { heights: { [key in Status]: number } }
+type Data = {
+  heights: { [key in Status]: number };
+  policies: string[];
+  namespaces: string[];
+}
+
 type Methods = {
   updateHeight(status: string, height: number): void;
   statusText(status: string): string;
 }
+
 type Computed = {
   globalPolicyMap: GlobalPolicyReportMap;
   availablePolicies: string[];
@@ -108,7 +123,6 @@ type Computed = {
   warningResults: Result[];
   failingResults: Result[];
   errorResults: Result[];
-  policies: string[];
   minHeight: number;
 }
 
@@ -117,6 +131,7 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     PolicyStatusPerNamespace,
     PolicyTable,
     PolicyAutocomplete,
+    NamespaceAutocomplete,
   },
   name: 'PolicyReport',
   data: () => ({
@@ -127,6 +142,8 @@ export default Vue.extend<Data, Methods, Computed, {}>({
       [Status.FAIL]: 0,
       [Status.ERROR]: 0,
     },
+    policies: [],
+    namespaces: [],
   }),
   computed: {
     ...mapState(['globalPolicyMap']),
@@ -141,7 +158,7 @@ export default Vue.extend<Data, Methods, Computed, {}>({
       return Object.keys(this.globalPolicyMap);
     },
     results(): Result[] {
-      return flatResults(this.policies, this.globalPolicyMap);
+      return flatResults(this.policies, this.namespaces, this.globalPolicyMap);
     },
     skippedResults() {
       return this.results.filter((r) => r.status === Status.SKIP);
@@ -157,22 +174,6 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     },
     errorResults() {
       return this.results.filter((r) => r.status === Status.ERROR);
-    },
-    policies: {
-      get(): string[] {
-        if (Array.isArray(this.$route.query.policies)) {
-          return this.$route.query.policies as string[];
-        }
-
-        if (!this.$route.query.policies) {
-          return [];
-        }
-
-        return [this.$route.query.policies as string];
-      },
-      set(policies: string[]) {
-        this.$router.push({ name: this.$route.name as string, query: { policies } });
-      },
     },
   },
   methods: {

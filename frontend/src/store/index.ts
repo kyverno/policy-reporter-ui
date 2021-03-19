@@ -23,6 +23,7 @@ export type State = {
   clusterReports: ClusterPolicyReport[];
   namespacePolicyMap: NamespacePolicyMap;
   globalPolicyMap: GlobalPolicyReportMap;
+  namespaces: string[];
 }
 
 export default new Vuex.Store<State>({
@@ -32,14 +33,18 @@ export default new Vuex.Store<State>({
     clusterReports: [],
     namespacePolicyMap: {},
     globalPolicyMap: {},
+    namespaces: [],
   },
   mutations: {
     [SET_TARGETS]: (state, targets: Target[]) => {
       state.targets = targets;
     },
     [SET_REPORTS]: (state, reports: PolicyReport[]) => {
+      const namespacePolicyMap = convertPolicyReports(reports);
+
       state.reports = reports;
-      state.namespacePolicyMap = convertPolicyReports(reports);
+      state.namespaces = Object.keys(namespacePolicyMap);
+      state.namespacePolicyMap = namespacePolicyMap;
       state.globalPolicyMap = generateGlobalPolicyReports(reports);
     },
     [SET_CLUSTER_REPORTS]: (state, clusterReports: ClusterPolicyReport[]) => {
