@@ -76,17 +76,20 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     },
   },
   methods: {
-    input(namespaces: string[]): void {
-      this.selected = namespaces;
+    input(policies: string[]): void {
+      this.selected = policies;
 
-      debounced(() => { this.$emit('input', namespaces); });
+      debounced(() => { this.$emit('input', policies); });
     },
     toggle() {
       this.$nextTick(() => {
         if (this.all) {
           this.$emit('input', []);
         } else {
-          this.$emit('input', this.policies.slice());
+          const all = this.policies.slice();
+
+          this.selected = all;
+          this.$emit('input', all);
         }
       });
     },
