@@ -84,6 +84,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     toggle() {
       this.$nextTick(() => {
         if (this.all) {
+          this.selected = [];
           this.$emit('input', []);
         } else {
           const all = this.policies.slice();
