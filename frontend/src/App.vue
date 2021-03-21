@@ -42,7 +42,9 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import { FETCH_TARGETS, FETCH_REPORTS, FETCH_CLUSTER_REPORTS } from '@/store';
+import {
+  FETCH_TARGETS, FETCH_REPORTS, FETCH_CLUSTER_REPORTS,
+} from '@/store';
 
 export default Vue.extend({
   data: () => ({
@@ -53,6 +55,7 @@ export default Vue.extend({
       ['mdi-view-dashboard', 'Dashboard', '/'],
       ['mdi-file-chart', 'Policy Reports', '/policy-reports'],
       ['mdi-file-chart', 'ClusterPolicy Reports', '/cluster-policy-reports'],
+      ['mdi-console', 'Logs', '/logs'],
     ],
   }),
   computed: mapState(['targets']),

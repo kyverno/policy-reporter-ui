@@ -9,23 +9,29 @@ import (
 
 	"github.com/fjogeleit/policy-reporter-ui/pkg/api"
 	"github.com/fjogeleit/policy-reporter-ui/pkg/client"
+	"github.com/fjogeleit/policy-reporter-ui/pkg/report"
 	"github.com/gorilla/mux"
 )
 
 var (
 	backendURL  string
 	development bool
+	logSize     int
 	port        int
 )
 
 func main() {
 	flag.StringVar(&backendURL, "backend", "", "PolicyReporter Host")
 	flag.IntVar(&port, "port", 8080, "PolicyReporter UI port")
+	flag.IntVar(&logSize, "log-size", 200, "Max amount of persistet results")
 	flag.BoolVar(&development, "dev", false, "Enable CORS Header for development")
 	flag.Parse()
 
 	if development {
 		log.Println("[INFO] Development Mode enabled")
+	}
+	if development {
+		log.Printf("[INFO] Log Store Size: %d\n", logSize)
 	}
 
 	c, err := client.NewClient(backendURL)
@@ -35,7 +41,11 @@ func main() {
 
 	router := mux.NewRouter()
 
+	store := report.NewResultStore(logSize)
+
 	apiRouter := router.PathPrefix("/api/").Subrouter()
+	apiRouter.HandleFunc("/push", api.PushResultHandler(store)).Methods("POST")
+	apiRouter.HandleFunc("/result-log", api.ResultHandler(development, store)).Methods("GET")
 	apiRouter.HandleFunc("/targets", api.TargetHandler(development, c)).Methods("GET")
 	apiRouter.HandleFunc("/policy-reports", api.PolicyReportHandler(development, c)).Methods("GET")
 	apiRouter.HandleFunc("/cluster-policy-reports", api.ClusterPolicyReportHandler(development, c)).Methods("GET")

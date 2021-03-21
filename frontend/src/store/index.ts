@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import {
-  Target, ClusterPolicyReport, PolicyReport, NamespacePolicyMap, GlobalPolicyReportMap,
+  Target, ClusterPolicyReport, PolicyReport, NamespacePolicyMap, GlobalPolicyReportMap, Result,
 } from '@/models';
 import api from '@/api';
 import { convertPolicyReports, generateGlobalPolicyReports } from '@/mapper';
@@ -12,13 +12,16 @@ Vue.use(Vuex);
 export const SET_TARGETS = 'SET_TARGETS';
 export const SET_CLUSTER_REPORTS = 'SET_CLUSTER_REPORTS';
 export const SET_REPORTS = 'SET_REPORTS';
+export const SET_LOG = 'SET_RESULT_LOG';
 
 export const FETCH_TARGETS = 'FETCH_TARGETS';
 export const FETCH_CLUSTER_REPORTS = 'FETCH_CLUSTER_REPORTS';
 export const FETCH_REPORTS = 'FETCH_REPORTS';
+export const FETCH_LOG = 'FETCH_RESULT_LOG';
 
 export type State = {
   targets: Target[];
+  log: Result[];
   reports: PolicyReport[];
   clusterReports: ClusterPolicyReport[];
   namespacePolicyMap: NamespacePolicyMap;
@@ -28,6 +31,7 @@ export type State = {
 
 export default new Vuex.Store<State>({
   state: {
+    log: [],
     targets: [],
     reports: [],
     clusterReports: [],
@@ -38,6 +42,9 @@ export default new Vuex.Store<State>({
   mutations: {
     [SET_TARGETS]: (state, targets: Target[]) => {
       state.targets = targets;
+    },
+    [SET_LOG]: (state, log: Result[]) => {
+      state.log = log;
     },
     [SET_REPORTS]: (state, reports: PolicyReport[]) => {
       const namespacePolicyMap = convertPolicyReports(reports);
@@ -54,6 +61,9 @@ export default new Vuex.Store<State>({
   actions: {
     [FETCH_TARGETS]: ({ commit }) => {
       api.targets().then((targets) => commit(SET_TARGETS, targets));
+    },
+    [FETCH_LOG]: ({ commit }) => {
+      api.log().then((log) => commit(SET_LOG, log));
     },
     [FETCH_REPORTS]: ({ commit }) => {
       api.policyReports().then((reports) => commit(SET_REPORTS, reports));

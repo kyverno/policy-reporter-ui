@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-import { PolicyReport, ClusterPolicyReport, Target } from '@/models';
+import {
+  PolicyReport, ClusterPolicyReport, Result, Target,
+} from '@/models';
 
 const production = process.env.NODE_ENV === 'production';
 
@@ -14,6 +16,11 @@ export default {
   },
   async clusterPolicyReports(): Promise<ClusterPolicyReport[]> {
     const { data } = await instance.get('cluster-policy-reports');
+
+    return data;
+  },
+  async log(): Promise<Result[]> {
+    const { data } = await instance.get('result-log');
 
     return data;
   },

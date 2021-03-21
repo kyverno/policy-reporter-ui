@@ -20,6 +20,11 @@ const routes: Array<RouteConfig> = [
     name: 'ClusterPolicyReport',
     component: () => import('@/views/ClusterPolicyReport.vue'),
   },
+  {
+    path: '/logs',
+    name: 'Logs',
+    component: () => import('@/views/Logs.vue'),
+  },
 ];
 
 const router = new VueRouter({

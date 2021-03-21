@@ -1,5 +1,5 @@
 <template>
-    <v-chip :color="color" :dark="dark">{{ priority }}</v-chip>
+    <v-chip :color="color" :dark="dark" v-on="$listeners" v-bind="$attrs">{{ priority }}</v-chip>
 </template>
 
 <script lang="ts">
@@ -20,6 +20,7 @@ export default Vue.extend<{}, {}, { color: string; dark: boolean }, { priority: 
         case Priority.WARNING:
           return 'warning';
         case Priority.ERROR:
+          return 'error';
         default:
           return 'grey';
       }
