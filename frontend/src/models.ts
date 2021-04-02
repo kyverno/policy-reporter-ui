@@ -25,7 +25,8 @@ export enum Priority {
     DEBUG = 'debug',
     INFO = 'info',
     WARNING = 'warning',
-    ERROR = 'error'
+    ERROR = 'error',
+    CRITICAL = 'critical'
 }
 
 export enum Status {

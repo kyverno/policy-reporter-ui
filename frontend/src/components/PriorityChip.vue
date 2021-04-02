@@ -21,6 +21,8 @@ export default Vue.extend<{}, {}, { color: string; dark: boolean }, { priority: 
           return 'warning';
         case Priority.ERROR:
           return 'error';
+        case Priority.CRITICAL:
+          return 'red darken-3';
         default:
           return 'grey';
       }

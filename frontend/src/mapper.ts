@@ -8,6 +8,7 @@ const priorityToColor: { [key in Priority]: string } = {
   [Priority.INFO]: 'green darken-1',
   [Priority.WARNING]: 'orange lighten-1',
   [Priority.ERROR]: 'red darken-3',
+  [Priority.CRITICAL]: 'red darken-4',
 };
 
 export const mapPriority = (priority: Priority): string => priorityToColor[priority] || priorityToColor[Priority.DEBUG];
