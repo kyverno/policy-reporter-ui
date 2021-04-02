@@ -39,7 +39,11 @@
                   <td>
                     <v-chip class="grey lighten-2" label @click="search = item.rule">
                       {{ item.rule }}
-                    </v-chip></td>
+                    </v-chip>
+                  </td>
+                  <td>
+                    <severity-chip :severity="item.severity" label @click="search = item.severity" v-if="item.severity" />
+                  </td>
                   <td>
                     <status-chip @click="search = item.status" :status="item.status" />
                   </td>
@@ -56,10 +60,11 @@
 import { Result } from '@/models';
 import Vue from 'vue';
 import { DataTableHeader } from 'vuetify';
+import SeverityChip from './SeverityChip.vue';
 import StatusChip from './StatusChip.vue';
 
 export default Vue.extend<{ open: boolean; search: string }, {}, { headers: DataTableHeader[] }, { title: string; results: Result[] }>({
-  components: { StatusChip },
+  components: { StatusChip, SeverityChip },
   props: {
     title: { type: String, required: true },
     results: { type: Array, required: true },
@@ -73,6 +78,7 @@ export default Vue.extend<{ open: boolean; search: string }, {}, { headers: Data
         { text: 'Name', value: 'resource.name' },
         { text: 'Policy', value: 'policy' },
         { text: 'Rule', value: 'rule' },
+        { text: 'Severity', value: 'severity' },
         { text: 'Status', value: 'status' },
       ];
     },

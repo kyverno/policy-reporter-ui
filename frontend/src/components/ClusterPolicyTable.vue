@@ -40,6 +40,9 @@
                     </v-chip>
                   </td>
                   <td>
+                    <severity-chip :severity="item.severity" label @click="search = item.severity" v-if="item.severity" />
+                  </td>
+                  <td>
                     <status-chip @click="search = item.status" :status="item.status" />
                   </td>
                 </tr>
@@ -55,10 +58,15 @@
 import { Result } from '@/models';
 import Vue from 'vue';
 import { DataTableHeader } from 'vuetify';
+import SeverityChip from './SeverityChip.vue';
 import StatusChip from './StatusChip.vue';
 
-export default Vue.extend<{ open: boolean; search: string }, {}, { headers: DataTableHeader[] }, { title: string; results: Result[] }>({
-  components: { StatusChip },
+type Data = { open: boolean; search: string }
+type Computed = { headers: DataTableHeader[]; severityConfigured: boolean }
+type Props = { title: string; results: Result[] }
+
+export default Vue.extend<Data, {}, Computed, Props>({
+  components: { StatusChip, SeverityChip },
   props: {
     title: { type: String, required: true },
     results: { type: Array, required: true },
@@ -71,8 +79,12 @@ export default Vue.extend<{ open: boolean; search: string }, {}, { headers: Data
         { text: 'Name', value: 'resource.name' },
         { text: 'Policy', value: 'policy' },
         { text: 'Rule', value: 'rule' },
+        { text: 'Severity', value: 'severity' },
         { text: 'Status', value: 'status' },
       ];
+    },
+    severityConfigured() {
+      return this.results.some((result) => !!result.severity);
     },
   },
 });

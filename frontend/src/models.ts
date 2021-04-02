@@ -14,7 +14,14 @@ export type Resource = {
     uid: string;
 }
 
+export enum Severity {
+    LOW = 'low',
+    MEDIUM = 'medium',
+    HIGH = 'high',
+}
+
 export enum Priority {
+    SUCCESS = 'success',
     DEBUG = 'debug',
     INFO = 'info',
     WARNING = 'warning',

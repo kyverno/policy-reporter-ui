@@ -3,6 +3,7 @@ import {
 } from '@/models';
 
 const priorityToColor: { [key in Priority]: string } = {
+  [Priority.SUCCESS]: 'green lighten-2',
   [Priority.DEBUG]: 'light-blue lighten-2',
   [Priority.INFO]: 'green darken-1',
   [Priority.WARNING]: 'orange lighten-1',
