@@ -2,15 +2,29 @@
   <v-container fluid class="py-8 px-6">
     <v-row>
         <v-col>
-            <v-toolbar elevation="1">
-                <div style="width: 550px;" class="mr-2">
-                  <policy-autocomplete v-model="policies" :policies="availablePolicies" />
-                </div>
-                <v-spacer />
-                <div style="width: 450px;">
-                  <namespace-autocomplete v-model="namespaces" />
-                </div>
-            </v-toolbar>
+            <v-card elevation="1">
+              <v-container fluid>
+                <v-row>
+                  <v-col cols="4" class="d-inline-block">
+                    <policy-autocomplete v-model="policies" :policies="availablePolicies" />
+                  </v-col>
+                  <v-col cols="4">
+                    <kind-autocomplete v-model="kinds" :kinds="availableKinds" />
+                  </v-col>
+                  <v-col cols="4" class="d-inline-block">
+                    <namespace-autocomplete v-model="namespaces" />
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="4">
+                    <category-autocomplete v-model="categories" :categories="availableCategories" />
+                  </v-col>
+                  <v-col cols="4">
+                    <severity-autocomplete v-model="severities" />
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card>
         </v-col>
     </v-row>
     <v-row v-if="policies.length === 0">
@@ -90,14 +104,16 @@ import PolicyStatusPerNamespace from '@/components/PolicyStatusPerNamespace.vue'
 import PolicyTable from '@/components/PolicyTable.vue';
 import PolicyAutocomplete from '@/components/PolicyAutocomplete.vue';
 import NamespaceAutocomplete from '@/components/NamespaceAutocomplete.vue';
+import CategoryAutocomplete from '@/components/CategoryAutocomplete.vue';
+import SeverityAutocomplete from '@/components/SeverityAutocomplete.vue';
+import KindAutocomplete from '@/components/KindAutocomplete.vue';
 
-const flatResults = (policies: string[], namespaces: string[], reports: GlobalPolicyReportMap) => policies.reduce<Result[]>((acc, policy) => {
+const flatResults = (
+  policies: string[],
+  reports: GlobalPolicyReportMap,
+) => policies.reduce<Result[]>((acc, policy) => {
   if (!reports[policy]) {
     return acc;
-  }
-
-  if (namespaces.length > 0) {
-    return [...acc, ...reports[policy].results.filter((result) => namespaces.includes(result.resource.namespace as string))];
   }
 
   return [...acc, ...reports[policy].results];
@@ -107,6 +123,9 @@ type Data = {
   heights: { [key in Status]: number };
   policies: string[];
   namespaces: string[];
+  categories: string[];
+  severities: string[];
+  kinds: string[];
 }
 
 type Methods = {
@@ -117,7 +136,10 @@ type Methods = {
 type Computed = {
   globalPolicyMap: GlobalPolicyReportMap;
   availablePolicies: string[];
+  availableCategories: string[];
+  availableKinds: string[];
   results: Result[];
+  filteredResults: Result[];
   skippedResults: Result[];
   passingResults: Result[];
   warningResults: Result[];
@@ -132,6 +154,9 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     PolicyTable,
     PolicyAutocomplete,
     NamespaceAutocomplete,
+    CategoryAutocomplete,
+    SeverityAutocomplete,
+    KindAutocomplete,
   },
   name: 'PolicyReport',
   data: () => ({
@@ -144,6 +169,9 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     },
     policies: [],
     namespaces: [],
+    categories: [],
+    severities: [],
+    kinds: [],
   }),
   computed: {
     ...mapState(['globalPolicyMap']),
@@ -157,23 +185,46 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     availablePolicies(): string[] {
       return Object.keys(this.globalPolicyMap);
     },
+    availableCategories(): string[] {
+      return Object.keys(this.results.reduce<{ [category: string]: boolean }>((c, r) => {
+        if (!r.category) return c;
+
+        return { ...c, [r.category]: true };
+      }, {}));
+    },
+    availableKinds(): string[] {
+      return Object.keys(this.results.reduce<{ [kind: string]: boolean }>((c, r) => ({ ...c, [r.resource.kind]: true }), {}));
+    },
     results(): Result[] {
-      return flatResults(this.policies, this.namespaces, this.globalPolicyMap);
+      return flatResults(this.policies, this.globalPolicyMap);
+    },
+    filteredResults(): Result[] {
+      return this.results.filter((result) => {
+        if (this.namespaces.length > 0 && !this.namespaces.includes(result.resource.namespace as string)) return false;
+
+        if (this.kinds.length > 0 && !this.kinds.includes(result.resource.kind)) return false;
+
+        if (this.categories.length > 0 && !this.categories.includes(result.category || '')) return false;
+
+        if (this.severities.length > 0 && !this.severities.includes(result.severity || '')) return false;
+
+        return true;
+      });
     },
     skippedResults() {
-      return this.results.filter((r) => r.status === Status.SKIP);
+      return this.filteredResults.filter((r) => r.status === Status.SKIP);
     },
     passingResults() {
-      return this.results.filter((r) => r.status === Status.PASS);
+      return this.filteredResults.filter((r) => r.status === Status.PASS);
     },
     warningResults() {
-      return this.results.filter((r) => r.status === Status.WARN);
+      return this.filteredResults.filter((r) => r.status === Status.WARN);
     },
     failingResults() {
-      return this.results.filter((r) => r.status === Status.FAIL);
+      return this.filteredResults.filter((r) => r.status === Status.FAIL);
     },
     errorResults() {
-      return this.results.filter((r) => r.status === Status.ERROR);
+      return this.filteredResults.filter((r) => r.status === Status.ERROR);
     },
   },
   methods: {

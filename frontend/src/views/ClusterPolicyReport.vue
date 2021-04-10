@@ -2,11 +2,26 @@
   <v-container fluid class="py-8 px-6">
     <v-row>
         <v-col>
-            <v-toolbar elevation="1">
-                <div style="width: 550px;">
-                  <policy-autocomplete v-model="policies" :policies="availablePolicies" />
-                </div>
-            </v-toolbar>
+            <v-card elevation="1">
+              <v-container fluid>
+                <v-row>
+                  <v-col cols="6" class="d-inline-block">
+                    <policy-autocomplete v-model="policies" :policies="availablePolicies" />
+                  </v-col>
+                  <v-col cols="6">
+                    <kind-autocomplete v-model="kinds" :kinds="availableKinds" />
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="6">
+                    <category-autocomplete v-model="categories" :categories="availableCategories" />
+                  </v-col>
+                  <v-col cols="6">
+                    <severity-autocomplete v-model="severities" />
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card>
         </v-col>
     </v-row>
     <v-row v-if="policies.length === 0">
@@ -70,6 +85,9 @@ import PolicyAutocomplete from '@/components/PolicyAutocomplete.vue';
 import ClusterPolicyTable from '@/components/ClusterPolicyTable.vue';
 import ClusterPolicyStatus from '@/components/ClusterPolicyStatus.vue';
 import { flatPolicies } from '@/mapper';
+import CategoryAutocomplete from '@/components/CategoryAutocomplete.vue';
+import SeverityAutocomplete from '@/components/SeverityAutocomplete.vue';
+import KindAutocomplete from '@/components/KindAutocomplete.vue';
 
 const flatResults = (policies: string[], reports: Array<ClusterPolicyReport>) => reports.reduce<Result[]>((acc, item) => {
   item.results.forEach((result: Result) => {
@@ -83,18 +101,26 @@ const flatResults = (policies: string[], reports: Array<ClusterPolicyReport>) =>
   return acc;
 }, []);
 
-type Data = { minHeight: number }
+type Data = {
+  minHeight: number;
+  policies: string[];
+  categories: string[];
+  severities: string[];
+  kinds: string[];
+}
 type Methods = { updateHeight(height: number): void; statusText(status: string): string }
 type Computed = {
   clusterReports: ClusterPolicyReport[];
   availablePolicies: string[];
+  availableCategories: string[];
+  availableKinds: string[];
   results: Result[];
+  filteredResults: Result[];
   skippedResults: Result[];
   passingResults: Result[];
   warningResults: Result[];
   failingResults: Result[];
   errorResults: Result[];
-  policies: string[];
 }
 
 export default Vue.extend<Data, Methods, Computed, {}>({
@@ -102,10 +128,17 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     PolicyAutocomplete,
     ClusterPolicyTable,
     ClusterPolicyStatus,
+    CategoryAutocomplete,
+    SeverityAutocomplete,
+    KindAutocomplete,
   },
   name: 'PolicyReport',
   data: () => ({
     minHeight: 0,
+    policies: [],
+    categories: [],
+    severities: [],
+    kinds: [],
   }),
   watch: {
     policies() {
@@ -124,36 +157,41 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     results(): Result[] {
       return flatResults(this.policies, this.clusterReports);
     },
+    availableCategories(): string[] {
+      return Object.keys(this.results.reduce<{ [category: string]: boolean }>((c, r) => {
+        if (!r.category) return c;
+
+        return { ...c, [r.category]: true };
+      }, {}));
+    },
+    availableKinds(): string[] {
+      return Object.keys(this.results.reduce<{ [kind: string]: boolean }>((c, r) => ({ ...c, [r.resource.kind]: true }), {}));
+    },
+    filteredResults(): Result[] {
+      return this.results.filter((result) => {
+        if (this.kinds.length > 0 && !this.kinds.includes(result.resource.kind)) return false;
+
+        if (this.categories.length > 0 && !this.categories.includes(result.category || '')) return false;
+
+        if (this.severities.length > 0 && !this.severities.includes(result.severity || '')) return false;
+
+        return true;
+      });
+    },
     skippedResults() {
-      return this.results.filter((r) => r.status === Status.SKIP);
+      return this.filteredResults.filter((r) => r.status === Status.SKIP);
     },
     passingResults() {
-      return this.results.filter((r) => r.status === Status.PASS);
+      return this.filteredResults.filter((r) => r.status === Status.PASS);
     },
     warningResults() {
-      return this.results.filter((r) => r.status === Status.WARN);
+      return this.filteredResults.filter((r) => r.status === Status.WARN);
     },
     failingResults() {
-      return this.results.filter((r) => r.status === Status.FAIL);
+      return this.filteredResults.filter((r) => r.status === Status.FAIL);
     },
     errorResults() {
-      return this.results.filter((r) => r.status === Status.ERROR);
-    },
-    policies: {
-      get(): string[] {
-        if (Array.isArray(this.$route.query.policies)) {
-          return this.$route.query.policies as string[];
-        }
-
-        if (!this.$route.query.policies) {
-          return [];
-        }
-
-        return [this.$route.query.policies as string];
-      },
-      set(policies: string[]) {
-        this.$router.push({ name: this.$route.name as string, query: { policies } });
-      },
+      return this.filteredResults.filter((r) => r.status === Status.ERROR);
     },
   },
   methods: {
