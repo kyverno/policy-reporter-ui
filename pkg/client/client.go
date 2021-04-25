@@ -22,6 +22,7 @@ func (c *httpClient) Get(path string) (*http.Response, error) {
 		return nil, err
 	}
 	req.Header.Set("Accept", "application/json")
+	req.Header.Add("Accept-Encoding", "gzip")
 
 	return c.client.Do(req)
 }

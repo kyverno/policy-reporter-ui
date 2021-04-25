@@ -23,6 +23,9 @@ func PolicyReportHandler(development bool, client client.Client) http.HandlerFun
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
 			return
 		}
+		if resp.Header.Get("Content-Encoding") == "gzip" {
+			w.Header().Set("Content-Encoding", "gzip")
+		}
 
 		_, err = io.Copy(w, resp.Body)
 		if err != nil {
@@ -44,6 +47,9 @@ func ClusterPolicyReportHandler(development bool, client client.Client) http.Han
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
 			return
+		}
+		if resp.Header.Get("Content-Encoding") == "gzip" {
+			w.Header().Set("Content-Encoding", "gzip")
 		}
 
 		_, err = io.Copy(w, resp.Body)
@@ -97,6 +103,9 @@ func TargetHandler(development bool, client client.Client) http.HandlerFunc {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
 			return
+		}
+		if resp.Header.Get("Content-Encoding") == "gzip" {
+			w.Header().Set("Content-Encoding", "gzip")
 		}
 
 		_, err = io.Copy(w, resp.Body)
