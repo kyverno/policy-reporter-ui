@@ -24,9 +24,17 @@
               </div>
             </v-card-title>
             <v-divider />
-            <v-data-table :items="results" :headers="headers" :items-per-page="10" :search="search" :sort-by="['resource.name', 'resource.kind']">
-            <template #item="{ item }">
-                <tr>
+            <v-data-table
+              :items="items"
+              :headers="headers"
+              :items-per-page="10"
+              :search="search"
+              :sort-by="['resource.name', 'resource.kind']"
+              :expanded.sync="expanded"
+              item-key="id"
+            >
+            <template #item="{ item, expand, isExpanded }">
+                <tr @click="expand(!isExpanded)" style="cursor: pointer">
                   <td>{{ item.resource.kind }}</td>
                   <td>{{ item.resource.name }}</td>
                   <td>
@@ -47,6 +55,13 @@
                   </td>
                 </tr>
             </template>
+            <template #expanded-item="{ headers, item }">
+              <tr class="grey lighten-4">
+                <td :colspan="headers.length" class="py-3">
+                  {{ item.message }}
+                </td>
+              </tr>
+            </template>
             </v-data-table>
         </div>
 
@@ -61,9 +76,11 @@ import { DataTableHeader } from 'vuetify';
 import SeverityChip from './SeverityChip.vue';
 import StatusChip from './StatusChip.vue';
 
-type Data = { open: boolean; search: string }
-type Computed = { headers: DataTableHeader[]; severityConfigured: boolean }
+type Data = { open: boolean; search: string; expanded: string[] }
+type Computed = { headers: DataTableHeader[]; items: Item[] }
 type Props = { title: string; results: Result[] }
+
+type Item = Result & { id: string }
 
 export default Vue.extend<Data, {}, Computed, Props>({
   components: { StatusChip, SeverityChip },
@@ -71,8 +88,11 @@ export default Vue.extend<Data, {}, Computed, Props>({
     title: { type: String, required: true },
     results: { type: Array, required: true },
   },
-  data: () => ({ open: true, search: '' }),
+  data: () => ({ open: true, search: '', expanded: [] }),
   computed: {
+    items(): Item[] {
+      return this.results.map((result: Result) => ({ ...result, id: result.policy + result.rule + result.resource.uid }));
+    },
     headers(): DataTableHeader[] {
       return [
         { text: 'Kind', value: 'resource.kind' },
@@ -82,9 +102,6 @@ export default Vue.extend<Data, {}, Computed, Props>({
         { text: 'Severity', value: 'severity' },
         { text: 'Status', value: 'status' },
       ];
-    },
-    severityConfigured() {
-      return this.results.some((result) => !!result.severity);
     },
   },
 });
