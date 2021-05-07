@@ -5,7 +5,7 @@
       </v-card-title>
     <wait>
         <v-card-text>
-          <apexchart type="donut" :options="pie.chartOptions" height="200" :series="pie.series"></apexchart>
+          <apexchart type="donut" height="200" :options="pie.chartOptions" :series="pie.series"></apexchart>
         </v-card-text>
     </wait>
   </v-card>

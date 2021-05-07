@@ -1,10 +1,10 @@
 <template>
   <v-container fluid class="py-8 px-6">
     <v-row>
-      <v-col cols="12" md="4" v-if="policyGroups">
+      <v-col cols="12" md="6" v-if="policyGroups">
         <category-chart :policyGroups="policyGroups" />
       </v-col>
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="6">
         <rule-type-chart :policies="policies" />
       </v-col>
     </v-row>
