@@ -1,7 +1,5 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import md5 from 'md5';
-
 import {
   Target, ClusterPolicyReport, PolicyReport, NamespacePolicyMap, GlobalPolicyReportMap, Result,
 } from '@/models';
@@ -57,11 +55,6 @@ export default new Vuex.Store<State>({
       state.log = log;
     },
     [SET_REPORTS]: (state, reports: PolicyReport[]) => {
-      const h1 = md5(JSON.stringify(reports));
-      const h2 = md5(JSON.stringify(state.reports));
-
-      if (h1 === h2) return;
-
       const namespacePolicyMap = convertPolicyReports(reports);
 
       state.reports = reports;
@@ -70,11 +63,6 @@ export default new Vuex.Store<State>({
       state.globalPolicyMap = generateGlobalPolicyReports(reports);
     },
     [SET_CLUSTER_REPORTS]: (state, clusterReports: ClusterPolicyReport[]) => {
-      const h1 = md5(JSON.stringify(clusterReports));
-      const h2 = md5(JSON.stringify(state.clusterReports));
-
-      if (h1 === h2) return;
-
       state.clusterReports = clusterReports;
     },
   },

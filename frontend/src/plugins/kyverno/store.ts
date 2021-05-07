@@ -1,5 +1,4 @@
 import { Module } from 'vuex';
-import md5 from 'md5';
 import api from '@/plugins/kyverno/api';
 import { Policy, PolicyGroups } from './models';
 
@@ -46,11 +45,6 @@ const module: Module<State, any> = {
   },
   mutations: {
     [SET_POLICIES]: (state, policies: Policy[]) => {
-      const h1 = md5(JSON.stringify(policies));
-      const h2 = md5(JSON.stringify(state.policies));
-
-      if (h1 === h2) return;
-
       state.policies = policies;
     },
   },
