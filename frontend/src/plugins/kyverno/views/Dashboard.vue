@@ -23,7 +23,7 @@ import Vue from 'vue';
 import { mapGetters } from 'vuex';
 import { PolicyGroups, Policy } from '../models';
 import PolicyTable from '../components/PolicyTable.vue';
-import { NAMESPACE, FETCH_POLICIES } from '../store';
+import { NAMESPACE } from '../store';
 import RuleTypeChart from '../components/RuleTypeChart.vue';
 import CategoryChart from '../components/CategoryChart.vue';
 
@@ -45,9 +45,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   data: () => ({}),
   computed: {
     ...mapGetters(NAMESPACE, ['policyGroups', 'policies']),
-  },
-  created() {
-    this.$store.dispatch(`${NAMESPACE}/${FETCH_POLICIES}`);
   },
 });
 </script>

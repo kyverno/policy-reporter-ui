@@ -10,12 +10,14 @@
   "dependencies": {
     "apexcharts": "^3.25.0",
     "axios": "^0.21.1",
+    "clipboard": "^2.0.8",
     "core-js": "^3.6.5",
     "highlight.js": "^10.7.2",
     "lodash.debounce": "^4.0.8",
     "vue": "^2.6.11",
     "vue-apexcharts": "^1.6.0",
     "vue-axios": "^3.2.4",
+    "vue-clipboard2": "^0.3.1",
     "vue-router": "^3.2.0",
     "vuetify": "^2.4.0",
     "vuex": "^3.4.0"

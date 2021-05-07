@@ -18,6 +18,8 @@ module.exports = {
     'no-param-reassign': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     'vue/no-v-for-template-key-on-child': 'off',
+    'no-restricted-properties': 'off',
+    'no-plusplus': 'off',
     'max-len': 'off',
   },
 };

@@ -20,21 +20,29 @@ const module: Module<State, any> = {
   },
   getters: {
     policies: (state) => state.policies,
-    policyGroups: (state) => state.policies.reduce<PolicyGroups>((groups, policy) => {
-      if (!policy.category) {
-        groups['No Category'].push(policy);
+    policyGroups: (state) => {
+      const unsorted = state.policies.reduce<PolicyGroups>((groups, policy) => {
+        if (!policy.category) {
+          groups['No Category'].push(policy);
+
+          return groups;
+        }
+
+        if (!groups.hasOwnProperty(policy.category)) {
+          return { ...groups, [policy.category]: [policy] };
+        }
+
+        groups[policy.category].push(policy);
 
         return groups;
-      }
+      }, { 'No Category': [] });
 
-      if (!groups.hasOwnProperty(policy.category)) {
-        return { ...groups, [policy.category]: [policy] };
-      }
+      return Object.keys(unsorted).sort().reduce<PolicyGroups>((acc, key) => {
+        acc[key] = unsorted[key];
 
-      groups[policy.category].push(policy);
-
-      return groups;
-    }, { 'No Category': [] }),
+        return acc;
+      }, {});
+    },
   },
   mutations: {
     [SET_POLICIES]: (state, policies: Policy[]) => {

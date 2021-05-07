@@ -72,12 +72,11 @@ export default Vue.extend({
     this.$store.dispatch(FETCH_TARGETS);
     this.$store.dispatch(FETCH_REPORTS);
     this.$store.dispatch(FETCH_CLUSTER_REPORTS);
-    /**
+
     this.interval = setInterval(() => {
       this.$store.dispatch(FETCH_REPORTS);
       this.$store.dispatch(FETCH_CLUSTER_REPORTS);
     }, 5000);
-     */
   },
   destroyed() {
     clearInterval(this.interval);

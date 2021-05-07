@@ -54,14 +54,6 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               enabled: false,
             },
           },
-          states: {
-            active: {
-              allowMultipleDataPointsSelection: false,
-              filter: {
-                type: 'none',
-              },
-            },
-          },
           dataLabels: {
             dropShadow: {
               enabled: true,

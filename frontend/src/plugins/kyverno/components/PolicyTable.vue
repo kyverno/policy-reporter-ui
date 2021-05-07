@@ -30,7 +30,7 @@
               :headers="headers"
               :items-per-page="10"
               :search="search"
-              :sort-by="['namespace', 'policy']"
+              :sort-by="['namespace', 'name']"
               :expanded.sync="expanded"
               item-key="uid"
               >
@@ -50,26 +50,7 @@
                         <v-btn dark @click.stop="$router.push(`/kyverno/${item.uid}`)" class="mr-2" depressed small>
                           Details
                         </v-btn>
-                    <v-dialog width="1024">
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-btn dark v-bind="attrs" v-on="on" depressed small>
-                          YAML
-                        </v-btn>
-                      </template>
-
-                      <v-card>
-                        <v-card-title>
-                          {{ item.name }}
-                        </v-card-title>
-                        <v-card-subtitle class="mt-1">
-                          {{ item.description }}
-                        </v-card-subtitle>
-
-                        <v-card-text>
-                          <highlightjs language='yaml' :code="item.content" />
-                        </v-card-text>
-                      </v-card>
-                    </v-dialog>
+                        <yaml-dialog :policy="item" />
                   </td>
                 </tr>
             </template>
@@ -92,6 +73,7 @@ import Vue from 'vue';
 import { DataTableHeader } from 'vuetify';
 import SeverityChip from '@/components/SeverityChip.vue';
 import { Policy } from '../models';
+import YamlDialog from './YamlDialog.vue';
 
 type Item = Policy & { type: string }
 
@@ -101,7 +83,7 @@ type Props = { title: string; policies: Policy[] }
 type Methods = { types(policy: Policy): string }
 
 export default Vue.extend<Data, Methods, Computed, Props>({
-  components: { SeverityChip },
+  components: { SeverityChip, YamlDialog },
   props: {
     title: { type: String, required: true },
     policies: { type: Array, required: true },

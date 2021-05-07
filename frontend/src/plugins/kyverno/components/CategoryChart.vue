@@ -17,7 +17,7 @@ import { ApexOptions } from 'apexcharts';
 import Vue from 'vue';
 import { PolicyGroups } from '../models';
 
-type Data = { open: boolean; search: string; expanded: string[] }
+type Data = { open: boolean }
 type Computed = { pie: any }
 type Props = { policyGroups: PolicyGroups }
 type Methods = {}
@@ -27,13 +27,16 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   props: {
     policyGroups: { type: Object, required: true },
   },
-  data: () => ({ open: true, search: '', expanded: [] }),
+  data: () => ({
+    open: true,
+  }),
   computed: {
     pie(): { series: number[]; chartOptions: ApexOptions } {
       const labels = Object.keys(this.policyGroups);
+      const series = Object.entries(this.policyGroups).map(([, group]) => group.length);
 
       return {
-        series: Object.entries(this.policyGroups).map(([, group]) => group.length),
+        series,
         chartOptions: {
           chart: {
             type: 'donut',
@@ -41,15 +44,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               enabled: false,
             },
           },
-          states: {
-            active: {
-              allowMultipleDataPointsSelection: false,
-              filter: {
-                type: 'none',
-              },
-            },
-          },
           dataLabels: {
+            style: {
+              colors: ['#fff'],
+            },
             dropShadow: {
               enabled: true,
               top: 0,
