@@ -63,7 +63,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     onCopy() {
       this.show = true;
 
-      setTimeout(() => { this.show = false; }, 4500);
+      setTimeout(() => { this.show = false; }, 1500);
     },
   },
 });
