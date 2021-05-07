@@ -14,18 +14,22 @@ import (
 )
 
 var (
-	backendURL  string
-	development bool
-	logSize     int
-	port        int
+	backendURL    string
+	kyvernoPlugin string
+	development   bool
+	logSize       int
+	port          int
 )
 
 func main() {
 	flag.StringVar(&backendURL, "backend", "", "PolicyReporter Host")
+	flag.StringVar(&kyvernoPlugin, "kyverno-plugin", "", "Kyverno Plugin Host")
 	flag.IntVar(&port, "port", 8080, "PolicyReporter UI port")
 	flag.IntVar(&logSize, "log-size", 200, "Max amount of persistet results")
 	flag.BoolVar(&development, "dev", false, "Enable CORS Header for development")
 	flag.Parse()
+
+	var plugins []string
 
 	if development {
 		log.Println("[INFO] Development Mode enabled")
@@ -49,6 +53,19 @@ func main() {
 	apiRouter.HandleFunc("/targets", api.TargetHandler(development, c)).Methods("GET")
 	apiRouter.HandleFunc("/policy-reports", api.PolicyReportHandler(development, c)).Methods("GET")
 	apiRouter.HandleFunc("/cluster-policy-reports", api.ClusterPolicyReportHandler(development, c)).Methods("GET")
+
+	if kyvernoPlugin != "" {
+		plugins = append(plugins, "kyverno")
+
+		kC, err := client.NewClient(kyvernoPlugin)
+		if err != nil {
+			log.Println(err)
+		}
+
+		apiRouter.HandleFunc("/kyverno/policies", api.KyvernoPolicyHandler(development, kC)).Methods("GET")
+	}
+
+	apiRouter.HandleFunc("/plugins", api.PluginHandler(development, plugins)).Methods("GET")
 
 	handler := http.FileServer(http.Dir("dist"))
 

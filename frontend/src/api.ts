@@ -29,4 +29,9 @@ export default {
 
     return data;
   },
+  async plugins(): Promise<string[]> {
+    const { data } = await instance.get('plugins');
+
+    return data;
+  },
 };
