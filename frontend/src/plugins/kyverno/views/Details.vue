@@ -70,15 +70,17 @@
         <rules-table :policy="policy" :results="results" />
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-if="validations">
       <v-col cols="12">
         <policy-table :results="results.fail" title="Failed Results" />
       </v-col>
     </v-row>
-    <v-row>
+    <v-row v-if="validations">
       <v-col cols="12">
         <policy-table :results="results.pass" title="Passed Results" />
       </v-col>
+    </v-row>
+    <v-row>
       <v-col cols="12">
         <v-card>
           <v-toolbar flat>
@@ -106,7 +108,7 @@ import Vue from 'vue';
 import { mapGetters, mapState } from 'vuex';
 import PolicyDetails from '../components/PolicyDetails.vue';
 import RulesTable from '../components/RulesTable.vue';
-import { Policy, ResultMap } from '../models';
+import { Policy, ResultMap, RuleType } from '../models';
 import { NAMESPACE, FETCH_POLICIES } from '../store';
 
 type Data = {}
@@ -119,6 +121,7 @@ type Computed = {
     policies: Policy[];
     globalPolicyMap: GlobalPolicyReportMap;
     results: ResultMap;
+    validations: boolean;
 }
 
 export default Vue.extend<Data, Methods, Computed, Props>({
@@ -133,6 +136,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     ...mapState(['globalPolicyMap']),
     policy() {
       return this.policies.find((p) => p.uid === this.uid);
+    },
+    validations() {
+      if (!this.policy) return false;
+
+      return this.policy.rules.some((r) => r.type === RuleType.VALIDATION);
     },
     results(): ResultMap {
       const defaults: ResultMap = { fail: [], pass: [] };

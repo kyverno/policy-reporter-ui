@@ -29,7 +29,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
   data: () => ({
     open: true,
-    colors: ['#1379b5', '#0b6ca0', '#067a11'],
+    colors: ['#089185', '#0b6ca0', '#067a11'],
   }),
   computed: {
     pie(): { series: number[]; chartOptions: ApexOptions } {
