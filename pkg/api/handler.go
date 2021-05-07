@@ -115,3 +115,43 @@ func TargetHandler(development bool, client client.Client) http.HandlerFunc {
 		}
 	}
 }
+
+func KyvernoPolicyHandler(development bool, client client.Client) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		if development {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+		resp, err := client.Get("/policies")
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			return
+		}
+		if resp.Header.Get("Content-Encoding") == "gzip" {
+			w.Header().Set("Content-Encoding", "gzip")
+		}
+
+		_, err = io.Copy(w, resp.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+		}
+	}
+}
+
+func PluginHandler(development bool, plugins []string) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		if development {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+		err := json.NewEncoder(w).Encode(plugins)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+		}
+	}
+}

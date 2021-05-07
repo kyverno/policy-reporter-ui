@@ -25,6 +25,23 @@ const routes: Array<RouteConfig> = [
     name: 'Logs',
     component: () => import('@/views/Logs.vue'),
   },
+  {
+    path: '/kyverno/',
+    component: () => import('@/plugins/kyverno/views/Layout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('@/plugins/kyverno/views/Dashboard.vue'),
+        name: 'kyverno-dashboard',
+      },
+      {
+        path: ':uid',
+        name: 'policy-details',
+        component: () => import('@/plugins/kyverno/views/Details.vue'),
+        props: true,
+      },
+    ],
+  },
 ];
 
 const router = new VueRouter({
