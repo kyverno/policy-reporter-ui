@@ -15,9 +15,10 @@
 import Wait from '@/components/Wait.vue';
 import { ApexOptions } from 'apexcharts';
 import Vue from 'vue';
+import chroma from 'chroma-js';
 import { PolicyGroups } from '../models';
 
-type Data = { open: boolean }
+type Data = { open: boolean; colors: string[] }
 type Computed = { pie: any }
 type Props = { policyGroups: PolicyGroups }
 type Methods = {}
@@ -29,6 +30,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
   data: () => ({
     open: true,
+    colors: chroma.scale(['#065684', '#089185', '#067a11', '#097a15']).mode('lch').colors(9),
   }),
   computed: {
     pie(): { series: number[]; chartOptions: ApexOptions } {
@@ -72,6 +74,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             },
           },
           labels,
+          colors: this.colors,
         },
       };
     },

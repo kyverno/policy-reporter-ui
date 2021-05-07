@@ -17,7 +17,7 @@ import { ApexOptions } from 'apexcharts';
 import Vue from 'vue';
 import { Policy, RuleType } from '../models';
 
-type Data = { open: boolean; search: string; expanded: string[] }
+type Data = { open: boolean; colors: string[] }
 type Computed = { pie: any }
 type Props = { policies: Policy[] }
 type Methods = {}
@@ -27,7 +27,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   props: {
     policies: { type: Array, required: true },
   },
-  data: () => ({ open: true, search: '', expanded: [] }),
+  data: () => ({
+    open: true,
+    colors: ['#1379b5', '#0b6ca0', '#067a11'],
+  }),
   computed: {
     pie(): { series: number[]; chartOptions: ApexOptions } {
       const series = this.policies.reduce<number[]>((types, policy) => {
@@ -79,6 +82,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
             },
           },
           labels: [RuleType.VALIDATION, RuleType.MUTATION, RuleType.GENERATION],
+          colors: this.colors,
         },
       };
     },
