@@ -17,7 +17,12 @@ import { ApexOptions } from 'apexcharts';
 import Vue from 'vue';
 import { Policy, RuleType } from '../models';
 
-type Data = { open: boolean; colors: string[] }
+type Data = {
+  open: boolean;
+  colors: string[];
+  labels: string[];
+  series: number[];
+}
 type Computed = { pie: any }
 type Props = { policies: Policy[] }
 type Methods = {}
@@ -30,26 +35,38 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   data: () => ({
     open: true,
     colors: ['#089185', '#0b6ca0', '#067a11'],
+    series: [],
+    labels: [],
   }),
+  watch: {
+    policies: {
+      immediate: true,
+      handler(policies: Policy[]) {
+        const series = policies.reduce<number[]>((types, policy) => {
+          if (policy.rules.some((r) => r.type === RuleType.VALIDATION)) {
+            types[0] += 1;
+          }
+          if (policy.rules.some((r) => r.type === RuleType.MUTATION)) {
+            types[1] += 1;
+          }
+
+          if (policy.rules.some((r) => r.type === RuleType.GENERATION)) {
+            types[2] += 1;
+          }
+
+          return types;
+        }, [0, 0, 0]);
+
+        if (JSON.stringify(series) !== JSON.stringify(this.series)) {
+          this.series = series;
+        }
+      },
+    },
+  },
   computed: {
     pie(): { series: number[]; chartOptions: ApexOptions } {
-      const series = this.policies.reduce<number[]>((types, policy) => {
-        if (policy.rules.some((r) => r.type === RuleType.VALIDATION)) {
-          types[0] += 1;
-        }
-        if (policy.rules.some((r) => r.type === RuleType.MUTATION)) {
-          types[1] += 1;
-        }
-
-        if (policy.rules.some((r) => r.type === RuleType.GENERATION)) {
-          types[2] += 1;
-        }
-
-        return types;
-      }, [0, 0, 0]);
-
       return {
-        series,
+        series: this.series,
         chartOptions: {
           chart: {
             type: 'donut',

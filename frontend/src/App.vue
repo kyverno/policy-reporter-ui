@@ -73,6 +73,7 @@ export default Vue.extend({
     this.$store.dispatch(FETCH_REPORTS);
     this.$store.dispatch(FETCH_CLUSTER_REPORTS);
 
+    // @ts-ignore
     this.interval = setInterval(() => {
       this.$store.dispatch(FETCH_REPORTS);
       this.$store.dispatch(FETCH_CLUSTER_REPORTS);

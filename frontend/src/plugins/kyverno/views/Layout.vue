@@ -13,6 +13,7 @@ export default Vue.extend({
   created() {
     this.$store.dispatch(`${NAMESPACE}/${FETCH_POLICIES}`);
 
+    // @ts-ignore
     this.interval = setInterval(() => {
       this.$store.dispatch(`${NAMESPACE}/${FETCH_POLICIES}`);
     }, 5000);

@@ -18,7 +18,13 @@ import Vue from 'vue';
 import chroma from 'chroma-js';
 import { PolicyGroups } from '../models';
 
-type Data = { open: boolean; colors: string[] }
+type Data = {
+  open: boolean;
+  colors: string[];
+  labels: string[];
+  series: number[];
+}
+
 type Computed = { pie: any }
 type Props = { policyGroups: PolicyGroups }
 type Methods = {}
@@ -31,14 +37,29 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   data: () => ({
     open: true,
     colors: chroma.scale(['#065684', '#089185', '#067a11', '#097a15']).mode('lch').colors(9),
+    series: [],
+    labels: [],
   }),
+  watch: {
+    policyGroups: {
+      immediate: true,
+      handler(policyGroups: PolicyGroups) {
+        const labels = Object.keys(policyGroups);
+        if (JSON.stringify(labels) !== JSON.stringify(this.labels)) {
+          this.labels = labels;
+        }
+
+        const series = Object.entries(policyGroups).map(([, group]) => group.length);
+        if (JSON.stringify(series) !== JSON.stringify(this.series)) {
+          this.series = series;
+        }
+      },
+    },
+  },
   computed: {
     pie(): { series: number[]; chartOptions: ApexOptions } {
-      const labels = Object.keys(this.policyGroups);
-      const series = Object.entries(this.policyGroups).map(([, group]) => group.length);
-
       return {
-        series,
+        series: this.series,
         chartOptions: {
           chart: {
             type: 'donut',
@@ -73,7 +94,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
               },
             },
           },
-          labels,
+          labels: this.labels,
           colors: this.colors,
         },
       };

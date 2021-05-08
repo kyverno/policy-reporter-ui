@@ -17,6 +17,7 @@ module.exports = {
     'no-prototype-builtins': 'off',
     'no-param-reassign': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/ban-ts-ignore': 'off',
     'vue/no-v-for-template-key-on-child': 'off',
     'no-restricted-properties': 'off',
     'no-plusplus': 'off',
