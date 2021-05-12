@@ -46,7 +46,7 @@ export type Result = {
     severity?: string;
     category?: string;
     scored: boolean;
-    resource: Resource;
+    resource?: Resource;
 }
 
 export type PolicyReport = {

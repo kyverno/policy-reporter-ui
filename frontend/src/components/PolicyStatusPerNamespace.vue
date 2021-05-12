@@ -60,6 +60,10 @@ export default Vue.extend<{ show: boolean }, {}, { renderHeight: number; height:
     },
     options() {
       const unordnered = this.results.reduce<{ [namspace: string]: number }>((acc, item) => {
+        if (!item.resource) {
+          return acc;
+        }
+
         if (!item.resource.namespace) {
           return acc;
         }

@@ -193,16 +193,22 @@ export default Vue.extend<Data, Methods, Computed, {}>({
       }, {}));
     },
     availableKinds(): string[] {
-      return Object.keys(this.results.reduce<{ [kind: string]: boolean }>((c, r) => ({ ...c, [r.resource.kind]: true }), {}));
+      return Object.keys(this.results.reduce<{ [kind: string]: boolean }>((c, r) => {
+        if (!r.resource) {
+          return c;
+        }
+
+        return { ...c, [r.resource.kind]: true };
+      }, {}));
     },
     results(): Result[] {
       return flatResults(this.policies, this.globalPolicyMap);
     },
     filteredResults(): Result[] {
       return this.results.filter((result) => {
-        if (this.namespaces.length > 0 && !this.namespaces.includes(result.resource.namespace as string)) return false;
+        if (this.namespaces.length > 0 && result.resource && !this.namespaces.includes(result.resource.namespace as string)) return false;
 
-        if (this.kinds.length > 0 && !this.kinds.includes(result.resource.kind)) return false;
+        if (this.kinds.length > 0 && result.resource && !this.kinds.includes(result.resource.kind)) return false;
 
         if (this.categories.length > 0 && !this.categories.includes(result.category || '')) return false;
 

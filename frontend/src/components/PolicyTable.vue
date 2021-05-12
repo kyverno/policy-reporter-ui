@@ -94,7 +94,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   data: () => ({ open: true, search: '', expanded: [] }),
   computed: {
     items(): Item[] {
-      return this.results.map((result: Result) => ({ ...result, id: result.policy + result.rule + result.resource.uid }));
+      return this.results.map((result: Result) => ({ ...result, id: result.policy + result.rule + result?.resource?.uid }));
     },
     headers(): DataTableHeader[] {
       return [
