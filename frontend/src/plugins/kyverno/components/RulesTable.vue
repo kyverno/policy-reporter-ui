@@ -16,8 +16,8 @@
             <td>{{ item.name }}</td>
             <td>{{ item.type }}</td>
             <td>{{ item.message }}</td>
-            <td>{{ item.failed }}</td>
             <td>{{ item.passed }}</td>
+            <td>{{ item.failed }}</td>
         </tr>
     </template>
     </v-data-table>
