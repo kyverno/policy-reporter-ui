@@ -1,5 +1,5 @@
 <template>
-<v-col cols="12" md="6" v-if="!this.optional ? true : !!options.series[0].data.length">
+<v-col cols="12" :md="fullWidth ? 12 : 6" v-if="!this.optional ? true : !!options.series[0].data.length">
   <v-card min-height="300" height="100%">
       <v-card-title class="pb-0">
       {{ statusText }} Policy Results per Namespace
@@ -23,7 +23,7 @@ import Vue from 'vue';
 import { Result } from '@/models';
 import Wait from './Wait.vue';
 
-type Props = { optional: boolean; minHeight?: number; statusText: string; results: Result[] };
+type Props = { optional: boolean; minHeight?: number; statusText: string; results: Result[]; fullWidth: boolean };
 
 export default Vue.extend<{ show: boolean }, {}, { renderHeight: number; height: number; options: any }, Props>({
   components: { Wait },
@@ -33,6 +33,7 @@ export default Vue.extend<{ show: boolean }, {}, { renderHeight: number; height:
     minHeight: { required: false, type: Number },
     results: { required: true, type: Array },
     statusText: { required: true, type: String },
+    fullWidth: { default: false, type: Boolean },
   },
   data: () => ({ show: false }),
   watch: {

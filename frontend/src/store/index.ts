@@ -4,7 +4,7 @@ import {
   Target, ClusterPolicyReport, PolicyReport, NamespacePolicyMap, GlobalPolicyReportMap, Result,
 } from '@/models';
 import api from '@/api';
-import { convertPolicyReports, generateGlobalPolicyReports } from '@/mapper';
+import { convertPolicyReports, findSources, generateGlobalPolicyReports } from '@/mapper';
 import kyverno, { NAMESPACE } from '@/plugins/kyverno/store';
 
 Vue.use(Vuex);
@@ -29,6 +29,7 @@ export type State = {
   namespacePolicyMap: NamespacePolicyMap;
   globalPolicyMap: GlobalPolicyReportMap;
   namespaces: string[];
+  sources: string[];
   plugins: string[];
 }
 
@@ -42,6 +43,7 @@ export default new Vuex.Store<State>({
     namespacePolicyMap: {},
     globalPolicyMap: {},
     namespaces: [],
+    sources: [],
     plugins: [],
   },
   mutations: {
@@ -61,6 +63,7 @@ export default new Vuex.Store<State>({
       state.namespaces = Object.keys(namespacePolicyMap);
       state.namespacePolicyMap = namespacePolicyMap;
       state.globalPolicyMap = generateGlobalPolicyReports(reports);
+      state.sources = findSources(reports);
     },
     [SET_CLUSTER_REPORTS]: (state, clusterReports: ClusterPolicyReport[]) => {
       state.clusterReports = clusterReports;
