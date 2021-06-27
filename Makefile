@@ -29,6 +29,7 @@ build: prepare
 .PHONY: docker-build
 docker-build:
 	@docker buildx build --progress plane --platform linux/arm64,linux/amd64 --tag $(REPO):$(IMAGE_TAG) . --build-arg LD_FLAGS=$(LD_FLAGS)
+	@docker buildx build --progress plane --platform linux/arm64,linux/amd64 --tag $(REPO):latest . --build-arg LD_FLAGS=$(LD_FLAGS)
 
 .PHONY: docker-push
 docker-push:
