@@ -22,6 +22,9 @@
                   <v-col cols="4">
                     <severity-autocomplete v-model="severities" />
                   </v-col>
+                  <v-col cols="4">
+                    <source-autocomplete v-model="sources" />
+                  </v-col>
                 </v-row>
               </v-container>
             </v-card>
@@ -43,11 +46,15 @@
                                   :minHeight="minHeight"
                                   :results="failingResults"
                                   :statusText="statusText('fail')"
+                                  :fullWidth="!passingResults.length"
+                                  optional
       />
       <policy-status-per-namespace @height-change="updateHeight('pass', $event)"
                                   :minHeight="minHeight"
                                   :results="passingResults"
                                   :statusText="statusText('pass')"
+                                  :fullWidth="!failingResults.length"
+                                  optional
       />
       <policy-status-per-namespace @height-change="updateHeight('error', $event)"
                                   :minHeight="minHeight"
@@ -107,6 +114,7 @@ import NamespaceAutocomplete from '@/components/NamespaceAutocomplete.vue';
 import CategoryAutocomplete from '@/components/CategoryAutocomplete.vue';
 import SeverityAutocomplete from '@/components/SeverityAutocomplete.vue';
 import KindAutocomplete from '@/components/KindAutocomplete.vue';
+import SourceAutocomplete from '@/components/SourceAutocomplete.vue';
 
 const flatResults = (
   policies: string[],
@@ -126,6 +134,7 @@ type Data = {
   categories: string[];
   severities: string[];
   kinds: string[];
+  sources: string[];
 }
 
 type Methods = {
@@ -157,6 +166,7 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     CategoryAutocomplete,
     SeverityAutocomplete,
     KindAutocomplete,
+    SourceAutocomplete,
   },
   name: 'PolicyReport',
   data: () => ({
@@ -172,6 +182,7 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     categories: [],
     severities: [],
     kinds: [],
+    sources: [],
   }),
   computed: {
     ...mapState(['globalPolicyMap']),
@@ -213,6 +224,8 @@ export default Vue.extend<Data, Methods, Computed, {}>({
         if (this.categories.length > 0 && !this.categories.includes(result.category || '')) return false;
 
         if (this.severities.length > 0 && !this.severities.includes(result.severity || '')) return false;
+
+        if (this.sources.length > 0 && !this.sources.includes(result.source || '')) return false;
 
         return true;
       });

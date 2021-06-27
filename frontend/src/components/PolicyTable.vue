@@ -30,15 +30,15 @@
               :headers="headers"
               :items-per-page="10"
               :search="search"
-              :sort-by="['resource.namespace', 'resource.name', 'policy', 'rule']"
+              :sort-by="showResources ? ['resource.namespace', 'resource.name', 'policy', 'rule'] : ['policy', 'rule']"
               :expanded.sync="expanded"
               item-key="id"
               >
             <template #item="{ item, expand, isExpanded }">
                 <tr @click="expand(!isExpanded)" style="cursor: pointer">
-                  <td>{{ item.resource.namespace }}</td>
-                  <td>{{ item.resource.kind }}</td>
-                  <td>{{ item.resource.name }}</td>
+                  <td v-if="showResources"><span v-if="item.resource">{{ item.resource.namespace }}</span></td>
+                  <td v-if="showResources"><span v-if="item.resource">{{ item.resource.kind }}</span></td>
+                  <td v-if="showResources"><span v-if="item.resource">{{ item.resource.name }}</span></td>
                   <td>
                     <v-chip class="grey lighten-2" label @click.stop="search = item.policy">
                       {{ item.policy }}
@@ -60,7 +60,22 @@
             <template #expanded-item="{ headers, item }">
               <tr class="grey lighten-4">
                 <td :colspan="headers.length" class="py-3">
+                  <div v-if="item.properties">
+                    <v-card flat>
+                      <v-alert type="info" outlined class="rounded" flat>
+                        {{ item.message }}
+                      </v-alert>
+                    </v-card>
+                    <div class="mt-4">
+                      <template v-for="(value, label) in item.properties">
+                        <property-chip :key="label" :label="label" :value="value" v-if="value.length <= 100" />
+                        <property-card :key="label" :label="label" :value="value" v-else />
+                      </template>
+                    </div>
+                  </div>
+                  <div v-else>
                   {{ item.message }}
+                  </div>
                 </td>
               </tr>
             </template>
@@ -75,18 +90,22 @@
 import { Result } from '@/models';
 import Vue from 'vue';
 import { DataTableHeader } from 'vuetify';
+import PropertyCard from './PropertyCard.vue';
+import PropertyChip from './PropertyChip.vue';
 import SeverityChip from './SeverityChip.vue';
 import StatusChip from './StatusChip.vue';
 
 type Data = { open: boolean; search: string; expanded: string[] }
-type Computed = { headers: DataTableHeader[]; items: Item[] }
+type Computed = { headers: DataTableHeader[]; items: Item[]; showResources: boolean }
 type Props = { title: string; results: Result[] }
 type Methods = {}
 
 type Item = Result & { id: string }
 
 export default Vue.extend<Data, Methods, Computed, Props>({
-  components: { StatusChip, SeverityChip },
+  components: {
+    StatusChip, SeverityChip, PropertyChip, PropertyCard,
+  },
   props: {
     title: { type: String, required: true },
     results: { type: Array, required: true },
@@ -94,13 +113,28 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   data: () => ({ open: true, search: '', expanded: [] }),
   computed: {
     items(): Item[] {
-      return this.results.map((result: Result) => ({ ...result, id: result.policy + result.rule + result?.resource?.uid }));
+      return this.results.map((result: Result) => {
+        const properties = { ...(result.properties || {}) };
+
+        const sorted = Object.entries(properties);
+
+        sorted.sort(([ak, av], [bk, bv]) => (ak.length + av.length) - (bk.length + bv.length));
+
+        return { ...result, id: result.policy + result.rule + result?.resource?.uid, properties: Object.fromEntries(sorted) };
+      });
+    },
+    showResources(): boolean {
+      return this.results.some((item) => !!item.resource);
     },
     headers(): DataTableHeader[] {
-      return [
+      const resourceFileds = this.showResources ? [
         { text: 'Namespace', value: 'resource.namespace' },
         { text: 'Kind', value: 'resource.kind' },
         { text: 'Name', value: 'resource.name' },
+      ] : [];
+
+      return [
+        ...resourceFileds,
         { text: 'Policy', value: 'policy' },
         { text: 'Rule', value: 'rule' },
         { text: 'Severity', value: 'severity' },

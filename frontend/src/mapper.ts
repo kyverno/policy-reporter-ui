@@ -66,6 +66,20 @@ export const generateGlobalPolicyReports = (reports: PolicyReport[]): GlobalPoli
   }, {});
 };
 
+export const findSources = (reports: PolicyReport[]): string[] => {
+  const unordnered = reports.reduce<{ [source: string]: boolean }>((acc, report) => {
+    report.results.forEach((result) => {
+      if (result.source && acc.hasOwnProperty(result.source) === false) {
+        acc[result.source] = true;
+      }
+    });
+
+    return acc;
+  }, {});
+
+  return Object.keys(unordnered).sort();
+};
+
 export const flatPolicies = (reports: Array<PolicyReport|ClusterPolicyReport>) => reports.reduce<string[]>((acc, item) => {
   item.results.forEach((result: Result) => {
     if (acc.includes(result.policy)) {

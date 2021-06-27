@@ -43,8 +43,10 @@ export type Result = {
     rule: string;
     priority: Priority;
     status: Status;
+    source?: string;
     severity?: string;
     category?: string;
+    properties?: {[key: string]: string};
     scored: boolean;
     resource?: Resource;
 }
