@@ -1,6 +1,6 @@
 {
   "name": "policy-reporter-ui",
-  "version": "0.6.0",
+  "version": "0.13.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
