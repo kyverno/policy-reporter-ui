@@ -30,7 +30,7 @@
               :headers="headers"
               :items-per-page="10"
               :search="search"
-              :sort-by="showResources ? ['resource.namespace', 'resource.name', 'policy', 'rule'] : ['policy', 'rule']"
+              :sort-by="showResources ? ['resource.namespace', 'resource.name', 'policy', 'rule', 'message'] : ['policy', 'rule', 'message']"
               :expanded.sync="expanded"
               item-key="id"
               >

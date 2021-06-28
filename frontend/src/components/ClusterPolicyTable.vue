@@ -29,14 +29,14 @@
               :headers="headers"
               :items-per-page="10"
               :search="search"
-              :sort-by="['resource.name', 'resource.kind']"
+              :sort-by="showResources ? ['resource.namespace', 'resource.name', 'policy', 'rule', 'message'] : ['policy', 'rule', 'message']"
               :expanded.sync="expanded"
               item-key="id"
             >
             <template #item="{ item, expand, isExpanded }">
                 <tr @click="expand(!isExpanded)" style="cursor: pointer">
-                  <td>{{ item.resource.kind }}</td>
-                  <td>{{ item.resource.name }}</td>
+                  <td v-if="showResources"><span v-if="item.resource">{{ item.resource.kind }}</span></td>
+                  <td v-if="showResources"><span v-if="item.resource">{{ item.resource.name }}</span></td>
                   <td>
                     <v-chip class="grey lighten-2" label @click="search = item.policy">
                       {{ item.policy }}
@@ -77,7 +77,7 @@ import SeverityChip from './SeverityChip.vue';
 import StatusChip from './StatusChip.vue';
 
 type Data = { open: boolean; search: string; expanded: string[] }
-type Computed = { headers: DataTableHeader[]; items: Item[] }
+type Computed = { headers: DataTableHeader[]; items: Item[]; showResources: boolean }
 type Props = { title: string; results: Result[] }
 
 type Item = Result & { id: string }
@@ -93,10 +93,17 @@ export default Vue.extend<Data, {}, Computed, Props>({
     items(): Item[] {
       return this.results.map((result: Result) => ({ ...result, id: result.policy + result.rule + result?.resource?.uid }));
     },
+    showResources(): boolean {
+      return this.results.some((item) => !!item.resource);
+    },
     headers(): DataTableHeader[] {
-      return [
+      const resourceFileds = this.showResources ? [
         { text: 'Kind', value: 'resource.kind' },
         { text: 'Name', value: 'resource.name' },
+      ] : [];
+
+      return [
+        ...resourceFileds,
         { text: 'Policy', value: 'policy' },
         { text: 'Rule', value: 'rule' },
         { text: 'Severity', value: 'severity' },
