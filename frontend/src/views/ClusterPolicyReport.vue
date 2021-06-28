@@ -1,29 +1,35 @@
 <template>
-  <v-container fluid class="py-8 px-6">
+<div>
+  <v-container fluid class="pt-8 px-6">
     <v-row>
         <v-col>
             <v-card elevation="1">
               <v-container fluid>
                 <v-row>
-                  <v-col cols="6" class="d-inline-block">
+                  <v-col cols="4" class="d-inline-block">
                     <policy-autocomplete v-model="policies" :policies="availablePolicies" />
                   </v-col>
-                  <v-col cols="6">
+                  <v-col cols="4">
                     <kind-autocomplete v-model="kinds" :kinds="availableKinds" />
                   </v-col>
                 </v-row>
                 <v-row>
-                  <v-col cols="6">
+                  <v-col cols="4">
                     <category-autocomplete v-model="categories" :categories="availableCategories" />
                   </v-col>
-                  <v-col cols="6">
+                  <v-col cols="4">
                     <severity-autocomplete v-model="severities" />
+                  </v-col>
+                  <v-col cols="4">
+                    <source-autocomplete v-model="sources" />
                   </v-col>
                 </v-row>
               </v-container>
             </v-card>
         </v-col>
     </v-row>
+  </v-container>
+  <v-container fluid class="px-6">
     <v-row v-if="policies.length === 0">
       <v-col>
         <v-card>
@@ -49,6 +55,23 @@
         <cluster-policy-status color="error" :count="errorResults.length" :statusText="statusText('error')" />
       </v-col>
     </v-row>
+  </v-container>
+  <v-container fluid class="px-6" v-if="policies.length !== 0">
+    <v-row>
+        <v-col>
+            <v-card elevation="1">
+              <v-container fluid>
+                <v-row>
+                  <v-col cols="4" class="d-inline-block">
+                    <view-select v-model="view" />
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card>
+        </v-col>
+    </v-row>
+  </v-container>
+  <v-container fluid class="px-6" v-if="view === 'status'">
     <v-row v-if="errorResults.length > 0">
       <v-col cols="12">
         <cluster-policy-table :results="errorResults" title="Error ClusterPolicy Results" />
@@ -75,6 +98,16 @@
       </v-col>
     </v-row>
   </v-container>
+  <v-container fluid class="px-6" v-if="view === 'category'">
+    <template v-for="(results, category) in resultsByCategory">
+      <v-row v-if="results.length > 0" :key="category">
+        <v-col cols="12">
+          <cluster-policy-table :results="results" :title="category" />
+        </v-col>
+      </v-row>
+    </template>
+  </v-container>
+</div>
 </template>
 
 <script lang="ts">
@@ -88,6 +121,8 @@ import { flatPolicies } from '@/mapper';
 import CategoryAutocomplete from '@/components/CategoryAutocomplete.vue';
 import SeverityAutocomplete from '@/components/SeverityAutocomplete.vue';
 import KindAutocomplete from '@/components/KindAutocomplete.vue';
+import ViewSelect from '@/components/ViewSelect.vue';
+import SourceAutocomplete from '@/components/SourceAutocomplete.vue';
 
 const flatResults = (policies: string[], reports: Array<ClusterPolicyReport>) => reports.reduce<Result[]>((acc, item) => {
   item.results.forEach((result: Result) => {
@@ -101,12 +136,16 @@ const flatResults = (policies: string[], reports: Array<ClusterPolicyReport>) =>
   return acc;
 }, []);
 
+type CategoryMap = { [category: string]: Result[] };
+
 type Data = {
   minHeight: number;
   policies: string[];
   categories: string[];
   severities: string[];
   kinds: string[];
+  sources: string[];
+  view: string;
 }
 type Methods = { updateHeight(height: number): void; statusText(status: string): string }
 type Computed = {
@@ -121,6 +160,7 @@ type Computed = {
   warningResults: Result[];
   failingResults: Result[];
   errorResults: Result[];
+  resultsByCategory: CategoryMap;
 }
 
 export default Vue.extend<Data, Methods, Computed, {}>({
@@ -131,6 +171,8 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     CategoryAutocomplete,
     SeverityAutocomplete,
     KindAutocomplete,
+    ViewSelect,
+    SourceAutocomplete,
   },
   name: 'PolicyReport',
   data: () => ({
@@ -139,6 +181,8 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     categories: [],
     severities: [],
     kinds: [],
+    sources: [],
+    view: 'status',
   }),
   watch: {
     policies() {
@@ -181,6 +225,8 @@ export default Vue.extend<Data, Methods, Computed, {}>({
 
         if (this.severities.length > 0 && !this.severities.includes(result.severity || '')) return false;
 
+        if (this.sources.length > 0 && !this.severities.includes(result.source || '')) return false;
+
         return true;
       });
     },
@@ -198,6 +244,25 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     },
     errorResults() {
       return this.filteredResults.filter((r) => r.status === Status.ERROR);
+    },
+    resultsByCategory(): CategoryMap {
+      const unsorted = this.filteredResults.reduce<CategoryMap>((acc, result) => {
+        const category = result.category || 'No Category';
+
+        if (acc.hasOwnProperty(category) === false) {
+          acc[category] = [];
+        }
+
+        acc[category].push(result);
+
+        return acc;
+      }, {});
+
+      return Object.keys(unsorted).sort().reduce<CategoryMap>((acc, key) => {
+        acc[key] = unsorted[key];
+
+        return acc;
+      }, {});
     },
   },
   methods: {

@@ -1,5 +1,6 @@
 <template>
-  <v-container fluid class="py-8 px-6">
+<div>
+  <v-container fluid class="pt-8 px-6">
     <v-row>
         <v-col>
             <v-card elevation="1">
@@ -41,6 +42,8 @@
         </v-card>
       </v-col>
     </v-row>
+  </v-container>
+  <v-container fluid class="px-6">
     <v-row>
       <policy-status-per-namespace @height-change="updateHeight('fail', $event)"
                                   :minHeight="minHeight"
@@ -75,6 +78,23 @@
                                   optional
       />
     </v-row>
+  </v-container>
+  <v-container fluid class="px-6" v-if="policies.length !== 0">
+    <v-row>
+        <v-col>
+            <v-card elevation="1">
+              <v-container fluid>
+                <v-row>
+                  <v-col cols="4" class="d-inline-block">
+                    <view-select v-model="view" />
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card>
+        </v-col>
+    </v-row>
+  </v-container>
+  <v-container fluid class="px-6" v-if="view === 'status'">
     <v-row v-if="errorResults.length > 0">
       <v-col cols="12">
         <policy-table :results="errorResults" title="Error Policy Results" />
@@ -101,6 +121,16 @@
       </v-col>
     </v-row>
   </v-container>
+  <v-container fluid class="px-6" v-if="view === 'category'">
+    <template v-for="(results, category) in resultsByCategory">
+      <v-row v-if="results.length > 0" :key="category">
+        <v-col cols="12">
+          <policy-table :results="results" :title="category" />
+        </v-col>
+      </v-row>
+    </template>
+  </v-container>
+  </div>
 </template>
 
 <script lang="ts">
@@ -115,6 +145,7 @@ import CategoryAutocomplete from '@/components/CategoryAutocomplete.vue';
 import SeverityAutocomplete from '@/components/SeverityAutocomplete.vue';
 import KindAutocomplete from '@/components/KindAutocomplete.vue';
 import SourceAutocomplete from '@/components/SourceAutocomplete.vue';
+import ViewSelect from '@/components/ViewSelect.vue';
 
 const flatResults = (
   policies: string[],
@@ -127,6 +158,8 @@ const flatResults = (
   return [...acc, ...reports[policy].results];
 }, []);
 
+type CategoryMap = { [category: string]: Result[] };
+
 type Data = {
   heights: { [key in Status]: number };
   policies: string[];
@@ -135,6 +168,7 @@ type Data = {
   severities: string[];
   kinds: string[];
   sources: string[];
+  view: string;
 }
 
 type Methods = {
@@ -154,6 +188,7 @@ type Computed = {
   warningResults: Result[];
   failingResults: Result[];
   errorResults: Result[];
+  resultsByCategory: CategoryMap;
   minHeight: number;
 }
 
@@ -167,6 +202,7 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     SeverityAutocomplete,
     KindAutocomplete,
     SourceAutocomplete,
+    ViewSelect,
   },
   name: 'PolicyReport',
   data: () => ({
@@ -183,6 +219,7 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     severities: [],
     kinds: [],
     sources: [],
+    view: 'status',
   }),
   computed: {
     ...mapState(['globalPolicyMap']),
@@ -244,6 +281,25 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     },
     errorResults() {
       return this.filteredResults.filter((r) => r.status === Status.ERROR);
+    },
+    resultsByCategory(): CategoryMap {
+      const unsorted = this.filteredResults.reduce<CategoryMap>((acc, result) => {
+        const category = result.category || 'No Category';
+
+        if (acc.hasOwnProperty(category) === false) {
+          acc[category] = [];
+        }
+
+        acc[category].push(result);
+
+        return acc;
+      }, {});
+
+      return Object.keys(unsorted).sort().reduce<CategoryMap>((acc, key) => {
+        acc[key] = unsorted[key];
+
+        return acc;
+      }, {});
     },
   },
   methods: {
