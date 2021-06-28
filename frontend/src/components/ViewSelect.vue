@@ -27,6 +27,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   data: () => ({
     views: [
       { text: 'Group Results by Status', value: 'status' },
+      { text: 'Group Results by Policy', value: 'policy' },
       { text: 'Group Results by Category', value: 'category' },
     ],
   }),

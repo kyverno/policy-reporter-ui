@@ -38,7 +38,7 @@
       </template>
     </v-app-bar>
 
-    <v-main class="grey lighten-5">
+    <v-main class="">
       <router-view />
     </v-main>
   </v-app>
@@ -84,3 +84,9 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style>
+.apexcharts-svg {
+  background-color: transparent!important;
+}
+</style>

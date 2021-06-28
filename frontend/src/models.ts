@@ -85,3 +85,5 @@ export type Target = {
 
 export type NamespacePolicyMap = { [namespace: string]: NamespacePolicyReport };
 export type GlobalPolicyReportMap = { [policy: string]: GlobalPolicyReport };
+
+export type RuleMap = { [key: string]: Result[] };

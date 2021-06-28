@@ -107,17 +107,28 @@
       </v-row>
     </template>
   </v-container>
+  <v-container fluid class="px-6" v-if="view === 'policy'">
+    <template v-for="(results, policy) in resultsByPolicy">
+      <v-row v-if="results.length > 0" :key="policy">
+        <v-col cols="12">
+          <cluster-policy-table :results="results" :title="policy" />
+        </v-col>
+      </v-row>
+    </template>
+  </v-container>
 </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import { ClusterPolicyReport, Result, Status } from '@/models';
+import {
+  ClusterPolicyReport, Result, RuleMap, Status,
+} from '@/models';
 import PolicyAutocomplete from '@/components/PolicyAutocomplete.vue';
 import ClusterPolicyTable from '@/components/ClusterPolicyTable.vue';
 import ClusterPolicyStatus from '@/components/ClusterPolicyStatus.vue';
-import { flatPolicies } from '@/mapper';
+import { flatPolicies, groupByCategory, groupByPolicy } from '@/mapper';
 import CategoryAutocomplete from '@/components/CategoryAutocomplete.vue';
 import SeverityAutocomplete from '@/components/SeverityAutocomplete.vue';
 import KindAutocomplete from '@/components/KindAutocomplete.vue';
@@ -135,8 +146,6 @@ const flatResults = (policies: string[], reports: Array<ClusterPolicyReport>) =>
 
   return acc;
 }, []);
-
-type CategoryMap = { [category: string]: Result[] };
 
 type Data = {
   minHeight: number;
@@ -160,7 +169,8 @@ type Computed = {
   warningResults: Result[];
   failingResults: Result[];
   errorResults: Result[];
-  resultsByCategory: CategoryMap;
+  resultsByCategory: RuleMap;
+  resultsByPolicy: RuleMap;
 }
 
 export default Vue.extend<Data, Methods, Computed, {}>({
@@ -245,24 +255,11 @@ export default Vue.extend<Data, Methods, Computed, {}>({
     errorResults() {
       return this.filteredResults.filter((r) => r.status === Status.ERROR);
     },
-    resultsByCategory(): CategoryMap {
-      const unsorted = this.filteredResults.reduce<CategoryMap>((acc, result) => {
-        const category = result.category || 'No Category';
-
-        if (acc.hasOwnProperty(category) === false) {
-          acc[category] = [];
-        }
-
-        acc[category].push(result);
-
-        return acc;
-      }, {});
-
-      return Object.keys(unsorted).sort().reduce<CategoryMap>((acc, key) => {
-        acc[key] = unsorted[key];
-
-        return acc;
-      }, {});
+    resultsByCategory(): RuleMap {
+      return groupByCategory(this.filteredResults);
+    },
+    resultsByPolicy(): RuleMap {
+      return groupByPolicy(this.filteredResults);
     },
   },
   methods: {

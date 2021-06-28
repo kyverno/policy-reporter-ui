@@ -1,5 +1,5 @@
 import {
-  PolicyReport, ClusterPolicyReport, GlobalPolicyReportMap, NamespacePolicyMap, Priority, Result,
+  PolicyReport, ClusterPolicyReport, GlobalPolicyReportMap, NamespacePolicyMap, Priority, Result, RuleMap,
 } from '@/models';
 
 const priorityToColor: { [key in Priority]: string } = {
@@ -91,3 +91,41 @@ export const flatPolicies = (reports: Array<PolicyReport|ClusterPolicyReport>) =
 
   return acc;
 }, []);
+
+export const groupByCategory = (results: Result[]): RuleMap => {
+  const unsorted = results.reduce<RuleMap>((acc, result) => {
+    const category = result.category || 'No Category';
+
+    if (acc.hasOwnProperty(category) === false) {
+      acc[category] = [];
+    }
+
+    acc[category].push(result);
+
+    return acc;
+  }, {});
+
+  return Object.keys(unsorted).sort().reduce<RuleMap>((acc, key) => {
+    acc[key] = unsorted[key];
+
+    return acc;
+  }, {});
+};
+
+export const groupByPolicy = (results: Result[]): RuleMap => {
+  const unsorted = results.reduce<RuleMap>((acc, result) => {
+    if (acc.hasOwnProperty(result.policy) === false) {
+      acc[result.policy] = [];
+    }
+
+    acc[result.policy].push(result);
+
+    return acc;
+  }, {});
+
+  return Object.keys(unsorted).sort().reduce<RuleMap>((acc, key) => {
+    acc[key] = unsorted[key];
+
+    return acc;
+  }, {});
+};
