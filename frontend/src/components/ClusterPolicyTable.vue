@@ -58,7 +58,22 @@
             <template #expanded-item="{ headers, item }">
               <tr class="grey lighten-4">
                 <td :colspan="headers.length" class="py-3">
+                  <div v-if="item.properties">
+                    <v-card flat>
+                      <v-alert dense type="info" outlined class="rounded" flat>
+                        {{ item.message }}
+                      </v-alert>
+                    </v-card>
+                    <div class="mt-4">
+                      <template v-for="(value, label) in item.properties">
+                        <property-chip :key="label" :label="label" :value="value" v-if="value.length <= 100" />
+                        <property-card :key="label" :label="label" :value="value" v-else />
+                      </template>
+                    </div>
+                  </div>
+                  <div v-else>
                   {{ item.message }}
+                  </div>
                 </td>
               </tr>
             </template>
@@ -73,6 +88,8 @@
 import { Result } from '@/models';
 import Vue from 'vue';
 import { DataTableHeader } from 'vuetify';
+import PropertyCard from './PropertyCard.vue';
+import PropertyChip from './PropertyChip.vue';
 import SeverityChip from './SeverityChip.vue';
 import StatusChip from './StatusChip.vue';
 
@@ -83,7 +100,9 @@ type Props = { title: string; results: Result[] }
 type Item = Result & { id: string }
 
 export default Vue.extend<Data, {}, Computed, Props>({
-  components: { StatusChip, SeverityChip },
+  components: {
+    StatusChip, SeverityChip, PropertyChip, PropertyCard,
+  },
   props: {
     title: { type: String, required: true },
     results: { type: Array, required: true },
@@ -91,7 +110,7 @@ export default Vue.extend<Data, {}, Computed, Props>({
   data: () => ({ open: true, search: '', expanded: [] }),
   computed: {
     items(): Item[] {
-      return this.results.map((result: Result) => ({ ...result, id: result.policy + result.rule + result?.resource?.uid }));
+      return this.results.map((result: Result) => ({ ...result, id: result.policy + result.rule + result?.resource?.uid || result.message }));
     },
     showResources(): boolean {
       return this.results.some((item) => !!item.resource);

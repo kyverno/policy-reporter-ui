@@ -62,7 +62,7 @@
                 <td :colspan="headers.length" class="py-3">
                   <div v-if="item.properties">
                     <v-card flat>
-                      <v-alert type="info" outlined class="rounded" flat>
+                      <v-alert dense type="info" outlined class="rounded" flat>
                         {{ item.message }}
                       </v-alert>
                     </v-card>
