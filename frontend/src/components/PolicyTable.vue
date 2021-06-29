@@ -120,7 +120,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
         sorted.sort(([ak, av], [bk, bv]) => (ak.length + av.length) - (bk.length + bv.length));
 
-        return { ...result, id: result.policy + result.rule + result?.resource?.uid, properties: Object.fromEntries(sorted) };
+        return { ...result, id: result.policy + result.rule + (result?.resource?.uid || result.message), properties: Object.fromEntries(sorted) };
       });
     },
     showResources(): boolean {

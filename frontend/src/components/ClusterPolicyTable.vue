@@ -110,7 +110,7 @@ export default Vue.extend<Data, {}, Computed, Props>({
   data: () => ({ open: true, search: '', expanded: [] }),
   computed: {
     items(): Item[] {
-      return this.results.map((result: Result) => ({ ...result, id: result.policy + result.rule + result?.resource?.uid || result.message }));
+      return this.results.map((result: Result) => ({ ...result, id: result.policy + result.rule + (result?.resource?.uid || result.message) }));
     },
     showResources(): boolean {
       return this.results.some((item) => !!item.resource);
