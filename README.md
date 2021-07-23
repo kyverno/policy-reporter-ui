@@ -28,8 +28,8 @@ docker run -p 8080:8080 --rm fjogeleit/policy-reporter-ui -backend http://host.d
 
 ## Screenshots
 
-![Dashboard](https://github.com/fjogeleit/policy-reporter-ui/blob/main/docs/images/dashboard.png?raw=true)
+![Dashboard](https://github.com/kyverno/policy-reporter-ui/blob/main/docs/images/dashboard.png?raw=true)
 
-![Policy Reports](https://github.com/fjogeleit/policy-reporter-ui/blob/main/docs/images/policy-report.png?raw=true)
+![Policy Reports](https://github.com/kyverno/policy-reporter-ui/blob/main/docs/images/policy-report.png?raw=true)
 
-![ClusterPolicyReports](https://github.com/fjogeleit/policy-reporter-ui/blob/main/docs/images/cluster-policy-report.png?raw=true)
+![ClusterPolicyReports](https://github.com/kyverno/policy-reporter-ui/blob/main/docs/images/cluster-policy-report.png?raw=true)

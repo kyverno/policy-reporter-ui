@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/fjogeleit/policy-reporter-ui/pkg/client"
-	"github.com/fjogeleit/policy-reporter-ui/pkg/report"
+	"github.com/kyverno/policy-reporter-ui/pkg/client"
+	"github.com/kyverno/policy-reporter-ui/pkg/report"
 )
 
 func PolicyReportHandler(development bool, client client.Client) http.HandlerFunc {
