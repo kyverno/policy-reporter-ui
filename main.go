@@ -7,10 +7,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/fjogeleit/policy-reporter-ui/pkg/api"
-	"github.com/fjogeleit/policy-reporter-ui/pkg/client"
-	"github.com/fjogeleit/policy-reporter-ui/pkg/report"
 	"github.com/gorilla/mux"
+	"github.com/kyverno/policy-reporter-ui/pkg/api"
+	"github.com/kyverno/policy-reporter-ui/pkg/client"
+	"github.com/kyverno/policy-reporter-ui/pkg/report"
 )
 
 var (

@@ -1,4 +1,4 @@
-module github.com/fjogeleit/policy-reporter-ui
+module github.com/kyverno/policy-reporter-ui
 
 go 1.16
 
