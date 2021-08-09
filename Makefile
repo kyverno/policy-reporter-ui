@@ -1,7 +1,7 @@
 GO ?= go
 BUILD ?= build
 REPO ?= fjogeleit/policy-reporter-ui
-IMAGE_TAG ?= 0.13.0
+IMAGE_TAG ?= 0.13.1
 LD_FLAGS="-s -w"
 
 all: build
