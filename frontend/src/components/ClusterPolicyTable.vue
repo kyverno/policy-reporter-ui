@@ -43,7 +43,7 @@
                     </v-chip>
                   </td>
                   <td>
-                    <v-chip class="grey lighten-2" label @click="search = item.rule">
+                    <v-chip class="grey lighten-2" label @click="search = item.rule" v-if="item.rule">
                       {{ item.rule }}
                     </v-chip>
                   </td>
