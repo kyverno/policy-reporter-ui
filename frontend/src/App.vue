@@ -63,7 +63,7 @@ export default Vue.extend({
       ['mdi-file-chart', 'Policy Reports', '/policy-reports'],
       ['mdi-file-chart', 'ClusterPolicy Reports', '/cluster-policy-reports'],
       ['mdi-console', 'Logs', '/logs'],
-      [null, 'Kyverno Policies', '/kyverno', 'kyverno', 'kyverno-icon'],
+      [null, 'Kyverno Policies', '/kyverno-plugin', 'kyverno', 'kyverno-icon'],
     ],
   }),
   computed: mapState(['targets', 'plugins']),

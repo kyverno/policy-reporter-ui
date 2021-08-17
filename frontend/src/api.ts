@@ -3,10 +3,11 @@ import axios from 'axios';
 import {
   PolicyReport, ClusterPolicyReport, Result, Target,
 } from '@/models';
+import subpath from './subpath';
 
 const production = process.env.NODE_ENV === 'production';
 
-const instance = axios.create({ baseURL: production ? `//${window.location.host}/api` : process.env.VUE_APP_API });
+const instance = axios.create({ baseURL: production ? `//${window.location.host}${subpath()}api` : process.env.VUE_APP_API });
 
 export default {
   async policyReports(): Promise<PolicyReport[]> {
