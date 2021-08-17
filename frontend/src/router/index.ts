@@ -1,3 +1,4 @@
+import subpath from '@/subpath';
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
 import Home from '../views/Dashboard.vue';
@@ -26,7 +27,7 @@ const routes: Array<RouteConfig> = [
     component: () => import('@/views/Logs.vue'),
   },
   {
-    path: '/kyverno/',
+    path: '/kyverno-plugin/',
     component: () => import('@/plugins/kyverno/views/Layout.vue'),
     children: [
       {
@@ -46,7 +47,7 @@ const routes: Array<RouteConfig> = [
 
 const router = new VueRouter({
   mode: 'history',
-  base: process.env.BASE_URL,
+  base: subpath(),
   routes,
 });
 

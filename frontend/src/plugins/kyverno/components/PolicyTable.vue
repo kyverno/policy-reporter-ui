@@ -47,7 +47,7 @@
                     <severity-chip :severity="item.severity" label @click.stop="search = item.severity" v-if="item.severity" />
                   </td>
                   <td>
-                        <v-btn dark @click.stop="$router.push(`/kyverno/${item.uid}`)" class="mr-2" depressed small>
+                        <v-btn dark @click.stop="$router.push(`/kyverno-plugin/${item.uid}`)" class="mr-2" depressed small>
                           Details
                         </v-btn>
                         <yaml-dialog :policy="item" />
