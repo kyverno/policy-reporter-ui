@@ -20,19 +20,28 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Result } from '@/models';
+import { Result, Status } from '@/models';
+import { mapStatus, mapStatusText } from '@/mapper';
 import Wait from './Wait.vue';
 
-type Props = { optional: boolean; minHeight?: number; statusText: string; results: Result[]; fullWidth: boolean };
+type Props = { optional: boolean; minHeight?: number; status: string; results: Result[]; fullWidth: boolean };
 
-export default Vue.extend<{ show: boolean }, {}, { renderHeight: number; height: number; options: any }, Props>({
+type Computed = {
+  statusText: string;
+  statusColor: string;
+  renderHeight: number;
+  height: number;
+  options: any;
+}
+
+export default Vue.extend<{ show: boolean }, {}, Computed, Props>({
   components: { Wait },
   name: 'PolicyStatusPerNamespace',
   props: {
     optional: { default: false, type: Boolean },
     minHeight: { required: false, type: Number },
     results: { required: true, type: Array },
-    statusText: { required: true, type: String },
+    status: { required: true, type: String },
     fullWidth: { default: false, type: Boolean },
   },
   data: () => ({ show: false }),
@@ -58,6 +67,12 @@ export default Vue.extend<{ show: boolean }, {}, { renderHeight: number; height:
     },
     height(): number {
       return 80 + this.options.series[0].data.length * 36;
+    },
+    statusText(): string {
+      return mapStatusText(this.status as Status);
+    },
+    statusColor(): string {
+      return mapStatus(this.status as Status);
     },
     options() {
       const unordnered = this.results.reduce<{ [namspace: string]: number }>((acc, item) => {
@@ -93,6 +108,7 @@ export default Vue.extend<{ show: boolean }, {}, { renderHeight: number; height:
             show: false,
           },
         },
+        colors: [this.statusColor],
         plotOptions: {
           bar: {
             horizontal: true,

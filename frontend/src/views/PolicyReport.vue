@@ -48,33 +48,33 @@
       <policy-status-per-namespace @height-change="updateHeight('fail', $event)"
                                   :minHeight="minHeight"
                                   :results="failingResults"
-                                  :statusText="statusText('fail')"
+                                  status="fail"
                                   :fullWidth="!passingResults.length"
                                   optional
       />
       <policy-status-per-namespace @height-change="updateHeight('pass', $event)"
                                   :minHeight="minHeight"
                                   :results="passingResults"
-                                  :statusText="statusText('pass')"
+                                  status="pass"
                                   :fullWidth="!failingResults.length"
                                   optional
       />
       <policy-status-per-namespace @height-change="updateHeight('error', $event)"
                                   :minHeight="minHeight"
                                   :results="errorResults"
-                                  :statusText="statusText('error')"
+                                  status="error"
                                   optional
       />
       <policy-status-per-namespace @height-change="updateHeight('warn', $event)"
                                   :minHeight="minHeight"
                                   :results="warningResults"
-                                  :statusText="statusText('warn')"
+                                  status="warn"
                                   optional
       />
       <policy-status-per-namespace @height-change="updateHeight('skip', $event)"
                                   :minHeight="minHeight"
                                   :results="skippedResults"
-                                  :statusText="statusText('skip')"
+                                  status="skip"
                                   optional
       />
     </v-row>
@@ -183,7 +183,6 @@ type Data = {
 
 type Methods = {
   updateHeight(status: string, height: number): void;
-  statusText(status: string): string;
 }
 
 type Computed = {
@@ -303,22 +302,6 @@ export default Vue.extend<Data, Methods, Computed, {}>({
   methods: {
     updateHeight(status: string, height: number) {
       this.heights = { ...this.heights, [status as Status]: height };
-    },
-    statusText(status: string): string {
-      switch (status) {
-        case Status.SKIP:
-          return 'Skipped';
-        case Status.PASS:
-          return 'Passing';
-        case Status.WARN:
-          return 'Warning';
-        case Status.FAIL:
-          return 'Failing';
-        case Status.ERROR:
-          return 'Errored';
-        default:
-          return 'Unknown';
-      }
     },
   },
 });
