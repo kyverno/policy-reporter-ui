@@ -53,6 +53,7 @@ export default Vue.extend<{ show: boolean }, {}, { height: number; options: any 
             show: false,
           },
         },
+        colors: ['#EF5350'],
         plotOptions: {
           bar: {
             horizontal: true,

@@ -1,5 +1,5 @@
 import {
-  PolicyReport, ClusterPolicyReport, GlobalPolicyReportMap, NamespacePolicyMap, Priority, Result, RuleMap,
+  PolicyReport, ClusterPolicyReport, GlobalPolicyReportMap, NamespacePolicyMap, Priority, Result, RuleMap, Status,
 } from '@/models';
 
 const priorityToColor: { [key in Priority]: string } = {
@@ -11,7 +11,25 @@ const priorityToColor: { [key in Priority]: string } = {
   [Priority.CRITICAL]: 'red darken-4',
 };
 
+const statusToColor: { [status in Status]: string } = {
+  [Status.SKIP]: '#E0E0E0',
+  [Status.PASS]: '#43A047',
+  [Status.WARN]: '#FB8C00',
+  [Status.FAIL]: '#EF5350',
+  [Status.ERROR]: '#F44336',
+};
+
+const statusToText: { [status in Status]: string } = {
+  [Status.SKIP]: 'Skipped',
+  [Status.PASS]: 'Passing',
+  [Status.WARN]: 'Warning',
+  [Status.FAIL]: 'Failing',
+  [Status.ERROR]: 'Errored',
+};
+
 export const mapPriority = (priority: Priority): string => priorityToColor[priority] || priorityToColor[Priority.DEBUG];
+export const mapStatus = (status: Status): string => statusToColor[status] || statusToColor[Status.SKIP];
+export const mapStatusText = (status: Status): string => statusToText[status] || statusToText[Status.SKIP];
 
 export const convertPolicyReports = (reports: PolicyReport[]): NamespacePolicyMap => {
   const unordnered = reports.reduce<NamespacePolicyMap>((acc, report) => {
