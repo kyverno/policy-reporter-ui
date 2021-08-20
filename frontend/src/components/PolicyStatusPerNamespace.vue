@@ -21,8 +21,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Result, Status } from '@/models';
-import Wait from './Wait.vue';
 import { mapStatus, mapStatusText } from '@/mapper';
+import Wait from './Wait.vue';
 
 type Props = { optional: boolean; minHeight?: number; status: string; results: Result[]; fullWidth: boolean };
 
