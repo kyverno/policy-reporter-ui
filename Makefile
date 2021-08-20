@@ -34,3 +34,8 @@ docker-build:
 .PHONY: docker-push
 docker-push:
 	@docker buildx build --progress plane --platform linux/arm64,linux/amd64 --tag $(REPO):$(IMAGE_TAG) . --build-arg LD_FLAGS=$(LD_FLAGS) --push
+	@docker buildx build --progress plane --platform linux/arm64,linux/amd64 --tag $(REPO):latest . --build-arg LD_FLAGS=$(LD_FLAGS) --push
+
+.PHONY: docker-push-dev
+docker-push-dev:
+	@docker buildx build --progress plane --platform linux/arm64,linux/amd64 --tag $(REPO):dev . --build-arg LD_FLAGS=$(LD_FLAGS) --push

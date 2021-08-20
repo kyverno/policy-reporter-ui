@@ -95,7 +95,7 @@
       </v-col>
     </v-row>
 
-    <v-btn @click="$router.push('/kyverno')" fixed top right style="z-index: 999;" depressed dark color="grey darken-1">
+    <v-btn @click="$router.push('/kyverno-plugin')" fixed top right style="z-index: 999;" depressed dark color="grey darken-1">
       Back
     </v-btn>
   </v-container>

@@ -9,6 +9,7 @@
                     :value="value"
                     v-bind="$attrs"
                     @input="input"
+                    :error-messages="!selected.length ? 'required' : null"
     >
       <template v-slot:prepend-item>
         <v-list-item ripple @click="toggle">
@@ -98,6 +99,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   created() {
     if (!this.policies.length || this.value.length > 0) return;
 
+    this.selected = [this.policies[0]];
     this.$emit('input', [this.policies[0]]);
   },
 });
