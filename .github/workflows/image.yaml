@@ -29,6 +29,7 @@ jobs:
         id: buildx
         with:
           install: true
+          version: latest
 
       - name: docker images publish
         run: |
