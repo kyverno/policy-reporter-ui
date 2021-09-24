@@ -1,4 +1,4 @@
-FROM node:14-alpine as frontend
+FROM node:15-alpine as frontend
 
 WORKDIR /var/www
 
