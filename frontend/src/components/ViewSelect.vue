@@ -34,7 +34,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   methods: {
     input(view: string): void {
       this.$emit('input', view);
+      this.$router.push({ name: this.$route.name as string, query: { ...this.$route.query, view } });
     },
+  },
+  created() {
+    if (this.$route.query.view) {
+      this.$emit('input', this.$route.query.view);
+    }
   },
 });
 </script>

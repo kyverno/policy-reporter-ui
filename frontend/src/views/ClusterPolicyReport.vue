@@ -7,7 +7,8 @@
               <v-container fluid>
                 <v-row>
                   <v-col cols="4" class="d-inline-block">
-                    <policy-autocomplete v-model="policies" :policies="availablePolicies" />
+                    <policy-autocomplete v-model="policies" :policies="availablePolicies" v-if="availablePolicies.length" />
+                    <v-autocomplete dense outlined hide-details label="Policies" v-else />
                   </v-col>
                   <v-col cols="4">
                     <kind-autocomplete v-model="kinds" :kinds="availableKinds" />

@@ -57,8 +57,19 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     input(kinds: string[]): void {
       this.selected = kinds;
 
-      debounced(() => { this.$emit('input', kinds); });
+      debounced(() => {
+        this.$emit('input', kinds);
+        this.$router.push({ name: this.$route.name as string, query: { ...this.$route.query, kinds } });
+      });
     },
+  },
+  created() {
+    if (this.$route.query.kinds) {
+      const kinds = Array.isArray(this.$route.query.kinds) ? this.$route.query.kinds.filter((c) => !!c) as string[] : [this.$route.query.kinds];
+
+      this.selected = kinds;
+      this.$emit('input', kinds);
+    }
   },
 });
 </script>
