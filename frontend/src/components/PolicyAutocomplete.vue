@@ -9,7 +9,7 @@
                     :value="value"
                     v-bind="$attrs"
                     @input="input"
-                    :error-messages="!selected.length ? 'required' : null"
+                    :error-messages="!selected.length && policies.length ? 'required' : null"
     >
       <template v-slot:prepend-item>
         <v-list-item ripple @click="toggle">
@@ -80,27 +80,60 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     input(policies: string[]): void {
       this.selected = policies;
 
-      debounced(() => { this.$emit('input', policies); });
+      debounced(() => {
+        this.$emit('input', policies);
+        this.$router.push({ name: this.$route.name as string, query: { ...this.$route.query, policies, all: undefined } });
+      });
     },
     toggle() {
       this.$nextTick(() => {
         if (this.all) {
           this.selected = [];
           this.$emit('input', []);
+          this.$router.push({ name: this.$route.name as string, query: { ...this.$route.query, all: undefined } });
         } else {
           const all = this.policies.slice();
 
           this.selected = all;
           this.$emit('input', all);
+          this.$router.push({
+            name: this.$route.name as string,
+            query: {
+              ...this.$route.query,
+              all: 'true',
+              policies: undefined,
+            },
+          });
         }
       });
     },
   },
   created() {
+    if (this.$route.query.all) {
+      const all = this.policies.slice();
+
+      this.selected = all;
+      this.$emit('input', all);
+
+      return;
+    }
+
+    if (this.$route.query.policies) {
+      const policies = Array.isArray(this.$route.query.policies) ? this.$route.query.policies.filter((c) => !!c) as string[] : [this.$route.query.policies];
+
+      this.selected = policies;
+      this.$emit('input', policies);
+
+      return;
+    }
+
     if (!this.policies.length || this.value.length > 0) return;
 
-    this.selected = [this.policies[0]];
-    this.$emit('input', [this.policies[0]]);
+    const policies = [this.policies[0]];
+
+    this.selected = policies;
+    this.$emit('input', policies);
+    this.$router.push({ name: this.$route.name as string, query: { ...this.$route.query, policies } });
   },
 });
 </script>

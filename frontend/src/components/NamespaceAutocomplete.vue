@@ -51,8 +51,19 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     input(namespaces: string[]): void {
       this.selected = namespaces;
 
-      debounced(() => { this.$emit('input', namespaces); });
+      debounced(() => {
+        this.$emit('input', namespaces);
+        this.$router.push({ name: this.$route.name as string, query: { ...this.$route.query, namespaces } });
+      });
     },
+  },
+  created() {
+    if (this.$route.query.namespaces) {
+      const namespaces = Array.isArray(this.$route.query.namespaces) ? this.$route.query.namespaces.filter((c) => !!c) as string[] : [this.$route.query.namespaces];
+
+      this.selected = namespaces;
+      this.$emit('input', namespaces);
+    }
   },
 });
 </script>
