@@ -12,7 +12,7 @@ RUN cd frontend \
     && npm install \
     && npm run build
 
-FROM golang:1.17-buster as builder
+FROM golang:1.17.2 as builder
 
 ARG LD_FLAGS
 ARG TARGETPLATFORM
