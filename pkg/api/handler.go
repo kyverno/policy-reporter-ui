@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/client"
@@ -21,6 +22,7 @@ func PolicyReportHandler(development bool, client client.Client) http.HandlerFun
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			log.Printf("[ERROR] Fetch PolicyReports from Policy Reporter: %s", err.Error())
 			return
 		}
 		if resp.Header.Get("Content-Encoding") == "gzip" {
@@ -31,6 +33,7 @@ func PolicyReportHandler(development bool, client client.Client) http.HandlerFun
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			log.Printf("[ERROR] Copy Policy Reporter Response: %s", err.Error())
 		}
 	}
 }
@@ -46,6 +49,7 @@ func ClusterPolicyReportHandler(development bool, client client.Client) http.Han
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			log.Printf("[ERROR] Fetch ClusterPolicyReports from Policy Reporter: %s", err.Error())
 			return
 		}
 		if resp.Header.Get("Content-Encoding") == "gzip" {
@@ -56,6 +60,7 @@ func ClusterPolicyReportHandler(development bool, client client.Client) http.Han
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			log.Printf("[ERROR] Copy Policy Reporter Response: %s", err.Error())
 		}
 	}
 }
@@ -85,8 +90,8 @@ func ResultHandler(development bool, store *report.ResultStore) http.HandlerFunc
 
 		err := json.NewEncoder(w).Encode(store.List())
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			log.Printf("[ERROR] Encode PolicyReportResults: %s", err.Error())
 		}
 	}
 }
@@ -102,6 +107,7 @@ func TargetHandler(development bool, client client.Client) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			log.Printf("[ERROR] Fetch Targets from Policy Reporter: %s", err.Error())
 			return
 		}
 		if resp.Header.Get("Content-Encoding") == "gzip" {
@@ -112,6 +118,7 @@ func TargetHandler(development bool, client client.Client) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			log.Printf("[ERROR] Copy Policy Reporter Response: %s", err.Error())
 		}
 	}
 }
@@ -127,6 +134,7 @@ func KyvernoPolicyHandler(development bool, client client.Client) http.HandlerFu
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			log.Printf("[ERROR] Fetch KyvernoPolicies from Policy Reporter Kyverno Plugin: %s", err.Error())
 			return
 		}
 		if resp.Header.Get("Content-Encoding") == "gzip" {
@@ -137,6 +145,7 @@ func KyvernoPolicyHandler(development bool, client client.Client) http.HandlerFu
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			log.Printf("[ERROR] Copy Policy Reporter Response: %s", err.Error())
 		}
 	}
 }
@@ -150,8 +159,8 @@ func PluginHandler(development bool, plugins []string) http.HandlerFunc {
 
 		err := json.NewEncoder(w).Encode(plugins)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			log.Printf("[ERROR] Encode Plugins: %s", err.Error())
 		}
 	}
 }
