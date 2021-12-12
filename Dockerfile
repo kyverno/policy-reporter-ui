@@ -1,16 +1,15 @@
-FROM node:15-alpine as frontend
+FROM node:16-alpine as frontend
 
 WORKDIR /var/www
 
-RUN apk add --no-cache --virtual .gyp make g++ \
+RUN apk add --no-cache --virtual .gyp python3 make g++ \
     && npm set progress=false \
     && npm config set depth 0
 
-COPY frontend frontend
+COPY . .
 
-RUN cd frontend \
-    && npm install \
-    && npm run build
+RUN npm install \
+    && npm run generate
 
 FROM golang:1.17.2 as builder
 
@@ -19,11 +18,10 @@ ARG TARGETPLATFORM
 
 WORKDIR /app
 
-COPY pkg pkg
-COPY main.go main.go
-COPY go.sum go.sum
-COPY go.mod go.mod
-COPY Makefile Makefile
+COPY server/pkg pkg
+COPY server/main.go main.go
+COPY server/go.sum go.sum
+COPY server/go.mod go.mod
 
 RUN export GOOS=$(echo ${TARGETPLATFORM} | cut -d / -f1) && \
     export GOARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2)
@@ -46,6 +44,6 @@ COPY LICENSE.md .
 COPY --from=frontend /var/www/dist /app/dist
 COPY --from=builder /app/build/policyreporter-ui /app/policyreporter-ui
 
-EXPOSE 2112
+EXPOSE 8080
 
 ENTRYPOINT ["/app/policyreporter-ui"]
