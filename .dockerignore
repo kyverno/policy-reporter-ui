@@ -1,2 +1,9 @@
-frontend/.env
-frontend/node_modules
+.nuxt
+node_modules
+.env
+.env.example
+test
+dist
+
+.nuxt
+.github

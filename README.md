@@ -10,26 +10,39 @@ To make Policy Reporter more accessible, this additional tool adds a standalone,
 
 ## Requirements
 
-Policy Reporter runs with the enabled REST API endpoints.
+Running and accessable Policy Reporter Application
 
 ## Configuration
 
-### Flags
+### Backend Flags
 
-* `-backend` is the URL to the Policy Reporter REST API
+* `-policy-reporter` is the URL to the Policy Reporter REST API
+* `-kyverno-plugin` is the URL to the Policy Reporter Kyverno Plugin REST API
 * `-port` is the default port for the UI (`8080` by default)
 * `-dev` enables development mode and adds CORS Headers to the REST API Endpoints
+* `-no-ui` runs the Go Backend Application without the Frontend - mainly for development purpose
 
 ## Running with Docker
 
 ```bash
-docker run -p 8080:8080 --rm fjogeleit/policy-reporter-ui -backend http://host.docker.internal:8081
+docker run -p 8082:8080 --rm ghcr.io/kyverno/policy-reporter-ui -backend http://host.docker.internal:8080
 ```
 
-## Screenshots
+## Build Setup
 
-![Dashboard](https://github.com/kyverno/policy-reporter-ui/blob/main/docs/images/dashboard.png?raw=true)
+```bash
+# install dependencies
+$ npm install
 
-![Policy Reports](https://github.com/kyverno/policy-reporter-ui/blob/main/docs/images/policy-report.png?raw=true)
+# serve with hot reload at localhost:3000
+$ npm run dev
 
-![ClusterPolicyReports](https://github.com/kyverno/policy-reporter-ui/blob/main/docs/images/cluster-policy-report.png?raw=true)
+# build for production and launch server
+$ npm run build
+$ npm run start
+
+# generate static project
+$ npm run generate
+```
+
+For detailed explanation on how things work, check out the [nuxtjs documentation](https://nuxtjs.org).
