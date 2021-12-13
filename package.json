@@ -46,7 +46,7 @@
     "babel-jest": "^27.4.4",
     "eslint": "^7.29.0",
     "eslint-plugin-nuxt": "^2.0.0",
-    "eslint-plugin-vue": "^7.12.1",
+    "eslint-plugin-vue": "^8.2.0",
     "husky": "^7.0.4",
     "jest": "^27.4.4",
     "lint-staged": "^10.5.4",
