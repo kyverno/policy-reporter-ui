@@ -36,5 +36,4 @@ const statusToText: { [status in Status]: string } = {
 export const mapPriority = (priority: Priority): string => priorityToColor[priority] || priorityToColor[Priority.DEBUG]
 export const mapStatus = (status: Status): string => statusToColor[status] || statusToColor[Status.SKIP]
 export const mapStatusText = (status: Status): string => statusToText[status] || statusToText[Status.SKIP]
-
 export const mapDarkStatus = (status: Status): string => statusToDarkColor[status] || statusToDarkColor[Status.SKIP]

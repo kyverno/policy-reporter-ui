@@ -68,7 +68,7 @@
               <template #expanded-item="{ headers, item }">
                 <tr class="table-expand-text">
                   <td :colspan="headers.length" class="py-3">
-                    <div v-if="item.properties && item.properties.length">
+                    <div v-if="item.properties && Object.keys(item.properties).length">
                       <v-card flat>
                         <v-alert dense type="info" outlined class="rounded my-0" flat>
                           {{ item.message }}

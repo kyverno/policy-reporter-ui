@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapStatus, mapStatusText } from '~/policy-reporter-plugins/core/mapper'
+import { mapDarkStatus, mapStatus, mapStatusText } from '~/policy-reporter-plugins/core/mapper'
 import { Status } from '~/policy-reporter-plugins/core/types'
 
 export default Vue.extend<{ waiting: boolean }, {}, { statusText: string; color: string; size: number; }, { count: number; status: Status; }>({
@@ -29,6 +29,10 @@ export default Vue.extend<{ waiting: boolean }, {}, { statusText: string; color:
       return mapStatusText(this.status)
     },
     color () {
+      if (this.$vuetify.theme.dark) {
+        return mapDarkStatus(this.status)
+      }
+
       return mapStatus(this.status)
     },
     size () {
