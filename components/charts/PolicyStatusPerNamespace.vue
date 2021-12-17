@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapStatus, mapStatusText } from '~/policy-reporter-plugins/core/mapper'
+import { mapDarkStatus, mapStatus, mapStatusText } from '~/policy-reporter-plugins/core/mapper'
 import { Status } from '~/policy-reporter-plugins/core/types'
 
 type Props = {
@@ -69,6 +69,10 @@ export default Vue.extend<Data, {}, Computed, Props>({
       return mapStatusText(this.status)
     },
     statusColor (): string {
+      if (this.$vuetify.theme.dark) {
+        return mapDarkStatus(this.status)
+      }
+
       return mapStatus(this.status)
     },
     options () {
