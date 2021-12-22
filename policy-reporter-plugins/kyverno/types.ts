@@ -30,7 +30,6 @@ export interface Policy {
 export interface VerifyImageRule {
     rule: string;
     attestations?: string;
-    content: string;
     policy: { name: string; namespace?: string; uid: string }
     repository: string;
     image: string;

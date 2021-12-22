@@ -43,7 +43,7 @@
               <td>{{ item.repository }}</td>
               <td>{{ item.image }}</td>
               <td>
-                <attestations-dialog :attestations="item.attestations" />
+                <attestations-dialog v-if="item.attestations" :attestations="item.attestations" />
               </td>
             </tr>
           </template>

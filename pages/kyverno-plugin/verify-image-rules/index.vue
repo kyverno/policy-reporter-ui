@@ -1,7 +1,7 @@
 <template>
   <loader :loading="loading">
     <v-container fluid class="py-6 px-6">
-      <verify-image-table :rules="rules" title="Verify Image Rules" />
+      <verify-image-table :rules="rules" title="VerifyImages Rules" />
     </v-container>
   </loader>
 </template>

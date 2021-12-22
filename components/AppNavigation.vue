@@ -40,7 +40,7 @@
       <app-navigation-item
         v-if="plugins && plugins.includes('kyverno')"
         route="/kyverno-plugin/verify-image-rules"
-        title="Kyverno ImageVerify Rules"
+        title="Kyverno VerifyImages"
         icon="mdi-shield-check"
       />
     </v-list>
