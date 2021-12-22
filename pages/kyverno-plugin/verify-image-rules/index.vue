@@ -23,7 +23,6 @@ type Props = {}
 export default Vue.extend<Data, Methods, {}, Props>({
   name: 'VerifyImageRules',
   components: { VerifyImageTable },
-  layout: 'KyvernoPlugin',
   asyncData ({ $kyvernoAPI }) {
     return $kyvernoAPI.verifyImageRules().then(rules => ({
       rules,

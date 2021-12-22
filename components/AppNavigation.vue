@@ -2,47 +2,57 @@
   <v-navigation-drawer :value="value" app clipped width="305" @input="$emit('input', $event)">
     <v-list>
       <app-navigation-item icon="mdi-view-dashboard" route="/" title="Dashboard" />
-      <app-navigation-item
-        v-if="namespacedPages.length <= 1"
-        icon="mdi-file-chart"
-        :route="(namespacedPages[0] || { path: '/policy-reports' }).path"
-        title="Policy Reports"
-      />
-      <app-navigation-group
-        v-else
-        icon="mdi-file-chart"
-        title="Policy Reports"
-        :items="namespacedPages"
-      />
 
-      <app-navigation-item
-        v-if="clusterPages.length <= 1"
-        icon="mdi-file-chart"
-        :route="(clusterPages[0] || { path: '/cluster-policy-reports' }).path"
-        title="ClusterPolicy Reports"
-      />
-      <app-navigation-group
-        v-else
-        icon="mdi-file-chart"
-        title="ClusterPolicy Reports"
-        :items="clusterPages"
-      />
+      <template v-if="views.policyReports">
+        <app-navigation-item
+          v-if="namespacedPages.length <= 1"
+          icon="mdi-file-chart"
+          :route="(namespacedPages[0] || { path: '/policy-reports' }).path"
+          title="Policy Reports"
+        />
+        <app-navigation-group
+          v-else
+          icon="mdi-file-chart"
+          title="Policy Reports"
+          :items="namespacedPages"
+        />
+      </template>
 
-      <app-navigation-item icon="mdi-console" route="/logs" title="Logs" />
-      <app-navigation-item v-if="plugins && plugins.includes('kyverno')" route="/kyverno-plugin" title="Kyverno Policies" exact>
-        <template #icon>
-          <v-list-item-icon>
-            <lazy-kyverno-icon style="height: 24px; width: 24px;" />
-          </v-list-item-icon>
-        </template>
-      </app-navigation-item>
+      <template v-if="views.clusterPolicyReports">
+        <app-navigation-item
+          v-if="clusterPages.length <= 1"
+          icon="mdi-file-chart"
+          :route="(clusterPages[0] || { path: '/cluster-policy-reports' }).path"
+          title="ClusterPolicy Reports"
+        />
+        <app-navigation-group
+          v-else
+          icon="mdi-file-chart"
+          title="ClusterPolicy Reports"
+          :items="clusterPages"
+        />
+      </template>
 
-      <app-navigation-item
-        v-if="plugins && plugins.includes('kyverno')"
-        route="/kyverno-plugin/verify-image-rules"
-        title="Kyverno VerifyImages"
-        icon="mdi-shield-check"
-      />
+      <app-navigation-item v-if="views.logs" icon="mdi-console" route="/logs" title="Logs" />
+
+      <template v-if="views.kyvernoPolicies">
+        <app-navigation-item v-if="plugins && plugins.includes('kyverno')" route="/kyverno-plugin" title="Kyverno Policies" exact>
+          <template #icon>
+            <v-list-item-icon>
+              <lazy-kyverno-icon style="height: 24px; width: 24px;" />
+            </v-list-item-icon>
+          </template>
+        </app-navigation-item>
+      </template>
+
+      <template v-if="views.kyvernoVerifyImages">
+        <app-navigation-item
+          v-if="plugins && plugins.includes('kyverno')"
+          route="/kyverno-plugin/verify-image-rules"
+          title="Kyverno VerifyImages"
+          icon="mdi-shield-check"
+        />
+      </template>
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -51,6 +61,7 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import AppNavigationItem from './AppNavigationItem.vue'
+import { ViewsCofig } from '~/policy-reporter-plugins/core/types'
 
 type Page = { title: string; path: string }
 
@@ -63,6 +74,7 @@ type Data = {
 type Props = {
   value: boolean;
   plugins: string[];
+  views: ViewsCofig;
 }
 
 type Computed = {
@@ -75,7 +87,8 @@ export default Vue.extend<Data, Methdos, Computed, Props>({
   components: { AppNavigationItem },
   props: {
     value: { type: Boolean, default: false },
-    plugins: { type: Array, default: () => [] }
+    plugins: { type: Array, default: () => [] },
+    views: { type: Object, required: true }
   },
   data: () => ({
     interval: null,

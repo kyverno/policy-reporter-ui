@@ -136,7 +136,6 @@ type Computed = {
 export default Vue.extend<Data, Methods, Computed, Props>({
   name: 'Details',
   components: { RulesTable, PolicyDetails, YamlContent },
-  layout: 'KyvernoPlugin',
   data: () => ({
     interval: null,
     failCount: 0,
