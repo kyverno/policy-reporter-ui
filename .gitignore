@@ -90,5 +90,6 @@ sw.*
 # Vim swap files
 *.swp
 
-# Server build
+# Server
 server/build
+server/config.yaml

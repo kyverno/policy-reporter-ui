@@ -26,9 +26,18 @@ export enum DisplayMode {
     LIGHT = 'light'
 }
 
+export type ViewsCofig = {
+    logs: boolean;
+    policyReports: boolean;
+    clusterPolicyReports: boolean;
+    kyvernoPolicies: boolean;
+    kyvernoVerifyImages: boolean;
+}
+
 export type Config = {
     plugins: string[];
     displayMode: DisplayMode | '';
+    views: ViewsCofig;
 }
 
 export type ListResult = {

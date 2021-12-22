@@ -1,6 +1,6 @@
 <template>
   <v-app v-if="!loading">
-    <app-navigation v-model="drawer" :plugins="config.plugins" />
+    <app-navigation v-model="drawer" :plugins="config.plugins" :views="config.views" />
 
     <v-app-bar app class="elevation-1" clipped-left>
       <v-app-bar-nav-icon @click="drawer = !drawer" />
@@ -51,7 +51,14 @@ export default Vue.extend<Data, Methdos, {}, {}>({
     targets: [],
     config: {
       plugins: [],
-      displayMode: ''
+      displayMode: '',
+      views: {
+        logs: true,
+        policyReports: true,
+        clusterPolicyReports: true,
+        kyvernoPolicies: true,
+        kyvernoVerifyImages: true
+      }
     },
     drawer: true,
     links: [

@@ -40,7 +40,6 @@ type Props = {}
 export default Vue.extend<Data, Methods, {}, Props>({
   name: 'Dashboard',
   components: { CategoryChart, RuleTypeChart, PolicyTable },
-  layout: 'KyvernoPlugin',
   asyncData ({ $kyvernoAPI }) {
     return $kyvernoAPI.policies().then(({ groups, policies }) => ({
       policies,

@@ -3,7 +3,17 @@ import { ListResult, NamespacedStatusCount, StatusCount, Target, Filter, CoreAPI
 
 export const create = (axios: NuxtAxiosInstance): CoreAPI => ({
   config: (): Promise<Config> => {
-    return axios.$get<Config>('/api/config').catch(() => ({ plugins: [], displayMode: '' }))
+    return axios.$get<Config>('/api/config').catch(() => ({
+      plugins: [],
+      displayMode: '',
+      views: {
+        logs: true,
+        policyReports: true,
+        clusterPolicyReports: true,
+        kyvernoPolicies: true,
+        kyvernoVerifyImages: true
+      }
+    }))
   },
   logs: (): Promise<Result[]> => {
     return axios.$get<Result[]>('/api/result-log')
