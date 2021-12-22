@@ -27,6 +27,16 @@ export interface Policy {
     content: string;
 }
 
+export interface VerifyImageRule {
+    rule: string;
+    attestations?: string;
+    content: string;
+    policy: { name: string; namespace?: string; uid: string }
+    repository: string;
+    image: string;
+    key: string;
+}
+
 export type PolicyGroups = { [category: string]: Policy[] };
 
 export type ResultMap = {
@@ -35,5 +45,6 @@ export type ResultMap = {
 }
 
 export interface KyvernoAPI {
-    policies (): Promise<{ policies: Policy[]; groups: PolicyGroups }>
+    policies (): Promise<{ policies: Policy[]; groups: PolicyGroups }>;
+    verifyImageRules (): Promise<VerifyImageRule[]>;
 }
