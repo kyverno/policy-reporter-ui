@@ -29,13 +29,20 @@
       />
 
       <app-navigation-item icon="mdi-console" route="/logs" title="Logs" />
-      <app-navigation-item v-if="plugins && plugins.includes('kyverno')" route="/kyverno-plugin" title="Kyverno Policies">
+      <app-navigation-item v-if="plugins && plugins.includes('kyverno')" route="/kyverno-plugin" title="Kyverno Policies" exact>
         <template #icon>
           <v-list-item-icon>
             <lazy-kyverno-icon style="height: 24px; width: 24px;" />
           </v-list-item-icon>
         </template>
       </app-navigation-item>
+
+      <app-navigation-item
+        v-if="plugins && plugins.includes('kyverno')"
+        route="/kyverno-plugin/verify-image-rules"
+        title="Kyverno VerifyImages"
+        icon="mdi-shield-check"
+      />
     </v-list>
   </v-navigation-drawer>
 </template>

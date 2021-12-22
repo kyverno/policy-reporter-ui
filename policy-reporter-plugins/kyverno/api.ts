@@ -1,5 +1,5 @@
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
-import { Policy, PolicyGroups } from './types'
+import { Policy, PolicyGroups, VerifyImageRule } from './types'
 
 export const create = ($axios: NuxtAxiosInstance) => ({
   async policies (): Promise<{ policies: Policy[]; groups: PolicyGroups }> {
@@ -30,5 +30,8 @@ export const create = ($axios: NuxtAxiosInstance) => ({
     }, {})
 
     return { policies, groups }
+  },
+  verifyImageRules (): Promise<VerifyImageRule[]> {
+    return $axios.$get<VerifyImageRule[]>('/api/kyverno/verify-image-rules')
   }
 })
