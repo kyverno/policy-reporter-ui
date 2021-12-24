@@ -22,7 +22,7 @@
     "apexcharts": "^3.32.1",
     "chroma-js": "^2.1.2",
     "clipboard": "^2.0.8",
-    "core-js": "^3.20.0",
+    "core-js": "^3.20.1",
     "highlight.js": "^10.7.3",
     "lodash.debounce": "^4.0.8",
     "nuxt": "^2.15.7",
