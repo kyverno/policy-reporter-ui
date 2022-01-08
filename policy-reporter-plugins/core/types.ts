@@ -26,12 +26,18 @@ export enum DisplayMode {
     LIGHT = 'light'
 }
 
+export type DashboardConfig = {
+    policyReports: boolean;
+    clusterPolicyReports: boolean;
+}
+
 export type ViewsCofig = {
     logs: boolean;
     policyReports: boolean;
     clusterPolicyReports: boolean;
     kyvernoPolicies: boolean;
     kyvernoVerifyImages: boolean;
+    dashboard: DashboardConfig
 }
 
 export type Config = {

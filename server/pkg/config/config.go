@@ -6,12 +6,18 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Views struct {
-	Logs                 bool `json:"logs" mapstructure:"logs"`
+type Dashboard struct {
 	PolicyReports        bool `json:"policyReports" mapstructure:"policyReports"`
 	ClusterPolicyReports bool `json:"clusterPolicyReports" mapstructure:"clusterPolicyReports"`
-	KyvernoPolicies      bool `json:"kyvernoPolicies" mapstructure:"kyvernoPolicies"`
-	KyvernoVerifyImages  bool `json:"kyvernoVerifyImages" mapstructure:"kyvernoVerifyImages"`
+}
+
+type Views struct {
+	Dashboard            Dashboard `json:"dashboard" mapstructure:"dashboard"`
+	Logs                 bool      `json:"logs" mapstructure:"logs"`
+	PolicyReports        bool      `json:"policyReports" mapstructure:"policyReports"`
+	ClusterPolicyReports bool      `json:"clusterPolicyReports" mapstructure:"clusterPolicyReports"`
+	KyvernoPolicies      bool      `json:"kyvernoPolicies" mapstructure:"kyvernoPolicies"`
+	KyvernoVerifyImages  bool      `json:"kyvernoVerifyImages" mapstructure:"kyvernoVerifyImages"`
 }
 
 type Config struct {
@@ -37,6 +43,9 @@ func LoadConfig(cfgFile string) (*Config, error) {
 	v.SetDefault("views.clusterPolicyReports", true)
 	v.SetDefault("views.kyvernoPolicies", true)
 	v.SetDefault("views.kyvernoVerifyImages", true)
+
+	v.SetDefault("views.dashboard.policyReports", true)
+	v.SetDefault("views.dashboard.clusterPolicyReports", true)
 
 	c := &Config{}
 

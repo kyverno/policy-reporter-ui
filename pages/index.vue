@@ -2,8 +2,18 @@
   <loader :loading="loading" :error="$fetchState.error">
     <v-container fluid class="pt-6 px-6">
       <v-row>
-        <policy-status-per-namespace :values="failedCounters" status="fail" :md-cols="8" />
-        <v-col cols="12" md="4">
+        <policy-status-per-namespace
+          v-if="config.policyReports"
+          :values="failedCounters"
+          status="fail"
+          xs-cols="12"
+          :md-cols="config.clusterPolicyReports ? 8 : 12"
+        />
+        <v-col
+          v-if="config.clusterPolicyReports"
+          xs-cols="12"
+          :md-cols="config.policyReports ? 4 : 12"
+        >
           <failing-cluster-policies />
         </v-col>
       </v-row>
@@ -18,8 +28,8 @@
           </v-card>
         </v-col>
       </v-row>
-      <cluster-policy-report-table status="fail" :filter="{ sources: [source] }" />
-      <policy-report-table status="fail" :filter="{ sources: [source] }" />
+      <cluster-policy-report-table v-if="config.clusterPolicyReports" status="fail" :filter="{ sources: [source] }" />
+      <policy-report-table v-if="config.policyReports" status="fail" :filter="{ sources: [source] }" />
     </v-container>
   </loader>
 </template>
@@ -28,36 +38,58 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import PolicyStatusPerNamespace from '~/components/charts/PolicyStatusPerNamespace.vue'
-import { Status } from '~/policy-reporter-plugins/core/types'
+import { DashboardConfig, Status } from '~/policy-reporter-plugins/core/types'
 
-export default Vue.extend({
+type FailCounters = { namespaces: string[]; counts: number[] }
+
+type Data = {
+  interval: any;
+  sources: string[];
+  loading: boolean;
+  failedCounters: FailCounters
+}
+
+type Computed = {
+  refreshInterval: number;
+  config: DashboardConfig
+}
+
+export default Vue.extend<Data, {}, Computed, {}>({
   components: { PolicyStatusPerNamespace },
   data: () => ({
-    interval: null as any,
-    sources: [] as string[],
-    loading: true as boolean,
-    failedCounters: { namespaces: [], counts: [] } as { namespaces: string[]; counts: number[] }
+    interval: null,
+    sources: [],
+    loading: true,
+    failedCounters: { namespaces: [], counts: [] }
   }),
   async fetch () {
-    const [clusterSources, namespacedSources] = await Promise.all([
-      this.$coreAPI.clusterSources(),
-      this.$coreAPI.namespacedSources()
-    ])
+    const sourceAPIs: Promise<string[]>[] = []
 
-    this.sources = [...new Set<string>([...clusterSources, ...namespacedSources])]
+    if (this.config.policyReports) {
+      sourceAPIs.push(this.$coreAPI.namespacedSources())
+    }
+    if (this.config.clusterPolicyReports) {
+      sourceAPIs.push(this.$coreAPI.clusterSources())
+    }
 
-    const statusCount = await this.$coreAPI.namespacedStatusCount({ status: [Status.FAIL] })
+    const mixedSources = await Promise.all(sourceAPIs)
 
-    this.failedCounters = statusCount[0].items.reduce<{ namespaces: string[]; counts: number[] }>((acc, statusCount) => {
-      acc.namespaces.push(statusCount.namespace)
-      acc.counts.push(statusCount.count)
+    this.sources = [...new Set<string>(mixedSources.reduce<string[]>((acc, source) => [...acc, ...source], []))]
 
-      return acc
-    }, { namespaces: [], counts: [] })
+    if (this.config.policyReports) {
+      const statusCount = await this.$coreAPI.namespacedStatusCount({ status: [Status.FAIL] })
+
+      this.failedCounters = statusCount[0].items.reduce<{ namespaces: string[]; counts: number[] }>((acc, statusCount) => {
+        acc.namespaces.push(statusCount.namespace)
+        acc.counts.push(statusCount.count)
+
+        return acc
+      }, { namespaces: [], counts: [] })
+    }
 
     this.loading = false
   },
-  computed: mapGetters(['refreshInterval']),
+  computed: mapGetters({ refreshInterval: 'refreshInterval', config: 'dashboardConfig' }),
   watch: {
     refreshInterval: {
       immediate: true,

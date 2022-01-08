@@ -1,6 +1,6 @@
 <template>
   <v-app v-if="!loading">
-    <app-navigation v-model="drawer" :plugins="config.plugins" :views="config.views" />
+    <app-navigation v-model="drawer" :plugins="plugins" :views="viewsConfig" />
 
     <v-app-bar app class="elevation-1" clipped-left>
       <v-app-bar-nav-icon @click="drawer = !drawer" />
@@ -30,36 +30,27 @@
 import Vue from 'vue'
 import { mapGetters, mapMutations } from 'vuex'
 import AppNavigation from '~/components/AppNavigation.vue'
-import { DisplayMode, Target, Config } from '~/policy-reporter-plugins/core/types'
+import { DisplayMode, Target, ViewsCofig } from '~/policy-reporter-plugins/core/types'
 
 type Data = {
   loading: boolean;
   targets: Target[];
   drawer: boolean;
-  config: Config;
+  plugins: string[];
   links: string[][];
 }
 
 type Methdos = {
   setDisplayMode(mode: DisplayMode): void;
+  setViewsConfig(config: ViewsCofig): void;
 }
 
-export default Vue.extend<Data, Methdos, {}, {}>({
+export default Vue.extend<Data, Methdos, { viewsConfig: ViewsCofig, isDarkMode: boolean }, {}>({
   components: { AppNavigation },
   data: () => ({
     loading: true,
     targets: [],
-    config: {
-      plugins: [],
-      displayMode: '',
-      views: {
-        logs: true,
-        policyReports: true,
-        clusterPolicyReports: true,
-        kyvernoPolicies: true,
-        kyvernoVerifyImages: true
-      }
-    },
+    plugins: [],
     drawer: true,
     links: [
       ['mdi-view-dashboard', 'Dashboard', '/'],
@@ -75,14 +66,15 @@ export default Vue.extend<Data, Methdos, {}, {}>({
         this.targets = targets
       }),
       this.$coreAPI.config().then((config) => {
-        this.config = config
+        this.plugins = config.plugins
+        this.setViewsConfig(config.views)
 
         if (sessionStorage.getItem('displayMode')) {
           return
         }
 
-        if (this.config.displayMode) {
-          this.setDisplayMode(this.config.displayMode)
+        if (config.displayMode) {
+          this.setDisplayMode(config.displayMode)
           return
         }
 
@@ -92,7 +84,7 @@ export default Vue.extend<Data, Methdos, {}, {}>({
       }).then().finally(() => { this.loading = false })
     ])
   },
-  computed: mapGetters(['isDarkMode']),
+  computed: mapGetters(['isDarkMode', 'viewsConfig']),
   watch: {
     isDarkMode: {
       immediate: true,
@@ -106,7 +98,7 @@ export default Vue.extend<Data, Methdos, {}, {}>({
       this.setDisplayMode(!e.matches ? DisplayMode.LIGHT : DisplayMode.DARK)
     })
   },
-  methods: mapMutations(['setDisplayMode'])
+  methods: mapMutations(['setDisplayMode', 'setViewsConfig'])
 })
 </script>
 

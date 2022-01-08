@@ -11,7 +11,11 @@ export const create = (axios: NuxtAxiosInstance): CoreAPI => ({
         policyReports: true,
         clusterPolicyReports: true,
         kyvernoPolicies: true,
-        kyvernoVerifyImages: true
+        kyvernoVerifyImages: true,
+        dashboard: {
+          policyReports: true,
+          clusterPolicyReports: true
+        }
       }
     }))
   },
