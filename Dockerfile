@@ -11,7 +11,7 @@ COPY . .
 RUN npm install \
     && npm run generate
 
-FROM golang:1.17.2 as builder
+FROM golang:1.17.3 as builder
 
 ARG LD_FLAGS
 ARG TARGETPLATFORM
