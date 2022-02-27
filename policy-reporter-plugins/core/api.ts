@@ -26,19 +26,19 @@ export const create = (axios: NuxtAxiosInstance): CoreAPI => ({
     return axios.$get<Target[]>('/api/v1/targets')
   },
   categories: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/categories', { params: { source } })
+    return axios.$get<string[]>('/api/v1/categories', { params: { sources: [source] } })
   },
   namespaces: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/namespaces', { params: { source } })
+    return axios.$get<string[]>('/api/v1/namespaces', { params: { sources: [source] } })
   },
   ruleStatusCount: (policy: string, rule: string): Promise<StatusCount[]> => {
     return axios.$get<StatusCount[]>('/api/v1/rule-status-count', { params: { policy, rule } })
   },
   namespacedKinds: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/namespaced-resources/kinds', { params: { source } })
+    return axios.$get<string[]>('/api/v1/namespaced-resources/kinds', { params: { sources: [source] } })
   },
   namespacedPolicies: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/namespaced-resources/policies', { params: { source } })
+    return axios.$get<string[]>('/api/v1/namespaced-resources/policies', { params: { sources: [source] } })
   },
   namespacedSources: (): Promise<string[]> => {
     return axios.$get<string[]>('/api/v1/namespaced-resources/sources')
@@ -50,10 +50,10 @@ export const create = (axios: NuxtAxiosInstance): CoreAPI => ({
     return axios.$get<ListResult[]>('/api/v1/namespaced-resources/results', { params: filter })
   },
   clusterKinds: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/cluster-resources/kinds', { params: { source } })
+    return axios.$get<string[]>('/api/v1/cluster-resources/kinds', { params: { sources: [source] } })
   },
   clusterPolicies: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/cluster-resources/policies', { params: { source } })
+    return axios.$get<string[]>('/api/v1/cluster-resources/policies', { params: { sources: [source] } })
   },
   clusterSources: (): Promise<string[]> => {
     return axios.$get<string[]>('/api/v1/cluster-resources/sources')
