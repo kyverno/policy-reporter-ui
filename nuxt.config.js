@@ -7,6 +7,10 @@ export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
 
+  router: {
+    mode: 'hash'
+  },
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     titleTemplate: '%s - Policy Reporter UI',
@@ -77,5 +81,17 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    extend (config, { isDev }) {
+      if (!isDev) {
+        config.output.publicPath = './_nuxt/'
+      }
+
+      return config
+    },
+    splitChunks: {
+      layouts: false,
+      pages: false,
+      commons: false
+    }
   }
 }

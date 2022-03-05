@@ -39,7 +39,7 @@
         <app-navigation-item v-if="plugins && plugins.includes('kyverno')" route="/kyverno-plugin" title="Kyverno Policies" exact>
           <template #icon>
             <v-list-item-icon>
-              <lazy-kyverno-icon style="height: 24px; width: 24px;" />
+              <kyverno-icon style="height: 24px; width: 24px;" />
             </v-list-item-icon>
           </template>
         </app-navigation-item>
