@@ -50,8 +50,8 @@
     "husky": "^7.0.4",
     "jest": "^27.5.1",
     "lint-staged": "^12.3.7",
-    "stylelint": "^13.13.1",
-    "stylelint-config-standard": "^22.0.0",
+    "stylelint": "^14.8.1",
+    "stylelint-config-standard": "^25.0.0",
     "ts-jest": "^27.1.4",
     "vue-jest": "^3.0.4"
   }
