@@ -105,7 +105,7 @@
       </template>
 
       <template v-for="value in groupings[groupBy]" v-else>
-        <policy-table :key="value" :filter="{ [groupBy]: [value], sources: [source] }" :title-text="value" />
+        <policy-report-table :key="value" :filter="{ [groupBy]: [value], sources: [source] }" :title-text="value" />
       </template>
     </v-container>
     <v-container v-if="!show">
@@ -130,9 +130,10 @@ type Data = {
   interval: any;
   heights: { [key in Status]: number };
   counters: { [status in Status]: { namespaces: string[]; counts: number[] } };
-  groupBy: 'status' | 'policies' | 'categories'
+  groupBy: 'status' | 'policies' | 'categories' | 'rules'
   groupings: {
     policies: Policy[];
+    rules: string[];
     categories: string[];
     status: Status[];
   };
@@ -157,6 +158,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     groupBy: 'status',
     groupings: {
       policies: [],
+      rules: [],
       categories: [],
       status: [
         Status.FAIL,
@@ -182,7 +184,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     }
   }),
   async fetch () {
-    const namespacedStatusCount = await this.$coreAPI.namespacedStatusCount({ ...this.$route.query, sources: [this.source] })
+    const [namespacedStatusCount, rules] = await Promise.all([
+      this.$coreAPI.namespacedStatusCount({ ...this.$route.query, sources: [this.source] }),
+      this.$coreAPI.namespacedRules(this.source)
+    ])
 
     this.counters = namespacedStatusCount.reduce((counters, statusCount) => {
       counters[statusCount.status] = statusCount.items.reduce<{ namespaces: string[]; counts: number[] }>((acc, statusCount) => {
@@ -194,6 +199,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
       return counters
     }, { ...this.counters })
+
+    this.groupings.rules = rules
 
     this.loading = false
   },

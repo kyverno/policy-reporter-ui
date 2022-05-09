@@ -64,7 +64,7 @@
       </template>
 
       <template v-for="value in groupings[groupBy]" v-else>
-        <cluster-policy-table :key="value" :filter="{ [groupBy]: [value] }" :title-text="value" />
+        <cluster-policy-report-table :key="value" :filter="{ [groupBy]: [value] }" :title-text="value" />
       </template>
     </v-container>
     <v-container v-if="!show">
@@ -87,9 +87,10 @@ type Data = {
   show: boolean;
   interval: any;
   counters: { [status in Status]: number };
-  groupBy: 'status' | 'policies' | 'categories'
+  groupBy: 'status' | 'policies' | 'categories' | 'rules'
   groupings: {
     policies: Policy[];
+    rules: string[];
     categories: string[];
     status: Status[];
   };
@@ -107,6 +108,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     groupings: {
       policies: [],
       categories: [],
+      rules: [],
       status: [
         Status.FAIL,
         Status.PASS,
@@ -124,11 +126,16 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     }
   }),
   async fetch () {
-    const statusCount = await this.$coreAPI.statusCount(this.$route.query)
+    const [statusCount, rules] = await Promise.all([
+      this.$coreAPI.statusCount(this.$route.query),
+      this.$coreAPI.clusterRules()
+    ])
 
     statusCount.forEach((item) => {
       this.counters[item.status] = item.count
     })
+
+    this.groupings.rules = rules
   },
   computed: mapGetters(['refreshInterval']),
   watch: {

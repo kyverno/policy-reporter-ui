@@ -65,12 +65,12 @@
                 <tr class="table-expand-text">
                   <td :colspan="headers.length" class="py-3">
                     <div v-if="item.properties && Object.keys(item.properties).length">
-                      <v-card flat>
+                      <v-card v-if="item.message" flat>
                         <v-alert dense type="info" outlined class="rounded" flat>
                           {{ item.message }}
                         </v-alert>
                       </v-card>
-                      <div class="mt-4">
+                      <div :class="{ 'mt-4': item.message }">
                         <template v-for="(value, label) in item.properties">
                           <property-chip v-if="value.length <= 100" :key="label" :label="label" :value="value" />
                           <property-card v-else :key="label" :label="label" :value="value" />

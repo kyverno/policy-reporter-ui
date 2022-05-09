@@ -114,7 +114,9 @@ export interface CoreAPI {
     categories(source?: string): Promise<string[]>
     clusterKinds(source?: string): Promise<string[]>
     namespacedPolicies(source?: string): Promise<string[]>
+    namespacedRules(source?: string): Promise<string[]>
     clusterPolicies(source?: string): Promise<string[]>
+    clusterRules(source?: string): Promise<string[]>
     namespaces(source?: string): Promise<string[]>
     clusterSources(): Promise<string[]>
     namespacedSources(): Promise<string[]>
