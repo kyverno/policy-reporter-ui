@@ -40,6 +40,9 @@ export const create = (axios: NuxtAxiosInstance): CoreAPI => ({
   namespacedPolicies: (source?: string): Promise<string[]> => {
     return axios.$get<string[]>('/api/v1/namespaced-resources/policies', { params: { sources: [source] } })
   },
+  namespacedRules: (source?: string): Promise<string[]> => {
+    return axios.$get<string[]>('/api/v1/namespaced-resources/rules', { params: { sources: [source] } })
+  },
   namespacedSources: (): Promise<string[]> => {
     return axios.$get<string[]>('/api/v1/namespaced-resources/sources')
   },
@@ -54,6 +57,9 @@ export const create = (axios: NuxtAxiosInstance): CoreAPI => ({
   },
   clusterPolicies: (source?: string): Promise<string[]> => {
     return axios.$get<string[]>('/api/v1/cluster-resources/policies', { params: { sources: [source] } })
+  },
+  clusterRules: (source?: string): Promise<string[]> => {
+    return axios.$get<string[]>('/api/v1/cluster-resources/rules', { params: { sources: [source] } })
   },
   clusterSources: (): Promise<string[]> => {
     return axios.$get<string[]>('/api/v1/cluster-resources/sources')
