@@ -26,17 +26,20 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="12" sm="6" md="3">
+        <v-col v-if="counters['fail']" :cols="sizes.col" :sm="sizes.sm" :md="sizes.md">
           <cluster-policy-status :count="counters['fail']" status="fail" />
         </v-col>
-        <v-col cols="12" sm="6" md="3">
+        <v-col v-if="counters['pass']" :cols="sizes.col" :sm="sizes.sm" :md="sizes.md">
           <cluster-policy-status :count="counters['pass']" status="pass" />
         </v-col>
-        <v-col cols="12" sm="6" md="3">
+        <v-col v-if="counters['warn']" :cols="sizes.col" :sm="sizes.sm" :md="sizes.md">
           <cluster-policy-status :count="counters['warn']" status="warn" />
         </v-col>
-        <v-col cols="12" sm="6" md="3">
+        <v-col v-if="counters['error']" :cols="sizes.col" :sm="sizes.sm" :md="sizes.md">
           <cluster-policy-status :count="counters['error']" status="error" />
+        </v-col>
+        <v-col v-if="counters['skip']" :cols="sizes.col" :sm="sizes.sm" :md="sizes.md">
+          <cluster-policy-status :count="counters['skip']" status="skip" />
         </v-col>
       </v-row>
 
@@ -80,6 +83,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
+import { boxSizes } from '~/helper/layouthHelper'
 import { Status } from '~/policy-reporter-plugins/core/types'
 import { Policy } from '~/policy-reporter-plugins/kyverno/types'
 
@@ -97,7 +101,7 @@ type Data = {
 }
 
 type Methods = {}
-type Computed = {}
+type Computed = { sizes: { sm: number, md: number, col: number} }
 type Props = {}
 
 export default Vue.extend<Data, Methods, Computed, Props>({
@@ -137,7 +141,12 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
     this.groupings.rules = rules
   },
-  computed: mapGetters(['refreshInterval']),
+  computed: {
+    ...mapGetters(['refreshInterval']),
+    sizes (): { sm: number, md: number, col: number } {
+      return boxSizes(this.counters)
+    }
+  },
   watch: {
     '$route.query': {
       deep: true,

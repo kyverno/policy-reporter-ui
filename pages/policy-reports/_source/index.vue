@@ -43,7 +43,7 @@
           status="fail"
           :min-height="minHeight"
           :values="counters['fail']"
-          :full-width="!counters['pass'].namespaces.length"
+          :full-width="fullWith('fail')"
           optional
           @height-change="updateHeight('fail', $event)"
         />
@@ -51,7 +51,7 @@
           status="pass"
           :min-height="minHeight"
           :values="counters['pass']"
-          :full-width="!counters['fail'].namespaces.length"
+          :full-width="fullWith('pass')"
           optional
           @height-change="updateHeight('pass', $event)"
         />
@@ -59,7 +59,7 @@
           status="error"
           :min-height="minHeight"
           :values="counters['error']"
-          :full-width="!counters['warn'].namespaces.length"
+          :full-width="fullWith('error')"
           optional
           @height-change="updateHeight('error', $event)"
         />
@@ -67,7 +67,7 @@
           status="warn"
           :min-height="minHeight"
           :values="counters['warn']"
-          :full-width="!counters['error'].namespaces.length"
+          :full-width="fullWith('warn')"
           optional
           @height-change="updateHeight('warn', $event)"
         />
@@ -75,7 +75,7 @@
           status="skip"
           :min-height="minHeight"
           :values="counters['skip']"
-          :full-width="true"
+          :full-width="fullWith('skip')"
           optional
           @height-change="updateHeight('skip', $event)"
         />
@@ -123,6 +123,7 @@ import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { Status } from '~/policy-reporter-plugins/core/types'
 import { Policy } from '~/policy-reporter-plugins/kyverno/types'
+import { shortGraph } from '~/helper/layouthHelper'
 
 type Data = {
   loading: boolean;
@@ -141,6 +142,7 @@ type Data = {
 
 type Methods = {
   updateHeight(status: string, height: number): void;
+  fullWith(graph: string): boolean;
 }
 
 type Computed = {
@@ -247,6 +249,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   methods: {
     updateHeight (status: string, height: number) {
       this.heights = { ...this.heights, [status as Status]: height }
+    },
+    fullWith (status: Status): boolean {
+      return !shortGraph(status, this.counters)
     }
   }
 })
