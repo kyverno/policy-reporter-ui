@@ -43,7 +43,7 @@
     "@types/lodash.debounce": "^4.0.7",
     "@vue/test-utils": "^2.0.0",
     "babel-core": "7.0.0-bridge.0",
-    "babel-jest": "^27.5.1",
+    "babel-jest": "^28.1.0",
     "eslint": "^7.29.0",
     "eslint-plugin-nuxt": "^2.0.0",
     "eslint-plugin-vue": "^7.12.1",
