@@ -1,5 +1,5 @@
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
-import { ListResult, NamespacedStatusCount, StatusCount, Target, Filter, CoreAPI, Result, Config } from './types'
+import { NamespacedStatusCount, StatusCount, Target, Filter, CoreAPI, Result, Config, ResultList, Pagination } from './types'
 
 export const create = (axios: NuxtAxiosInstance): CoreAPI => ({
   config: (): Promise<Config> => {
@@ -49,8 +49,8 @@ export const create = (axios: NuxtAxiosInstance): CoreAPI => ({
   namespacedStatusCount: (filter?: Filter): Promise<NamespacedStatusCount[]> => {
     return axios.$get<NamespacedStatusCount[]>('/api/v1/namespaced-resources/status-counts', { params: filter })
   },
-  namespacedResults: (filter?: Filter): Promise<ListResult[]> => {
-    return axios.$get<ListResult[]>('/api/v1/namespaced-resources/results', { params: filter })
+  namespacedResults: (filter?: Filter, pagination?: Pagination): Promise<ResultList> => {
+    return axios.$get<ResultList>('/api/v1/namespaced-resources/results', { params: { ...filter, ...pagination } })
   },
   clusterKinds: (source?: string): Promise<string[]> => {
     return axios.$get<string[]>('/api/v1/cluster-resources/kinds', { params: { sources: [source] } })
@@ -67,7 +67,7 @@ export const create = (axios: NuxtAxiosInstance): CoreAPI => ({
   statusCount: (filter?: Filter): Promise<StatusCount[]> => {
     return axios.$get<StatusCount[]>('/api/v1/cluster-resources/status-counts', { params: filter })
   },
-  results: (filter?: Filter): Promise<ListResult[]> => {
-    return axios.$get<ListResult[]>('/api/v1/cluster-resources/results', { params: filter })
+  results: (filter?: Filter, pagination?: Pagination): Promise<ResultList> => {
+    return axios.$get<ResultList>('/api/v1/cluster-resources/results', { params: { ...filter, ...pagination } })
   }
 })

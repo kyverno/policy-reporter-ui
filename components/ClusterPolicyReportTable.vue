@@ -15,23 +15,15 @@
             <v-card-title>
               <v-spacer />
               <div style="width: 450px;">
-                <v-text-field
-                  v-model="search"
-                  append-icon="mdi-magnify"
-                  label="Search"
-                  outlined
-                  dense
-                  hide-details
-                />
+                <search-field @input="search = $event" />
               </div>
             </v-card-title>
             <v-divider />
             <v-data-table
               :items="results"
+              :server-items-length="count"
               :headers="tableHeaders"
-              :items-per-page="10"
-              :search="search"
-              :sort-by="showResources ? ['name', 'policy', 'rule', 'message'] : ['policy', 'rule', 'message']"
+              :options.sync="options"
               :expanded.sync="expanded"
               item-key="id"
             >
@@ -94,11 +86,11 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
-import { DataTableHeader } from 'vuetify'
+import { DataOptions, DataTableHeader } from 'vuetify'
 import { mapStatusText } from '~/policy-reporter-plugins/core/mapper'
-import { Filter, ListResult, Status } from '~/policy-reporter-plugins/core/types'
+import { Filter, ListResult, Pagination, Status } from '~/policy-reporter-plugins/core/types'
 
-type Data = { open: boolean; search: string; expanded: string[], results: ListResult[], interval: any }
+type Data = { open: boolean; search: string; expanded: string[], results: ListResult[], interval: any; options: DataOptions, count: number }
 type Computed = { tableHeaders: DataTableHeader[]; showResources: boolean, title: string }
 type Props = { status: Status | null; filter: Filter; titleText: string }
 
@@ -108,13 +100,40 @@ export default Vue.extend<Data, {}, Computed, Props>({
     filter: { type: Object, default: () => ({}) },
     titleText: { type: String, default: '' }
   },
-  data: () => ({ open: true, search: '', expanded: [], results: [], interval: null }),
+  data: () => ({
+    open: true,
+    search: '',
+    expanded: [],
+    results: [],
+    count: 0,
+    interval: null,
+    options: {
+      itemsPerPage: 10,
+      page: 1,
+      sortDesc: [],
+      sortBy: [],
+      groupBy: [],
+      groupDesc: [],
+      multiSort: false,
+      mustSort: false
+    }
+  }),
   fetch () {
-    return this.$coreAPI.results({ ...(this.status ? { status: [this.status] } : {}), ...this.$route.query, ...this.filter }).then((results) => {
-      this.results = results.map(({ properties, ...result }) => ({
+    const filter = { ...(this.status ? { status: [this.status] } : {}), ...this.$route.query, ...this.filter }
+    if (this.search) {
+      filter.search = this.search
+    }
+
+    const pagination: Pagination = {
+      page: this.options.page,
+      offset: this.options.itemsPerPage
+    }
+    return this.$coreAPI.results(filter, pagination).then(({ items, count }) => {
+      this.results = items.map(({ properties, ...result }) => ({
         ...result,
         properties: Object.fromEntries(Object.entries(properties || {}).sort(([, a], [, b]) => a.length - b.length))
       }))
+      this.count = count
     })
   },
   computed: {
@@ -150,6 +169,14 @@ export default Vue.extend<Data, {}, Computed, Props>({
     '$route.query': {
       deep: true,
       handler: '$fetch'
+    },
+    search: {
+      deep: true,
+      handler: '$fetch'
+    },
+    options: {
+      handler: '$fetch',
+      deep: true
     },
     refreshInterval: {
       immediate: true,
