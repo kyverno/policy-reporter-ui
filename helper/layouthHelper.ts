@@ -19,7 +19,7 @@ export const shortGraph = (status: Status, counters: StatusCounters): boolean =>
     case Status.WARN:
       return (pass + fail + error) % 2 === 1 || skip > 0
     case Status.SKIP:
-      return (pass + fail + warn) % 2 === 1
+      return (pass + fail + error + warn) % 2 === 1
   }
 }
 

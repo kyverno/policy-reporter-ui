@@ -26,6 +26,11 @@ export enum DisplayMode {
     LIGHT = 'light'
 }
 
+export enum Direction {
+    ASC = 'asc',
+    DESC = 'desc'
+}
+
 export type DashboardConfig = {
     policyReports: boolean;
     clusterPolicyReports: boolean;
@@ -83,6 +88,14 @@ export type Filter = {
     policies?: string[];
     sources?: string[];
     status?: Status[];
+    search?: string;
+}
+
+export type Pagination = {
+    page: number;
+    offset: number;
+    sortBy?: string[]
+    direction?: Direction
 }
 
 export type Resource = {
@@ -107,6 +120,8 @@ export type Result = {
     resource?: Resource;
 }
 
+export type ResultList = { items: ListResult[], count: number }
+
 export interface CoreAPI {
     config(): Promise<Config>
     logs(): Promise<Result[]>
@@ -124,6 +139,6 @@ export interface CoreAPI {
     statusCount(filter?: Filter): Promise<StatusCount[]>
     ruleStatusCount (policy: string, rule: string): Promise<StatusCount[]>
     namespacedStatusCount(filter?: Filter): Promise<NamespacedStatusCount[]>
-    results(filter?: Filter): Promise<ListResult[]>
-    namespacedResults(filter?: Filter): Promise<ListResult[]>
+    results(filter?: Filter, pagination?: Pagination): Promise<ResultList>
+    namespacedResults(filter?: Filter, pagination?: Pagination): Promise<ResultList>
 }
