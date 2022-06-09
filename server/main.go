@@ -65,6 +65,13 @@ func main() {
 				next.ServeHTTP(w, r)
 			})
 		})
+		router.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+
+				next.ServeHTTP(w, r)
+			})
+		})
 	}
 
 	apiRouter.HandleFunc("/push", api.PushResultHandler(store)).Methods("POST")
@@ -124,9 +131,12 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// check whether a file exists at the given path
 	_, err = os.Stat(path)
-	if os.IsNotExist(err) {
+	if os.IsNotExist(err) && path == h.staticPath {
 		// file does not exist, serve index.html
 		http.ServeFile(w, r, filepath.Join(h.staticPath, h.indexPath))
+		return
+	} else if os.IsNotExist(err) {
+		http.Error(w, "Not Found", http.StatusNotFound)
 		return
 	} else if err != nil {
 		// if we got an error (that wasn't that the file doesn't exist) stating the
