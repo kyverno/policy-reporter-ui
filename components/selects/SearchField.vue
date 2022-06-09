@@ -1,6 +1,6 @@
 <template>
   <v-text-field
-    v-model="search"
+    :value="search"
     append-icon="mdi-magnify"
     label="Search"
     outlined
@@ -28,8 +28,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   props: {
     value: { type: String, default: '' }
   },
-  data () {
-    return { search: this.$props.value }
+  data: () => ({ search: '' }),
+  watch: {
+    value: {
+      immediate: true,
+      handler (search: string) {
+        this.search = search
+      }
+    }
   },
   methods: {
     input (search: string): void {

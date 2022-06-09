@@ -31,6 +31,8 @@ export enum Direction {
     DESC = 'desc'
 }
 
+export type Dictionary = { [key: string]: string }
+
 export type DashboardConfig = {
     policyReports: boolean;
     clusterPolicyReports: boolean;

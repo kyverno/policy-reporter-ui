@@ -1,4 +1,4 @@
-import { Status } from '~/policy-reporter-plugins/core/types'
+import { Status, Dictionary } from '~/policy-reporter-plugins/core/types'
 
 type StatusCounters = { [status in Status]: { namespaces: string[]; counts: number[] } }
 
@@ -40,3 +40,8 @@ export const boxSizes = (counters: ClusterStatusCounters): { sm: number, md: num
     col: 12
   }
 }
+
+export const sortByKeys = (dic: Dictionary): Dictionary => Object.keys(dic).sort().reduce<Dictionary>((obj, key) => {
+  obj[key] = dic[key]
+  return obj
+}, {})

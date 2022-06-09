@@ -15,7 +15,7 @@
             <v-card-title>
               <v-spacer />
               <div style="width: 450px;">
-                <search-field @input="search = $event" />
+                <search-field v-model="search" />
               </div>
             </v-card-title>
             <v-divider />
@@ -56,16 +56,18 @@
               <template #expanded-item="{ headers, item }">
                 <tr class="table-expand-text">
                   <td :colspan="headers.length" class="py-3">
-                    <div v-if="item.properties && Object.keys(item.properties).length">
+                    <div v-if="item.hasProps">
                       <v-card v-if="item.message" flat>
                         <v-alert dense type="info" outlined class="rounded" flat>
                           {{ item.message }}
                         </v-alert>
                       </v-card>
                       <div :class="{ 'mt-4': item.message }">
-                        <template v-for="(value, label) in item.properties">
-                          <property-chip v-if="value.length <= 100" :key="label" :label="label" :value="value" />
-                          <property-card v-else :key="label" :label="label" :value="value" />
+                        <template v-for="(value, label) in item.chips">
+                          <property-chip :key="label" :label="label" :value="value" />
+                        </template>
+                        <template v-for="(value, label) in item.cards">
+                          <property-card :key="label" :label="label" :value="value" />
                         </template>
                       </div>
                     </div>
@@ -88,9 +90,12 @@ import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { DataOptions, DataTableHeader } from 'vuetify'
 import { mapStatusText } from '~/policy-reporter-plugins/core/mapper'
-import { Filter, ListResult, Pagination, Status } from '~/policy-reporter-plugins/core/types'
+import { Dictionary, Filter, ListResult, Pagination, Status } from '~/policy-reporter-plugins/core/types'
+import { sortByKeys } from '~/helper/layouthHelper'
 
-type Data = { open: boolean; search: string; expanded: string[], results: ListResult[], interval: any; options: DataOptions, count: number }
+type Result = ListResult & { chips: Dictionary, cards: Dictionary, hasProps: boolean }
+
+type Data = { open: boolean; search: string; expanded: string[], results: Result[], interval: any; options: DataOptions, count: number }
 type Computed = { tableHeaders: DataTableHeader[]; showResources: boolean, title: string }
 type Props = { status: Status | null; filter: Filter; titleText: string }
 
@@ -129,10 +134,28 @@ export default Vue.extend<Data, {}, Computed, Props>({
       offset: this.options.itemsPerPage
     }
     return this.$coreAPI.results(filter, pagination).then(({ items, count }) => {
-      this.results = items.map(({ properties, ...result }) => ({
-        ...result,
-        properties: Object.fromEntries(Object.entries(properties || {}).sort(([, a], [, b]) => a.length - b.length))
-      }))
+      this.results = items.map(({ properties, ...result }) => {
+        const chips: Dictionary = {}
+        const cards: Dictionary = {}
+        let hasProps: boolean = false
+
+        for (const prop in properties) {
+          if (properties[prop].length > 75) {
+            cards[prop] = properties[prop]
+          } else {
+            chips[prop] = properties[prop]
+          }
+          hasProps = true
+        }
+
+        return {
+          ...result,
+          properties: {},
+          cards: sortByKeys(cards),
+          chips: sortByKeys(chips),
+          hasProps
+        }
+      })
       this.count = count
     })
   },
