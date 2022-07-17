@@ -155,10 +155,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     '$route.query': {
       deep: true,
       immediate: true,
-      handler () {
-        this.loading = true
-        this.$fetch()
-      }
+      handler: '$fetch'
     },
     groupBy () {
       this.show = false
