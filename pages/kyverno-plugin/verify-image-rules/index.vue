@@ -23,27 +23,30 @@ type Props = {}
 export default Vue.extend<Data, Methods, {}, Props>({
   name: 'VerifyImageRules',
   components: { VerifyImageTable },
-  asyncData ({ $kyvernoAPI }) {
-    return $kyvernoAPI.verifyImageRules().then(rules => ({
-      rules,
-      interval: null,
-      loading: true
-    }))
+  data: () => ({
+    rules: [],
+    interval: null,
+    loading: true
+  }),
+  fetch () {
+    return this.$kyvernoAPI.verifyImageRules().then((rules) => {
+      this.rules = rules
+      this.loading = false
+    })
   },
-  computed: mapGetters(['refreshInterval']),
+  computed: mapGetters(['refreshInterval', 'currentCluster']),
   watch: {
     refreshInterval: {
       immediate: true,
       handler (refreshInterval: number) {
         if (this.interval) { clearInterval(this.interval) }
 
-        this.interval = setInterval(() => {
-          this.$kyvernoAPI.verifyImageRules().then((rules) => {
-            this.rules = rules
-            this.loading = false
-          })
-        }, refreshInterval)
+        this.interval = setInterval(() => this.$fetch, refreshInterval)
       }
+    },
+    currentCluster () {
+      this.loading = true
+      this.$fetch()
     }
   },
   destroyed () {

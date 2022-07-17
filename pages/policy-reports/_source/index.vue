@@ -121,7 +121,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
-import { Status } from '~/policy-reporter-plugins/core/types'
+import { Cluster, Status } from '~/policy-reporter-plugins/core/types'
 import { Policy } from '~/policy-reporter-plugins/kyverno/types'
 import { shortGraph } from '~/helper/layouthHelper'
 
@@ -149,6 +149,7 @@ type Computed = {
   minHeight: number;
   refreshInterval: number;
   source: string;
+  currentCluster?: Cluster;
 }
 type Props = {}
 
@@ -217,7 +218,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     source () {
       return this.$route.params.source
     },
-    ...mapGetters(['refreshInterval'])
+    ...mapGetters(['refreshInterval', 'currentCluster'])
   },
   watch: {
     '$route.query': {
@@ -241,6 +242,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
         this.interval = setInterval(this.$fetch, refreshInterval)
       }
+    },
+    currentCluster () {
+      this.loading = true
+      this.$fetch()
     }
   },
   destroyed () {

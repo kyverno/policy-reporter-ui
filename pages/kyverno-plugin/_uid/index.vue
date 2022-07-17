@@ -114,7 +114,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
-import { Filter, Status } from '~/policy-reporter-plugins/core/types'
+import { Cluster, Filter, Status } from '~/policy-reporter-plugins/core/types'
 import PolicyDetails from '~/policy-reporter-plugins/kyverno/components/PolicyDetails.vue'
 import RulesTable from '~/policy-reporter-plugins/kyverno/components/RulesTable.vue'
 import YamlContent from '~/policy-reporter-plugins/kyverno/components/YamlContent.vue'
@@ -129,8 +129,9 @@ type Data = {
 type Methods = {}
 type Props = {}
 type Computed = {
-    validations: boolean;
-    filter: Filter
+  validations: boolean;
+  filter: Filter;
+  currentCluster?: Cluster;
 }
 
 export default Vue.extend<Data, Methods, Computed, Props>({
@@ -172,7 +173,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
       return this.policy.rules.some(r => r.type === RuleType.VALIDATION)
     },
-    ...mapGetters(['refreshInterval'])
+    ...mapGetters(['refreshInterval', 'currentCluster'])
   },
   watch: {
     refreshInterval: {
@@ -182,7 +183,8 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
         this.interval = setInterval(this.$fetch, refreshInterval)
       }
-    }
+    },
+    currentCluster: '$fetch'
   },
   destroyed () {
     clearInterval(this.interval)

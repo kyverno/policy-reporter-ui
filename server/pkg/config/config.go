@@ -20,18 +20,25 @@ type Views struct {
 	KyvernoVerifyImages  bool      `json:"kyvernoVerifyImages" mapstructure:"kyvernoVerifyImages"`
 }
 
-type Config struct {
-	Views       Views    `json:"views" mapstructure:"views"`
-	LogSize     int      `json:"-" mapstructure:"logSize"`
-	DisplayMode string   `json:"displayMode" mapstructure:"displayMode"`
-	Plugins     []string `json:"plugins" mapstructure:"-"`
+type API struct {
+	Name       string `json:"name" mapstructure:"name"`
+	CoreAPI    string `json:"api" mapstructure:"api"`
+	KyvernoAPI string `json:"kyvernoApi" mapstructure:"kyvernoApi"`
 }
 
-func NewConfig() *Config {
-	return &Config{
-		Plugins:     make([]string, 0),
-		DisplayMode: "",
-	}
+type Cluster struct {
+	Name    string `json:"name" mapstructure:"name"`
+	ID      string `json:"id" mapstructure:"id"`
+	Kyverno bool   `json:"kyverno" mapstructure:"kyverno"`
+}
+
+type Config struct {
+	Views       Views     `json:"views" mapstructure:"views"`
+	LogSize     int       `json:"-" mapstructure:"logSize"`
+	DisplayMode string    `json:"displayMode" mapstructure:"displayMode"`
+	Plugins     []string  `json:"plugins" mapstructure:"-"`
+	Clusters    []Cluster `json:"clusters" mapstructure:"-"`
+	APIs        []API     `json:"-" mapstructure:"clusters"`
 }
 
 func LoadConfig(cfgFile string) (*Config, error) {

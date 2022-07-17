@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 
 	"github.com/gorilla/mux"
+	"github.com/gosimple/slug"
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/config"
 	"github.com/kyverno/policy-reporter-ui/pkg/report"
@@ -35,6 +36,13 @@ func main() {
 	flag.Parse()
 
 	conf, err := config.LoadConfig(configFile)
+	conf.Clusters = make([]config.Cluster, 0, len(conf.APIs)+1)
+	if len(conf.APIs) > 0 {
+		conf.Clusters = append(conf.Clusters, config.Cluster{
+			Name:    "Default",
+			Kyverno: len(kyvernoPlugin) > 0,
+		})
+	}
 
 	if development {
 		log.Println("[INFO] Development Mode enabled")
@@ -52,8 +60,6 @@ func main() {
 		log.Println(err)
 		return
 	}
-
-	coreProxy := httputil.NewSingleHostReverseProxy(backend)
 
 	apiRouter := router.PathPrefix("/api/").Subrouter()
 
@@ -76,10 +82,48 @@ func main() {
 
 	apiRouter.HandleFunc("/push", api.PushResultHandler(store)).Methods("POST")
 	apiRouter.HandleFunc("/result-log", api.ResultHandler(store)).Methods("GET")
-	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", coreProxy)).Methods("GET")
+	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", httputil.NewSingleHostReverseProxy(backend))).Methods("GET")
+
+	for _, c := range conf.APIs {
+		cluster := config.Cluster{
+			Name:    c.Name,
+			ID:      slug.Make(c.Name),
+			Kyverno: len(c.KyvernoAPI) > 0,
+		}
+
+		core, err := url.Parse(c.CoreAPI)
+		if err != nil {
+			log.Printf("[ERROR] failed to configure Core Proxy for %s: %s\n", c.Name, err)
+			continue
+		}
+
+		apiRouter.
+			PathPrefix(fmt.Sprintf("/%s/v1", cluster.ID)).
+			Handler(http.StripPrefix(fmt.Sprintf("/api/%s", cluster.ID), httputil.NewSingleHostReverseProxy(core))).Methods("GET")
+
+		log.Printf("[INFO] Core Proxy for %s configured\n", c.Name)
+
+		if cluster.Kyverno {
+			conf.Plugins = AddIfNotExist(conf.Plugins, "kyverno")
+
+			kyverno, err := url.Parse(c.KyvernoAPI)
+			if err != nil {
+				log.Printf("[ERROR] failed to configure Kyverno Proxy for %s: %s\n", c.Name, err)
+				continue
+			}
+
+			apiRouter.
+				PathPrefix(fmt.Sprintf("/%s/kyverno", cluster.ID)).
+				Handler(http.StripPrefix(fmt.Sprintf("/api/%s/kyverno", cluster.ID), httputil.NewSingleHostReverseProxy(kyverno))).Methods("GET")
+
+			log.Printf("[INFO] Kyverno Proxy for %s configured\n", c.Name)
+		}
+
+		conf.Clusters = append(conf.Clusters, cluster)
+	}
 
 	if kyvernoPlugin != "" {
-		conf.Plugins = append(conf.Plugins, "kyverno")
+		conf.Plugins = AddIfNotExist(conf.Plugins, "kyverno")
 
 		kyverno, err := url.Parse(kyvernoPlugin)
 		if err != nil {
@@ -147,4 +191,14 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// otherwise, use http.FileServer to serve the static dir
 	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
+}
+
+func AddIfNotExist(list []string, value string) []string {
+	for _, v := range list {
+		if v == value {
+			return list
+		}
+	}
+
+	return append(list, value)
 }

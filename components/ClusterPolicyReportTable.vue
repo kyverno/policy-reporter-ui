@@ -96,7 +96,11 @@ import { sortByKeys } from '~/helper/layouthHelper'
 type Result = ListResult & { chips: Dictionary, cards: Dictionary, hasProps: boolean }
 
 type Data = { open: boolean; search: string; expanded: string[], results: Result[], interval: any; options: DataOptions, count: number }
-type Computed = { tableHeaders: DataTableHeader[]; showResources: boolean, title: string }
+type Computed = {
+  tableHeaders: DataTableHeader[];
+  showResources: boolean,
+  title: string;
+}
 type Props = { status: Status | null; filter: Filter; titleText: string }
 
 export default Vue.extend<Data, {}, Computed, Props>({

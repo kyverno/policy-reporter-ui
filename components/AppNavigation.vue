@@ -36,7 +36,7 @@
       <app-navigation-item v-if="views.logs" icon="mdi-console" route="/logs" title="Logs" />
 
       <template v-if="views.kyvernoPolicies">
-        <app-navigation-item v-if="plugins && plugins.includes('kyverno')" route="/kyverno-plugin" title="Kyverno Policies" exact>
+        <app-navigation-item v-if="showPlugin('kyverno')" route="/kyverno-plugin" title="Kyverno Policies" exact>
           <template #icon>
             <v-list-item-icon>
               <kyverno-icon style="height: 24px; width: 24px;" />
@@ -47,7 +47,7 @@
 
       <template v-if="views.kyvernoVerifyImages">
         <app-navigation-item
-          v-if="plugins && plugins.includes('kyverno')"
+          v-if="showPlugin('kyverno')"
           route="/kyverno-plugin/verify-image-rules"
           title="Kyverno VerifyImages"
           icon="mdi-shield-check"
@@ -61,7 +61,7 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import AppNavigationItem from './AppNavigationItem.vue'
-import { ViewsCofig } from '~/policy-reporter-plugins/core/types'
+import { Cluster, ViewsCofig } from '~/policy-reporter-plugins/core/types'
 
 type Page = { title: string; path: string }
 
@@ -79,9 +79,14 @@ type Props = {
 
 type Computed = {
   refreshInterval: number;
+  currentCluster?: Cluster
 }
 
-type Methdos = {}
+type Methdos = {
+  showPlugin(plugin: string): boolean;
+}
+
+type Plugin = 'kyverno'
 
 export default Vue.extend<Data, Methdos, Computed, Props>({
   components: { AppNavigationItem },
@@ -104,7 +109,7 @@ export default Vue.extend<Data, Methdos, Computed, Props>({
     this.clusterPages = clusterSources.map(s => ({ title: s, path: `/cluster-policy-reports/${s}` }))
     this.namespacedPages = namespacedSources.map(s => ({ title: s, path: `/policy-reports/${s}` }))
   },
-  computed: mapGetters(['refreshInterval']),
+  computed: mapGetters(['refreshInterval', 'currentCluster']),
   watch: {
     refreshInterval: {
       immediate: true,
@@ -113,6 +118,20 @@ export default Vue.extend<Data, Methdos, Computed, Props>({
 
         this.interval = setInterval(this.$fetch, refreshInterval)
       }
+    },
+    currentCluster: '$fetch'
+  },
+  methods: {
+    showPlugin (plugin: Plugin): boolean {
+      if (!this.plugins || !this.plugins.includes(plugin)) {
+        return false
+      }
+
+      if (this.currentCluster) {
+        return this.currentCluster[plugin] as boolean
+      }
+
+      return true
     }
   }
 })

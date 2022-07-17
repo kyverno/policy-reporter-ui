@@ -38,7 +38,7 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import PolicyStatusPerNamespace from '~/components/charts/PolicyStatusPerNamespace.vue'
-import { DashboardConfig, Status } from '~/policy-reporter-plugins/core/types'
+import { Cluster, DashboardConfig, Status } from '~/policy-reporter-plugins/core/types'
 
 type FailCounters = { namespaces: string[]; counts: number[] }
 
@@ -51,7 +51,8 @@ type Data = {
 
 type Computed = {
   refreshInterval: number;
-  config: DashboardConfig
+  config: DashboardConfig;
+  currentCluster?: Cluster;
 }
 
 export default Vue.extend<Data, {}, Computed, {}>({
@@ -89,7 +90,7 @@ export default Vue.extend<Data, {}, Computed, {}>({
 
     this.loading = false
   },
-  computed: mapGetters({ refreshInterval: 'refreshInterval', config: 'dashboardConfig' }),
+  computed: mapGetters({ refreshInterval: 'refreshInterval', config: 'dashboardConfig', cluster: 'currentCluster' }),
   watch: {
     refreshInterval: {
       immediate: true,
@@ -98,6 +99,10 @@ export default Vue.extend<Data, {}, Computed, {}>({
 
         this.interval = setInterval(this.$fetch, refreshInterval)
       }
+    },
+    cluster () {
+      this.loading = true
+      this.$fetch()
     }
   },
   destroyed () {

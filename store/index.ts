@@ -1,14 +1,18 @@
-import { DisplayMode, ViewsCofig } from '~/policy-reporter-plugins/core/types'
+import { Cluster, DisplayMode, ViewsCofig } from '~/policy-reporter-plugins/core/types'
 
 type State = {
     refreshInterval: number;
     displayMode: DisplayMode;
     viewsConfig: ViewsCofig;
+    clusters: Cluster[]
+    currentCluster?: Cluster
 }
 
 export const state = (): State => ({
+  currentCluster: undefined,
   refreshInterval: 10000,
   displayMode: sessionStorage.getItem('displayMode') as DisplayMode || DisplayMode.LIGHT,
+  clusters: [],
   viewsConfig: {
     logs: true,
     policyReports: true,
@@ -27,12 +31,22 @@ export const getters = {
   isDarkMode: (state: State) => state.displayMode === DisplayMode.DARK,
   displayMode: (state: State) => state.displayMode,
   viewsConfig: (state: State) => state.viewsConfig,
-  dashboardConfig: (state: State) => state.viewsConfig.dashboard
+  dashboardConfig: (state: State) => state.viewsConfig.dashboard,
+  clusters: (state: State) => state.clusters,
+  multiCluster: (state: State) => state.clusters.length > 0,
+  currentCluster: (state: State) => state.currentCluster
 }
 
 export const mutations = {
   setRefreshInterval (state: State, interval: number) {
     state.refreshInterval = interval
+  },
+  setCluster (state: State, cluster?: Cluster) {
+    state.currentCluster = cluster
+  },
+  setClusters (state: State, clusters: Cluster[]) {
+    state.clusters = clusters
+    state.currentCluster = clusters.find(c => c.id === '')
   },
   setViewsConfig (state: State, config: ViewsCofig) {
     state.viewsConfig = config

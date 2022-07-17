@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <loader :loading="loading" :error="$fetchState.error">
     <v-container fluid class="pt-6 px-6">
       <v-row>
         <v-col>
@@ -77,7 +77,7 @@
         </v-col>
       </v-row>
     </v-container>
-  </div>
+  </loader>
 </template>
 
 <script lang="ts">
@@ -89,6 +89,7 @@ import { Policy } from '~/policy-reporter-plugins/kyverno/types'
 
 type Data = {
   show: boolean;
+  loading: boolean;
   interval: any;
   counters: { [status in Status]: number };
   groupBy: 'status' | 'policies' | 'categories' | 'rules'
@@ -107,6 +108,7 @@ type Props = {}
 export default Vue.extend<Data, Methods, Computed, Props>({
   data: () => ({
     show: true,
+    loading: true,
     interval: null,
     groupBy: 'status',
     groupings: {
@@ -140,9 +142,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     })
 
     this.groupings.rules = rules
+
+    this.loading = false
   },
   computed: {
-    ...mapGetters(['refreshInterval']),
+    ...mapGetters(['refreshInterval', 'currentCluster']),
     sizes (): { sm: number, md: number, col: number } {
       return boxSizes(this.counters)
     }
@@ -151,7 +155,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     '$route.query': {
       deep: true,
       immediate: true,
-      handler: '$fetch'
+      handler () {
+        this.loading = true
+        this.$fetch()
+      }
     },
     groupBy () {
       this.show = false
@@ -166,6 +173,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
         this.interval = setInterval(this.$fetch, refreshInterval)
       }
+    },
+    currentCluster () {
+      this.loading = true
+      this.$fetch()
     }
   },
   destroyed () {

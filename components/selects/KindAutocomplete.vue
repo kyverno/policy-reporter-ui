@@ -55,11 +55,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     if (this.namespaced) {
       return this.$coreAPI.namespacedKinds(this.source).then((kinds) => {
         this.kinds = kinds
+        this.input(this.selected.filter(s => kinds.includes(s)))
       })
     }
 
     return this.$coreAPI.clusterKinds(this.source).then((kinds) => {
       this.kinds = kinds
+      this.input(this.selected.filter(s => kinds.includes(s)))
     })
   },
   computed: mapGetters(['refreshInterval']),

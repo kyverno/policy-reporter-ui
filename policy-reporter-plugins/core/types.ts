@@ -47,10 +47,17 @@ export type ViewsCofig = {
     dashboard: DashboardConfig
 }
 
+export type Cluster = {
+    name: string;
+    id: string;
+    kyverno: boolean;
+}
+
 export type Config = {
     plugins: string[];
     displayMode: DisplayMode | '';
     views: ViewsCofig;
+    clusters: Cluster[];
 }
 
 export type ListResult = {
@@ -143,4 +150,5 @@ export interface CoreAPI {
     namespacedStatusCount(filter?: Filter): Promise<NamespacedStatusCount[]>
     results(filter?: Filter, pagination?: Pagination): Promise<ResultList>
     namespacedResults(filter?: Filter, pagination?: Pagination): Promise<ResultList>
+    setPrefix (prefix: string): void
 }

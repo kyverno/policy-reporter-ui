@@ -56,11 +56,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     if (this.namespaced) {
       return this.$coreAPI.namespacedPolicies(this.source).then((policies) => {
         this.policies = policies
+        this.input(this.selected.filter(s => policies.includes(s)))
       })
     }
 
     return this.$coreAPI.clusterPolicies(this.source).then((policies) => {
       this.policies = policies
+      this.input(this.selected.filter(s => policies.includes(s)))
     })
   },
   computed: mapGetters(['refreshInterval']),
