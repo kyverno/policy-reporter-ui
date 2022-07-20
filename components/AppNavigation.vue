@@ -80,11 +80,11 @@ type Props = {
 type Computed = {
   refreshInterval: number;
   currentCluster?: Cluster
+  showLogs: boolean;
 }
 
 type Methdos = {
   showPlugin(plugin: string): boolean;
-  showLogs(): boolean;
 }
 
 type Plugin = 'kyverno'
@@ -110,7 +110,20 @@ export default Vue.extend<Data, Methdos, Computed, Props>({
     this.clusterPages = clusterSources.map(s => ({ title: s, path: `/cluster-policy-reports/${s}` }))
     this.namespacedPages = namespacedSources.map(s => ({ title: s, path: `/policy-reports/${s}` }))
   },
-  computed: mapGetters(['refreshInterval', 'currentCluster']),
+  computed: {
+    ...mapGetters(['refreshInterval', 'currentCluster']),
+    showLogs (): boolean {
+      if (!this.views.logs) {
+        return false
+      }
+
+      if (!this.currentCluster) {
+        return true
+      }
+
+      return this.currentCluster.id === ''
+    }
+  },
   watch: {
     refreshInterval: {
       immediate: true,
@@ -133,17 +146,6 @@ export default Vue.extend<Data, Methdos, Computed, Props>({
       }
 
       return true
-    },
-    showLogs (): boolean {
-      if (!this.views.logs) {
-        return false
-      }
-
-      if (!this.currentCluster) {
-        return true
-      }
-
-      return this.currentCluster.id === ''
     }
   }
 })
