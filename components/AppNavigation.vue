@@ -33,7 +33,7 @@
         />
       </template>
 
-      <app-navigation-item v-if="views.logs" icon="mdi-console" route="/logs" title="Logs" />
+      <app-navigation-item v-if="showLogs" icon="mdi-console" route="/logs" title="Logs" />
 
       <template v-if="views.kyvernoPolicies">
         <app-navigation-item v-if="showPlugin('kyverno')" route="/kyverno-plugin" title="Kyverno Policies" exact>
@@ -84,6 +84,7 @@ type Computed = {
 
 type Methdos = {
   showPlugin(plugin: string): boolean;
+  showLogs(): boolean;
 }
 
 type Plugin = 'kyverno'
@@ -132,6 +133,17 @@ export default Vue.extend<Data, Methdos, Computed, Props>({
       }
 
       return true
+    },
+    showLogs (): boolean {
+      if (!this.views.logs) {
+        return false
+      }
+
+      if (!this.currentCluster) {
+        return true
+      }
+
+      return this.currentCluster.id === ''
     }
   }
 })
