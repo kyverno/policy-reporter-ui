@@ -1,5 +1,5 @@
 <template>
-  <loader :loading="loading" :error="$fetchState.error">
+  <loader :loading="loading" :error="error">
     <v-container fluid class="pt-6 px-6">
       <v-row>
         <policy-status-per-namespace
@@ -43,6 +43,7 @@ import { Cluster, DashboardConfig, Status } from '~/policy-reporter-plugins/core
 type FailCounters = { namespaces: string[]; counts: number[] }
 
 type Data = {
+  error: Error | null;
   interval: any;
   sources: string[];
   loading: boolean;
@@ -58,34 +59,43 @@ type Computed = {
 export default Vue.extend<Data, {}, Computed, {}>({
   components: { PolicyStatusPerNamespace },
   data: () => ({
+    error: null,
     interval: null,
     sources: [],
     loading: true,
     failedCounters: { namespaces: [], counts: [] }
   }),
   async fetch () {
-    const sourceAPIs: Promise<string[]>[] = []
+    try {
+      const sourceAPIs: Promise<string[]>[] = []
 
-    if (this.config.policyReports) {
-      sourceAPIs.push(this.$coreAPI.namespacedSources())
-    }
-    if (this.config.clusterPolicyReports) {
-      sourceAPIs.push(this.$coreAPI.clusterSources())
-    }
+      if (this.config.policyReports) {
+        sourceAPIs.push(this.$coreAPI.namespacedSources())
+      }
+      if (this.config.clusterPolicyReports) {
+        sourceAPIs.push(this.$coreAPI.clusterSources())
+      }
 
-    const mixedSources = await Promise.all(sourceAPIs)
+      this.error = null
 
-    this.sources = [...new Set<string>(mixedSources.reduce<string[]>((acc, source) => [...acc, ...source], []))]
+      const mixedSources = await Promise.all(sourceAPIs)
 
-    if (this.config.policyReports) {
-      const statusCount = await this.$coreAPI.namespacedStatusCount({ status: [Status.FAIL] })
+      this.sources = [...new Set<string>(mixedSources.reduce<string[]>((acc, source) => [...acc, ...source], []))]
 
-      this.failedCounters = statusCount[0].items.reduce<{ namespaces: string[]; counts: number[] }>((acc, statusCount) => {
-        acc.namespaces.push(statusCount.namespace)
-        acc.counts.push(statusCount.count)
+      if (this.config.policyReports) {
+        const statusCount = await this.$coreAPI.namespacedStatusCount({ status: [Status.FAIL] })
 
-        return acc
-      }, { namespaces: [], counts: [] })
+        this.failedCounters = statusCount[0].items.reduce<{ namespaces: string[]; counts: number[] }>((acc, statusCount) => {
+          acc.namespaces.push(statusCount.namespace)
+          acc.counts.push(statusCount.count)
+
+          return acc
+        }, { namespaces: [], counts: [] })
+      }
+    } catch (error) {
+      this.failedCounters = { namespaces: [], counts: [] }
+      this.sources = []
+      this.error = error as Error
     }
 
     this.loading = false

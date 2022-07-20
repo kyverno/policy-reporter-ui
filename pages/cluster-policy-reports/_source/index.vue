@@ -1,5 +1,5 @@
 <template>
-  <loader :loading="loading" :error="$fetchState.error">
+  <loader :loading="loading" :error="error">
     <v-container fluid class="pt-6 px-6">
       <v-row>
         <v-col>
@@ -93,10 +93,11 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { boxSizes } from '~/helper/layouthHelper'
-import { Status } from '~/policy-reporter-plugins/core/types'
+import { createCounters, createStatusList, Status } from '~/policy-reporter-plugins/core/types'
 import { Policy } from '~/policy-reporter-plugins/kyverno/types'
 
 type Data = {
+  error: Error | null;
   show: boolean;
   loading: boolean;
   interval: any;
@@ -116,6 +117,7 @@ type Props = {}
 
 export default Vue.extend<Data, Methods, Computed, Props>({
   data: () => ({
+    error: null,
     show: true,
     loading: true,
     interval: null,
@@ -124,33 +126,30 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       policies: [],
       rules: [],
       categories: [],
-      status: [
-        Status.FAIL,
-        Status.PASS,
-        Status.WARN,
-        Status.ERROR,
-        Status.SKIP
-      ]
+      status: createStatusList()
     },
-    counters: {
-      [Status.SKIP]: 0,
-      [Status.PASS]: 0,
-      [Status.WARN]: 0,
-      [Status.FAIL]: 0,
-      [Status.ERROR]: 0
-    }
+    counters: createCounters()
   }),
   async fetch () {
-    const [statusCount, rules] = await Promise.all([
-      this.$coreAPI.statusCount({ ...this.$route.query, sources: [this.source] }),
-      this.$coreAPI.clusterRules(this.source)
-    ])
+    try {
+      const [statusCount, rules] = await Promise.all([
+        this.$coreAPI.statusCount({ ...this.$route.query, sources: [this.source] }),
+        this.$coreAPI.clusterRules(this.source)
+      ])
 
-    statusCount.forEach((item) => {
-      this.counters[item.status] = item.count
-    })
+      this.error = null
 
-    this.groupings.rules = rules
+      statusCount.forEach((item) => {
+        this.counters[item.status] = item.count
+      })
+
+      this.groupings.rules = rules
+    } catch (error) {
+      this.groupings.rules = []
+      this.counters = createCounters()
+
+      this.error = error as Error
+    }
 
     this.loading = false
   },

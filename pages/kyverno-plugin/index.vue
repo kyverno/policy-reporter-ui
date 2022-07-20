@@ -1,5 +1,5 @@
 <template>
-  <loader :loading="loading">
+  <loader :loading="loading" :error="error">
     <v-container fluid class="py-6 px-6">
       <v-row>
         <v-col cols="12" md="6">
@@ -29,6 +29,7 @@ import RuleTypeChart from '~/policy-reporter-plugins/kyverno/components/RuleType
 import { Policy, PolicyGroups } from '~/policy-reporter-plugins/kyverno/types'
 
 type Data = {
+  error: Error | null;
   loading: boolean;
   policies: Policy[];
   policyGroups: PolicyGroups;
@@ -41,6 +42,7 @@ export default Vue.extend<Data, Methods, {}, Props>({
   name: 'Dashboard',
   components: { CategoryChart, RuleTypeChart, PolicyTable },
   data: () => ({
+    error: null,
     policies: [],
     policyGroups: {},
     loading: true,
@@ -48,8 +50,14 @@ export default Vue.extend<Data, Methods, {}, Props>({
   }),
   fetch () {
     return this.$kyvernoAPI.policies().then(({ groups, policies }) => {
+      this.error = null
       this.policies = policies
       this.policyGroups = groups
+    }).catch((error) => {
+      this.error = error
+      this.policies = []
+      this.policyGroups = {}
+    }).finally(() => {
       this.loading = false
     })
   },
