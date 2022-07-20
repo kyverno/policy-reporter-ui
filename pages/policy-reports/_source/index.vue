@@ -1,5 +1,5 @@
-<template>
-  <loader :loading="loading" :error="$fetchState.error">
+createNamespaceCounters<template>
+  <loader :loading="loading" :error="error">
     <v-container fluid class="pt-6 px-6">
       <v-row>
         <v-col>
@@ -121,11 +121,12 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
-import { Status } from '~/policy-reporter-plugins/core/types'
+import { Cluster, Status, createNamespaceCounters, createStatusList } from '~/policy-reporter-plugins/core/types'
 import { Policy } from '~/policy-reporter-plugins/kyverno/types'
 import { shortGraph } from '~/helper/layouthHelper'
 
 type Data = {
+  error: Error | null;
   loading: boolean;
   show: boolean;
   interval: any;
@@ -149,6 +150,7 @@ type Computed = {
   minHeight: number;
   refreshInterval: number;
   source: string;
+  currentCluster?: Cluster;
 }
 type Props = {}
 
@@ -156,19 +158,14 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   data: () => ({
     loading: true,
     show: false,
+    error: null,
     interval: null,
     groupBy: 'status',
     groupings: {
       policies: [],
       rules: [],
       categories: [],
-      status: [
-        Status.FAIL,
-        Status.PASS,
-        Status.WARN,
-        Status.ERROR,
-        Status.SKIP
-      ]
+      status: createStatusList()
     },
     heights: {
       [Status.SKIP]: 0,
@@ -177,32 +174,35 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       [Status.FAIL]: 0,
       [Status.ERROR]: 0
     },
-    counters: {
-      [Status.SKIP]: { namespaces: [], counts: [] },
-      [Status.PASS]: { namespaces: [], counts: [] },
-      [Status.WARN]: { namespaces: [], counts: [] },
-      [Status.FAIL]: { namespaces: [], counts: [] },
-      [Status.ERROR]: { namespaces: [], counts: [] }
-    }
+    counters: createNamespaceCounters()
   }),
   async fetch () {
-    const [namespacedStatusCount, rules] = await Promise.all([
-      this.$coreAPI.namespacedStatusCount({ ...this.$route.query, sources: [this.source] }),
-      this.$coreAPI.namespacedRules(this.source)
-    ])
+    try {
+      const [namespacedStatusCount, rules] = await Promise.all([
+        this.$coreAPI.namespacedStatusCount({ ...this.$route.query, sources: [this.source] }),
+        this.$coreAPI.namespacedRules(this.source)
+      ])
 
-    this.counters = namespacedStatusCount.reduce((counters, statusCount) => {
-      counters[statusCount.status] = statusCount.items.reduce<{ namespaces: string[]; counts: number[] }>((acc, statusCount) => {
-        acc.namespaces.push(statusCount.namespace)
-        acc.counts.push(statusCount.count)
+      this.error = null
 
-        return acc
-      }, { namespaces: [], counts: [] })
+      this.counters = namespacedStatusCount.reduce((counters, statusCount) => {
+        counters[statusCount.status] = statusCount.items.reduce<{ namespaces: string[]; counts: number[] }>((acc, statusCount) => {
+          acc.namespaces.push(statusCount.namespace)
+          acc.counts.push(statusCount.count)
 
-      return counters
-    }, { ...this.counters })
+          return acc
+        }, { namespaces: [], counts: [] })
 
-    this.groupings.rules = rules
+        return counters
+      }, { ...this.counters })
+
+      this.groupings.rules = rules
+    } catch (error) {
+      this.counters = createNamespaceCounters()
+
+      this.groupings.rules = []
+      this.error = error as Error
+    }
 
     this.loading = false
   },
@@ -217,7 +217,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     source () {
       return this.$route.params.source
     },
-    ...mapGetters(['refreshInterval'])
+    ...mapGetters(['refreshInterval', 'currentCluster'])
   },
   watch: {
     '$route.query': {
@@ -241,6 +241,10 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
         this.interval = setInterval(this.$fetch, refreshInterval)
       }
+    },
+    currentCluster () {
+      this.loading = true
+      this.$fetch()
     }
   },
   destroyed () {

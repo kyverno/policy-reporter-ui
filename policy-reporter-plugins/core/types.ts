@@ -47,10 +47,17 @@ export type ViewsCofig = {
     dashboard: DashboardConfig
 }
 
+export type Cluster = {
+    name: string;
+    id: string;
+    kyverno: boolean;
+}
+
 export type Config = {
     plugins: string[];
     displayMode: DisplayMode | '';
     views: ViewsCofig;
+    clusters: Cluster[];
 }
 
 export type ListResult = {
@@ -143,4 +150,32 @@ export interface CoreAPI {
     namespacedStatusCount(filter?: Filter): Promise<NamespacedStatusCount[]>
     results(filter?: Filter, pagination?: Pagination): Promise<ResultList>
     namespacedResults(filter?: Filter, pagination?: Pagination): Promise<ResultList>
+    setPrefix (prefix: string): void
 }
+
+export type NamespaceCounters = { [status in Status]: { namespaces: string[]; counts: number[] } }
+export type Counters = { [status in Status]: number }
+
+export const createNamespaceCounters = (): NamespaceCounters => ({
+  [Status.SKIP]: { namespaces: [], counts: [] },
+  [Status.PASS]: { namespaces: [], counts: [] },
+  [Status.WARN]: { namespaces: [], counts: [] },
+  [Status.FAIL]: { namespaces: [], counts: [] },
+  [Status.ERROR]: { namespaces: [], counts: [] }
+})
+
+export const createCounters = (): Counters => ({
+  [Status.SKIP]: 0,
+  [Status.PASS]: 0,
+  [Status.WARN]: 0,
+  [Status.FAIL]: 0,
+  [Status.ERROR]: 0
+})
+
+export const createStatusList = (): Status[] => [
+  Status.FAIL,
+  Status.PASS,
+  Status.WARN,
+  Status.ERROR,
+  Status.SKIP
+]

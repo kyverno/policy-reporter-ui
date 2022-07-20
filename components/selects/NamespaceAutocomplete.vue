@@ -53,6 +53,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   fetch () {
     return this.$coreAPI.namespaces(this.source).then((namespaces) => {
       this.namespaces = namespaces
+      this.input(this.selected.filter(s => namespaces.includes(s)))
     })
   },
   computed: mapGetters(['refreshInterval']),

@@ -46,4 +46,5 @@ export type ResultMap = {
 export interface KyvernoAPI {
     policies (): Promise<{ policies: Policy[]; groups: PolicyGroups }>;
     verifyImageRules (): Promise<VerifyImageRule[]>;
+    setPrefix (prefix: string): void;
 }

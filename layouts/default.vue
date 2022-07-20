@@ -11,6 +11,7 @@
 
       <template v-if="$route.name !== 'kyverno-plugin-uid'">
         <target-chip v-for="target in targets" :key="target.name" :target="target" />
+        <cluster-select v-if="multiCluster" class="ml-3" />
       </template>
 
       <refresh-interval-select class="ml-3" />
@@ -30,7 +31,7 @@
 import Vue from 'vue'
 import { mapGetters, mapMutations } from 'vuex'
 import AppNavigation from '~/components/AppNavigation.vue'
-import { DisplayMode, Target, ViewsCofig } from '~/policy-reporter-plugins/core/types'
+import { Cluster, DisplayMode, Target, ViewsCofig } from '~/policy-reporter-plugins/core/types'
 
 type Data = {
   loading: boolean;
@@ -43,9 +44,17 @@ type Data = {
 type Methdos = {
   setDisplayMode(mode: DisplayMode): void;
   setViewsConfig(config: ViewsCofig): void;
+  setClusters(clusters: Cluster[]): void;
 }
 
-export default Vue.extend<Data, Methdos, { viewsConfig: ViewsCofig, isDarkMode: boolean }, {}>({
+type Computed = {
+  viewsConfig: ViewsCofig;
+  isDarkMode: boolean;
+  multiCluster: boolean;
+  currentCluster?: Cluster;
+}
+
+export default Vue.extend<Data, Methdos, Computed, {}>({
   components: { AppNavigation },
   data: () => ({
     loading: true,
@@ -68,6 +77,7 @@ export default Vue.extend<Data, Methdos, { viewsConfig: ViewsCofig, isDarkMode: 
       this.$coreAPI.config().then((config) => {
         this.plugins = config.plugins
         this.setViewsConfig(config.views)
+        this.setClusters(config.clusters)
 
         if (sessionStorage.getItem('displayMode')) {
           return
@@ -84,12 +94,23 @@ export default Vue.extend<Data, Methdos, { viewsConfig: ViewsCofig, isDarkMode: 
       }).then().finally(() => { this.loading = false })
     ])
   },
-  computed: mapGetters(['isDarkMode', 'viewsConfig']),
+  computed: mapGetters(['isDarkMode', 'viewsConfig', 'multiCluster', 'currentCluster']),
   watch: {
     isDarkMode: {
       immediate: true,
       handler (isDarkMode: boolean) {
         this.$vuetify.theme.dark = isDarkMode
+      }
+    },
+    currentCluster (cluster?: Cluster) {
+      this.$coreAPI.targets().then((targets) => {
+        this.targets = targets
+      })
+
+      if (!cluster) { return }
+
+      if (!cluster.kyverno && this.$route.name?.startsWith('kyverno-plugin')) {
+        this.$router.push('/')
       }
     }
   },
@@ -98,7 +119,7 @@ export default Vue.extend<Data, Methdos, { viewsConfig: ViewsCofig, isDarkMode: 
       this.setDisplayMode(!e.matches ? DisplayMode.LIGHT : DisplayMode.DARK)
     })
   },
-  methods: mapMutations(['setDisplayMode', 'setViewsConfig'])
+  methods: mapMutations(['setDisplayMode', 'setViewsConfig', 'setClusters'])
 })
 </script>
 

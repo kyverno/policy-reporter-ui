@@ -7,7 +7,7 @@
     hide-details
     label="Categories"
     clearable
-    :value="value"
+    :value="selected"
     v-bind="$attrs"
     @input="input"
   >
@@ -53,6 +53,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   fetch () {
     return this.$coreAPI.categories(this.source).then((categories) => {
       this.categories = categories
+      this.input(this.selected.filter(s => categories.includes(s)))
     })
   },
   computed: mapGetters(['refreshInterval']),

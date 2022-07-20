@@ -1,11 +1,19 @@
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
 import { NamespacedStatusCount, StatusCount, Target, Filter, CoreAPI, Result, Config, ResultList, Pagination } from './types'
 
-export const create = (axios: NuxtAxiosInstance): CoreAPI => ({
-  config: (): Promise<Config> => {
-    return axios.$get<Config>('/api/config').catch(() => ({
+class API {
+  private axios: NuxtAxiosInstance
+  private prefix: string = ''
+
+  constructor (axios: NuxtAxiosInstance) {
+    this.axios = axios
+  }
+
+  public config (): Promise<Config> {
+    return this.axios.$get<Config>('/config').catch(() => ({
       plugins: [],
       displayMode: '',
+      clusters: [],
       views: {
         logs: true,
         policyReports: true,
@@ -18,56 +26,79 @@ export const create = (axios: NuxtAxiosInstance): CoreAPI => ({
         }
       }
     }))
-  },
-  logs: (): Promise<Result[]> => {
-    return axios.$get<Result[]>('/api/result-log')
-  },
-  targets: (): Promise<Target[]> => {
-    return axios.$get<Target[]>('/api/v1/targets')
-  },
-  categories: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/categories', { params: { sources: [source] } })
-  },
-  namespaces: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/namespaces', { params: { sources: [source] } })
-  },
-  ruleStatusCount: (policy: string, rule: string): Promise<StatusCount[]> => {
-    return axios.$get<StatusCount[]>('/api/v1/rule-status-count', { params: { policy, rule } })
-  },
-  namespacedKinds: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/namespaced-resources/kinds', { params: { sources: [source] } })
-  },
-  namespacedPolicies: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/namespaced-resources/policies', { params: { sources: [source] } })
-  },
-  namespacedRules: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/namespaced-resources/rules', { params: { sources: [source] } })
-  },
-  namespacedSources: (): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/namespaced-resources/sources')
-  },
-  namespacedStatusCount: (filter?: Filter): Promise<NamespacedStatusCount[]> => {
-    return axios.$get<NamespacedStatusCount[]>('/api/v1/namespaced-resources/status-counts', { params: filter })
-  },
-  namespacedResults: (filter?: Filter, pagination?: Pagination): Promise<ResultList> => {
-    return axios.$get<ResultList>('/api/v1/namespaced-resources/results', { params: { ...filter, ...pagination } })
-  },
-  clusterKinds: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/cluster-resources/kinds', { params: { sources: [source] } })
-  },
-  clusterPolicies: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/cluster-resources/policies', { params: { sources: [source] } })
-  },
-  clusterRules: (source?: string): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/cluster-resources/rules', { params: { sources: [source] } })
-  },
-  clusterSources: (): Promise<string[]> => {
-    return axios.$get<string[]>('/api/v1/cluster-resources/sources')
-  },
-  statusCount: (filter?: Filter): Promise<StatusCount[]> => {
-    return axios.$get<StatusCount[]>('/api/v1/cluster-resources/status-counts', { params: filter })
-  },
-  results: (filter?: Filter, pagination?: Pagination): Promise<ResultList> => {
-    return axios.$get<ResultList>('/api/v1/cluster-resources/results', { params: { ...filter, ...pagination } })
   }
-})
+
+  logs (): Promise<Result[]> {
+    return this.axios.$get<Result[]>('/result-log')
+  }
+
+  targets (): Promise<Target[]> {
+    return this.axios.$get<Target[]>(this.prefix + '/v1/targets')
+  }
+
+  categories (source?: string): Promise<string[]> {
+    return this.axios.$get<string[]>(this.prefix + '/v1/categories', { params: { sources: [source] } })
+  }
+
+  namespaces (source?: string): Promise<string[]> {
+    return this.axios.$get<string[]>(this.prefix + '/v1/namespaces', { params: { sources: [source] } })
+  }
+
+  ruleStatusCount (policy: string, rule: string): Promise<StatusCount[]> {
+    return this.axios.$get<StatusCount[]>(this.prefix + '/v1/rule-status-count', { params: { policy, rule } })
+  }
+
+  namespacedKinds (source?: string): Promise<string[]> {
+    return this.axios.$get<string[]>(this.prefix + '/v1/namespaced-resources/kinds', { params: { sources: [source] } })
+  }
+
+  namespacedPolicies (source?: string): Promise<string[]> {
+    return this.axios.$get<string[]>(this.prefix + '/v1/namespaced-resources/policies', { params: { sources: [source] } })
+  }
+
+  namespacedRules (source?: string): Promise<string[]> {
+    return this.axios.$get<string[]>(this.prefix + '/v1/namespaced-resources/rules', { params: { sources: [source] } })
+  }
+
+  namespacedSources (): Promise<string[]> {
+    return this.axios.$get<string[]>(this.prefix + '/v1/namespaced-resources/sources')
+  }
+
+  namespacedStatusCount (filter?: Filter): Promise<NamespacedStatusCount[]> {
+    return this.axios.$get<NamespacedStatusCount[]>(this.prefix + '/v1/namespaced-resources/status-counts', { params: filter })
+  }
+
+  namespacedResults (filter?: Filter, pagination?: Pagination): Promise<ResultList> {
+    return this.axios.$get<ResultList>(this.prefix + '/v1/namespaced-resources/results', { params: { ...filter, ...pagination } })
+  }
+
+  clusterKinds (source?: string): Promise<string[]> {
+    return this.axios.$get<string[]>(this.prefix + '/v1/cluster-resources/kinds', { params: { sources: [source] } })
+  }
+
+  clusterPolicies (source?: string): Promise<string[]> {
+    return this.axios.$get<string[]>(this.prefix + '/v1/cluster-resources/policies', { params: { sources: [source] } })
+  }
+
+  clusterRules (source?: string): Promise<string[]> {
+    return this.axios.$get<string[]>(this.prefix + '/v1/cluster-resources/rules', { params: { sources: [source] } })
+  }
+
+  clusterSources (): Promise<string[]> {
+    return this.axios.$get<string[]>(this.prefix + '/v1/cluster-resources/sources')
+  }
+
+  statusCount (filter?: Filter): Promise<StatusCount[]> {
+    return this.axios.$get<StatusCount[]>(this.prefix + '/v1/cluster-resources/status-counts', { params: filter })
+  }
+
+  results (filter?: Filter, pagination?: Pagination): Promise<ResultList> {
+    return this.axios.$get<ResultList>(this.prefix + '/v1/cluster-resources/results', { params: { ...filter, ...pagination } })
+  }
+
+  setPrefix (prefix: string): void {
+    this.prefix = prefix
+  }
+}
+
+export const create = (axios: NuxtAxiosInstance): CoreAPI => new API(axios)

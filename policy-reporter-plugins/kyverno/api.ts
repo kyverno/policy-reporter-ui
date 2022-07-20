@@ -1,9 +1,16 @@
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
-import { Policy, PolicyGroups, VerifyImageRule } from './types'
+import { Policy, PolicyGroups, VerifyImageRule, KyvernoAPI } from './types'
 
-export const create = ($axios: NuxtAxiosInstance) => ({
+class API {
+  private axios: NuxtAxiosInstance
+  private prefix: string = ''
+
+  constructor (axios: NuxtAxiosInstance) {
+    this.axios = axios
+  }
+
   async policies (): Promise<{ policies: Policy[]; groups: PolicyGroups }> {
-    const policies = await $axios.$get<Policy[]>('/api/kyverno/policies')
+    const policies = await this.axios.$get<Policy[]>(this.prefix + '/kyverno/policies')
 
     const unsorted = policies.reduce<PolicyGroups>((groups, policy) => {
       if (!policy.category) {
@@ -30,8 +37,15 @@ export const create = ($axios: NuxtAxiosInstance) => ({
     }, {})
 
     return { policies, groups }
-  },
-  verifyImageRules (): Promise<VerifyImageRule[]> {
-    return $axios.$get<VerifyImageRule[]>('/api/kyverno/verify-image-rules')
   }
-})
+
+  verifyImageRules (): Promise<VerifyImageRule[]> {
+    return this.axios.$get<VerifyImageRule[]>(this.prefix + '/kyverno/verify-image-rules')
+  }
+
+  setPrefix (prefix: string): void {
+    this.prefix = prefix
+  }
+}
+
+export const create = ($axios: NuxtAxiosInstance): KyvernoAPI => new API($axios)
