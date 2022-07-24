@@ -14,6 +14,7 @@ import (
 	"github.com/gosimple/slug"
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/config"
+	"github.com/kyverno/policy-reporter-ui/pkg/redis"
 	"github.com/kyverno/policy-reporter-ui/pkg/report"
 )
 
@@ -47,13 +48,24 @@ func main() {
 	if development {
 		log.Println("[INFO] Development Mode enabled")
 	}
-	if development {
-		log.Printf("[INFO] Log Store Size: %d\n", conf.LogSize)
-	}
 
 	router := mux.NewRouter()
 
-	store := report.NewResultStore(conf.LogSize)
+	var store report.Store
+
+	if conf.Redis.Enabled {
+		if development {
+			log.Print("[INFO] Redis Store enabled\n")
+		}
+
+		store = redis.NewFromConfig(conf)
+	} else {
+		if development {
+			log.Printf("[INFO] Log Store Size: %d\n", conf.LogSize)
+		}
+
+		store = report.NewResultStore(conf.LogSize)
+	}
 
 	backend, err := url.Parse(policyReporter)
 	if err != nil {

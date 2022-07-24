@@ -11,7 +11,7 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/report"
 )
 
-func PushResultHandler(store *report.ResultStore) http.HandlerFunc {
+func PushResultHandler(store report.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
@@ -23,16 +23,24 @@ func PushResultHandler(store *report.ResultStore) http.HandlerFunc {
 			fmt.Fprintf(w, `{ "message": "%s" }`, html.EscapeString(err.Error()))
 		}
 
-		store.Add(result)
+		if err = store.Add(result); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, `{ "message": "%s" }`, html.EscapeString(err.Error()))
+		}
 	}
 }
 
-func ResultHandler(store *report.ResultStore) http.HandlerFunc {
+func ResultHandler(store report.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-		err := json.NewEncoder(w).Encode(store.List())
+		list, err := store.List()
 		if err != nil {
+			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
+			log.Printf("[ERROR] List PolicyReportResults: %s", html.EscapeString(err.Error()))
+		}
+
+		if err = json.NewEncoder(w).Encode(list); err != nil {
 			fmt.Fprintf(w, `{ "message": "%s" }`, err.Error())
 			log.Printf("[ERROR] Encode PolicyReportResults: %s", html.EscapeString(err.Error()))
 		}
