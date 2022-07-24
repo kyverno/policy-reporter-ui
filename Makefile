@@ -1,5 +1,5 @@
 REPO ?= ghcr.io/kyverno/policy-reporter-ui
-IMAGE_TAG ?= 1.5.0
+IMAGE_TAG ?= 1.6.0
 LD_FLAGS="-s -w"
 
 .PHONY: docker-build

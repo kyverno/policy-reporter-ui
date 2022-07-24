@@ -2,13 +2,18 @@ package report
 
 import "sync"
 
-type ResultStore struct {
+type Store interface {
+	Add(r Result) error
+	List() ([]Result, error)
+}
+
+type InMemoryStore struct {
 	store []Result
 	size  int
 	rwm   *sync.RWMutex
 }
 
-func (s *ResultStore) Add(r Result) {
+func (s *InMemoryStore) Add(r Result) error {
 	s.rwm.Lock()
 	last := len(s.store)
 
@@ -18,17 +23,19 @@ func (s *ResultStore) Add(r Result) {
 
 	s.store = append([]Result{r}, s.store[:last]...)
 	s.rwm.Unlock()
+
+	return nil
 }
 
-func (s *ResultStore) List() []Result {
+func (s *InMemoryStore) List() ([]Result, error) {
 	defer s.rwm.RUnlock()
 
 	s.rwm.RLock()
-	return s.store
+	return s.store, nil
 }
 
-func NewResultStore(size int) *ResultStore {
-	return &ResultStore{
+func NewResultStore(size int) *InMemoryStore {
+	return &InMemoryStore{
 		size:  size,
 		rwm:   new(sync.RWMutex),
 		store: make([]Result, 0),
