@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -14,6 +13,7 @@ import (
 	"github.com/gosimple/slug"
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/config"
+	"github.com/kyverno/policy-reporter-ui/pkg/proxy"
 	"github.com/kyverno/policy-reporter-ui/pkg/redis"
 	"github.com/kyverno/policy-reporter-ui/pkg/report"
 )
@@ -94,7 +94,7 @@ func main() {
 
 	apiRouter.HandleFunc("/push", api.PushResultHandler(store)).Methods("POST")
 	apiRouter.HandleFunc("/result-log", api.ResultHandler(store)).Methods("GET")
-	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", httputil.NewSingleHostReverseProxy(backend))).Methods("GET")
+	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", proxy.New(backend))).Methods("GET")
 
 	for _, c := range conf.APIs {
 		cluster := config.Cluster{
@@ -111,7 +111,7 @@ func main() {
 
 		apiRouter.
 			PathPrefix(fmt.Sprintf("/%s/v1", cluster.ID)).
-			Handler(http.StripPrefix(fmt.Sprintf("/api/%s", cluster.ID), httputil.NewSingleHostReverseProxy(core))).Methods("GET")
+			Handler(http.StripPrefix(fmt.Sprintf("/api/%s", cluster.ID), proxy.New(core))).Methods("GET")
 
 		log.Printf("[INFO] Core Proxy for %s configured\n", c.Name)
 
@@ -126,7 +126,7 @@ func main() {
 
 			apiRouter.
 				PathPrefix(fmt.Sprintf("/%s/kyverno", cluster.ID)).
-				Handler(http.StripPrefix(fmt.Sprintf("/api/%s/kyverno", cluster.ID), httputil.NewSingleHostReverseProxy(kyverno))).Methods("GET")
+				Handler(http.StripPrefix(fmt.Sprintf("/api/%s/kyverno", cluster.ID), proxy.New(kyverno))).Methods("GET")
 
 			log.Printf("[INFO] Kyverno Proxy for %s configured\n", c.Name)
 		}
@@ -142,7 +142,7 @@ func main() {
 			log.Println(err)
 			return
 		}
-		kyvernoProxy := httputil.NewSingleHostReverseProxy(kyverno)
+		kyvernoProxy := proxy.New(kyverno)
 
 		apiRouter.PathPrefix("/kyverno").Handler(http.StripPrefix("/api/kyverno", kyvernoProxy)).Methods("GET")
 
