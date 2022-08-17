@@ -43,6 +43,8 @@ USER 1234
 COPY LICENSE.md .
 COPY --from=frontend /var/www/dist /app/dist
 COPY --from=builder /app/build/policyreporter-ui /app/policyreporter-ui
+# copy the debian's trusted root CA's to the final image
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 EXPOSE 8080
 
