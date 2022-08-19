@@ -52,17 +52,13 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   }),
   fetch () {
     return this.$coreAPI.categories(this.source).then((categories) => {
-      this.categories = categories
-      this.input(this.selected.filter(s => categories.includes(s)))
+      this.categories = [...categories]
+
+      this.$emit('input', [...(this.selected.length ? categories.filter(s => this.selected.includes(s)) : categories)])
     })
   },
   computed: mapGetters(['refreshInterval']),
   watch: {
-    categories (categories: string[]) {
-      if (this.selected.length !== 0) { return }
-
-      this.$emit('input', [...(categories.length > 0 ? categories : this.categories)])
-    },
     refreshInterval: {
       immediate: true,
       handler (refreshInterval: number) {
@@ -79,8 +75,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     if (this.$route.query.categories) {
       const categories = Array.isArray(this.$route.query.categories) ? this.$route.query.categories.filter(c => !!c) as string[] : [this.$route.query.categories]
 
-      this.selected = categories
-      this.$emit('input', [...(categories.length > 0 ? categories : this.categories)])
+      if (categories.length) {
+        this.input(categories)
+      }
     }
   },
   methods: {

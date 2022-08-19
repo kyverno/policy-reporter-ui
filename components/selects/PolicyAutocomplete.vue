@@ -29,7 +29,6 @@
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import debounce from 'lodash.debounce'
-import { Policy } from '~/policy-reporter-plugins/kyverno/types'
 
 const debounced = debounce((emit: () => void) => { emit() }, 600)
 
@@ -56,22 +55,19 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     if (this.namespaced) {
       return this.$coreAPI.namespacedPolicies(this.source).then((policies) => {
         this.policies = policies
-        this.input(this.selected.filter(s => policies.includes(s)))
+
+        this.$emit('input', [...(this.selected.length ? policies.filter(s => this.selected.includes(s)) : policies)])
       })
     }
 
     return this.$coreAPI.clusterPolicies(this.source).then((policies) => {
       this.policies = policies
-      this.input(this.selected.filter(s => policies.includes(s)))
+
+      this.$emit('input', [...(this.selected.length ? policies.filter(s => this.selected.includes(s)) : policies)])
     })
   },
   computed: mapGetters(['refreshInterval']),
   watch: {
-    policies (policies: Policy[]) {
-      if (this.selected.length !== 0) { return }
-
-      this.$emit('input', [...(policies.length > 0 ? policies : this.policies)])
-    },
     refreshInterval: {
       immediate: true,
       handler (refreshInterval: number) {
@@ -85,8 +81,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     if (this.$route.query.policies) {
       const policies = Array.isArray(this.$route.query.policies) ? this.$route.query.policies.filter(c => !!c) as string[] : [this.$route.query.policies]
 
-      this.selected = policies
-      this.$emit('input', [...(policies.length > 0 ? policies : this.policies)])
+      if (policies.length) {
+        this.input(policies)
+      }
     }
   },
   destroyed () {
