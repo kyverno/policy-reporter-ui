@@ -10,7 +10,7 @@ const priorityToColor: { [key in Priority]: string } = {
 }
 
 const statusToColor: { [status in Status]: string } = {
-  [Status.SKIP]: '#E0E0E0',
+  [Status.SKIP]: '#999999',
   [Status.PASS]: '#43A047',
   [Status.WARN]: '#FB8C00',
   [Status.FAIL]: '#EF5350',
@@ -18,7 +18,7 @@ const statusToColor: { [status in Status]: string } = {
 }
 
 const statusToDarkColor: { [status in Status]: string } = {
-  [Status.SKIP]: '#424242',
+  [Status.SKIP]: '#626262',
   [Status.PASS]: '#1B5E20',
   [Status.WARN]: '#FF6F00',
   [Status.FAIL]: '#D32F2F',

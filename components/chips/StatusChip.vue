@@ -1,5 +1,5 @@
 <template>
-  <v-chip :color="color" :dark="dark" v-bind="$attrs" v-on="$listeners">
+  <v-chip :color="color" dark v-bind="$attrs" v-on="$listeners">
     {{ status }}
   </v-chip>
 </template>
@@ -9,7 +9,7 @@ import Vue from 'vue'
 import { mapDarkStatus, mapStatus } from '~/policy-reporter-plugins/core/mapper'
 import { Status } from '~/policy-reporter-plugins/core/types'
 
-export default Vue.extend<{}, {}, { color: string; dark: boolean }, { status: Status }>({
+export default Vue.extend<{}, {}, { color: string; }, { status: Status }>({
   inheritAttrs: false,
   props: {
     status: { type: String as Vue.PropType<Status>, required: true }
@@ -17,13 +17,6 @@ export default Vue.extend<{}, {}, { color: string; dark: boolean }, { status: St
   computed: {
     color () {
       return this.$vuetify.theme.dark ? mapDarkStatus(this.status) : mapStatus(this.status)
-    },
-    dark () {
-      if ([Status.PASS, Status.WARN, Status.ERROR, Status.FAIL].includes(this.status)) {
-        return true
-      }
-
-      return false
     }
   }
 })
