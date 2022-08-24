@@ -40,7 +40,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   },
   data: () => ({
     selected: [],
-    severities: [Severity.LOW, Severity.MEDIUM, Severity.HIGH]
+    severities: [Severity.INFO, Severity.LOW, Severity.MEDIUM, Severity.HIGH, Severity.CRITICAL]
   }),
   created () {
     if (this.$route.query.severities) {
