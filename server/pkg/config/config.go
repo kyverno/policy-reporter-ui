@@ -53,6 +53,7 @@ type Config struct {
 	DisplayMode string    `json:"displayMode" mapstructure:"displayMode"`
 	Plugins     []string  `json:"plugins" mapstructure:"-"`
 	Clusters    []Cluster `json:"clusters" mapstructure:"-"`
+	ClusterName string    `json:"-" mapstructure:"clusterName"`
 	APIs        []API     `json:"-" mapstructure:"clusters"`
 	Redis       Redis     `json:"-" mapstructure:"redis"`
 }
@@ -61,6 +62,7 @@ type Config struct {
 func LoadConfig(cfgFile string) (*Config, error) {
 	v := viper.New()
 	v.SetDefault("logSize", 500)
+	v.SetDefault("clusterName", "Default")
 
 	v.SetDefault("views.logs", true)
 	v.SetDefault("views.policyReports", true)
