@@ -40,7 +40,7 @@ func main() {
 	conf.Clusters = make([]config.Cluster, 0, len(conf.APIs)+1)
 	if len(conf.APIs) > 0 {
 		conf.Clusters = append(conf.Clusters, config.Cluster{
-			Name:    "Default",
+			Name:    conf.ClusterName,
 			Kyverno: len(kyvernoPlugin) > 0,
 		})
 	}
