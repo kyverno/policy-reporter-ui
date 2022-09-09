@@ -10,7 +10,8 @@ type State = {
 
 export const state = (): State => ({
   currentCluster: undefined,
-  refreshInterval: 10000,
+  // 2 ** 31 - 1 is the limit for setInterval
+  refreshInterval: 2 ** 31 - 1,
   displayMode: sessionStorage.getItem('displayMode') as DisplayMode || DisplayMode.LIGHT,
   clusters: [],
   viewsConfig: {

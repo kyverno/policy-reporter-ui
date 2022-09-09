@@ -30,6 +30,8 @@ type Computed = {
 export default Vue.extend<Data, Methdos, Computed, {}>({
   data: () => ({
     intervals: [
+      // 2 ** 31 - 1 is the limit for setInterval
+      { text: '(never)', value: 2 ** 31 - 1 },
       { text: '1s', value: 1000 },
       { text: '5s', value: 5000 },
       { text: '10s', value: 10000 },
