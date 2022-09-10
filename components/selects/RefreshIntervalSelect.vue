@@ -30,11 +30,12 @@ type Computed = {
 export default Vue.extend<Data, Methdos, Computed, {}>({
   data: () => ({
     intervals: [
+      { text: 'disabled', value: 0 },
       { text: '1s', value: 1000 },
       { text: '5s', value: 5000 },
       { text: '10s', value: 10000 },
       { text: '30s', value: 30000 },
-      { text: '1min', value: 100000 }
+      { text: '1min', value: 60000 }
     ]
   }),
   computed: mapGetters(['refreshInterval']),
