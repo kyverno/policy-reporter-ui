@@ -48,20 +48,22 @@ type Redis struct {
 
 // Config structure
 type Config struct {
-	Views       Views     `json:"views" mapstructure:"views"`
-	LogSize     int       `json:"-" mapstructure:"logSize"`
-	DisplayMode string    `json:"displayMode" mapstructure:"displayMode"`
-	Plugins     []string  `json:"plugins" mapstructure:"-"`
-	Clusters    []Cluster `json:"clusters" mapstructure:"-"`
-	ClusterName string    `json:"-" mapstructure:"clusterName"`
-	APIs        []API     `json:"-" mapstructure:"clusters"`
-	Redis       Redis     `json:"-" mapstructure:"redis"`
+	Views           Views     `json:"views" mapstructure:"views"`
+	LogSize         int       `json:"-" mapstructure:"logSize"`
+	DisplayMode     string    `json:"displayMode" mapstructure:"displayMode"`
+	RefreshInterval int       `json:"refreshInterval" mapstructure:"refreshInterval"`
+	Plugins         []string  `json:"plugins" mapstructure:"-"`
+	Clusters        []Cluster `json:"clusters" mapstructure:"-"`
+	ClusterName     string    `json:"-" mapstructure:"clusterName"`
+	APIs            []API     `json:"-" mapstructure:"clusters"`
+	Redis           Redis     `json:"-" mapstructure:"redis"`
 }
 
 // LoadConfig from config file
 func LoadConfig(cfgFile string) (*Config, error) {
 	v := viper.New()
 	v.SetDefault("logSize", 500)
+	v.SetDefault("refreshInterval", 10000)
 	v.SetDefault("clusterName", "Default")
 
 	v.SetDefault("views.logs", true)

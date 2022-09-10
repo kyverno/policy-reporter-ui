@@ -45,6 +45,12 @@ export default Vue.extend<{ counter: number; interval: any; waiting: boolean }, 
       handler (refreshInterval: number) {
         if (this.interval) { clearInterval(this.interval) }
 
+        if (!refreshInterval) {
+          this.interval = null
+          this.$fetch()
+          return
+        }
+
         this.interval = setInterval(this.$fetch, refreshInterval)
       }
     }

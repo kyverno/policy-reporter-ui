@@ -58,6 +58,7 @@ export type Cluster = {
 export type Config = {
     plugins: string[];
     displayMode: DisplayMode | '';
+    refreshInterval: number;
     views: ViewsCofig;
     clusters: Cluster[];
 }
