@@ -43,6 +43,7 @@ type Data = {
 
 type Methdos = {
   setDisplayMode(mode: DisplayMode): void;
+  setRefreshInterval(interval: number): void;
   setViewsConfig(config: ViewsCofig): void;
   setClusters(clusters: Cluster[]): void;
 }
@@ -78,6 +79,7 @@ export default Vue.extend<Data, Methdos, Computed, {}>({
         this.plugins = config.plugins
         this.setViewsConfig(config.views)
         this.setClusters(config.clusters)
+        this.setRefreshInterval(config.refreshInterval)
 
         if (sessionStorage.getItem('displayMode')) {
           return
@@ -119,7 +121,7 @@ export default Vue.extend<Data, Methdos, Computed, {}>({
       this.setDisplayMode(!e.matches ? DisplayMode.LIGHT : DisplayMode.DARK)
     })
   },
-  methods: mapMutations(['setDisplayMode', 'setViewsConfig', 'setClusters'])
+  methods: mapMutations(['setDisplayMode', 'setViewsConfig', 'setClusters', 'setRefreshInterval'])
 })
 </script>
 

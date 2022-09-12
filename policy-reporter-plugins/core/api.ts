@@ -13,6 +13,7 @@ class API {
     return this.axios.$get<Config>('/config').catch(() => ({
       plugins: [],
       displayMode: '',
+      refreshInterval: 10000,
       clusters: [],
       views: {
         logs: true,

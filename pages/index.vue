@@ -107,6 +107,11 @@ export default Vue.extend<Data, {}, Computed, {}>({
       handler (refreshInterval: number) {
         if (this.interval) { clearInterval(this.interval) }
 
+        if (!refreshInterval) {
+          this.interval = null
+          return
+        }
+
         this.interval = setInterval(this.$fetch, refreshInterval)
       }
     },
