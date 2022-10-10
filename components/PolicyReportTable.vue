@@ -94,7 +94,7 @@ import { mapGetters } from 'vuex'
 import { DataTableHeader, DataOptions } from 'vuetify'
 import { mapStatusText } from '~/policy-reporter-plugins/core/mapper'
 import { Dictionary, Filter, ListResult, Pagination, Status } from '~/policy-reporter-plugins/core/types'
-import { sortByKeys } from '~/helper/layouthHelper'
+import { sortByKeys } from '~/helper/layoutHelper'
 
 type Result = ListResult & { chips: Dictionary, cards: Dictionary, hasProps: boolean }
 
