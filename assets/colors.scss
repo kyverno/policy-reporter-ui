@@ -14,7 +14,8 @@
   background-color: #272727 !important;
 }
 
-.property-text-bg {
+.property-text-bg,
+.property-text-bg a {
   background-color: #fff;
   color: rgba(0, 0, 0, 0.66);
 }
@@ -52,7 +53,8 @@
     }
   }
 
-  .property-text-bg {
+  .property-text-bg,
+  .property-text-bg a {
     background-color: rgb(30, 30, 30);
     color: rgba(255, 255, 255, 0.7);
   }

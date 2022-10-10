@@ -114,7 +114,7 @@ import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { Cluster, Status, createNamespaceCounters, createStatusList } from '~/policy-reporter-plugins/core/types'
 import { Policy } from '~/policy-reporter-plugins/kyverno/types'
-import { shortGraph } from '~/helper/layouthHelper'
+import { shortGraph } from '~/helper/layoutHelper'
 
 type Data = {
   error: Error | null;

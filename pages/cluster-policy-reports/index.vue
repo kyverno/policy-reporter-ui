@@ -83,7 +83,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
-import { boxSizes } from '~/helper/layouthHelper'
+import { boxSizes } from '~/helper/layoutHelper'
 import { createCounters, createStatusList, Status } from '~/policy-reporter-plugins/core/types'
 import { Policy } from '~/policy-reporter-plugins/kyverno/types'
 

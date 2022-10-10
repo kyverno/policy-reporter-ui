@@ -4,7 +4,8 @@
       {{ label }}
     </v-system-bar>
     <v-card-text class="property-text-bg pa-2" style="font-size: 0.8rem; line-height: 1.1rem;">
-      <span v-html="value" />
+      <a v-if="isURL(value)" :href="value" target="_blank">{{ value }}</a>
+      <span v-else v-html="value" />
     </v-card-text>
   </v-card>
 </template>
@@ -18,6 +19,19 @@ export default Vue.extend({
   props: {
     label: { type: String, required: true },
     value: { type: String, required: true }
+  },
+  methods: {
+    isURL (value: string): boolean {
+      let url
+
+      try {
+        url = new URL(value)
+      } catch (_) {
+        return false
+      }
+
+      return url.protocol === 'http:' || url.protocol === 'https:'
+    }
   }
 })
 </script>
