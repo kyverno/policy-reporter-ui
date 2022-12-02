@@ -30,6 +30,7 @@
                   <severity-autocomplete />
                 </v-col>
               </v-row>
+              <label-filter-row :source="source" />
             </v-container>
           </v-card>
         </v-col>

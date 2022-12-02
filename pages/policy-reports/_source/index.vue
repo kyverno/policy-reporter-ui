@@ -33,6 +33,7 @@ createNamespaceCounters<template>
                   <namespace-autocomplete :source="source" />
                 </v-col>
               </v-row>
+              <label-filter-row namespaced :source="source" />
             </v-container>
           </v-card>
         </v-col>

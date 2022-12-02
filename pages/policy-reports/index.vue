@@ -1,4 +1,4 @@
-createNamespaceCounters<template>
+<template>
   <loader :loading="loading" :error="error">
     <v-container fluid class="pt-6 px-6">
       <v-row>
@@ -24,6 +24,7 @@ createNamespaceCounters<template>
                   <namespace-autocomplete />
                 </v-col>
               </v-row>
+              <label-filter-row namespaced />
             </v-container>
           </v-card>
         </v-col>

@@ -61,6 +61,7 @@ export type Config = {
     refreshInterval: number;
     views: ViewsCofig;
     clusters: Cluster[];
+    labelFilter: string[];
 }
 
 export type ListResult = {
@@ -153,6 +154,8 @@ export interface CoreAPI {
     namespacedStatusCount(filter?: Filter): Promise<NamespacedStatusCount[]>
     results(filter?: Filter, pagination?: Pagination): Promise<ResultList>
     namespacedResults(filter?: Filter, pagination?: Pagination): Promise<ResultList>
+    namespacedReportLabels(source?: string): Promise<{[key: string]: string[]}>
+    clusterReportLabels(source?: string): Promise<{[key: string]: string[]}>
     setPrefix (prefix: string): void
 }
 

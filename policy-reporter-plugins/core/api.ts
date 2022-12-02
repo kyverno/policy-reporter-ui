@@ -14,6 +14,7 @@ class API {
       plugins: [],
       displayMode: '',
       refreshInterval: 10000,
+      labelFilter: [],
       clusters: [],
       views: {
         logs: true,
@@ -73,6 +74,10 @@ class API {
     return this.axios.$get<ResultList>(this.prefix + '/v1/namespaced-resources/results', { params: { ...filter, ...pagination } })
   }
 
+  namespacedReportLabels (source?: string): Promise<{[key: string]: string[]}> {
+    return this.axios.$get<{[key: string]: string[]}>(this.prefix + '/v1/namespaced-resources/report-labels', { params: { sources: [source] } })
+  }
+
   clusterKinds (source?: string): Promise<string[]> {
     return this.axios.$get<string[]>(this.prefix + '/v1/cluster-resources/kinds', { params: { sources: [source] } })
   }
@@ -87,6 +92,10 @@ class API {
 
   clusterSources (): Promise<string[]> {
     return this.axios.$get<string[]>(this.prefix + '/v1/cluster-resources/sources')
+  }
+
+  clusterReportLabels (source?: string): Promise<{[key: string]: string[]}> {
+    return this.axios.$get<{[key: string]: string[]}>(this.prefix + '/v1/cluster-resources/report-labels', { params: { sources: [source] } })
   }
 
   statusCount (filter?: Filter): Promise<StatusCount[]> {

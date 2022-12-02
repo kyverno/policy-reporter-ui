@@ -57,6 +57,7 @@ type Config struct {
 	ClusterName     string    `json:"-" mapstructure:"clusterName"`
 	APIs            []API     `json:"-" mapstructure:"clusters"`
 	Redis           Redis     `json:"-" mapstructure:"redis"`
+	LabelFilter     []string  `json:"labelFilter" mapstructure:"labelFilter"`
 }
 
 // LoadConfig from config file
