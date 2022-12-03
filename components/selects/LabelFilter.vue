@@ -5,7 +5,7 @@
     :items="labels"
     outlined
     hide-details
-    :label="capitalize(name)"
+    :label="title(name)"
     clearable
     :value="selected"
     v-bind="$attrs"
@@ -39,7 +39,7 @@ type Props = { value: string[], source?: string; labels: string[]; name: string 
 
 type Methods = {
   input(priorities: string[]): void;
-  capitalize (input: string): string;
+  title (input: string): string;
 }
 
 export default Vue.extend<Data, Methods, Computed, Props>({
@@ -81,7 +81,9 @@ export default Vue.extend<Data, Methods, Computed, Props>({
         })
       })
     },
-    capitalize (input: string): string {
+    title (input: string): string {
+      input = input.split('/').pop() || input
+
       return input[0].toUpperCase() + input.slice(1)
     }
   }
