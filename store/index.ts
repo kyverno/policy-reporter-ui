@@ -4,8 +4,9 @@ type State = {
     refreshInterval: number;
     displayMode: DisplayMode;
     viewsConfig: ViewsCofig;
-    clusters: Cluster[]
-    currentCluster?: Cluster
+    clusters: Cluster[];
+    labelFilter: string[];
+    currentCluster?: Cluster;
 }
 
 export const state = (): State => ({
@@ -13,6 +14,7 @@ export const state = (): State => ({
   refreshInterval: 10000,
   displayMode: sessionStorage.getItem('displayMode') as DisplayMode || DisplayMode.LIGHT,
   clusters: [],
+  labelFilter: [],
   viewsConfig: {
     logs: true,
     policyReports: true,
@@ -31,6 +33,7 @@ export const getters = {
   isDarkMode: (state: State) => state.displayMode === DisplayMode.DARK,
   displayMode: (state: State) => state.displayMode,
   viewsConfig: (state: State) => state.viewsConfig,
+  labelFilter: (state: State) => state.labelFilter,
   dashboardConfig: (state: State) => state.viewsConfig.dashboard,
   clusters: (state: State) => state.clusters,
   multiCluster: (state: State) => state.clusters.length > 0,
@@ -54,5 +57,8 @@ export const mutations = {
   setDisplayMode (state: State, mode: DisplayMode) {
     sessionStorage.setItem('displayMode', mode)
     state.displayMode = mode
+  },
+  setLabelFilter (state: State, filters: string[]) {
+    state.labelFilter = filters
   }
 }

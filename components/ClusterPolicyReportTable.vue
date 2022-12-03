@@ -100,6 +100,7 @@ type Computed = {
   tableHeaders: DataTableHeader[];
   showResources: boolean,
   title: string;
+  labelFilter: string[];
 }
 type Props = { status: Status | null; filter: Filter; titleText: string }
 
@@ -190,7 +191,7 @@ export default Vue.extend<Data, {}, Computed, Props>({
         { text: 'Status', value: 'status' }
       ]
     },
-    ...mapGetters(['refreshInterval'])
+    ...mapGetters(['refreshInterval', 'labelFilter'])
   },
   watch: {
     '$route.query': {

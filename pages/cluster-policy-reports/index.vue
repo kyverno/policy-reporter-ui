@@ -21,6 +21,7 @@
                   <severity-autocomplete />
                 </v-col>
               </v-row>
+              <label-filter-row />
             </v-container>
           </v-card>
         </v-col>
