@@ -6,6 +6,11 @@ export enum RuleType {
     GENERATION = 'generation',
 }
 
+export enum ReportType {
+    POLICY = 'Policy Report',
+    NAMESPACE = 'Namespace Report'
+}
+
 export interface Rule {
     message?: string;
     name: string;
@@ -43,8 +48,16 @@ export type ResultMap = {
   fail: Result[];
 }
 
+export type Filter = {
+    policies: string[];
+    namespaces: string[];
+    clusterScope: 1 | 0
+}
+
 export interface KyvernoAPI {
     policies (): Promise<{ policies: Policy[]; groups: PolicyGroups }>;
     verifyImageRules (): Promise<VerifyImageRule[]>;
+    policyReport (filter: Filter): Promise<BlobPart>;
+    namespaceReport (filter: Filter): Promise<BlobPart>;
     setPrefix (prefix: string): void;
 }

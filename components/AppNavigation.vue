@@ -36,7 +36,7 @@
       <app-navigation-item v-if="showLogs" icon="mdi-console" route="/logs" title="Logs" />
 
       <template v-if="views.kyvernoPolicies">
-        <app-navigation-item v-if="showPlugin('kyverno')" route="/kyverno-plugin" title="Kyverno Policies" exact>
+        <app-navigation-item v-if="showPlugin('kyverno')" route="/kyverno-plugin" title="Kyverno Policies">
           <template #icon>
             <v-list-item-icon>
               <kyverno-icon style="height: 24px; width: 24px;" />

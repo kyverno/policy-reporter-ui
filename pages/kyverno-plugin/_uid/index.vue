@@ -15,34 +15,26 @@
             <v-card-text>
               {{ policy.description }}
             </v-card-text>
+            <v-divider />
+            <v-card-actions>
+              <report-button
+                text
+                open
+                :policies="[policy.name]"
+                :namespaces="policy.namespace ? [policy.namespace] : []"
+                type="Policy Report"
+                label="Open Compliance Report"
+              />
+            </v-card-actions>
           </template>
         </v-card>
       </v-col>
     </v-row>
     <v-row>
-      <v-col cols="3">
+      <v-col cols="4">
         <policy-details :policy="policy" />
       </v-col>
-      <v-col cols="3">
-        <v-card style="height: 100%;">
-          <v-toolbar flat>
-            <v-toolbar-title>Configured Autogen Controller</v-toolbar-title>
-          </v-toolbar>
-          <v-list>
-            <template v-for="controller in policy.autogenControllers">
-              <v-divider :key="controller + '_divider'" />
-              <v-list-item :key="controller">
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ controller }}
-                  </v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </template>
-          </v-list>
-        </v-card>
-      </v-col>
-      <v-col cols="3">
+      <v-col cols="4">
         <v-card min-height="300" style="height: 100%;">
           <v-card-title class="pb-0">
             Passed Results
@@ -55,7 +47,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col cols="3">
+      <v-col cols="4">
         <v-card min-height="300" style="height: 100%;">
           <v-card-title class="pb-0">
             Failed Results
@@ -116,6 +108,7 @@ import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import { Cluster, Filter, Status } from '~/policy-reporter-plugins/core/types'
 import PolicyDetails from '~/policy-reporter-plugins/kyverno/components/PolicyDetails.vue'
+import ReportButton from '~/policy-reporter-plugins/kyverno/components/ReportButton.vue'
 import RulesTable from '~/policy-reporter-plugins/kyverno/components/RulesTable.vue'
 import YamlContent from '~/policy-reporter-plugins/kyverno/components/YamlContent.vue'
 import { Policy, RuleType } from '~/policy-reporter-plugins/kyverno/types'
@@ -136,7 +129,7 @@ type Computed = {
 
 export default Vue.extend<Data, Methods, Computed, Props>({
   name: 'Details',
-  components: { RulesTable, PolicyDetails, YamlContent },
+  components: { RulesTable, PolicyDetails, YamlContent, ReportButton },
   data: () => ({
     interval: null,
     failCount: 0,

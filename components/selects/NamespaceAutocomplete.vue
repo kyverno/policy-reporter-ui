@@ -70,6 +70,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
         this.interval = setInterval(this.$fetch, refreshInterval)
       }
+    },
+    value (value: string[]) {
+      if (value && value.length === 0 && this.selected.length > 0) {
+        this.input([])
+      }
     }
   },
   destroyed () {
@@ -87,9 +92,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     input (namespaces: string[]): void {
       this.selected = namespaces
 
-      debounced(() => {
+      debounced(async () => {
         this.$emit('input', namespaces)
-        this.$router.push({ name: this.$route.name as string, query: { ...this.$route.query, namespaces } })
+        try {
+          await this.$router.push({ name: this.$route.name as string, query: { ...this.$route.query, namespaces } })
+        } catch {}
       })
     }
   }

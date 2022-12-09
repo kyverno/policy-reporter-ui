@@ -34,7 +34,7 @@ const debounced = debounce((emit: () => void) => { emit() }, 600)
 
 type Data = { selected: string[]; policies: string[]; interval: any }
 
-type Props = { value: string[]; namespaced: boolean; source?: string }
+type Props = { value: string[]; namespaced: boolean; all: boolean; source?: string }
 
 type Computed = {}
 
@@ -44,6 +44,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
   props: {
     value: { type: Array, default: () => [] },
     namespaced: { type: Boolean, default: false },
+    all: { type: Boolean, default: false },
     source: { type: String, default: undefined }
   },
   data: () => ({
@@ -52,6 +53,17 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     interval: null
   }),
   fetch () {
+    if (this.all) {
+      return Promise.all([
+        this.$coreAPI.namespacedPolicies(this.source),
+        this.$coreAPI.clusterPolicies(this.source)
+      ]).then(([policies, cPolicies]) => {
+        this.policies = [...new Set([...policies, ...cPolicies])]
+
+        this.$emit('input', [...(this.selected.length ? this.policies.filter(s => this.selected.includes(s)) : this.policies)])
+      })
+    }
+
     if (this.namespaced) {
       return this.$coreAPI.namespacedPolicies(this.source).then((policies) => {
         this.policies = policies
@@ -80,6 +92,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
 
         this.interval = setInterval(this.$fetch, refreshInterval)
       }
+    },
+    value (value: string[]) {
+      if (value && value.length === 0 && this.selected.length > 0) {
+        this.input([])
+      }
     }
   },
   created () {
@@ -98,9 +115,11 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     input (policies: string[]): void {
       this.selected = policies
 
-      debounced(() => {
+      debounced(async () => {
         this.$emit('input', [...policies])
-        this.$router.push({ name: this.$route.name as string, query: { ...this.$route.query, policies, all: undefined } })
+        try {
+          await this.$router.push({ name: this.$route.name as string, query: { ...this.$route.query, policies } })
+        } catch {}
       })
     }
   }

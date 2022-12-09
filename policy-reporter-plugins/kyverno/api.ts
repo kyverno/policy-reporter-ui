@@ -1,5 +1,5 @@
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
-import { Policy, PolicyGroups, VerifyImageRule, KyvernoAPI } from './types'
+import { Policy, PolicyGroups, VerifyImageRule, KyvernoAPI, Filter } from './types'
 
 class API {
   private axios: NuxtAxiosInstance
@@ -41,6 +41,14 @@ class API {
 
   verifyImageRules (): Promise<VerifyImageRule[]> {
     return this.axios.$get<VerifyImageRule[]>(this.prefix + '/kyverno/verify-image-rules')
+  }
+
+  policyReport (filter: Filter): Promise<BlobPart> {
+    return this.axios.$get<BlobPart>(this.prefix + '/kyverno/policy-details-reporting', { responseType: 'blob', params: filter })
+  }
+
+  namespaceReport (filter: Filter): Promise<BlobPart> {
+    return this.axios.$get<BlobPart>(this.prefix + '/kyverno/namespace-details-reporting', { responseType: 'blob', params: filter })
   }
 
   setPrefix (prefix: string): void {
