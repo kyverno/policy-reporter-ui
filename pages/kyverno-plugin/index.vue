@@ -9,6 +9,16 @@
           <rule-type-chart :policies="policies" />
         </v-col>
       </v-row>
+      <v-row>
+        <v-col>
+          <v-card>
+            <v-card-title>
+              Compliance Reports&nbsp;&nbsp;
+              <report-dialog />
+            </v-card-title>
+          </v-card>
+        </v-col>
+      </v-row>
       <template v-for="(group, category) in policyGroups">
         <v-row v-if="group.length > 0" :key="category">
           <v-col cols="12">
@@ -26,6 +36,7 @@ import { mapGetters } from 'vuex'
 import CategoryChart from '~/policy-reporter-plugins/kyverno/components/CategoryChart.vue'
 import PolicyTable from '~/policy-reporter-plugins/kyverno/components/PolicyTable.vue'
 import RuleTypeChart from '~/policy-reporter-plugins/kyverno/components/RuleTypeChart.vue'
+import ReportDialog from '~/policy-reporter-plugins/kyverno/components/ReportDialog.vue'
 import { Policy, PolicyGroups } from '~/policy-reporter-plugins/kyverno/types'
 
 type Data = {
@@ -40,7 +51,7 @@ type Props = {}
 
 export default Vue.extend<Data, Methods, {}, Props>({
   name: 'Dashboard',
-  components: { CategoryChart, RuleTypeChart, PolicyTable },
+  components: { CategoryChart, RuleTypeChart, PolicyTable, ReportDialog },
   data: () => ({
     error: null,
     policies: [],
