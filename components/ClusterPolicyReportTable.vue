@@ -32,7 +32,7 @@
                   <td v-if="showResources">
                     <span>{{ item.kind }}</span>
                   </td>
-                  <td v-if="showResources">
+                  <td v-if="showName">
                     <span>{{ item.name }}</span>
                   </td>
                   <td>
@@ -98,7 +98,8 @@ type Result = ListResult & { chips: Dictionary, cards: Dictionary, hasProps: boo
 type Data = { open: boolean; search: string; expanded: string[], results: Result[], interval: any; options: DataOptions, count: number }
 type Computed = {
   tableHeaders: DataTableHeader[];
-  showResources: boolean,
+  showResources: boolean;
+  showName: boolean;
   title: string;
   labelFilter: string[];
 }
@@ -175,13 +176,17 @@ export default Vue.extend<Data, {}, Computed, Props>({
     showResources (): boolean {
       return this.results.some(item => !!item.kind)
     },
+    showName (): boolean {
+      return this.results.some(item => !!item.name)
+    },
     tableHeaders (): DataTableHeader[] {
-      const resourceFileds = this.showResources
-        ? [
-            { text: 'Kind', value: 'kind' },
-            { text: 'Name', value: 'name' }
-          ]
-        : []
+      const resourceFileds = []
+      if (this.showResources) {
+        resourceFileds.push({ text: 'Kind', value: 'kind' })
+      }
+      if (this.showName) {
+        resourceFileds.push({ text: 'Name', value: 'name' })
+      }
 
       return [
         ...resourceFileds,
