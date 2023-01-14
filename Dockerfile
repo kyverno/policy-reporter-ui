@@ -11,10 +11,11 @@ COPY . .
 RUN npm install \
     && npm run generate
 
-FROM golang:1.19 as builder
+FROM golang:1.19-alpine3.17 as builder
 
 ARG LD_FLAGS="-s -w"
 ARG TARGETPLATFORM
+ARG TARGETARCH
 
 WORKDIR /app
 
@@ -24,7 +25,7 @@ COPY server/go.sum go.sum
 COPY server/go.mod go.mod
 
 RUN export GOOS=$(echo ${TARGETPLATFORM} | cut -d / -f1) && \
-    export GOARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2)
+    export GOARCH=$(TARGETARCH)
 
 RUN go env
 
