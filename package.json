@@ -1,6 +1,6 @@
 {
   "name": "policy-reporter-ui",
-  "version": "1.0.0",
+  "version": "1.7.2",
   "private": true,
   "scripts": {
     "dev": "nuxt",
