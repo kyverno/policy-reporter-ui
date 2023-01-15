@@ -173,7 +173,7 @@ export default Vue.extend<Data, Methods, Computed, Props>({
       return this.titleText
     },
     showResources (): boolean {
-      return this.results.some(item => !!item.kind)
+      return this.results.length > 0 && this.results.some(item => !!item.kind)
     },
     tableHeaders (): DataTableHeader[] {
       const resourceFileds = this.showResources
