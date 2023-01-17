@@ -21,9 +21,10 @@ func New(target *url.URL) *httputil.ReverseProxy {
 	}
 
 	proxy.Transport = &http.Transport{
-		Dial: (&net.Dialer{
-			Timeout: 30 * time.Second,
-		}).Dial,
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
 	}
 
 	return proxy
