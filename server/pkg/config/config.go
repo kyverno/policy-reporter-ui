@@ -24,9 +24,11 @@ type Views struct {
 
 // API configuration
 type API struct {
-	Name       string `json:"name" mapstructure:"name"`
-	CoreAPI    string `json:"api" mapstructure:"api"`
-	KyvernoAPI string `json:"kyvernoApi" mapstructure:"kyvernoApi"`
+	Name        string `json:"name" mapstructure:"name"`
+	CoreAPI     string `json:"api" mapstructure:"api"`
+	KyvernoAPI  string `json:"kyvernoApi" mapstructure:"kyvernoApi"`
+	SkipTSL     bool   `json:"-" mapstructure:"skipTLS"`
+	Certificate string `json:"-" mapstructure:"certificate"`
 }
 
 // Cluster configuration

@@ -1,6 +1,10 @@
 package proxy
 
 import (
+	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -8,7 +12,7 @@ import (
 	"time"
 )
 
-func New(target *url.URL) *httputil.ReverseProxy {
+func New(target *url.URL, certificatePath string, skipTLS bool) *httputil.ReverseProxy {
 	proxy := httputil.NewSingleHostReverseProxy(target)
 	original := proxy.Director
 
@@ -20,11 +24,29 @@ func New(target *url.URL) *httputil.ReverseProxy {
 		original(req)
 	}
 
-	proxy.Transport = &http.Transport{
+	transport := &http.Transport{
 		DialContext: (&net.Dialer{
 			Timeout:   30 * time.Second,
 			KeepAlive: 30 * time.Second,
 		}).DialContext,
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: skipTLS,
+		},
+	}
+
+	proxy.Transport = transport
+
+	if certificatePath != "" {
+		caCert, err := ioutil.ReadFile(certificatePath)
+		if err != nil {
+			log.Printf("[ERROR] failed to read certificate: %s\n", certificatePath)
+			return proxy
+		}
+
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+
+		transport.TLSClientConfig.RootCAs = caCertPool
 	}
 
 	return proxy

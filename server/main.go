@@ -94,7 +94,7 @@ func main() {
 
 	apiRouter.HandleFunc("/push", api.PushResultHandler(store)).Methods("POST")
 	apiRouter.HandleFunc("/result-log", api.ResultHandler(store)).Methods("GET")
-	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", proxy.New(backend))).Methods("GET")
+	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", proxy.New(backend, "", false))).Methods("GET")
 
 	for _, c := range conf.APIs {
 		cluster := config.Cluster{
@@ -111,7 +111,7 @@ func main() {
 
 		apiRouter.
 			PathPrefix(fmt.Sprintf("/%s/v1", cluster.ID)).
-			Handler(http.StripPrefix(fmt.Sprintf("/api/%s", cluster.ID), proxy.New(core))).Methods("GET")
+			Handler(http.StripPrefix(fmt.Sprintf("/api/%s", cluster.ID), proxy.New(core, c.Certificate, c.SkipTSL))).Methods("GET")
 
 		log.Printf("[INFO] Core Proxy for %s configured\n", c.Name)
 
@@ -126,7 +126,7 @@ func main() {
 
 			apiRouter.
 				PathPrefix(fmt.Sprintf("/%s/kyverno", cluster.ID)).
-				Handler(http.StripPrefix(fmt.Sprintf("/api/%s/kyverno", cluster.ID), proxy.New(kyverno))).Methods("GET")
+				Handler(http.StripPrefix(fmt.Sprintf("/api/%s/kyverno", cluster.ID), proxy.New(kyverno, c.Certificate, c.SkipTSL))).Methods("GET")
 
 			log.Printf("[INFO] Kyverno Proxy for %s configured\n", c.Name)
 		}
@@ -142,7 +142,7 @@ func main() {
 			log.Println(err)
 			return
 		}
-		kyvernoProxy := proxy.New(kyverno)
+		kyvernoProxy := proxy.New(kyverno, "", false)
 
 		apiRouter.PathPrefix("/kyverno").Handler(http.StripPrefix("/api/kyverno", kyvernoProxy)).Methods("GET")
 
