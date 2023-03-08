@@ -44,15 +44,6 @@
           </template>
         </app-navigation-item>
       </template>
-
-      <template v-if="views.kyvernoVerifyImages">
-        <app-navigation-item
-          v-if="showPlugin('kyverno')"
-          route="/kyverno-plugin/verify-image-rules"
-          title="Kyverno VerifyImages"
-          icon="mdi-shield-check"
-        />
-      </template>
     </v-list>
   </v-navigation-drawer>
 </template>
