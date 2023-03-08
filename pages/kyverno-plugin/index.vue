@@ -26,6 +26,12 @@
           </v-col>
         </v-row>
       </template>
+
+      <v-row v-if="verifyRules.length > 0">
+        <v-col cols="12">
+          <verify-image-table :rules="verifyRules" title="VerifyImages Rules" />
+        </v-col>
+      </v-row>
     </v-container>
   </loader>
 </template>
@@ -37,13 +43,15 @@ import CategoryChart from '~/policy-reporter-plugins/kyverno/components/Category
 import PolicyTable from '~/policy-reporter-plugins/kyverno/components/PolicyTable.vue'
 import RuleTypeChart from '~/policy-reporter-plugins/kyverno/components/RuleTypeChart.vue'
 import ReportDialog from '~/policy-reporter-plugins/kyverno/components/ReportDialog.vue'
-import { Policy, PolicyGroups } from '~/policy-reporter-plugins/kyverno/types'
+import VerifyImageTable from '~/policy-reporter-plugins/kyverno/components/VerifyImageTable.vue'
+import { Policy, PolicyGroups, VerifyImageRule } from '~/policy-reporter-plugins/kyverno/types'
 
 type Data = {
   error: Error | null;
   loading: boolean;
   policies: Policy[];
   policyGroups: PolicyGroups;
+  verifyRules: VerifyImageRule[];
   interval: any;
 }
 type Methods = {}
@@ -51,22 +59,25 @@ type Props = {}
 
 export default Vue.extend<Data, Methods, {}, Props>({
   name: 'Dashboard',
-  components: { CategoryChart, RuleTypeChart, PolicyTable, ReportDialog },
+  components: { CategoryChart, RuleTypeChart, PolicyTable, ReportDialog, VerifyImageTable },
   data: () => ({
     error: null,
     policies: [],
+    verifyRules: [],
     policyGroups: {},
     loading: true,
     interval: null
   }),
   fetch () {
-    return this.$kyvernoAPI.policies().then(({ groups, policies }) => {
+    return Promise.all([this.$kyvernoAPI.policies(), this.$kyvernoAPI.verifyImageRules()]).then(([{ groups, policies }, rules]) => {
       this.error = null
       this.policies = policies
       this.policyGroups = groups
+      this.verifyRules = rules
     }).catch((error) => {
       this.error = error
       this.policies = []
+      this.verifyRules = []
       this.policyGroups = {}
     }).finally(() => {
       this.loading = false

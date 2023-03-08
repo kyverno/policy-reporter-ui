@@ -42,9 +42,6 @@
               <td>{{ item.rule }}</td>
               <td>{{ item.repository }}</td>
               <td>{{ item.image }}</td>
-              <td>
-                <attestations-dialog v-if="item.attestations" :attestations="item.attestations" />
-              </td>
             </tr>
           </template>
         </v-data-table>
@@ -57,7 +54,6 @@
 import Vue from 'vue'
 import { DataTableHeader } from 'vuetify'
 import { Policy, VerifyImageRule } from '../types'
-import AttestationsDialog from './AttestationsDialog.vue'
 
 type Item = Omit<VerifyImageRule, 'policy'> & { name: string; namespace?: string; uid: string }
 
@@ -66,7 +62,6 @@ type Computed = { tableHeaders: DataTableHeader[]; showNamespace: boolean; items
 type Props = { title: string; rules: VerifyImageRule[] }
 
 export default Vue.extend<Data, {}, Computed, Props>({
-  components: { AttestationsDialog },
   props: {
     title: { type: String, required: true },
     rules: { type: Array, required: true }
@@ -85,8 +80,7 @@ export default Vue.extend<Data, {}, Computed, Props>({
         { text: 'Policy', value: 'name' },
         { text: 'Rule', value: 'rule' },
         { text: 'Cosign Repository', value: 'repository' },
-        { text: 'Image', value: 'image' },
-        { text: 'Attestations', value: '' }
+        { text: 'Image', value: 'image' }
       ]
     }
   },
