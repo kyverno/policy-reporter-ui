@@ -13,9 +13,11 @@ import (
 	"github.com/gosimple/slug"
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/config"
+	"github.com/kyverno/policy-reporter-ui/pkg/logging"
 	"github.com/kyverno/policy-reporter-ui/pkg/proxy"
 	"github.com/kyverno/policy-reporter-ui/pkg/redis"
 	"github.com/kyverno/policy-reporter-ui/pkg/report"
+	"go.uber.org/zap"
 )
 
 var (
@@ -45,8 +47,10 @@ func main() {
 		})
 	}
 
+	logger := logging.New(conf)
+
 	if development {
-		log.Println("[INFO] Development Mode enabled")
+		logger.Info("Development Mode enabled")
 	}
 
 	router := mux.NewRouter()
@@ -55,13 +59,13 @@ func main() {
 
 	if conf.Redis.Enabled {
 		if development {
-			log.Print("[INFO] Redis Store enabled\n")
+			logger.Info("[INFO] Redis Store enabled")
 		}
 
 		store = redis.NewFromConfig(conf)
 	} else {
 		if development {
-			log.Printf("[INFO] Log Store Size: %d\n", conf.LogSize)
+			logger.Info("log store size", zap.Int("size", conf.LogSize))
 		}
 
 		store = report.NewResultStore(conf.LogSize)
@@ -92,9 +96,14 @@ func main() {
 		})
 	}
 
+	var apiLogger *zap.Logger
+	if conf.Logging.Enabled {
+		apiLogger = logger
+	}
+
 	apiRouter.HandleFunc("/push", api.PushResultHandler(store)).Methods("POST")
 	apiRouter.HandleFunc("/result-log", api.ResultHandler(store)).Methods("GET")
-	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", proxy.New(backend, "", false))).Methods("GET")
+	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", proxy.New(backend, "", false, apiLogger))).Methods("GET")
 
 	for _, c := range conf.APIs {
 		cluster := config.Cluster{
@@ -105,30 +114,30 @@ func main() {
 
 		core, err := url.Parse(c.CoreAPI)
 		if err != nil {
-			log.Printf("[ERROR] failed to configure Core Proxy for %s: %s\n", c.Name, err)
+			logger.Error("failed to configure core proxy", zap.String("name", c.Name), zap.Error(err))
 			continue
 		}
 
 		apiRouter.
 			PathPrefix(fmt.Sprintf("/%s/v1", cluster.ID)).
-			Handler(http.StripPrefix(fmt.Sprintf("/api/%s", cluster.ID), proxy.New(core, c.Certificate, c.SkipTSL))).Methods("GET")
+			Handler(http.StripPrefix(fmt.Sprintf("/api/%s", cluster.ID), proxy.New(core, c.Certificate, c.SkipTSL, apiLogger))).Methods("GET")
 
-		log.Printf("[INFO] Core Proxy for %s configured\n", c.Name)
+		logger.Info("core proxy configured", zap.String("name", c.Name))
 
 		if cluster.Kyverno {
 			conf.Plugins = AddIfNotExist(conf.Plugins, "kyverno")
 
 			kyverno, err := url.Parse(c.KyvernoAPI)
 			if err != nil {
-				log.Printf("[ERROR] failed to configure Kyverno Proxy for %s: %s\n", c.Name, err)
+				logger.Error("failed to configure kyverno proxy", zap.String("name", c.Name), zap.Error(err))
 				continue
 			}
 
 			apiRouter.
 				PathPrefix(fmt.Sprintf("/%s/kyverno", cluster.ID)).
-				Handler(http.StripPrefix(fmt.Sprintf("/api/%s/kyverno", cluster.ID), proxy.New(kyverno, c.Certificate, c.SkipTSL))).Methods("GET")
+				Handler(http.StripPrefix(fmt.Sprintf("/api/%s/kyverno", cluster.ID), proxy.New(kyverno, c.Certificate, c.SkipTSL, apiLogger))).Methods("GET")
 
-			log.Printf("[INFO] Kyverno Proxy for %s configured\n", c.Name)
+			logger.Info("kyverno proxy configured", zap.String("name", c.Name))
 		}
 
 		conf.Clusters = append(conf.Clusters, cluster)
@@ -142,11 +151,11 @@ func main() {
 			log.Println(err)
 			return
 		}
-		kyvernoProxy := proxy.New(kyverno, "", false)
+		kyvernoProxy := proxy.New(kyverno, "", false, apiLogger)
 
 		apiRouter.PathPrefix("/kyverno").Handler(http.StripPrefix("/api/kyverno", kyvernoProxy)).Methods("GET")
 
-		log.Println("[INFO] Kyverno Plugin Proxy configured")
+		logger.Info("kyverno proxy configured")
 	}
 
 	apiRouter.HandleFunc("/config", api.ConfigHandler(conf)).Methods("GET")
@@ -154,11 +163,11 @@ func main() {
 	if !noUI {
 		router.PathPrefix("/").Handler(spaHandler{staticPath: "dist", indexPath: "index.html"}).Methods("GET")
 	} else {
-		log.Printf("[INFO] Embedded UI disabled")
+		logger.Info("embedded UI disabled")
 	}
 
 	if development {
-		log.Printf("[INFO] Running on Port %d\n", port)
+		logger.Info("running", zap.Int("port", port))
 	}
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", port), router)
