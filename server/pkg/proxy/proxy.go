@@ -10,13 +10,42 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"time"
+
+	"go.uber.org/zap"
 )
 
-func New(target *url.URL, certificatePath string, skipTLS bool) *httputil.ReverseProxy {
+func New(target *url.URL, certificatePath string, skipTLS bool, logger *zap.Logger) *httputil.ReverseProxy {
 	proxy := httputil.NewSingleHostReverseProxy(target)
 	original := proxy.Director
 
+	if logger != nil {
+		proxy.ErrorHandler = func(w http.ResponseWriter, req *http.Request, err error) {
+			logger.Error(
+				"Proxy request failed",
+				zap.String("proto", req.Proto),
+				zap.String("method", req.Method),
+				zap.String("forward-host", req.Host),
+				zap.String("origin-host", target.Host),
+				zap.String("path", req.URL.Path),
+				zap.Error(err),
+			)
+		}
+	}
+
 	proxy.Director = func(req *http.Request) {
+		if logger != nil {
+			logger.Info(
+				"Proxy",
+				zap.String("proto", req.Proto),
+				zap.String("method", req.Method),
+				zap.String("referer", req.Header.Get("Referer")),
+				zap.String("user-agent", req.Header.Get("User-Agent")),
+				zap.String("forward-host", req.Host),
+				zap.String("origin-host", target.Host),
+				zap.String("path", req.URL.Path),
+			)
+		}
+
 		req.Header.Add("X-Forwarded-Host", req.Host)
 		req.Header.Add("X-Origin-Host", target.Host)
 		req.Host = target.Host

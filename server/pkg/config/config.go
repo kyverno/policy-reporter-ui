@@ -48,6 +48,13 @@ type Redis struct {
 	Database int    `mapstructure:"database"`
 }
 
+type Logging struct {
+	Enabled     bool   `mapstructure:"enabled"`
+	LogLevel    int8   `mapstructure:"logLevel"`
+	Encoding    string `mapstructure:"encoding"`
+	Development bool   `mapstructure:"development"`
+}
+
 // Config structure
 type Config struct {
 	Views           Views     `json:"views" mapstructure:"views"`
@@ -60,6 +67,7 @@ type Config struct {
 	APIs            []API     `json:"-" mapstructure:"clusters"`
 	Redis           Redis     `json:"-" mapstructure:"redis"`
 	LabelFilter     []string  `json:"labelFilter" mapstructure:"labelFilter"`
+	Logging         Logging   `json:"-" mapstructure:"logging"`
 }
 
 // LoadConfig from config file
