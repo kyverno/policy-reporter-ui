@@ -34,7 +34,7 @@ func New(target *url.URL, certificatePath string, skipTLS bool, logger *zap.Logg
 
 	proxy.Director = func(req *http.Request) {
 		if logger != nil {
-			logger.Info(
+			logger.Debug(
 				"Proxy",
 				zap.String("proto", req.Proto),
 				zap.String("method", req.Method),
