@@ -32,7 +32,7 @@ func New(config *config.Config) *zap.Logger {
 		Sampling:          sampling,
 		Encoding:          ouput,
 		EncoderConfig:     encoder,
-		DisableStacktrace: true,
+		DisableStacktrace: !config.Logging.Development,
 		OutputPaths:       []string{"stderr"},
 		ErrorOutputPaths:  []string{"stderr"},
 	}
