@@ -14,27 +14,25 @@ import (
 	"go.uber.org/zap"
 )
 
-func New(target *url.URL, certificatePath string, skipTLS bool, logger *zap.Logger) *httputil.ReverseProxy {
+func New(target *url.URL, certificatePath string, skipTLS, logging bool) *httputil.ReverseProxy {
 	proxy := httputil.NewSingleHostReverseProxy(target)
 	original := proxy.Director
 
-	if logger != nil {
-		proxy.ErrorHandler = func(w http.ResponseWriter, req *http.Request, err error) {
-			logger.Error(
-				"Proxy request failed",
-				zap.String("proto", req.Proto),
-				zap.String("method", req.Method),
-				zap.String("forward-host", req.Host),
-				zap.String("origin-host", target.Host),
-				zap.String("path", req.URL.Path),
-				zap.Error(err),
-			)
-		}
+	proxy.ErrorHandler = func(w http.ResponseWriter, req *http.Request, err error) {
+		zap.L().Error(
+			"Proxy request failed",
+			zap.String("proto", req.Proto),
+			zap.String("method", req.Method),
+			zap.String("forward-host", req.Host),
+			zap.String("origin-host", target.Host),
+			zap.String("path", req.URL.Path),
+			zap.Error(err),
+		)
 	}
 
 	proxy.Director = func(req *http.Request) {
-		if logger != nil {
-			logger.Debug(
+		if logging {
+			zap.L().Debug(
 				"Proxy",
 				zap.String("proto", req.Proto),
 				zap.String("method", req.Method),

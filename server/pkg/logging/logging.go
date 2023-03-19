@@ -39,5 +39,7 @@ func New(config *config.Config) *zap.Logger {
 
 	logger, _ := cnfg.Build()
 
+	zap.ReplaceGlobals(logger)
+
 	return logger
 }

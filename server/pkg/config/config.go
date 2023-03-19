@@ -49,10 +49,13 @@ type Redis struct {
 }
 
 type Logging struct {
-	Enabled     bool   `mapstructure:"enabled"`
 	LogLevel    int8   `mapstructure:"logLevel"`
 	Encoding    string `mapstructure:"encoding"`
 	Development bool   `mapstructure:"development"`
+}
+
+type APIConfig struct {
+	Logging bool `mapstructure:"logging"`
 }
 
 // Config structure
@@ -68,11 +71,13 @@ type Config struct {
 	Redis           Redis     `json:"-" mapstructure:"redis"`
 	LabelFilter     []string  `json:"labelFilter" mapstructure:"labelFilter"`
 	Logging         Logging   `json:"-" mapstructure:"logging"`
+	APIConfig       APIConfig `json:"-" mapstructure:"apiConfig"`
 }
 
 // LoadConfig from config file
 func LoadConfig(cfgFile string) (*Config, error) {
 	v := viper.New()
+
 	v.SetDefault("logSize", 500)
 	v.SetDefault("refreshInterval", 10000)
 	v.SetDefault("clusterName", "Default")
