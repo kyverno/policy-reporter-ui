@@ -25,7 +25,9 @@ COPY server/go.sum go.sum
 COPY server/go.mod go.mod
 
 RUN export GOOS=$(echo ${TARGETPLATFORM} | cut -d / -f1) && \
-    export GOARCH=$(TARGETARCH)
+    export GOARCH=$(TARGETARCH) && \
+    apk --no-cache add ca-certificates && \
+    update-ca-certificates
 
 RUN go env
 

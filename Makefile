@@ -1,5 +1,5 @@
 REPO ?= ghcr.io/kyverno/policy-reporter-ui
-IMAGE_TAG ?= 1.8.1
+IMAGE_TAG ?= 1.8.2
 LD_FLAGS="-s -w"
 PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x
 
