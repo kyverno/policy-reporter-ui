@@ -24,6 +24,7 @@ var (
 	configFile     string
 	policyReporter string
 	kyvernoPlugin  string
+	overwriteHost  bool
 	development    bool
 	noUI           bool
 	port           int
@@ -33,6 +34,7 @@ func main() {
 	flag.StringVar(&configFile, "config", "./config.yaml", "Path to the config file")
 	flag.StringVar(&policyReporter, "policy-reporter", "", "PolicyReporter Host")
 	flag.StringVar(&kyvernoPlugin, "kyverno-plugin", "", "Kyverno Plugin Host")
+	flag.BoolVar(&overwriteHost, "overwrite-host", false, "Overwrite Proxy Host and set Forward Header")
 	flag.IntVar(&port, "port", 8080, "PolicyReporter UI port")
 	flag.BoolVar(&development, "dev", false, "Enable CORS Header for development")
 	flag.BoolVar(&noUI, "no-ui", false, "Disable the embedded frontend")
@@ -51,6 +53,10 @@ func main() {
 
 	if development {
 		logger.Info("Development Mode enabled")
+	}
+
+	if overwriteHost {
+		zap.L().Info("host overwrite enabled")
 	}
 
 	router := mux.NewRouter()
@@ -99,7 +105,7 @@ func main() {
 
 	apiRouter.HandleFunc("/push", api.PushResultHandler(store)).Methods("POST")
 	apiRouter.HandleFunc("/result-log", api.ResultHandler(store)).Methods("GET")
-	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", proxy.New(backend, "", false, apiConfig.Logging))).Methods("GET")
+	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", proxy.New(backend, "", false, overwriteHost, apiConfig.Logging))).Methods("GET")
 
 	for _, c := range conf.APIs {
 		cluster := config.Cluster{
@@ -116,7 +122,7 @@ func main() {
 
 		apiRouter.
 			PathPrefix(fmt.Sprintf("/%s/v1", cluster.ID)).
-			Handler(http.StripPrefix(fmt.Sprintf("/api/%s", cluster.ID), proxy.New(core, c.Certificate, c.SkipTSL, apiConfig.Logging))).Methods("GET")
+			Handler(http.StripPrefix(fmt.Sprintf("/api/%s", cluster.ID), proxy.New(core, c.Certificate, c.SkipTSL, overwriteHost, apiConfig.Logging))).Methods("GET")
 
 		logger.Info("core proxy configured", zap.String("name", c.Name))
 
@@ -131,7 +137,7 @@ func main() {
 
 			apiRouter.
 				PathPrefix(fmt.Sprintf("/%s/kyverno", cluster.ID)).
-				Handler(http.StripPrefix(fmt.Sprintf("/api/%s/kyverno", cluster.ID), proxy.New(kyverno, c.Certificate, c.SkipTSL, apiConfig.Logging))).Methods("GET")
+				Handler(http.StripPrefix(fmt.Sprintf("/api/%s/kyverno", cluster.ID), proxy.New(kyverno, c.Certificate, c.SkipTSL, overwriteHost, apiConfig.Logging))).Methods("GET")
 
 			logger.Info("kyverno proxy configured", zap.String("name", c.Name))
 		}
@@ -147,7 +153,7 @@ func main() {
 			log.Println(err)
 			return
 		}
-		kyvernoProxy := proxy.New(kyverno, "", false, apiConfig.Logging)
+		kyvernoProxy := proxy.New(kyverno, "", false, overwriteHost, apiConfig.Logging)
 
 		apiRouter.PathPrefix("/kyverno").Handler(http.StripPrefix("/api/kyverno", kyvernoProxy)).Methods("GET")
 
