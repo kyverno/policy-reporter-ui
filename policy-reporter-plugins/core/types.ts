@@ -139,23 +139,24 @@ export interface CoreAPI {
     config(): Promise<Config>
     logs(): Promise<Result[]>
     targets(): Promise<Target[]>
-    categories(source?: string): Promise<string[]>
-    clusterKinds(source?: string): Promise<string[]>
+    namespacedCategories(source?: string): Promise<string[]>
+    namespaces(source?: string): Promise<string[]>
     namespacedPolicies(source?: string): Promise<string[]>
     namespacedRules(source?: string): Promise<string[]>
-    clusterPolicies(source?: string): Promise<string[]>
-    clusterRules(source?: string): Promise<string[]>
-    namespaces(source?: string): Promise<string[]>
-    clusterSources(): Promise<string[]>
     namespacedSources(): Promise<string[]>
     namespacedKinds(source?: string): Promise<string[]>
-    statusCount(filter?: Filter): Promise<StatusCount[]>
-    ruleStatusCount (policy: string, rule: string): Promise<StatusCount[]>
-    namespacedStatusCount(filter?: Filter): Promise<NamespacedStatusCount[]>
-    results(filter?: Filter, pagination?: Pagination): Promise<ResultList>
     namespacedResults(filter?: Filter, pagination?: Pagination): Promise<ResultList>
     namespacedReportLabels(source?: string): Promise<{[key: string]: string[]}>
+    namespacedStatusCount(filter?: Filter): Promise<NamespacedStatusCount[]>
+    clusterPolicies(source?: string): Promise<string[]>
+    clusterRules(source?: string): Promise<string[]>
+    clusterKinds(source?: string): Promise<string[]>
+    clusterSources(): Promise<string[]>
+    clusterCategories(source?: string): Promise<string[]>
     clusterReportLabels(source?: string): Promise<{[key: string]: string[]}>
+    statusCount(filter?: Filter): Promise<StatusCount[]>
+    ruleStatusCount (policy: string, rule: string): Promise<StatusCount[]>
+    results(filter?: Filter, pagination?: Pagination): Promise<ResultList>
     setPrefix (prefix: string): void
 }
 

@@ -36,14 +36,15 @@ type Data = { selected: string[]; categories: string[]; interval: any }
 
 type Computed = {}
 
-type Props = { value: string[], source?: string }
+type Props = { value: string[], source?: string; namespaced: boolean }
 
 type Methods = { input(priorities: string[]): void }
 
 export default Vue.extend<Data, Methods, Computed, Props>({
   props: {
     value: { type: Array, default: () => [] },
-    source: { type: String, default: undefined }
+    source: { type: String, default: undefined },
+    namespaced: { type: Boolean, default: false }
   },
   data: () => ({
     interval: null,
@@ -51,7 +52,15 @@ export default Vue.extend<Data, Methods, Computed, Props>({
     selected: []
   }),
   fetch () {
-    return this.$coreAPI.categories(this.source).then((categories) => {
+    if (this.namespaced) {
+      return this.$coreAPI.namespacedCategories(this.source).then((categories) => {
+        this.categories = [...categories]
+
+        this.$emit('input', [...(this.selected.length ? categories.filter(s => this.selected.includes(s)) : categories)])
+      })
+    }
+
+    return this.$coreAPI.clusterCategories(this.source).then((categories) => {
       this.categories = [...categories]
 
       this.$emit('input', [...(this.selected.length ? categories.filter(s => this.selected.includes(s)) : categories)])

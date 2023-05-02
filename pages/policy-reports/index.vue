@@ -18,7 +18,7 @@
               </v-row>
               <v-row>
                 <v-col cols="5">
-                  <category-autocomplete @input="groupings.categories = $event" />
+                  <category-autocomplete namespaced @input="groupings.categories = $event" />
                 </v-col>
                 <v-col cols="4">
                   <namespace-autocomplete />

@@ -38,16 +38,16 @@ class API {
     return this.axios.$get<Target[]>(this.prefix + '/v1/targets')
   }
 
-  categories (source?: string): Promise<string[]> {
-    return this.axios.$get<string[]>(this.prefix + '/v1/categories', { params: { sources: [source] } })
-  }
-
   namespaces (source?: string): Promise<string[]> {
     return this.axios.$get<string[]>(this.prefix + '/v1/namespaces', { params: { sources: [source] } })
   }
 
   ruleStatusCount (policy: string, rule: string): Promise<StatusCount[]> {
     return this.axios.$get<StatusCount[]>(this.prefix + '/v1/rule-status-count', { params: { policy, rule } })
+  }
+
+  namespacedCategories (source?: string): Promise<string[]> {
+    return this.axios.$get<string[]>(this.prefix + '/v1/namespaced-resources/categories', { params: { sources: [source] } })
   }
 
   namespacedKinds (source?: string): Promise<string[]> {
@@ -76,6 +76,10 @@ class API {
 
   namespacedReportLabels (source?: string): Promise<{[key: string]: string[]}> {
     return this.axios.$get<{[key: string]: string[]}>(this.prefix + '/v1/namespaced-resources/report-labels', { params: { sources: [source] } })
+  }
+
+  clusterCategories (source?: string): Promise<string[]> {
+    return this.axios.$get<string[]>(this.prefix + '/v1/cluster-resources/categories', { params: { sources: [source] } })
   }
 
   clusterKinds (source?: string): Promise<string[]> {

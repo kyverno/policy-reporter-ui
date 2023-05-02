@@ -27,7 +27,7 @@ createNamespaceCounters<template>
               </v-row>
               <v-row>
                 <v-col cols="5">
-                  <category-autocomplete :source="source" @input="groupings.categories = $event" />
+                  <category-autocomplete namespaced :source="source" @input="groupings.categories = $event" />
                 </v-col>
                 <v-col cols="4">
                   <namespace-autocomplete :source="source" />
