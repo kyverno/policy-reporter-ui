@@ -26,8 +26,9 @@ type Views struct {
 
 // BasicAuth configuration
 type BasicAuth struct {
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
+	Username  string `mapstructure:"username"`
+	Password  string `mapstructure:"password"`
+	SecretRef string `mapstructure:"secretRef"`
 }
 
 // API configuration
@@ -90,7 +91,6 @@ type Logging struct {
 type APIConfig struct {
 	Logging   bool      `mapstructure:"logging"`
 	BasicAuth BasicAuth `mapstructure:"basicAuth"`
-	SecretRef string    `mapstructure:"secretRef"`
 }
 
 // Config structure

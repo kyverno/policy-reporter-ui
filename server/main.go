@@ -98,14 +98,15 @@ func main() {
 
 	apiRouter := router.PathPrefix("/api/").Subrouter()
 	apiConfig := conf.APIConfig
+	authConfig := apiConfig.BasicAuth
 
-	if apiConfig.SecretRef != "" && secretClient != nil {
-		v, err := secretClient.Get(context.Background(), apiConfig.SecretRef)
+	if authConfig.SecretRef != "" && secretClient != nil {
+		v, err := secretClient.Get(context.Background(), authConfig.SecretRef)
 		if err != nil {
-			logger.Error("failed to read secret", zap.String("secret", apiConfig.SecretRef), zap.Error(err))
+			logger.Error("failed to read secret", zap.String("secret", authConfig.SecretRef), zap.Error(err))
 		} else {
-			apiConfig.BasicAuth.Username = v.Username
-			apiConfig.BasicAuth.Password = v.Password
+			authConfig.Username = v.Username
+			authConfig.Password = v.Password
 		}
 	}
 
@@ -128,7 +129,7 @@ func main() {
 
 	apiRouter.HandleFunc("/push", api.PushResultHandler(store)).Methods("POST")
 	apiRouter.HandleFunc("/result-log", api.ResultHandler(store)).Methods("GET")
-	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", proxy.New(backend, "", false, overwriteHost, apiConfig.Logging, apiConfig.BasicAuth.Username, apiConfig.BasicAuth.Password))).Methods("GET")
+	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", proxy.New(backend, "", false, overwriteHost, apiConfig.Logging, authConfig.Username, authConfig.Password))).Methods("GET")
 
 	for _, c := range conf.APIs {
 		if c.SecretRef != "" && secretClient != nil {
