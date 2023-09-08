@@ -186,7 +186,7 @@ func main() {
 			log.Println(err)
 			return
 		}
-		kyvernoProxy := proxy.New(kyverno, "", false, overwriteHost, apiConfig.Logging, apiConfig.BasicAuth.Username, apiConfig.BasicAuth.Password)
+		kyvernoProxy := proxy.New(kyverno, "", false, overwriteHost, apiConfig.Logging, authConfig.Username, authConfig.Password)
 
 		apiRouter.PathPrefix("/kyverno").Handler(http.StripPrefix("/api/kyverno", kyvernoProxy)).Methods("GET")
 
