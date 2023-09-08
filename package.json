@@ -1,6 +1,6 @@
 {
   "name": "policy-reporter-ui",
-  "version": "1.8.3",
+  "version": "1.9.0",
   "private": true,
   "scripts": {
     "dev": "nuxt",
@@ -19,10 +19,10 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.13.6",
-    "apexcharts": "^3.42.0",
+    "apexcharts": "^3.37.1",
     "chroma-js": "^2.4.2",
     "clipboard": "^2.0.11",
-    "core-js": "^3.32.1",
+    "core-js": "^3.29.0",
     "highlight.js": "^10.7.3",
     "lodash.debounce": "^4.0.8",
     "nuxt": "^2.15.7",
@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.19.1",
-    "@nuxt/types": "^2.17.1",
+    "@nuxt/types": "^2.16.0",
     "@nuxt/typescript-build": "^2.1.0",
     "@nuxtjs/eslint-config-typescript": "^6.0.1",
     "@nuxtjs/eslint-module": "^3.1.0",
