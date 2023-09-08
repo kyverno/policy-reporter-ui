@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func New(target *url.URL, certificatePath string, skipTLS, overwriteHost, logging bool) *httputil.ReverseProxy {
+func New(target *url.URL, certificatePath string, skipTLS, overwriteHost, logging bool, username, password string) *httputil.ReverseProxy {
 	proxy := httputil.NewSingleHostReverseProxy(target)
 	original := proxy.Director
 
@@ -48,6 +48,10 @@ func New(target *url.URL, certificatePath string, skipTLS, overwriteHost, loggin
 			req.Header.Add("X-Forwarded-Host", req.Host)
 			req.Header.Add("X-Origin-Host", target.Host)
 			req.Host = target.Host
+		}
+
+		if username != "" && password != "" {
+			req.SetBasicAuth(username, password)
 		}
 
 		original(req)

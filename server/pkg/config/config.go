@@ -2,7 +2,9 @@ package config
 
 import (
 	"log"
+	"os"
 
+	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/spf13/viper"
 )
 
@@ -22,13 +24,44 @@ type Views struct {
 	KyvernoVerifyImages  bool      `json:"kyvernoVerifyImages" mapstructure:"kyvernoVerifyImages"`
 }
 
+// BasicAuth configuration
+type BasicAuth struct {
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+}
+
 // API configuration
 type API struct {
-	Name        string `json:"name" mapstructure:"name"`
-	CoreAPI     string `json:"api" mapstructure:"api"`
-	KyvernoAPI  string `json:"kyvernoApi" mapstructure:"kyvernoApi"`
-	SkipTSL     bool   `json:"-" mapstructure:"skipTLS"`
-	Certificate string `json:"-" mapstructure:"certificate"`
+	Name        string    `json:"name" mapstructure:"name"`
+	CoreAPI     string    `json:"api" mapstructure:"api"`
+	KyvernoAPI  string    `json:"kyvernoApi" mapstructure:"kyvernoApi"`
+	SkipTLS     bool      `json:"-" mapstructure:"skipTLS"`
+	Certificate string    `json:"-" mapstructure:"certificate"`
+	SecretRef   string    `json:"-" mapstructure:"secretRef"`
+	BasicAuth   BasicAuth `json:"-" mapstructure:"basicAuth"`
+}
+
+func (a API) FromValues(values secrets.Values) API {
+	if values.CoreAPI != "" {
+		a.CoreAPI = values.CoreAPI
+	}
+	if values.KyvernoAPI != "" {
+		a.KyvernoAPI = values.KyvernoAPI
+	}
+	if values.Certificate != "" {
+		a.Certificate = values.Certificate
+	}
+	if values.SkipTLS {
+		a.SkipTLS = values.SkipTLS
+	}
+	if values.Username != "" {
+		a.BasicAuth.Username = values.Username
+	}
+	if values.Password != "" {
+		a.BasicAuth.Password = values.Password
+	}
+
+	return a
 }
 
 // Cluster configuration
@@ -55,7 +88,9 @@ type Logging struct {
 }
 
 type APIConfig struct {
-	Logging bool `mapstructure:"logging"`
+	Logging   bool      `mapstructure:"logging"`
+	BasicAuth BasicAuth `mapstructure:"basicAuth"`
+	SecretRef string    `mapstructure:"secretRef"`
 }
 
 // Config structure
@@ -72,6 +107,7 @@ type Config struct {
 	LabelFilter     []string  `json:"labelFilter" mapstructure:"labelFilter"`
 	Logging         Logging   `json:"-" mapstructure:"logging"`
 	APIConfig       APIConfig `json:"-" mapstructure:"apiConfig"`
+	Namespace       string    `json:"namespace" mapstructure:"namespace"`
 }
 
 // LoadConfig from config file
@@ -107,6 +143,10 @@ func LoadConfig(cfgFile string) (*Config, error) {
 	}
 
 	err := v.Unmarshal(c)
+
+	if ns := os.Getenv("POD_NAMESPACE"); ns != "" {
+		c.Namespace = ns
+	}
 
 	return c, err
 }
