@@ -41,6 +41,8 @@ func New(target *url.URL, certificatePath string, skipTLS, overwriteHost, loggin
 				zap.String("forward-host", req.Host),
 				zap.String("origin-host", target.Host),
 				zap.String("path", req.URL.Path),
+				zap.String("auth.username", username),
+				zap.String("auth.password", password),
 			)
 		}
 

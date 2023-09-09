@@ -105,6 +105,7 @@ func main() {
 		if err != nil {
 			logger.Error("failed to read secret", zap.String("secret", authConfig.SecretRef), zap.Error(err))
 		} else {
+			logger.Info("auth credentials loaded from secret", zap.String("secret", authConfig.SecretRef))
 			authConfig.Username = v.Username
 			authConfig.Password = v.Password
 		}
@@ -137,6 +138,7 @@ func main() {
 			if err != nil {
 				logger.Error("failed to read secret", zap.String("secret", c.SecretRef), zap.Error(err))
 			} else {
+				logger.Info("auth credentials loaded from secret", zap.String("secret", c.SecretRef), zap.String("api", c.Name))
 				c = c.FromValues(values)
 			}
 		}
