@@ -3,12 +3,12 @@ package proxy
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"time"
 
 	"go.uber.org/zap"
@@ -41,8 +41,6 @@ func New(target *url.URL, certificatePath string, skipTLS, overwriteHost, loggin
 				zap.String("forward-host", req.Host),
 				zap.String("origin-host", target.Host),
 				zap.String("path", req.URL.Path),
-				zap.String("auth.username", username),
-				zap.String("auth.password", password),
 			)
 		}
 
@@ -72,7 +70,7 @@ func New(target *url.URL, certificatePath string, skipTLS, overwriteHost, loggin
 	proxy.Transport = transport
 
 	if certificatePath != "" {
-		caCert, err := ioutil.ReadFile(certificatePath)
+		caCert, err := os.ReadFile(certificatePath)
 		if err != nil {
 			log.Printf("[ERROR] failed to read certificate: %s\n", certificatePath)
 			return proxy
