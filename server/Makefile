@@ -24,3 +24,11 @@ coverage:
 .PHONY: build
 build: prepare
 	CGO_ENABLED=0 $(GO) build -v -ldflags=$(LD_FLAGS) $(GOFLAGS) -o $(BUILD)/policyreporter-ui .
+
+.PHONY: fmt
+fmt:
+	$(call print-target)
+	@echo "Running gci"
+	@go run github.com/daixiang0/gci@v0.9.1 write -s standard -s default -s "prefix(github.com/kyverno/policy-reporter-ui)" .
+	@echo "Running gofumpt"
+	@go run mvdan.cc/gofumpt@v0.4.0 -w .
