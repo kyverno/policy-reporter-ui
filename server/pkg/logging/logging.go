@@ -1,25 +1,30 @@
 package logging
 
 import (
-	"github.com/kyverno/policy-reporter-ui/pkg/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-func New(config *config.Config) *zap.Logger {
+type Config struct {
+	LogLevel    int8   `mapstructure:"logLevel"`
+	Encoding    string `mapstructure:"encoding"`
+	Development bool   `mapstructure:"development"`
+}
+
+func New(config Config) *zap.Logger {
 	encoder := zap.NewProductionEncoderConfig()
-	if config.Logging.Development {
+	if config.Development {
 		encoder = zap.NewDevelopmentEncoderConfig()
 		encoder.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05")
 	}
 
 	ouput := "json"
-	if config.Logging.Encoding != "json" {
+	if config.Encoding != "json" {
 		ouput = "console"
 	}
 
 	var sampling *zap.SamplingConfig
-	if !config.Logging.Development {
+	if !config.Development {
 		sampling = &zap.SamplingConfig{
 			Initial:    100,
 			Thereafter: 100,
@@ -27,12 +32,12 @@ func New(config *config.Config) *zap.Logger {
 	}
 
 	cnfg := zap.Config{
-		Level:             zap.NewAtomicLevelAt(zapcore.Level(config.Logging.LogLevel)),
-		Development:       config.Logging.Development,
+		Level:             zap.NewAtomicLevelAt(zapcore.Level(config.LogLevel)),
+		Development:       config.Development,
 		Sampling:          sampling,
 		Encoding:          ouput,
 		EncoderConfig:     encoder,
-		DisableStacktrace: !config.Logging.Development,
+		DisableStacktrace: !config.Development,
 		OutputPaths:       []string{"stderr"},
 		ErrorOutputPaths:  []string{"stderr"},
 	}

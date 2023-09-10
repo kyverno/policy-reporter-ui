@@ -4,8 +4,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/spf13/viper"
+
+	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
+	"github.com/kyverno/policy-reporter-ui/pkg/logging"
+	"github.com/kyverno/policy-reporter-ui/pkg/redis"
 )
 
 // Dashboard configuration
@@ -72,42 +75,27 @@ type Cluster struct {
 	Kyverno bool   `json:"kyverno" mapstructure:"kyverno"`
 }
 
-// Redis configuration
-type Redis struct {
-	Enabled  bool   `mapstructure:"enabled"`
-	Address  string `mapstructure:"address"`
-	Prefix   string `mapstructure:"prefix"`
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
-	Database int    `mapstructure:"database"`
-}
-
-type Logging struct {
-	LogLevel    int8   `mapstructure:"logLevel"`
-	Encoding    string `mapstructure:"encoding"`
-	Development bool   `mapstructure:"development"`
-}
-
 type APIConfig struct {
-	Logging   bool      `mapstructure:"logging"`
-	BasicAuth BasicAuth `mapstructure:"basicAuth"`
+	Logging       bool      `mapstructure:"logging"`
+	BasicAuth     BasicAuth `mapstructure:"basicAuth"`
+	OverwriteHost bool      `json:"overwriteHost" mapstructure:"overwriteHost"`
 }
 
 // Config structure
 type Config struct {
-	Views           Views     `json:"views" mapstructure:"views"`
-	LogSize         int       `json:"-" mapstructure:"logSize"`
-	DisplayMode     string    `json:"displayMode" mapstructure:"displayMode"`
-	RefreshInterval int       `json:"refreshInterval" mapstructure:"refreshInterval"`
-	Plugins         []string  `json:"plugins" mapstructure:"-"`
-	Clusters        []Cluster `json:"clusters" mapstructure:"-"`
-	ClusterName     string    `json:"-" mapstructure:"clusterName"`
-	APIs            []API     `json:"-" mapstructure:"clusters"`
-	Redis           Redis     `json:"-" mapstructure:"redis"`
-	LabelFilter     []string  `json:"labelFilter" mapstructure:"labelFilter"`
-	Logging         Logging   `json:"-" mapstructure:"logging"`
-	APIConfig       APIConfig `json:"-" mapstructure:"apiConfig"`
-	Namespace       string    `json:"namespace" mapstructure:"namespace"`
+	Views           Views          `json:"views" mapstructure:"views"`
+	LogSize         int            `json:"-" mapstructure:"logSize"`
+	DisplayMode     string         `json:"displayMode" mapstructure:"displayMode"`
+	RefreshInterval int            `json:"refreshInterval" mapstructure:"refreshInterval"`
+	Plugins         []string       `json:"plugins" mapstructure:"-"`
+	Clusters        []Cluster      `json:"clusters" mapstructure:"-"`
+	ClusterName     string         `json:"-" mapstructure:"clusterName"`
+	APIs            []API          `json:"-" mapstructure:"clusters"`
+	Redis           redis.Config   `json:"-" mapstructure:"redis"`
+	LabelFilter     []string       `json:"labelFilter" mapstructure:"labelFilter"`
+	Logging         logging.Config `json:"-" mapstructure:"logging"`
+	APIConfig       APIConfig      `json:"-" mapstructure:"apiConfig"`
+	Namespace       string         `json:"namespace" mapstructure:"namespace"`
 }
 
 // LoadConfig from config file

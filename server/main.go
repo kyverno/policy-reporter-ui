@@ -6,24 +6,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 
 	"github.com/gorilla/mux"
 	"github.com/gosimple/slug"
-	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"go.uber.org/zap"
-	k8s "k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/config"
-	"github.com/kyverno/policy-reporter-ui/pkg/logging"
-	"github.com/kyverno/policy-reporter-ui/pkg/proxy"
-	"github.com/kyverno/policy-reporter-ui/pkg/redis"
-	"github.com/kyverno/policy-reporter-ui/pkg/report"
 )
 
 var (
@@ -49,71 +40,27 @@ func main() {
 	flag.Parse()
 
 	conf, err := config.LoadConfig(configFile)
-	conf.Clusters = make([]config.Cluster, 0, len(conf.APIs)+1)
-	if len(conf.APIs) > 0 {
-		if conf.ClusterName == "" {
-			conf.ClusterName = "Default"
-		}
 
-		conf.Clusters = append(conf.Clusters, config.Cluster{
-			Name:    conf.ClusterName,
-			Kyverno: len(kyvernoPlugin) > 0,
-		})
+	if overwriteHost {
+		conf.APIConfig.OverwriteHost = overwriteHost
 	}
 
-	logger := logging.New(conf)
+	resolver := config.NewResolver(conf, kubeConfig, development)
+	resolver.InitClusters(kyvernoPlugin != "")
+	logger := resolver.Logger()
+
+	if err := resolver.InitSecretClient(); err != nil {
+		logger.Warn("unable to setup secret reader, secretRefs can't be resolved", zap.Error(err))
+	}
 
 	if development {
 		logger.Info("Development Mode enabled")
 	}
 
-	if overwriteHost {
-		logger.Info("host overwrite enabled")
-	}
-
-	secretClient, err := secretClient(kubeConfig, conf.Namespace)
-	if err != nil {
-		logger.Warn("failed to setup secret client, secretRefs can not be resolved", zap.Error(err))
-	}
-
 	router := mux.NewRouter()
-
-	var store report.Store
-
-	if conf.Redis.Enabled {
-		if development {
-			logger.Info("redis store enabled")
-		}
-
-		store = redis.NewFromConfig(conf)
-	} else {
-		if development {
-			logger.Info("log store size", zap.Int("size", conf.LogSize))
-		}
-
-		store = report.NewResultStore(conf.LogSize)
-	}
-
-	backend, err := url.Parse(policyReporter)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+	store := resolver.Store()
 
 	apiRouter := router.PathPrefix("/api/").Subrouter()
-	apiConfig := conf.APIConfig
-	authConfig := apiConfig.BasicAuth
-
-	if authConfig.SecretRef != "" && secretClient != nil {
-		v, err := secretClient.Get(context.Background(), authConfig.SecretRef)
-		if err != nil {
-			logger.Error("failed to read secret", zap.String("secret", authConfig.SecretRef), zap.Error(err))
-		} else {
-			logger.Info("auth credentials loaded from secret", zap.String("secret", authConfig.SecretRef))
-			authConfig.Username = v.Username
-			authConfig.Password = v.Password
-		}
-	}
 
 	if development {
 		apiRouter.Use(func(next http.Handler) http.Handler {
@@ -134,69 +81,53 @@ func main() {
 
 	apiRouter.HandleFunc("/push", api.PushResultHandler(store)).Methods("POST")
 	apiRouter.HandleFunc("/result-log", api.ResultHandler(store)).Methods("GET")
-	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", proxy.New(backend, "", false, overwriteHost, apiConfig.Logging, authConfig.Username, authConfig.Password))).Methods("GET")
+
+	coreProxy, kyvernoProxy, err := resolver.InternalProxies(context.Background(), policyReporter, kyvernoPlugin)
+	if err != nil {
+		logger.Error("unable to setup proxies", zap.Error(err), zap.String("api", policyReporter), zap.String("plugin", kyvernoPlugin))
+		return
+	}
+
+	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", coreProxy)).Methods("GET")
+
+	if kyvernoProxy != nil {
+		conf.Plugins = AddIfNotExist(conf.Plugins, "kyverno")
+
+		apiRouter.PathPrefix("/kyverno").Handler(http.StripPrefix("/api/kyverno", kyvernoProxy)).Methods("GET")
+
+		logger.Info("kyverno proxy configured")
+	}
 
 	for _, c := range conf.APIs {
-		if c.SecretRef != "" && secretClient != nil {
-			values, err := secretClient.Get(context.Background(), c.SecretRef)
-			if err != nil {
-				logger.Error("failed to read secret", zap.String("secret", c.SecretRef), zap.Error(err))
-			} else {
-				logger.Info("auth credentials loaded from secret", zap.String("secret", c.SecretRef), zap.String("api", c.Name))
-				c = c.FromValues(values)
-			}
-		}
-
 		cluster := config.Cluster{
 			Name:    c.Name,
 			ID:      slug.Make(c.Name),
-			Kyverno: len(c.KyvernoAPI) > 0,
+			Kyverno: c.KyvernoAPI != "",
 		}
 
-		core, err := url.Parse(c.CoreAPI)
+		core, plugin, err := resolver.ExternalProxies(context.Background(), c)
 		if err != nil {
-			logger.Error("failed to configure core proxy", zap.String("name", c.Name), zap.Error(err))
+			logger.Error("failed to configure api proxies", zap.String("name", c.Name), zap.Error(err))
 			continue
 		}
 
 		apiRouter.
 			PathPrefix(fmt.Sprintf("/%s/v1", cluster.ID)).
-			Handler(http.StripPrefix(fmt.Sprintf("/api/%s", cluster.ID), proxy.New(core, c.Certificate, c.SkipTLS, overwriteHost, apiConfig.Logging, c.BasicAuth.Username, c.BasicAuth.Password))).Methods("GET")
+			Handler(http.StripPrefix(fmt.Sprintf("/api/%s", cluster.ID), core)).Methods("GET")
 
 		logger.Info("core proxy configured", zap.String("name", c.Name))
 
-		if cluster.Kyverno {
+		if plugin != nil {
 			conf.Plugins = AddIfNotExist(conf.Plugins, "kyverno")
-
-			kyverno, err := url.Parse(c.KyvernoAPI)
-			if err != nil {
-				logger.Error("failed to configure kyverno proxy", zap.String("name", c.Name), zap.Error(err))
-				continue
-			}
 
 			apiRouter.
 				PathPrefix(fmt.Sprintf("/%s/kyverno", cluster.ID)).
-				Handler(http.StripPrefix(fmt.Sprintf("/api/%s/kyverno", cluster.ID), proxy.New(kyverno, c.Certificate, c.SkipTLS, overwriteHost, apiConfig.Logging, c.BasicAuth.Username, c.BasicAuth.Password))).Methods("GET")
+				Handler(http.StripPrefix(fmt.Sprintf("/api/%s/kyverno", cluster.ID), plugin)).Methods("GET")
 
 			logger.Info("kyverno proxy configured", zap.String("name", c.Name))
 		}
 
 		conf.Clusters = append(conf.Clusters, cluster)
-	}
-
-	if kyvernoPlugin != "" {
-		conf.Plugins = AddIfNotExist(conf.Plugins, "kyverno")
-
-		kyverno, err := url.Parse(kyvernoPlugin)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		kyvernoProxy := proxy.New(kyverno, "", false, overwriteHost, apiConfig.Logging, authConfig.Username, authConfig.Password)
-
-		apiRouter.PathPrefix("/kyverno").Handler(http.StripPrefix("/api/kyverno", kyvernoProxy)).Methods("GET")
-
-		logger.Info("kyverno proxy configured")
 	}
 
 	apiRouter.HandleFunc("/config", api.ConfigHandler(conf)).Methods("GET")
@@ -207,9 +138,7 @@ func main() {
 		logger.Info("embedded UI disabled")
 	}
 
-	if development {
-		logger.Info("running", zap.Int("port", port))
-	}
+	logger.Info("server starting", zap.Int("port", port))
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", port), router)
 	if err != nil {
@@ -263,25 +192,4 @@ func AddIfNotExist(list []string, value string) []string {
 	}
 
 	return append(list, value)
-}
-
-func secretClient(kubeConfig, namespace string) (secrets.Client, error) {
-	var k8sConfig *rest.Config
-	var err error
-
-	if kubeConfig != "" {
-		k8sConfig, err = clientcmd.BuildConfigFromFlags("", kubeConfig)
-	} else {
-		k8sConfig, err = rest.InClusterConfig()
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	clientset, err := k8s.NewForConfig(k8sConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	return secrets.NewClient(clientset.CoreV1().Secrets(namespace)), nil
 }

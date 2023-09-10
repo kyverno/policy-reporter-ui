@@ -6,9 +6,19 @@ import (
 	"log"
 
 	goredis "github.com/go-redis/redis/v8"
-	"github.com/kyverno/policy-reporter-ui/pkg/config"
+
 	"github.com/kyverno/policy-reporter-ui/pkg/report"
 )
+
+// Redis configuration
+type Config struct {
+	Enabled  bool   `mapstructure:"enabled"`
+	Address  string `mapstructure:"address"`
+	Prefix   string `mapstructure:"prefix"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	Database int    `mapstructure:"database"`
+}
 
 type RedisStore struct {
 	rdb *goredis.Client
@@ -50,11 +60,11 @@ func New(key string, rdb *goredis.Client) *RedisStore {
 	return &RedisStore{rdb, key}
 }
 
-func NewFromConfig(conf *config.Config) *RedisStore {
-	return New(conf.Redis.Prefix+":results", goredis.NewClient(&goredis.Options{
-		Addr:     conf.Redis.Address,
-		Username: conf.Redis.Username,
-		Password: conf.Redis.Password,
-		DB:       conf.Redis.Database,
+func NewFromConfig(conf Config) *RedisStore {
+	return New(conf.Prefix+":results", goredis.NewClient(&goredis.Options{
+		Addr:     conf.Address,
+		Username: conf.Username,
+		Password: conf.Password,
+		DB:       conf.Database,
 	}))
 }
