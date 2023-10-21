@@ -33,7 +33,7 @@ jobs:
 
       - name: Build UI
         run: |
-          npm run install
+          npm install
           npm run generate
 
       - name: Login to Github Packages
