@@ -58,6 +58,7 @@ jobs:
         id: push
         with:
           push: true
+          context: .
           platforms: linux/arm64,linux/amd64,linux/s390x
           cache-from: type=registry,ref=ghcr.io/kyverno/policy-reporter-ui:buildcache
           cache-to: type=registry,ref=ghcr.io/kyverno/policy-reporter-ui:buildcache,mode=max
@@ -65,10 +66,13 @@ jobs:
             ghcr.io/kyverno/policy-reporter-ui:latest
             ghcr.io/kyverno/policy-reporter-ui:${{ steps.params.outputs.version }}
 
+      - name: Move into Server
+        run: cd server
+
       - uses: CycloneDX/gh-gomod-generate-sbom@d4aee0cf5133055dbd98899978246c10c18c440f # v1.1.0
         with:
           version: v1
-          args: app -licenses -json -output policy-reporter-ui-bom.cdx.json -main ./server
+          args: app -licenses -json -output policy-reporter-ui-bom.cdx.json -main .
 
       - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
