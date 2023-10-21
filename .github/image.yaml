@@ -34,12 +34,6 @@ jobs:
           install: true
           version: latest
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
       - name: docker images publish
         run: |
-          npm run install
-          npm run generate
           make IMAGE_TAG="${{ steps.params.outputs.version }}" docker-push
