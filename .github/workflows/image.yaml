@@ -35,6 +35,7 @@ jobs:
         run: |
           npm install
           npm run generate
+          ls -l
 
       - name: Login to Github Packages
         uses: docker/login-action@v2
