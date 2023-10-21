@@ -5,8 +5,7 @@ PLATFORMS ?= linux/arm64,linux/amd64,linux/s390x
 
 .PHONY: docker-build
 docker-build:
-	@docker buildx build --progress plain --platform $(PLATFORMS) --tag $(REPO):$(IMAGE_TAG) . --build-arg LD_FLAGS=$(LD_FLAGS)
-	@docker buildx build --progress plain --platform $(PLATFORMS) --tag $(REPO):latest . --build-arg LD_FLAGS=$(LD_FLAGS)
+	@docker buildx build --progress plain --platform $(PLATFORMS) --tag $(REPO):$(IMAGE_TAG) --tag $(REPO):latest . --build-arg LD_FLAGS=$(LD_FLAGS)
 
 .PHONY: docker-push
 docker-push:

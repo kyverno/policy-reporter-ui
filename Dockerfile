@@ -6,7 +6,6 @@ ARG TARGETARCH
 
 WORKDIR /app
 
-COPY dist dist
 COPY server/pkg pkg
 COPY server/main.go main.go
 COPY server/go.sum go.sum
@@ -32,7 +31,7 @@ WORKDIR /app
 USER 1234
 
 COPY LICENSE.md .
-COPY --from=builder /app/dist /app/dist
+COPY dist dist
 COPY --from=builder /app/build/policyreporter-ui /app/policyreporter-ui
 # copy the debian's trusted root CA's to the final image
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
