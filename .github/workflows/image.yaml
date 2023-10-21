@@ -67,6 +67,7 @@ jobs:
         id: push
         with:
           push: true
+          context: .
           platforms: linux/arm64,linux/amd64,linux/s390x
           tags: |
             ghcr.io/kyverno/policy-reporter-ui:latest
