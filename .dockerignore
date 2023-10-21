@@ -3,7 +3,6 @@ node_modules
 .env
 .env.example
 test
-dist
 
 .nuxt
 .github

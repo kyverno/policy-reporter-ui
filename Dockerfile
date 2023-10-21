@@ -1,16 +1,3 @@
-FROM node:16-alpine as frontend
-
-WORKDIR /var/www
-
-RUN apk add --no-cache --virtual .gyp python3 make g++ \
-    && npm set progress=false \
-    && npm config set depth 0
-
-COPY . .
-
-RUN npm install \
-    && npm run generate
-
 FROM golang:1.21-alpine as builder
 
 ARG LD_FLAGS="-s -w"
@@ -44,7 +31,7 @@ WORKDIR /app
 USER 1234
 
 COPY LICENSE.md .
-COPY --from=frontend /var/www/dist /app/dist
+COPY dist /app/dist
 COPY --from=builder /app/build/policyreporter-ui /app/policyreporter-ui
 # copy the debian's trusted root CA's to the final image
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
