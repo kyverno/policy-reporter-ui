@@ -24,4 +24,8 @@ const { data: sources } = useAPI<string[]>(
   .main-height {
     min-height: calc(100vh - 64px);
   }
+
+  .no-scrollbar {
+    overflow: hidden!important;
+  }
 </style>

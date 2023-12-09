@@ -5,7 +5,16 @@
         <v-card elevation="2" rounded>
           <div  class="bg-indigo">
             <v-card-title>
-              <span v-if="data?.resource.namespace">{{ data?.resource.namespace }}/</span>{{ data.resource.name }}
+              <v-container fluid class="ma-0 pa-0">
+                <v-row>
+                  <v-col>
+                    <span v-if="data?.resource.namespace">{{ data?.resource.namespace }}/</span>{{ data.resource.name }}
+                  </v-col>
+                  <v-col class="text-right">
+                    <v-btn variant="text" color="white" prepend-icon="mdi-arrow-left" @click="router.back()">back</v-btn>
+                  </v-col>
+                </v-row>
+              </v-container>
             </v-card-title>
             <v-card-subtitle class="pb-4">{{ data?.resource.apiVersion }} {{ data.resource.kind }}</v-card-subtitle>
           </div>
@@ -34,6 +43,7 @@ import ResourceResultCounts from "~/modules/core/components/chart/ResourceResult
 import type { Source } from "~/modules/core/types";
 
 const route = useRoute()
+const router = useRouter()
 
 const { data } = useAPI(
     (api) => Promise.all([

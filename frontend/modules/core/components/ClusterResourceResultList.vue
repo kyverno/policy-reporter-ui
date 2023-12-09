@@ -11,7 +11,7 @@
       <v-list lines="two">
           <template v-for="item in data.items" :key="item.id">
               <v-divider />
-              <v-list-item>
+              <v-list-item :to="`/resource/${item.id}`">
                   <v-list-item-title>{{ item.name }}</v-list-item-title>
                   <v-list-item-subtitle>{{ item.apiVersion }} {{ item.kind }}</v-list-item-subtitle>
                   <template v-slot:append>

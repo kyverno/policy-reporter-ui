@@ -16,7 +16,7 @@
         <LazyClusterResourceResultList />
       </v-col>
     </v-row>
-    <v-infinite-scroll :items="loaded" :onLoad="load">
+    <v-infinite-scroll :onLoad="load" class="no-scrollbar">
       <template v-for="ns in loaded" :key="ns">
         <v-row>
           <v-col>

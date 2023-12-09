@@ -11,8 +11,8 @@ export default defineNuxtPlugin(async () => {
 
   api.setPrefix(apiConfig.default)
 
-  kinds.value = apiConfig.defaultFilter.resources
-  clusterKinds.value = apiConfig.defaultFilter.clusterResources
+  kinds.value = apiConfig.defaultFilter.resources || []
+  clusterKinds.value = apiConfig.defaultFilter.clusterResources || []
 
   const store = useConfigStore()
 
