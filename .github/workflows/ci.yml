@@ -1,0 +1,94 @@
+name: ci
+
+on:
+  pull_request:
+    branches:
+      - '*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  security-events: write
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+      - name: Set up Go
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+      - name: Check go.mod
+        run: |
+          set -e
+          cd backend && go mod tidy && git diff --exit-code
+      - name: Check code format
+        run: |
+          set -e
+          make fmt
+          git diff --exit-code
+
+  ko:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+      - name: Build
+        run: |
+          set -e
+          make ko-build
+
+  ct-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+        with:
+          fetch-depth: 0
+      - name: Set up Helm
+        uses: azure/setup-helm@5119fcb9089d432beecbf79bb2c7915207344b78 # v3.5
+      - name: Setup python
+        uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
+        with:
+          python-version: 3.7
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@e8788873172cb653a90ca2e819d79d65a66d4e76 # v2.4.0
+      - name: Run chart-testing (lint)
+        run: |
+          set -e
+          ct lint --target-branch=main --check-version-increment=false
+
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+      - name: Set up Go
+        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@3a919529898de77ec3da873e3063ca4b10e7f5cc # v3.7.0
+        with:
+          working-directory: backend
+          version: v1.52.2
+
+  check-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+      - name: Ensure SHA pinned actions
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@f32435541e24cd6a4700a7f52bb2ec59e80603b1 # v2.1.4
+        with:
+          # slsa-github-generator requires using a semver tag for reusable workflows. 
+          # See: https://github.com/slsa-framework/slsa-github-generator#referencing-slsa-builders-and-generators
+          allowlist: |
+            slsa-framework/slsa-github-generator

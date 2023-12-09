@@ -1,0 +1,31 @@
+namespace: default
+
+logging:
+  enabled: true
+  encoding: json
+  logLevel: 0
+
+clusters:
+- name: default
+  host: http://localhost:8080
+- name: local
+  host: http://localhost:8080
+
+
+server:
+  port: 8082
+  cors: true
+
+ui:
+  defaultFilter:
+    resources:
+      - Deployment
+      - CronJob
+      - DaemonSet
+      - StatefulSet
+      - Service
+      - Secret
+      - ConfigMap
+    clusterResources:
+      - Node
+      - Namespace
