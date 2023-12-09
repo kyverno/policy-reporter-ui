@@ -168,6 +168,7 @@ func (r *Resolver) Server(ctx context.Context) *server.Server {
 	}
 
 	if !r.config.UI.Disabled {
+		zap.L().Info("register UI", zap.String("path", r.config.UI.Path))
 		serv.RegisterUI(r.config.UI.Path)
 	}
 
