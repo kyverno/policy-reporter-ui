@@ -25,10 +25,11 @@ LOCAL_PLATFORM      := linux/$(GOARCH)
 PLATFORMS           := linux/arm64,linux/amd64
 IMAGE   			:= policy-reporter-ui
 REPO                := $(REGISTRY)/$(OWNER)/$(IMAGE)
+KO_TAGS             := $(shell git rev-parse --short HEAD)
 COMMA               := ,
 
 ifndef VERSION
-KO_TAGS         := $(git rev-parse --short "$GIT_SHA")
+KO_TAGS         := $(shell git rev-parse --short HEAD)
 else
 KO_TAGS         := $(VERSION)
 endif
