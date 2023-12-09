@@ -1,0 +1,7 @@
+/backend/config.yaml
+
+/backend/kodata
+/values.yaml
+
+.env*
+.tools

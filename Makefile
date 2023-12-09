@@ -22,16 +22,15 @@ OWNER               ?= kyverno
 KO_REGISTRY         := ko.local
 LD_FLAGS            := "-s -w"
 LOCAL_PLATFORM      := linux/$(GOARCH)
-PLATFORMS           := linux/arm64,linux/amd64,linux/s390x
-KO_TAGS             := $(GIT_SHA)
+PLATFORMS           := linux/arm64,linux/amd64
 IMAGE   			:= policy-reporter-ui
 REPO                := $(REGISTRY)/$(OWNER)/$(IMAGE)
 COMMA               := ,
 
 ifndef VERSION
-APP_VERSION         := $(GIT_SHA)
+KO_TAGS         := $(git rev-parse --short "$GIT_SHA")
 else
-APP_VERSION         := $(VERSION)
+KO_TAGS         := $(VERSION)
 endif
 
 
@@ -40,7 +39,7 @@ endif
 #########
 TOOLS_DIR      					   := $(PWD)/.tools
 KO             					   := $(TOOLS_DIR)/ko
-KO_VERSION     					   := main
+KO_VERSION     					   := v0.15.1
 GCI                                := $(TOOLS_DIR)/gci
 GCI_VERSION                        := v0.9.1
 GOFUMPT                            := $(TOOLS_DIR)/gofumpt
@@ -82,7 +81,7 @@ ko-build: $(KO)
 	@echo Build image with ko... >&2
 	@rm -rf backend/kodata
 	@cp -r frontend/dist backend/kodata
-	@cd backend && KO_DATA_DATE_EPOCH=$(git log -1 --format='%ct') LDFLAGS=$(LD_FLAGS) KOCACHE=$(KOCACHE) KO_DOCKER_REPO=$(KO_REGISTRY) \
+	@cd backend && LDFLAGS='$(LD_FLAGS)' KOCACHE=$(KOCACHE) KO_DOCKER_REPO=$(KO_REGISTRY) \
 		$(KO) build . --tags=$(KO_TAGS) --platform=$(LOCAL_PLATFORM)
 
 .PHONY: ko-publish
@@ -90,6 +89,5 @@ ko-publish: $(KO)
 	@echo Publishing image "$(KO_TAGS)" with ko... >&2
 	@rm -rf backend/kodata
 	@cp -r frontend/dist backend/kodata
-	@cp -r backend/templates backend/kodata/email-templates
-	@cd backend && KO_DATA_DATE_EPOCH=$(git log -1 --format='%ct') LDFLAGS=$(LD_FLAGS) KOCACHE=$(KOCACHE) KO_DOCKER_REPO=$(REPO) \
+	@cd backend && LDFLAGS='$(LD_FLAGS)' KOCACHE=$(KOCACHE) KO_DOCKER_REPO=$(REPO) \
 		$(KO) build . --bare --tags=$(KO_TAGS) --push --platform=$(PLATFORMS)
