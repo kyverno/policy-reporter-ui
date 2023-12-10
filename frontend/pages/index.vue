@@ -45,7 +45,6 @@ const { data, refresh } = useAPI(
     }
 );
 
-
 const multiSource = computed(() => (props.sources.length || 0) > 1)
 const singleSource = computed(() => (props.sources.length || 0) === 1)
 
@@ -57,7 +56,7 @@ const { data: namespaces } = useAPI(
 );
 
 const loaded = ref<string[]>([])
-const index = ref(0)
+const index = ref(1)
 
 watch(namespaces, (ns: string[] | null) => {
   loaded.value = (ns || []).slice(0, 1)

@@ -5,9 +5,10 @@
     <template #append>
       <Search class="mr-2" v-model="search" style="min-width: 300px;" />
       <SelectClusterKindAutocomplete style="min-width: 300px;" />
+      <CollapseBtn v-model="open" />
     </template>
   </v-toolbar>
-    <template  v-if="data?.items?.length">
+    <template  v-if="data?.items?.length && open">
       <v-list lines="two">
           <template v-for="item in data.items" :key="item.id">
               <v-divider />
@@ -40,8 +41,10 @@
 <script setup lang="ts">
 import { type Pagination, Status } from '../types'
 import { clusterKinds } from "~/modules/core/store/filter";
+import CollapseBtn from "~/components/CollapseBtn.vue";
 
 const search = ref('')
+const open = ref(true)
 
 const options = reactive<Pagination>({
   page: 1,
