@@ -27,6 +27,8 @@ import CollapseBtn from "~/components/CollapseBtn.vue";
 const props = defineProps<{
   namespace: string;
   details: boolean;
+  source?: string;
+  category?: string;
 }>()
 
 const search = ref('')
@@ -41,6 +43,8 @@ const load = async () => {
       namespaces: [props.namespace as string],
       kinds: kinds.value,
       search: search.value,
+      sources: props.source ? [props.source] : undefined,
+      categories: props.category ? [props.category] : undefined,
     })
   } catch (err) {
     console.error(err)

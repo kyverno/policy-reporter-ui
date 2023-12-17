@@ -109,12 +109,10 @@
 </template>
 
 <script setup lang="ts">
-import type { PropType } from 'vue'
 import { mapStatus } from '../mapper';
 import { type FindingCounts, Status } from '../types';
-import { type APIResult, useAPI } from "~/modules/core/composables/api";
+import { useAPI } from "~/modules/core/composables/api";
 import { capilize } from "~/modules/core/layouthHelper";
-import { Bar } from "vue-chartjs";
 
 const props = defineProps<{ data: FindingCounts }>();
 
@@ -145,8 +143,8 @@ watch(() => props.data, (findings: FindingCounts) => {
   totals.value = results;
 }, { immediate: true });
 
-const { data: sources, refresh }: APIResult<string[]> = useAPI(
-    (api) => api.namespacedSources(),
+const { data: sources, refresh } = useAPI(
+    (api) => api.sources(),
     {
       default: () => [],
     }
@@ -158,14 +156,14 @@ const items = computed(() => {
   if (!sources.value) return []
 
   return sources.value.map(s => ({
-    title: capilize(s),
-    value: s
+    title: capilize(s.name),
+    value: s.name
   }))
 })
 
 watch(sources, (s) => {
   if (!s || !s.length) return
 
-  source.value = s.sort((a, b) => a.localeCompare(b))[0]
+  source.value = s.sort((a, b) => a.name.localeCompare(b.name))[0]
 })
 </script>

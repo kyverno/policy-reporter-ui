@@ -43,6 +43,8 @@ import { type Pagination, Status } from '../types'
 import { clusterKinds } from "~/modules/core/store/filter";
 import CollapseBtn from "~/components/CollapseBtn.vue";
 
+const props = defineProps<{ source?: string;  category?: string }>()
+
 const search = ref('')
 const open = ref(true)
 
@@ -56,7 +58,12 @@ const length = computed(() => {
 })
 
 const { data, refresh, pending } = useAPI(
-    (api) => api.clusterResourceResults({ kinds: clusterKinds.value, search: search.value }, options),
+    (api) => api.clusterResourceResults({
+      kinds: clusterKinds.value,
+      search: search.value,
+      sources: props.source ? [props.source] : undefined,
+      categories: props.category ? [props.category] : undefined,
+    }, options),
     {
       default: () => ({ items: [], count: 0 }),
     }

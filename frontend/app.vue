@@ -8,14 +8,9 @@
 import { useAPI } from "~/modules/core/composables/api";
 import { cluster } from "~/modules/core/api";
 
-const { data: sources } = useAPI<string[]>(
-    (api) => Promise.all([
-      api.namespacedSources(),
-      api.clusterSources(),
-    ]).then(([ns, cluster]) => [...new Set([...ns, ...cluster])]),
-    {
-      default: () => [],
-    }
+const { data: sources } = useAPI(
+    (api) => api.sources().then((source) => source.map(s => s.name)),
+    { default: () => [] }
 );
 
 </script>

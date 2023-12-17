@@ -10,7 +10,8 @@ import { mapStatus } from "../../mapper";
 import { capilize } from "../../layouthHelper";
 
 const props = defineProps({
-  findings: { type: Object as PropType<SourceFindings>, required: true, default: () => ({ counts: {}, total: 0 }) }
+  findings: { type: Object as PropType<SourceFindings>, required: true, default: () => ({ counts: {}, total: 0 }) },
+  title: { type: String, required: false },
 })
 
 const chart = computed(() => {
@@ -42,7 +43,7 @@ const chart = computed(() => {
       plugins: {
         title: {
           display: true,
-          text: `${props.findings.total} ${capilize(props.findings.source || '')} Results`
+          text: `${props.findings.total} ${props.title ?? capilize(props.findings.source || '')} Results`
         },
         legend: {
           position: 'bottom'

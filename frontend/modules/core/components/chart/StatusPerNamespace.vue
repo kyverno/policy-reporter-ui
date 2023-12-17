@@ -9,10 +9,14 @@ import { capilize } from "../../layouthHelper"
 import { mapStatus } from '../../mapper'
 import { kinds } from '../../store/filter'
 
-const props = defineProps<{ source: string; }>()
+const props = defineProps<{ source: string; category?: string; }>()
 
 const { data, refresh } = useAPI<NamespacedStatusCount[]>(
-    (api) => api.namespacedStatusCount({ sources: [props.source as string], kinds: kinds.value }), {
+    (api) => api.namespacedStatusCount({
+      sources: [props.source as string],
+      categories: props.category ? [props.category] : undefined,
+      kinds: kinds.value
+    }), {
       default: () => [],
     }
 );

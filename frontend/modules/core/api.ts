@@ -127,7 +127,7 @@ export class CoreAPI {
   }
 
   sources (id?: string) {
-    return $fetch<Source>('/proxy/'+this.cluster+'/core/v1/sources', { baseURL: this.baseURL, params: { id } })
+    return $fetch<Source[]>('/proxy/'+this.cluster+'/core/v1/sources', { baseURL: this.baseURL, params: { id } })
   }
 
   setPrefix (prefix: string): void {
