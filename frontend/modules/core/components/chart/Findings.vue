@@ -21,16 +21,18 @@ const dataset = ref<Dataset[]>([])
 const labels = ref<string[]>([])
 const total = ref(0)
 
+const diff = 0.80
+
 const colors = (status: Status, amount: number) => {
-  const middle = Math.floor(amount / 2)
+  const middle = Math.floor(amount / 2) - 1
   const base = chroma(mapStatus(status))
 
   return Array.from(Array(amount).keys()).map((index) => {
     if (index < middle) {
-      return base.brighten(0.33 * (middle - index)).hex()
+      return base.brighten(diff * (middle - index)).hex()
     }
 
-    return base.darken(0.33 * (index - middle)).hex()
+    return base.darken(diff * (index - middle)).hex()
   })
 }
 

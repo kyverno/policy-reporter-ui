@@ -8,7 +8,7 @@
     </template>
   </v-toolbar>
   <v-list v-if="data?.items?.length && open" lines="two">
-    <ResourceResultItem v-for="item in data.items" :key="item.id" :item="item" :details="details" />
+    <ResourceResultItem v-for="item in data.items" :key="item.id" :item="item" :details="details" :source="source" :category="category" />
   </v-list>
   <template v-if="!pending && !(data.items.length)">
       <v-divider />

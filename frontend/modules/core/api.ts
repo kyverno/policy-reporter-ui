@@ -118,8 +118,8 @@ export class CoreAPI {
     return $fetch<ResourceStatusCount[]>('/proxy/'+this.cluster+'/core/v1/resource-status-counts', { baseURL: this.baseURL, params: { id, ...filter }})
   }
 
-  resource (id: string) {
-    return $fetch<Resource>('/proxy/'+this.cluster+'/core/v1/resource', { baseURL: this.baseURL, params: { id }})
+  resource (id: string, filter?: Filter) {
+    return $fetch<Resource>('/proxy/'+this.cluster+'/core/v1/resource', { baseURL: this.baseURL, params: { id, ...filter }})
   }
 
   results (id: string, pagination?: Pagination, filter?: Filter) {

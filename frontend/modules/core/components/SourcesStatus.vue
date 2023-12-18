@@ -86,23 +86,25 @@
           </v-tab>
         </v-tabs>
         <v-divider />
-        <wait :time="1000" :key="source">
-          <v-card-text>
-            <ChartStatusPerNamespace :source="source" />
-          </v-card-text>
-          <v-divider />
-          <v-card-title>
-            Cluster Scoped Results
-          </v-card-title>
-          <v-card-text>
-            <ChartClusterResultCounts :source="source" class="px-0 pb-0" />
-          </v-card-text>
-          <template #placeholder>
+        <template v-if="source">
+          <wait :time="1000" :key="source">
             <v-card-text>
-              <v-progress-linear indeterminate color="primary" />
+              <ChartStatusPerNamespace :source="source" />
             </v-card-text>
-          </template>
-        </wait>
+            <v-divider />
+            <v-card-title>
+              Cluster Scoped Results
+            </v-card-title>
+            <v-card-text>
+              <ChartClusterResultCounts :source="source" class="px-0 pb-0" />
+            </v-card-text>
+            <template #placeholder>
+              <v-card-text>
+                <v-progress-linear indeterminate color="primary" />
+              </v-card-text>
+            </template>
+          </wait>
+        </template>
       </v-card>
     </v-col>
   </v-row>
@@ -162,8 +164,8 @@ const items = computed(() => {
 })
 
 watch(sources, (s) => {
-  if (!s || !s.length) return
+  if (!s || !s.length || source.value) return
 
-  source.value = s.sort((a, b) => a.name.localeCompare(b.name))[0]
+  source.value = s.sort((a, b) => a.name.localeCompare(b.name))[0].name
 })
 </script>

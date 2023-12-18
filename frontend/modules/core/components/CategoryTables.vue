@@ -2,8 +2,10 @@
   <v-row>
     <v-col cols="12">
       <v-card>
-        <v-card-title class="py-3">
-          <span class="text-h4">{{ capilize(source.name) }}</span>
+        <v-card-title class="py-4">
+          <span class="text-h5">
+            {{ capilize(source.name) }}
+          </span>
         </v-card-title>
       </v-card>
     </v-col>

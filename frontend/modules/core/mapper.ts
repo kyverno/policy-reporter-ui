@@ -15,7 +15,7 @@ const statusToColor: { [status in Status]: string } = {
   [Status.PASS]: '#43A047',
   [Status.WARN]: '#FB8C00',
   [Status.FAIL]: '#EF5350',
-  [Status.ERROR]: '#F44336'
+  [Status.ERROR]: '#950011'
 }
 
 const statusToDarkColor: { [status in Status]: string } = {
@@ -26,17 +26,8 @@ const statusToDarkColor: { [status in Status]: string } = {
   [Status.ERROR]: '#B71C1C'
 }
 
-const statusToText: { [status in Status]: string } = {
-  [Status.SKIP]: 'Skipped',
-  [Status.PASS]: 'Passing',
-  [Status.WARN]: 'Warning',
-  [Status.FAIL]: 'Failing',
-  [Status.ERROR]: 'Errored'
-}
-
 export const mapPriority = (priority: Priority): string => priorityToColor[priority] || priorityToColor[Priority.DEBUG]
 export const mapStatus = (status: Status): string => statusToColor[status] || statusToColor[Status.SKIP]
-export const mapStatusText = (status: Status): string => statusToText[status] || statusToText[Status.SKIP]
 export const mapDarkStatus = (status: Status): string => statusToDarkColor[status] || statusToDarkColor[Status.SKIP]
 
 const maxChipLength = 75

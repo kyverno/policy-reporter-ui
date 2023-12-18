@@ -14,8 +14,8 @@
           <div v-show="open">
             <v-divider />
             <v-data-table-server
-              :items="items"
-              :items-length="data.count"
+              :items="results.results"
+              :items-length="results.count"
               :headers="headers"
               item-value="id"
               show-expand
@@ -63,7 +63,7 @@
 <script lang="ts" setup>
 import { type Dictionary, Status } from "~/modules/core/types";
 import { capilize } from "~/modules/core/layouthHelper";
-import type { PropType } from "vue";
+import { mapResults } from "~/modules/core/mapper";
 
 const props = defineProps<{
   source: string;
@@ -86,11 +86,6 @@ const options = reactive({
 const open = ref(true)
 const searchText = ref('')
 
-const sortByKeys = (dic: Dictionary): Dictionary => Object.keys(dic).sort().reduce<Dictionary>((obj, key) => {
-  obj[key] = dic[key]
-  return obj
-}, {})
-
 const { data, refresh } = useAPI(
     (api) => api.results(props.resource, {
       page: options.page,
@@ -109,30 +104,7 @@ watch(() => options.page, refresh)
 watch(() => options.itemsPerPage, refresh)
 watch(searchText, refresh)
 
-const items = computed(() => {
-  return data.value.items.map(({ properties, ...result }) => {
-    const chips: Dictionary = {}
-    const cards: Dictionary = {}
-    let hasProps = false
-
-    for (const prop in properties) {
-      if (properties[prop].length > 75) {
-        cards[prop] = properties[prop]
-      } else {
-        chips[prop] = properties[prop]
-      }
-      hasProps = true
-    }
-
-    return {
-      ...result,
-      properties: {},
-      cards: sortByKeys(cards),
-      chips: sortByKeys(chips),
-      hasProps
-    }
-  })
-})
+const results = computed(() => mapResults(data.value))
 
 const headers = [
   { title: 'Policy', key: 'policy', width: '33%' },

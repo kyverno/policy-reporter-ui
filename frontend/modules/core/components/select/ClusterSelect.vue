@@ -10,6 +10,7 @@
     prepend-inner-icon="mdi-kubernetes"
     style="max-width: 140px;"
     @update:model-value="input"
+    v-if="clusters.length > 1"
   />
 </template>
 

@@ -38,8 +38,6 @@ const props = defineProps({
   sources: { types: Array, default: () => [] }
 })
 
-console.log(props.sources)
-
 const { data, refresh } = useAPI(
     (api) => api.countFindings({ kinds: [...kinds.value, ...clusterKinds.value] }),
     {
