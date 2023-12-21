@@ -4,19 +4,15 @@
 
 <script setup lang="ts">
 import { Bar } from 'vue-chartjs'
-import { type NamespacedStatusCount, Status } from '../../types'
+import { type Filter, type NamespacedStatusCount, Status } from '../../types'
 import { capilize } from "../../layouthHelper"
 import { mapStatus } from '../../mapper'
 import { kinds } from '../../store/filter'
 
-const props = defineProps<{ source: string; category?: string; }>()
+const props = defineProps<{ source: string; filter?: Filter }>()
 
 const { data, refresh } = useAPI<NamespacedStatusCount[]>(
-    (api) => api.namespacedStatusCount({
-      sources: [props.source as string],
-      categories: props.category ? [props.category] : undefined,
-      kinds: kinds.value
-    }), {
+    (api) => api.namespacedStatusCount(props.filter), {
       default: () => [],
     }
 );

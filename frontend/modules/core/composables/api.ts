@@ -47,3 +47,9 @@ export const useAPI = <T>(callback: Callback<T>, options?: { default?: () => T, 
 
     return { data, error, pending, refresh }
 }
+
+export const callAPI = <T>(callback: Callback<T>): Promise<T> => {
+    const { $coreAPI } = useNuxtApp()
+
+    return callback($coreAPI as CoreAPI)
+}

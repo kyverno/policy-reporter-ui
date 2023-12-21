@@ -4,46 +4,28 @@
     <v-toolbar-title>Cluster Resources</v-toolbar-title>
     <template #append>
       <Search class="mr-2" v-model="search" style="min-width: 300px;" />
-      <SelectClusterKindAutocomplete style="min-width: 300px;" />
+      <SelectClusterKindAutocomplete style="min-width: 300px;" :source="props.source" />
       <CollapseBtn v-model="open" />
     </template>
   </v-toolbar>
-    <template  v-if="data?.items?.length && open">
-      <v-list lines="two">
-          <template v-for="item in data.items" :key="item.id">
-              <v-divider />
-              <v-list-item :to="`/resource/${item.id}`">
-                  <v-list-item-title>{{ item.name }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ item.apiVersion }} {{ item.kind }}</v-list-item-subtitle>
-                  <template v-slot:append>
-                    <ResultChip :status="Status.PASS" :count="item.pass" tooltip="pass results" />
-                    <ResultChip class="ml-2" :status="Status.WARN" :count="item.warn" tooltip="warning results" />
-                    <ResultChip class="ml-2" :status="Status.FAIL" :count="item.fail" tooltip="fail results" />
-                    <ResultChip class="ml-2" :status="Status.ERROR" :count="item.error" tooltip="error results" />
-                  </template>
-              </v-list-item>
-          </template>
-      </v-list>
-      <template v-if="data.count > options.offset">
-        <v-divider />
-        <v-pagination v-model="options.page" :length="length" class="my-4" />
-      </template>
-    </template>
-    <template v-if="!pending && !(data?.items?.length)">
-        <v-divider />
-        <v-card-text>
-            No resources for the selected kinds found
-        </v-card-text>
-    </template>
+  <v-list v-if="data?.items?.length && open" lines="two">
+    <ResourceResultItem v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" />
+  </v-list>
+  <template v-if="!pending && !(data?.items?.length)">
+      <v-divider />
+      <v-card-text>
+          No resources for the selected kinds found
+      </v-card-text>
+  </template>
 </v-card>
 </template>
 
 <script setup lang="ts">
-import { type Pagination, Status } from '../types'
+import { type Filter, type Pagination, Status } from '../types'
 import { clusterKinds } from "~/modules/core/store/filter";
 import CollapseBtn from "~/components/CollapseBtn.vue";
 
-const props = defineProps<{ source?: string;  category?: string }>()
+const props = defineProps<{ source?: string; filter?: Filter; details: boolean }>()
 
 const search = ref('')
 const open = ref(true)
@@ -59,10 +41,9 @@ const length = computed(() => {
 
 const { data, refresh, pending } = useAPI(
     (api) => api.clusterResourceResults({
+      ...(props.filter || {}),
       kinds: clusterKinds.value,
       search: search.value,
-      sources: props.source ? [props.source] : undefined,
-      categories: props.category ? [props.category] : undefined,
     }, options),
     {
       default: () => ({ items: [], count: 0 }),

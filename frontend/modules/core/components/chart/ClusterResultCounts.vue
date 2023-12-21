@@ -14,12 +14,12 @@
 
 <script setup lang="ts">
 import { mapStatus } from "../../mapper";
-import { Status } from "~/modules/core/types";
+import { type Filter, Status } from "~/modules/core/types";
 
-const props = defineProps<{ source?: string; }>()
+const props = defineProps<{ filter?: Filter; }>()
 
 const { data: sc } = useAPI(
-    (api) => api.statusCount({ sources: props.source ? [props.source] : undefined }), {
+    (api) => api.statusCount(props.filter), {
       default: () => [
         { status: Status.PASS, count: 0 },
         { status: Status.WARN, count: 0 },

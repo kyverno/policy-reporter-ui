@@ -46,6 +46,7 @@
 import ResourceStatus from "~/modules/core/components/chart/ResourceStatus.vue";
 import ResourceResultCounts from "~/modules/core/components/chart/ResourceResultCounts.vue";
 import type { Filter, Resource, ResourceStatusCount, Source } from "~/modules/core/types";
+import { useInfinite } from "~/composables/infinite";
 
 const route = useRoute()
 const router = useRouter()
@@ -85,28 +86,5 @@ const { data } = useAPI(
 
 const sources = computed(() => (data.value?.sources || []).sort((a: Source, b: Source) => a.name.localeCompare(b.name)))
 
-const loaded = ref<Source[]>([])
-const index = ref(1)
-
-watch(sources, (sources: Source[] | null) => {
-  loaded.value = (sources || []).slice(0, 1)
-})
-
-const load = ({ done }: any) => {
-  const sum = (sources.value || []).length
-  if (!sum) { return done('ok') }
-
-  const last = index.value
-  const next = index.value + 1 > sum ? sum :  index.value + 1
-
-  loaded.value = [...loaded.value, ...(sources.value || []).slice(last, next)]
-
-  index.value = next
-  if (next === sum) {
-    done('empty')
-  } else {
-    done('ok')
-  }
-}
-
+const { load, loaded } = useInfinite(sources)
 </script>

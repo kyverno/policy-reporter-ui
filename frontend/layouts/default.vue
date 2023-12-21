@@ -14,6 +14,10 @@
           <v-list-item :title="item.title" :to="item.path" :prepend-icon="item.icon" :exact="item.exact"></v-list-item>
         </template>
         <v-divider />
+        <template v-for="item in boards" :key="item.title">
+          <v-list-item :title="item.title" :to="item.path" :exact="item.exact"></v-list-item>
+        </template>
+        <v-divider />
         <template v-for="item in sourceNavi" :key="item.path">
           <template v-if="item.children">
             <v-list-item
@@ -54,13 +58,18 @@ import type { Source } from "~/modules/core/types";
 
 const drawer = ref(true)
 
+const capitalize = (source: string) => source.charAt(0).toUpperCase() + source.slice(1)
+
 const { data: sources } = useAPI((api) => api.sources(), { default: () => [] })
+const { data: customBoards } = useAPI((api) => api.customBoards(), { default: () => [] })
 
 const navigation = [
-  { title: 'Dashboard', icon: 'mdi-monitor-dashboard', path: '/', exact: true },
+  { title: 'Dashboard', path: '/', exact: true },
 ];
 
-const capitalize = (source: string) => source.charAt(0).toUpperCase() + source.slice(1)
+const boards = computed(() => (customBoards.value || []).map(b => ({
+  title: b.name, path: `/custom-boards/${b.id}`, exact: true
+})))
 
 const sourceNavi = computed(() => {
   const list = sources.value as Source[]

@@ -74,13 +74,35 @@ type Server struct {
 	OverwriteHost bool   `mapstructure:"overwriteHost"`
 }
 
+type Source struct {
+	Name     string `mapstructure:"name"`
+	Excludes struct {
+		NamespaceKinds []string `mapstructure:"namespaceKinds"`
+		ClusterKinds   []string `mapstructure:"clusterKinds"`
+	} `mapstructure:"excludes"`
+}
+
+type CustomBoard struct {
+	Name       string `mapstructure:"name"`
+	Namespaces struct {
+		Selector map[string]string `mapstructure:"selector"`
+		List     []string          `mapstructure:"list"`
+	} `mapstructure:"namespaces"`
+	Sources struct {
+		List []string `mapstructure:"list"`
+	} `mapstructure:"sources"`
+}
+
 // Config structure
 type Config struct {
-	KubeConfig clientcmd.ConfigOverrides
-	Namespace  string         `mapstructure:"namespace"`
-	Clusters   []Cluster      `mapstructure:"clusters"`
-	Server     Server         `mapstructure:"server"`
-	UI         UI             `mapstructure:"ui"`
-	Logging    logging.Config `mapstructure:"logging"`
-	Redis      redis.Config   `mapstructure:"redis"`
+	KubeConfig   clientcmd.ConfigOverrides
+	Namespace    string         `mapstructure:"namespace"`
+	Clusters     []Cluster      `mapstructure:"clusters"`
+	Sources      []Source       `mapstructure:"sources"`
+	Server       Server         `mapstructure:"server"`
+	UI           UI             `mapstructure:"ui"`
+	Logging      logging.Config `mapstructure:"logging"`
+	Redis        redis.Config   `mapstructure:"redis"`
+	CustomBoards []CustomBoard  `mapstructure:"customBoards"`
+	Cluster      bool           `mapstructure:"cluster"`
 }

@@ -44,6 +44,7 @@ func newRunCMD() *cobra.Command {
 	cmd.Flags().IntVar(&c.Server.Port, "port", 8080, "PolicyReporter UI port")
 	cmd.Flags().BoolVar(&c.Server.CORS, "dev", false, "Enable CORS Header for development")
 	cmd.Flags().BoolVar(&c.UI.Disabled, "no-ui", false, "Disable the embedded frontend")
+	cmd.Flags().BoolVar(&c.Cluster, "cluster", false, "use kube config to connect to cluster")
 	flag.Parse()
 
 	return cmd

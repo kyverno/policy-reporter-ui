@@ -1,6 +1,6 @@
 <template>
   <v-divider />
-  <v-list-item :to="{ name: 'resource-id', query: { source, category }, params: { id: item.id }}">
+  <v-list-item :to="{ name: 'resource-id', query: filter, params: { id: item.id }}">
     <template v-if="details" v-slot:prepend>
       <v-btn class="mr-2" variant="text" :icon="!open ? `mdi-chevron-up` : `mdi-chevron-down`" @click.stop.prevent="open = !open"></v-btn>
     </template>
@@ -18,11 +18,11 @@
       <ResultChip class="ml-2" :status="Status.ERROR" :count="item.error" tooltip="error results" />
     </template>
   </v-list-item>
-  <LazyResourceResults v-if="open" :id="item.id" />
+  <LazyResourceResults v-if="open" :id="item.id" :filter="filter" />
 </template>
 
 <script setup lang="ts">
-import { type ResourceResult, Status } from '../types'
+import { type Filter, type ResourceResult, Status } from '../types'
 import { type PropType } from "vue";
 
 const open = ref(false)
@@ -30,8 +30,7 @@ const open = ref(false)
 const props = defineProps({
   item: { type: Object as PropType<ResourceResult>, required: true },
   details: { type: Boolean, default: false },
-  source: { type: String, required: false },
-  category: { type: String, required: false },
+  filter: { type: Object as PropType<Filter>, required: false },
 })
 
 </script>

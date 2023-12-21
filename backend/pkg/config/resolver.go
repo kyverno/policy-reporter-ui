@@ -8,14 +8,17 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/gosimple/slug"
 	"go.uber.org/zap"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
+	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/namespaces"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/logging"
 	"github.com/kyverno/policy-reporter-ui/pkg/proxy"
 	"github.com/kyverno/policy-reporter-ui/pkg/server"
+	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
@@ -29,7 +32,11 @@ type Resolver struct {
 	kubeConfig string
 	devMode    bool
 
-	secrets secrets.Client
+	secrets    secrets.Client
+	namespaces namespaces.Client
+
+	k8sConfig *rest.Config
+	clientset *k8s.Clientset
 }
 
 func (r *Resolver) ExternalProxies(ctx context.Context, cluster Cluster) (map[string]*httputil.ReverseProxy, error) {
@@ -123,20 +130,65 @@ func (r *Resolver) LoadSecret(ctx context.Context, secretRef string) (secrets.Va
 	return values, nil
 }
 
-func (r *Resolver) InitSecretClient() error {
+func (r *Resolver) K8sConfig() (*rest.Config, error) {
+	if r.k8sConfig != nil {
+		return r.k8sConfig, nil
+	}
+
 	var k8sConfig *rest.Config
 	var err error
 
-	if r.config.KubeConfig.CurrentContext != "" {
+	if r.config.Cluster {
 		k8sConfig, err = utils.RestConfig(r.config.KubeConfig)
 	} else {
 		k8sConfig, err = rest.InClusterConfig()
 	}
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	r.k8sConfig = k8sConfig
+
+	return r.k8sConfig, nil
+}
+
+func (r *Resolver) Clientset() (*k8s.Clientset, error) {
+	if r.clientset != nil {
+		return r.clientset, nil
+	}
+
+	k8sConfig, err := r.K8sConfig()
+	if err != nil {
+		return nil, err
 	}
 
 	clientset, err := k8s.NewForConfig(k8sConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	r.clientset = clientset
+
+	return r.clientset, nil
+}
+
+func (r *Resolver) NamespaceClient() (namespaces.Client, error) {
+	if r.namespaces != nil {
+		return r.namespaces, nil
+	}
+
+	clientset, err := r.Clientset()
+	if err != nil {
+		return nil, err
+	}
+
+	r.namespaces = namespaces.NewClient(clientset.CoreV1().Namespaces())
+
+	return r.namespaces, nil
+}
+
+func (r *Resolver) InitSecretClient() error {
+	clientset, err := r.Clientset()
 	if err != nil {
 		return err
 	}
@@ -173,6 +225,33 @@ func (r *Resolver) Server(ctx context.Context) *server.Server {
 	}
 
 	serv.RegisterAPI(MapConfig(r.config))
+
+	if len(r.config.CustomBoards) > 0 {
+		client, err := r.NamespaceClient()
+		if err != nil {
+			zap.L().Error("failed to create namespace client", zap.Error(err))
+
+			return serv
+		}
+
+		configs := make(map[string]api.CustomBoard, len(r.config.CustomBoards))
+		for _, c := range r.config.CustomBoards {
+			id := slug.Make(c.Name)
+
+			configs[id] = api.CustomBoard{
+				Name: c.Name,
+				ID:   id,
+				Namespaces: api.Namespaces{
+					Selector: c.Namespaces.Selector,
+					List:     c.Namespaces.List,
+				},
+				Sources: api.Sources{
+					List: c.Sources.List,
+				}}
+		}
+
+		serv.RegisterCustomBoards(client, configs)
+	}
 
 	return serv
 }

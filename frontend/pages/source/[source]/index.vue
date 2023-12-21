@@ -5,7 +5,7 @@
         <v-toolbar color="indigo" elevation="2" rounded>
           <v-toolbar-title>{{ capilize(route.params.source) }}</v-toolbar-title>
           <template #append>
-            <SelectKindAutocomplete style="width: 500px; max-width: 100%; margin-left: 15px;" />
+            <SelectKindAutocomplete style="width: 500px; max-width: 100%; margin-left: 15px;" :source="route.params.source" />
           </template>
         </v-toolbar>
       </v-col>
@@ -13,14 +13,14 @@
     <SourceStatus v-if="data.counts.length" :data="data.counts[0]" />
     <v-row>
       <v-col>
-        <LazyClusterResourceResultList :source="route.params.source" />
+        <LazyClusterResourceResultList :filter="filter" :source="route.params.source" :details="false" />
       </v-col>
     </v-row>
-    <v-infinite-scroll :onLoad="load" class="no-scrollbar">
+    <v-infinite-scroll :onLoad="load" class="no-scrollbar" v-if="!pending && loaded.length">
       <template v-for="ns in loaded" :key="ns">
         <v-row>
           <v-col>
-            <LazyResourceResultList :namespace="ns" :details="false" :source="route.params.source" />
+            <LazyResourceResultList :namespace="ns" :details="false" :filter="filter" />
           </v-col>
         </v-row>
       </template>
@@ -32,8 +32,9 @@
 <script setup lang="ts">
 import { useAPI } from '~/modules/core/composables/api'
 import { clusterKinds, kinds } from '~/modules/core/store/filter';
-import { type FindingCounts } from "~/modules/core/types";
 import { capilize } from "~/modules/core/layouthHelper";
+import { useInfinite } from "~/composables/infinite";
+import type { Filter } from "~/modules/core/types";
 
 const route = useRoute()
 
@@ -44,35 +45,18 @@ const { data, refresh } = useAPI(
     }
 );
 
-const { data: namespaces } = useAPI(
+const { data: namespaces, pending } = useAPI(
     (api) => api.namespaces(route.params.source),
     {
       default: () => [],
     }
 );
 
-const loaded = ref<string[]>([])
-const index = ref(1)
+const filter = computed<Filter>(() => ({
+  sources: [route.params.source]
+}))
 
-watch(namespaces, (ns: string[] | null) => {
-  loaded.value = (ns || []).slice(0, 1)
-})
-
-const load = ({ done }: any) => {
-  const sum = (namespaces.value || []).length
-
-  const last = index.value
-  const next = index.value + 2 > sum ? sum :  index.value + 2
-  loaded.value = [...loaded.value, ...(namespaces.value || []).slice(last, next)]
-
-  index.value = next
-  if (next === sum) {
-    done('empty')
-  } else {
-    done('ok')
-  }
-}
-
+const { load, loaded } = useInfinite(namespaces)
 
 watch(kinds, refresh)
 </script>

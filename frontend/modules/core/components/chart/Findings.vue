@@ -24,7 +24,7 @@ const total = ref(0)
 const diff = 0.80
 
 const colors = (status: Status, amount: number) => {
-  const middle = Math.floor(amount / 2) - 1
+  const middle = Math.floor(amount / 2)
   const base = chroma(mapStatus(status))
 
   return Array.from(Array(amount).keys()).map((index) => {

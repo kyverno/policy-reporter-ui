@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gosimple/slug"
 
+	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/namespaces"
 	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
 )
 
@@ -46,6 +47,13 @@ func (s *Server) RegisterCluster(name string, proxies map[string]*httputil.Rever
 			rp.ServeHTTP(ctx.Writer, req)
 		})
 	}
+}
+
+func (s *Server) RegisterCustomBoards(client namespaces.Client, configs map[string]api.CustomBoard) {
+	handler := api.NewCustomBoardHandler(client, configs)
+
+	s.api.GET("custom-board/list", handler.List)
+	s.api.GET("custom-board/:id/details", handler.Details)
 }
 
 func (s *Server) RegisterAPI(c api.Config) {

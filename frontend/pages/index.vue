@@ -13,71 +13,32 @@
     <SourceStatus v-if="singleSource && data.counts.length > 0" :data="data.counts[0]" />
     <v-row>
       <v-col>
-        <LazyClusterResourceResultList />
+        <LazyClusterResourceResultList :details="multiSource" />
       </v-col>
     </v-row>
-    <v-infinite-scroll :onLoad="load" class="no-scrollbar">
-      <template v-for="ns in loaded" :key="ns">
-        <v-row>
-          <v-col>
-            <LazyResourceResultList :namespace="ns" :details="multiSource" />
-          </v-col>
-        </v-row>
-      </template>
-      <template #empty></template>
-    </v-infinite-scroll>
+    <resource-scroller :details="multiSource" :list="namespaces" v-if="namespaces.length" />
   </v-container>
 </template>
 
 <script setup lang="ts">
 import { useAPI } from '~/modules/core/composables/api'
+import { useInfinite } from "~/composables/infinite";
 import { clusterKinds, kinds } from '~/modules/core/store/filter';
 import { type FindingCounts } from "~/modules/core/types";
+import ResourceScroller from "~/modules/core/components/ResourceScroller.vue";
 
-const props = defineProps({
-  sources: { types: Array, default: () => [] }
-})
+const { data: sources } = useAPI<string[]>((api) => api.sources().then((source) => source.map(s => s.name)), {
+  default: () => []
+});
 
-const { data, refresh } = useAPI(
-    (api) => api.countFindings({ kinds: [...kinds.value, ...clusterKinds.value] }),
-    {
-      default: () => ({ total: 0, counts: [] }),
-    }
-);
+const multiSource = computed(() => (sources.value?.length || 0) > 1)
+const singleSource = computed(() => (sources.value?.length || 0) === 1)
 
-const multiSource = computed(() => (props.sources.length || 0) > 1)
-const singleSource = computed(() => (props.sources.length || 0) === 1)
+const { data, refresh } = useAPI((api) => api.countFindings({ kinds: [...kinds.value, ...clusterKinds.value] }), {
+  default: () => ({ total: 0, counts: [] }),
+});
 
-const { data: namespaces } = useAPI(
-    (api) => api.namespaces(),
-    {
-      default: () => [],
-    }
-);
-
-const loaded = ref<string[]>([])
-const index = ref(1)
-
-watch(namespaces, (ns: string[] | null) => {
-  loaded.value = (ns || []).slice(0, 1)
-})
-
-
-const load = ({ done }: any) => {
-  const sum = (namespaces.value || []).length
-
-  const last = index.value
-  const next = index.value + 2 > sum ? sum :  index.value + 2
-  loaded.value = [...loaded.value, ...(namespaces.value || []).slice(last, next)]
-
-  index.value = next
-  if (next === sum) {
-    done('empty')
-  } else {
-    done('ok')
-  }
-}
-
+const { data: namespaces } = useAPI((api) => api.namespaces(), { default: () => [] });
 
 watch(kinds, refresh)
 </script>

@@ -4,6 +4,7 @@ import (
 	"github.com/gosimple/slug"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
+	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
 func MapConfig(c *Config) api.Config {
@@ -33,5 +34,14 @@ func MapConfig(c *Config) api.Config {
 			Resources:        c.UI.DefaultFilter.Resources,
 			ClusterResources: c.UI.DefaultFilter.ClusterResources,
 		},
+		Sources: utils.Map(c.Sources, func(s Source) api.Source {
+			return api.Source{
+				Name: s.Name,
+				Excludes: api.Excludes{
+					NamespaceKinds: s.Excludes.NamespaceKinds,
+					ClusterKinds:   s.Excludes.ClusterKinds,
+				},
+			}
+		}),
 	}
 }

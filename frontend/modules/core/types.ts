@@ -64,9 +64,30 @@ export type Category = {
     skip: number;
 }
 
+export type CustomBoard = {
+    name: string;
+    id: string;
+}
+
+export type CustomBoardDetails = {
+    name: string;
+    id: string;
+    namespaces: string[];
+    sources: string[];
+}
+
 export type Source = {
     name: string;
     categories: Category[];
+}
+
+export type SourceConfig = {
+    name: string;
+    dashboard: boolean;
+    excludes: {
+        namespaceKinds: string[]
+        clusterKinds: string[]
+    };
 }
 
 export type Config = {
@@ -74,6 +95,7 @@ export type Config = {
     displayMode: DisplayMode | '';
     views: ViewsCofig;
     clusters: Cluster[];
+    sources: SourceConfig[];
     default: string;
     defaultFilter: {
         resources: string[];
@@ -131,6 +153,7 @@ export type Filter = {
     severities?: Severity[];
     policies?: string[];
     sources?: string[];
+    exclude?: string[];
     status?: Status[];
     search?: string;
     resource_id?: string;

@@ -11,8 +11,12 @@ export default defineNuxtPlugin(async () => {
 
   api.setPrefix(apiConfig.default)
 
-  kinds.value = apiConfig.defaultFilter.resources || []
-  clusterKinds.value = apiConfig.defaultFilter.clusterResources || []
+  api.setExcludes((apiConfig.sources || []).reduce<string[]>((acc, config) => {
+    return [...acc, ...(config.excludes.namespaceKinds || []).map(k => `${config.name}:${k}`)]
+  }, []),
+    (apiConfig.sources || []).reduce<string[]>((acc, config) => {
+    return [...acc, ...(config.excludes.clusterKinds || []).map(k => `${config.name}:${k}`)]
+  }, []))
 
   const store = useConfigStore()
 

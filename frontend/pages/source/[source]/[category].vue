@@ -5,7 +5,7 @@
       <v-toolbar color="indigo" elevation="2" rounded>
         <v-toolbar-title>{{ capilize(route.params.source) }}: {{ route.params.category }}</v-toolbar-title>
         <template #append>
-          <SelectKindAutocomplete style="width: 500px; max-width: 100%; margin-left: 15px;" />
+          <SelectKindAutocomplete style="width: 500px; max-width: 100%; margin-left: 15px;" :source="route.params.source" />
         </template>
       </v-toolbar>
     </v-col>
@@ -13,14 +13,14 @@
   <SourceStatus v-if="data.counts.length" :data="data.counts[0]" :category="route.params.category" />
   <v-row>
     <v-col>
-      <LazyClusterResourceResultList :source="route.params.source" :category="route.params.category" />
+      <LazyClusterResourceResultList :source="route.params.source" :filter="filter" :details="false" />
     </v-col>
   </v-row>
-  <v-infinite-scroll :onLoad="load" class="no-scrollbar">
+  <v-infinite-scroll :onLoad="load" class="no-scrollbar" v-if="!pending && loaded.length">
     <template v-for="ns in loaded" :key="ns">
       <v-row>
         <v-col>
-          <LazyResourceResultList :namespace="ns" :details="false" :source="route.params.source" :category="route.params.category" />
+          <LazyResourceResultList :namespace="ns" :details="false" :filter="filter" />
         </v-col>
       </v-row>
     </template>
@@ -33,48 +33,34 @@
 import { useAPI } from '~/modules/core/composables/api'
 import { clusterKinds, kinds } from '~/modules/core/store/filter';
 import { capilize } from "~/modules/core/layouthHelper";
+import { useInfinite } from "~/composables/infinite";
+import type { Filter } from "~/modules/core/types";
 
 const route = useRoute()
+
+const filter = computed<Filter>(() => ({
+  sources: [route.params.source],
+  categories: [route.params.category],
+}))
 
 const { data, refresh } = useAPI(
     (api) => api.countFindings({
       kinds: [...kinds.value, ...clusterKinds.value],
-      sources: [route.params.source],
-      categories: [route.params.category],
+      ...filter.value,
     }),
     {
       default: () => ({ total: 0, counts: [] }),
     }
 );
 
-const { data: namespaces } = useAPI(
+const { data: namespaces, pending } = useAPI(
     (api) => api.namespaces(route.params.source),
     {
       default: () => [],
     }
 );
 
-const loaded = ref<string[]>([])
-const index = ref(1)
-
-watch(namespaces, (ns: string[] | null) => {
-  loaded.value = (ns || []).slice(0, 1)
-})
-
-const load = ({ done }: any) => {
-  const sum = (namespaces.value || []).length
-
-  const last = index.value
-  const next = index.value + 2 > sum ? sum :  index.value + 2
-  loaded.value = [...loaded.value, ...(namespaces.value || []).slice(last, next)]
-
-  index.value = next
-  if (next === sum) {
-    done('empty')
-  } else {
-    done('ok')
-  }
-}
+const { load, loaded } = useInfinite(namespaces)
 
 
 watch(kinds, refresh)

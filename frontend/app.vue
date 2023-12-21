@@ -1,18 +1,11 @@
 <template>
   <NuxtLayout :key="cluster">
-    <NuxtPage :sources="sources" />
+    <NuxtPage />
   </NuxtLayout>
 </template>
 
 <script lang="ts" setup>
-import { useAPI } from "~/modules/core/composables/api";
 import { cluster } from "~/modules/core/api";
-
-const { data: sources } = useAPI(
-    (api) => api.sources().then((source) => source.map(s => s.name)),
-    { default: () => [] }
-);
-
 </script>
 
 <style>

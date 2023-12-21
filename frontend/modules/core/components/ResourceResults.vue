@@ -14,13 +14,13 @@
 </template>
 
 <script setup lang="ts">
-import { Status } from '../types'
+import { type Filter, Status } from '../types'
 import { capilize } from "../layouthHelper";
 
-const props = defineProps<{ id: string }>()
+const props = defineProps<{ id: string; filter?: Filter; }>()
 
 const { data } = useAPI(
-    (api) => api.resourceResults(props.id),
+    (api) => api.resourceResults(props.id, props.filter),
     {
       default: () => [],
     }

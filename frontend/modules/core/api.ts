@@ -1,16 +1,16 @@
 import { useFetch } from 'nuxt/app'
-import type {
-  NamespacedStatusCount,
-  StatusCount,
-  Target,
-  Filter,
-  Result,
-  Config,
-  ResultList,
-  Pagination,
-  FindingCounts,
-  ResourceResultList,
-  ResourceResult, ResourceStatusCount, Resource, Source
+import {
+  type NamespacedStatusCount,
+  type StatusCount,
+  type Target,
+  type Filter,
+  type Result,
+  type Config,
+  type ResultList,
+  type Pagination,
+  type FindingCounts,
+  type ResourceResultList,
+  type ResourceResult, type ResourceStatusCount, type Resource, type Source, type CustomBoard, type CustomBoardDetails
 } from './types'
 
 type APIConfig = { baseURL: string; prefix?: string; };
@@ -20,6 +20,9 @@ export const cluster = ref('default')
 export class CoreAPI {
   private baseURL: string
   private cluster: string = ''
+
+  private nsExcludes: string[] = []
+  private clusterExcludes: string[] = []
 
   constructor (config: APIConfig) {
     this.baseURL = config.baseURL
@@ -67,11 +70,11 @@ export class CoreAPI {
   }
 
   namespacedStatusCount (filter?: Filter) {
-    return $fetch<NamespacedStatusCount[]>('/proxy/'+this.cluster+'/core/v1/namespaced-resources/status-counts', { baseURL: this.baseURL, params: filter })
+    return $fetch<NamespacedStatusCount[]>('/proxy/'+this.cluster+'/core/v1/namespaced-resources/status-counts', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes) } })
   }
 
   namespacedResults (filter?: Filter, pagination?: Pagination) {
-    return $fetch<ResultList>('/proxy/'+this.cluster+'/core/v1/namespaced-resources/results', { baseURL: this.baseURL, params: { ...filter, ...pagination } })
+    return $fetch<ResultList>('/proxy/'+this.cluster+'/core/v1/namespaced-resources/results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   clusterKinds (source?: string) {
@@ -91,49 +94,79 @@ export class CoreAPI {
   }
 
   statusCount (filter?: Filter) {
-    return $fetch<StatusCount[]>('/proxy/'+this.cluster+'/core/v1/cluster-resources/status-counts', { baseURL: this.baseURL, params: filter })
+    return $fetch<StatusCount[]>('/proxy/'+this.cluster+'/core/v1/cluster-resources/status-counts', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.clusterExcludes) } })
   }
 
   clusterResults (filter?: Filter, pagination?: Pagination) {
-    return $fetch<ResultList>('/proxy/'+this.cluster+'/core/v1/cluster-resources/results', { baseURL: this.baseURL, params: { ...filter, ...pagination } })
+    return $fetch<ResultList>('/proxy/'+this.cluster+'/core/v1/cluster-resources/results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   countFindings (filter?: Filter) {
-    return $fetch<FindingCounts>('/proxy/'+this.cluster+'/core/v1/finding-counts', { baseURL: this.baseURL, params: filter })
+    return $fetch<FindingCounts>('/proxy/'+this.cluster+'/core/v1/finding-counts', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes) } })
   }
 
   namespacedResourceResults (filter?: Filter, pagination?: Pagination) {
-    return $fetch<ResourceResultList>('/proxy/'+this.cluster+'/core/v1/namespaced-resources/resource-results', { baseURL: this.baseURL, params: { ...filter, ...pagination } })
+    return $fetch<ResourceResultList>('/proxy/'+this.cluster+'/core/v1/namespaced-resources/resource-results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   clusterResourceResults (filter?: Filter, pagination?: Pagination) {
-    return $fetch<ResourceResultList>('/proxy/'+this.cluster+'/core/v1/cluster-resources/resource-results', { baseURL: this.baseURL, params: { ...filter, ...pagination } })
+    return $fetch<ResourceResultList>('/proxy/'+this.cluster+'/core/v1/cluster-resources/resource-results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.clusterExcludes), ...pagination } })
   }
 
   resourceResults (id: string, filter?: Filter) {
-    return $fetch<ResourceResult[]>('/proxy/'+this.cluster+'/core/v1/resource-results', { baseURL: this.baseURL, params: { id, ...filter } })
+    return $fetch<ResourceResult[]>('/proxy/'+this.cluster+'/core/v1/resource-results', { baseURL: this.baseURL, params: { id, ...applyExcludes(filter, this.nsExcludes) } })
   }
 
   resourceStatusCount (id: string, filter?: Filter) {
-    return $fetch<ResourceStatusCount[]>('/proxy/'+this.cluster+'/core/v1/resource-status-counts', { baseURL: this.baseURL, params: { id, ...filter }})
+    return $fetch<ResourceStatusCount[]>('/proxy/'+this.cluster+'/core/v1/resource-status-counts', { baseURL: this.baseURL, params: { id, ...applyExcludes(filter, this.nsExcludes) }})
   }
 
   resource (id: string, filter?: Filter) {
-    return $fetch<Resource>('/proxy/'+this.cluster+'/core/v1/resource', { baseURL: this.baseURL, params: { id, ...filter }})
+    return $fetch<Resource>('/proxy/'+this.cluster+'/core/v1/resource', { baseURL: this.baseURL, params: { id, ...applyExcludes(filter, this.nsExcludes) }})
   }
 
   results (id: string, pagination?: Pagination, filter?: Filter) {
-    return $fetch<ResultList>('/proxy/'+this.cluster+'/core/v1/results', { baseURL: this.baseURL, params: { id, ...pagination, ...filter } })
+    return $fetch<ResultList>('/proxy/'+this.cluster+'/core/v1/results', { baseURL: this.baseURL, params: { id, ...pagination, ...applyExcludes(filter, this.nsExcludes) } })
   }
 
   sources (id?: string) {
     return $fetch<Source[]>('/proxy/'+this.cluster+'/core/v1/sources', { baseURL: this.baseURL, params: { id } })
   }
 
+  customBoards () {
+    return $fetch<CustomBoard[]>('/api/custom-board/list', { baseURL: this.baseURL })
+  }
+
+  customBoard (id: string) {
+    return $fetch<CustomBoardDetails>(`/api/custom-board/${id}/details`, { baseURL: this.baseURL })
+  }
+
   setPrefix (prefix: string): void {
     this.cluster = prefix
     cluster.value = prefix
   }
+
+  setExcludes (nsFilter: string[], clusterFilter: string[]): void {
+    this.nsExcludes = nsFilter
+    this.clusterExcludes = clusterFilter
+  }
 }
 
 export const create = (config: APIConfig): CoreAPI => new CoreAPI(config)
+
+const applyExcludes = (filter: Filter | undefined, exclude: string[] | undefined) => {
+  if (!filter) return ({ exclude })
+
+  if (filter.kinds && filter.kinds.length > 0) return filter
+
+  if (!exclude || exclude.length < 1) return filter
+
+  if (filter.sources && filter.sources.length > 0) {
+    exclude = exclude.filter((e) => filter.sources?.some(s => e.startsWith(s)))
+  }
+
+  return {
+    ...filter,
+    exclude
+  }
+}

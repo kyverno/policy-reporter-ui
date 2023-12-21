@@ -89,15 +89,17 @@
         <template v-if="source">
           <wait :time="1000" :key="source">
             <v-card-text>
-              <ChartStatusPerNamespace :source="source" />
+              <ChartStatusPerNamespace :source="source" :filter="{ ...nsFilter, sources: [source] }" />
             </v-card-text>
-            <v-divider />
-            <v-card-title>
-              Cluster Scoped Results
-            </v-card-title>
-            <v-card-text>
-              <ChartClusterResultCounts :source="source" class="px-0 pb-0" />
-            </v-card-text>
+            <template v-if="!hideCluster">
+              <v-divider />
+              <v-card-title>
+                Cluster Scoped Results
+              </v-card-title>
+              <v-card-text>
+                <ChartClusterResultCounts :filter="clusterFilter" class="px-0 pb-0" />
+              </v-card-text>
+            </template>
             <template #placeholder>
               <v-card-text>
                 <v-progress-linear indeterminate color="primary" />
@@ -112,11 +114,15 @@
 
 <script setup lang="ts">
 import { mapStatus } from '../mapper';
-import { type FindingCounts, Status } from '../types';
+import { type Filter, type FindingCounts, Status } from '../types';
 import { useAPI } from "~/modules/core/composables/api";
 import { capilize } from "~/modules/core/layouthHelper";
+import { clusterKinds, kinds } from "~/modules/core/store/filter";
 
-const props = defineProps<{ data: FindingCounts }>();
+const props = defineProps<{ data: FindingCounts; filter?: Filter; hideCluster?: boolean }>();
+
+const nsFilter = computed(() => ({ ...(props.filter || {}),  kinds: kinds.value }))
+const clusterFilter = computed(() => ({ ...(props.filter || {}),  kinds: clusterKinds.value }))
 
 const status1 = ref(Status.PASS);
 const status2 = ref(Status.FAIL);
