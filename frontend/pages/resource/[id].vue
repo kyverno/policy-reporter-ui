@@ -33,12 +33,11 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-infinite-scroll :onLoad="load" class="no-scrollbar">
-      <template v-for="source in loaded" :key="source">
-        <category-tables :source="source" :resource="data.resource" />
+    <resource-scroller :list="sources">
+      <template #default="{ item }">
+        <category-tables :source="item" :resource="data.resource" />
       </template>
-      <template #empty></template>
-    </v-infinite-scroll>
+    </resource-scroller>
   </v-container>
 </template>
 
@@ -46,7 +45,7 @@
 import ResourceStatus from "~/modules/core/components/chart/ResourceStatus.vue";
 import ResourceResultCounts from "~/modules/core/components/chart/ResourceResultCounts.vue";
 import type { Filter, Resource, ResourceStatusCount, Source } from "~/modules/core/types";
-import { useInfinite } from "~/composables/infinite";
+import ResourceScroller from "~/modules/core/components/ResourceScroller.vue";
 
 const route = useRoute()
 const router = useRouter()
@@ -55,6 +54,9 @@ const filter = computed(() => {
   const f: Filter = {}
   if (route.query.source && typeof route.query.source === 'string') { f.sources = [route.query.source] }
   if (route.query.category && typeof route.query.category === 'string') { f.categories = [route.query.category] }
+
+  if (route.query.sources && typeof route.query.source === 'object') { f.sources = route.query.sources }
+  if (route.query.categories && typeof route.query.category === 'object') { f.categories = route.query.category }
 
   return f
 })
@@ -85,6 +87,4 @@ const { data } = useAPI(
 );
 
 const sources = computed(() => (data.value?.sources || []).sort((a: Source, b: Source) => a.name.localeCompare(b.name)))
-
-const { load, loaded } = useInfinite(sources)
 </script>

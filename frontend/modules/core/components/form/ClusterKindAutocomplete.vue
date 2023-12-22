@@ -24,13 +24,9 @@
 </template>
 
 <script lang="ts" setup>
-import { clusterKinds } from "~/modules/core/store/filter";
+const props = defineProps<{ source?: string; modelValue: string[] }>();
 
-const props = defineProps({
-  source: { type: String, default: undefined },
-});
-
-const selected = ref<string[]>(clusterKinds.value);
+const selected = ref<string[]>(props.modelValue);
 const loading = ref<boolean>(true);
 
 const { data: items } = useAPI(
@@ -51,7 +47,9 @@ watch(items, (current) => {
   input(selected.value.filter((s) => current.includes(s)));
 });
 
+const emit = defineEmits<{ 'update:modelValue': [kinds: string[]] }>()
+
 watch(selected, (current) => {
-  clusterKinds.value = current as string[]
+  emit('update:modelValue', current)
 });
 </script>

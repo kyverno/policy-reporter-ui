@@ -247,6 +247,9 @@ func (r *Resolver) Server(ctx context.Context) *server.Server {
 				},
 				Sources: api.Sources{
 					List: c.Sources.List,
+				},
+				PolicyReports: api.PolicyReports{
+					Selector: c.PolicyReports.Selector,
 				}}
 		}
 

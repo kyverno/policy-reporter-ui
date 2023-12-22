@@ -100,9 +100,9 @@ const { data, refresh } = useAPI(
     }
 );
 
-watch(() => options.page, refresh)
-watch(() => options.itemsPerPage, refresh)
-watch(searchText, refresh)
+watch(() => options.page, () => refresh())
+watch(() => options.itemsPerPage, () => refresh())
+watch(searchText, () => refresh())
 
 const results = computed(() => mapResults(data.value))
 

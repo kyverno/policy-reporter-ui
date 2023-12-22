@@ -1,5 +1,16 @@
 <template>
-  <Pie :data="data" :options="(options as any)" />
+  <wait :time="600">
+    <Pie :data="data" :options="(options as any)" />
+    <template #placeholder>
+      <v-container fluid>
+        <v-row>
+          <v-col class="justify-center align-center text-center d-flex">
+            <v-progress-circular indeterminate size="268" width="10" color="primary" />
+          </v-col>
+        </v-row>
+      </v-container>
+    </template>
+  </wait>
 </template>
 
 <script setup lang="ts">
@@ -45,7 +56,7 @@ watch(() => props.findings, (findings: FindingCounts) => {
   labels.value = []
   total.value = 0
 
-  findings.counts.sort((a, b) => a.counts[props.status] - b.counts[props.status]).forEach((f) => {
+  findings.counts.sort((a, b) => (a.counts[props.status] || 0) - (b.counts[props.status] || 0)).forEach((f) => {
     labels.value = [...labels.value, capilize(f.source)]
     failedSet.data.push(f.counts[props.status] || 0)
 

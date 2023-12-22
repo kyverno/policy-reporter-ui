@@ -91,6 +91,9 @@ type CustomBoard struct {
 	Sources struct {
 		List []string `mapstructure:"list"`
 	} `mapstructure:"sources"`
+	PolicyReports struct {
+		Selector map[string]string `mapstructure:"selector"`
+	} `mapstructure:"policyReports"`
 }
 
 // Config structure

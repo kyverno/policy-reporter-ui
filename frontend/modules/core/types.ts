@@ -74,6 +74,7 @@ export type CustomBoardDetails = {
     id: string;
     namespaces: string[];
     sources: string[];
+    labels: { [label: string]: string };
 }
 
 export type Source = {
@@ -154,9 +155,11 @@ export type Filter = {
     policies?: string[];
     sources?: string[];
     exclude?: string[];
+    labels?: string[];
     status?: Status[];
     search?: string;
     resource_id?: string;
+    namespaced?: boolean;
 }
 
 export type Pagination = {

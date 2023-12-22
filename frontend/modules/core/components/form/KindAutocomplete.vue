@@ -6,7 +6,7 @@
     :items="items as string[]"
     variant="outlined"
     hide-details
-    label="Cluster Kinds"
+    label="Kinds"
     closable-chips
     :model-value="selected"
     @update:model-value="input"
@@ -24,18 +24,18 @@
 </template>
 
 <script lang="ts" setup>
-import { clusterKinds } from "~/modules/core/store/filter";
+import { kinds } from "~/modules/core/store/filter";
 
 const props = defineProps({
   source: { type: String, default: undefined },
 });
 
-const selected = ref<string[]>(clusterKinds.value);
+const selected = ref<string[]>(kinds.value);
 const loading = ref<boolean>(true);
 
 const { data: items } = useAPI(
   ($coreAPI) => {
-    return $coreAPI.clusterKinds(props.source)
+    return $coreAPI.namespacedKinds(props.source)
   },
   {
     default: () => [],
@@ -45,13 +45,13 @@ const { data: items } = useAPI(
   }
 );
 
-const input = defineRouteQuery('cluster-kinds', selected);
+const input = defineRouteQuery('kinds', selected);
 
 watch(items, (current) => {
   input(selected.value.filter((s) => current.includes(s)));
 });
 
 watch(selected, (current) => {
-  clusterKinds.value = current as string[]
+  kinds.value = current as string[]
 });
 </script>

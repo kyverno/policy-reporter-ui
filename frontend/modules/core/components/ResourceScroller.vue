@@ -1,9 +1,9 @@
 <template>
   <v-infinite-scroll :onLoad="load" class="no-scrollbar">
-    <template v-for="ns in loaded" :key="ns">
+    <template v-for="item in loaded" :key="item">
       <v-row>
         <v-col>
-          <LazyResourceResultList :namespace="ns" :details="details" :filter="filter" />
+          <slot :item="item" />
         </v-col>
       </v-row>
     </template>
@@ -15,7 +15,7 @@
 import { useInfinite } from "~/composables/infinite";
 import { type Filter } from "../types";
 
-const props = defineProps<{ list: any[]; details: boolean; filter?: Filter; }>()
+const props = defineProps<{ list: any[]; }>()
 
 const list = ref<any[]>(props.list)
 

@@ -15,11 +15,20 @@
 <script setup lang="ts">
 import { mapStatus } from "../../mapper";
 import { type Filter, Status } from "~/modules/core/types";
+import type { Ref } from "vue";
+import { ClusterKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
 
-const props = defineProps<{ filter?: Filter; }>()
+const props = defineProps<{ source?: string; }>()
 
-const { data: sc } = useAPI(
-    (api) => api.statusCount(props.filter), {
+const filter = inject<Ref<Filter>>(ResourceFilter, ref<Filter>({}))
+const kinds = inject<Ref<string[]>>(ClusterKinds, ref<string[]>([]))
+
+const { data: sc, refresh } = useAPI(
+    (api) => api.statusCount({
+      ...filter.value,
+      sources: props.source ? [props.source] : undefined,
+      kinds: kinds.value.length ? kinds.value : undefined
+    }), {
       default: () => [
         { status: Status.PASS, count: 0 },
         { status: Status.WARN, count: 0 },
@@ -43,4 +52,7 @@ const statusCounts = computed<{ [status in Status]: number }>(() => {
     [Status.ERROR]: 0,
   })
 })
+
+
+watch(kinds, () => refresh())
 </script>

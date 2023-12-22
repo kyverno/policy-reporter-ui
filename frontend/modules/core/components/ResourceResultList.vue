@@ -22,39 +22,36 @@
 </template>
 
 <script setup lang="ts">
-import { kinds } from '~/modules/core/store/filter'
-import type { CoreAPI } from "~/modules/core/api";
 import CollapseBtn from "~/components/CollapseBtn.vue";
 import type { Filter } from "~/modules/core/types";
+import type { Ref } from "vue";
+import { NamespacedKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
+import { execOnChange } from "~/helper/compare";
 
 const props = defineProps<{
   namespace: string;
   details: boolean;
-  filter?: Filter;
 }>()
 
 const search = ref('')
 const open = ref(true)
 
-const { $coreAPI } = useNuxtApp()
-const pending = ref(true)
-const data = ref({ items: [], count: 0 })
-const load = async () => {
-  try {
-    data.value = await ($coreAPI as CoreAPI).namespacedResourceResults({
-      ...(props.filter || {}),
-      namespaces: [props.namespace as string],
-      kinds: kinds.value,
-      search: search.value,
-    })
-  } catch (err) {
-    console.error(err)
-  } finally {
-    pending.value = false
-  }
-}
+const filter = inject<Ref<Filter>>(ResourceFilter, ref<Filter>({}))
+const kinds = inject<Ref<string[]>>(NamespacedKinds, ref<string[]>([]))
 
-load()
+const combinedFilter = computed(() => ({
+  ...filter.value,
+  namespaces: [props.namespace as string],
+  kinds: kinds.value.length ? kinds.value : undefined,
+  search: search.value,
+}))
 
-watch(() => ({ kinds: kinds.value, search: search.value }), load)
+const { data, refresh, pending } = useAPI(
+    (api) => api.namespacedResourceResults(combinedFilter.value),
+    {
+      default: () => ({ items: [], count: 0 }),
+    }
+);
+
+watch(combinedFilter, (n, o) => execOnChange(n, o, refresh))
 </script>

@@ -10,7 +10,7 @@
     <v-col cols="12" md="8" v-if="source">
       <v-card style="height: 100%">
         <v-card-text style="height: 100%">
-          <ChartStatusPerNamespace :filter="nsFilter" :source="source" :key="source" />
+          <ChartStatusPerNamespace :source="source" :key="source" />
         </v-card-text>
       </v-card>
     </v-col>
@@ -19,7 +19,7 @@
     <v-row>
       <v-col>
         <v-card :title="`${capilize(source)} cluster scoped results`">
-          <ChartClusterResultCounts :filter="clusterFilter" />
+          <ChartClusterResultCounts :source="source" />
         </v-card>
       </v-col>
     </v-row>
@@ -27,28 +27,13 @@
 </template>
 
 <script setup lang="ts">
-import type { Filter, SourceFindings } from "~/modules/core/types";
+import type { SourceFindings } from "~/modules/core/types";
 import { Status } from "~/modules/core/types";
 import { capilize } from "~/modules/core/layouthHelper";
-import { clusterKinds, kinds } from "~/modules/core/store/filter";
 
-const props = defineProps<{ data: SourceFindings, hideCluster?: boolean; category?: string; filter?: Filter; }>();
+const props = defineProps<{ data: SourceFindings, hideCluster?: boolean; category?: string; }>();
 
 const source = computed(() => props.data.source)
-
-const nsFilter = computed(() => ({
-  ...(props.filter || {}),
-  categories: props.category ? [props.category] : undefined,
-  sources: [source.value],
-  kinds: kinds.value
-}))
-
-const clusterFilter = computed(() => ({
-  ...(props.filter || {}),
-  categories: props.category ? [props.category] : undefined,
-  sources: [source.value],
-  kinds: clusterKinds.value
-}))
 
 const { data: sc } = useAPI(
     (api) => api.statusCount(), {

@@ -114,11 +114,11 @@ export class CoreAPI {
   }
 
   resourceResults (id: string, filter?: Filter) {
-    return $fetch<ResourceResult[]>('/proxy/'+this.cluster+'/core/v1/resource-results', { baseURL: this.baseURL, params: { id, ...applyExcludes(filter, this.nsExcludes) } })
+    return $fetch<ResourceResult[]>('/proxy/'+this.cluster+'/core/v1/resource-results', { baseURL: this.baseURL, params: { id, filter } })
   }
 
   resourceStatusCount (id: string, filter?: Filter) {
-    return $fetch<ResourceStatusCount[]>('/proxy/'+this.cluster+'/core/v1/resource-status-counts', { baseURL: this.baseURL, params: { id, ...applyExcludes(filter, this.nsExcludes) }})
+    return $fetch<ResourceStatusCount[]>('/proxy/'+this.cluster+'/core/v1/resource-status-counts', { baseURL: this.baseURL, params: { id, filter }})
   }
 
   resource (id: string, filter?: Filter) {
@@ -126,7 +126,7 @@ export class CoreAPI {
   }
 
   results (id: string, pagination?: Pagination, filter?: Filter) {
-    return $fetch<ResultList>('/proxy/'+this.cluster+'/core/v1/results', { baseURL: this.baseURL, params: { id, ...pagination, ...applyExcludes(filter, this.nsExcludes) } })
+    return $fetch<ResultList>('/proxy/'+this.cluster+'/core/v1/results', { baseURL: this.baseURL, params: { id, ...pagination, filter } })
   }
 
   sources (id?: string) {

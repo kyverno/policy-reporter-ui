@@ -89,7 +89,7 @@
         <template v-if="source">
           <wait :time="1000" :key="source">
             <v-card-text>
-              <ChartStatusPerNamespace :source="source" :filter="{ ...nsFilter, sources: [source] }" />
+              <ChartStatusPerNamespace :source="source" />
             </v-card-text>
             <template v-if="!hideCluster">
               <v-divider />
@@ -97,7 +97,7 @@
                 Cluster Scoped Results
               </v-card-title>
               <v-card-text>
-                <ChartClusterResultCounts :filter="clusterFilter" class="px-0 pb-0" />
+                <ChartClusterResultCounts :source="source" class="px-0 pb-0" />
               </v-card-text>
             </template>
             <template #placeholder>
@@ -115,14 +115,10 @@
 <script setup lang="ts">
 import { mapStatus } from '../mapper';
 import { type Filter, type FindingCounts, Status } from '../types';
-import { useAPI } from "~/modules/core/composables/api";
 import { capilize } from "~/modules/core/layouthHelper";
 import { clusterKinds, kinds } from "~/modules/core/store/filter";
 
 const props = defineProps<{ data: FindingCounts; filter?: Filter; hideCluster?: boolean }>();
-
-const nsFilter = computed(() => ({ ...(props.filter || {}),  kinds: kinds.value }))
-const clusterFilter = computed(() => ({ ...(props.filter || {}),  kinds: clusterKinds.value }))
 
 const status1 = ref(Status.PASS);
 const status2 = ref(Status.FAIL);
@@ -136,6 +132,7 @@ const initTotals = () => ({
 });
 
 const totals = ref(initTotals());
+const sources = ref<string[]>([]);
 
 watch(() => props.data, (findings: FindingCounts) => {
   if (!findings) return;
@@ -149,14 +146,8 @@ watch(() => props.data, (findings: FindingCounts) => {
   });
 
   totals.value = results;
+  sources.value = [...new Set(findings.counts.map(c => c.source).sort((a, b) => a.localeCompare(b)))]
 }, { immediate: true });
-
-const { data: sources, refresh } = useAPI(
-    (api) => api.sources(),
-    {
-      default: () => [],
-    }
-);
 
 const source = ref('');
 
@@ -164,14 +155,14 @@ const items = computed(() => {
   if (!sources.value) return []
 
   return sources.value.map(s => ({
-    title: capilize(s.name),
-    value: s.name
+    title: capilize(s),
+    value: s
   }))
 })
 
 watch(sources, (s) => {
   if (!s || !s.length || source.value) return
 
-  source.value = s.sort((a, b) => a.name.localeCompare(b.name))[0].name
+  source.value = s[0]
 })
 </script>

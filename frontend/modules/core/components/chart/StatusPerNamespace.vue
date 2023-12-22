@@ -7,17 +7,25 @@ import { Bar } from 'vue-chartjs'
 import { type Filter, type NamespacedStatusCount, Status } from '../../types'
 import { capilize } from "../../layouthHelper"
 import { mapStatus } from '../../mapper'
-import { kinds } from '../../store/filter'
+import { NamespacedKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
+import type { Ref } from "vue";
 
-const props = defineProps<{ source: string; filter?: Filter }>()
+const props = defineProps<{ source: string }>()
+
+const filter = inject<Ref<Filter>>(ResourceFilter, ref<Filter>({}))
+const kinds = inject<Ref<string[]>>(NamespacedKinds, ref<string[]>([]))
 
 const { data, refresh } = useAPI<NamespacedStatusCount[]>(
-    (api) => api.namespacedStatusCount(props.filter), {
+    (api) => api.namespacedStatusCount({
+      ...filter.value,
+      sources: [props.source],
+      kinds: kinds.value.length ? kinds.value : undefined
+    }), {
       default: () => [],
     }
 );
 
-watch(kinds, refresh)
+watch(kinds, () => refresh())
 
 const chart = computed(() => {
   if (!data.value) return ({})

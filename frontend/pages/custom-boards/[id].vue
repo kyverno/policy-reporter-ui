@@ -1,58 +1,69 @@
 <template>
-  <v-container fluid v-if="data" class="py-4 px-4 main-height">
+  <v-container fluid v-if="data.counts.length" class="py-4 px-4 main-height">
     <v-row>
       <v-col>
         <v-toolbar color="indigo" elevation="2" rounded>
           <template #append>
-            <SelectKindAutocomplete style="width: 500px; max-width: 100%; margin-left: 15px;" />
+            <FormKindAutocomplete v-model="kinds" style="min-width: 300px; max-width: 100%; margin-left: 15px;" />
           </template>
         </v-toolbar>
       </v-col>
     </v-row>
-    <SourcesStatus v-if="multiSource" :hide-cluster="true" :data="data as FindingCounts" :filter="filter" />
-    <SourceStatus v-if="singleSource && data.counts.length > 0" :hide-cluster="true" :data="data.counts[0]" :filter="filter" />
-    <resource-scroller v-if="details" :details="multiSource" :list="details.namespaces" :filter="filter" />
+    <SourcesStatus v-if="sources.length > 1" :hide-cluster="true" :data="data as FindingCounts" />
+    <SourceStatus v-if="sources.length === 1" :hide-cluster="true" :data="data.counts[0]" />
+    <resource-scroller v-if="details" :list="namespaces">
+      <template #default="{ item }">
+        <LazyResourceResultList :namespace="item" :details="sources.length > 1" :filter="filter" />
+      </template>
+    </resource-scroller>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import { callAPI, useAPI } from '~/modules/core/composables/api'
-import { useInfinite } from "~/composables/infinite";
-import { clusterKinds, kinds } from '~/modules/core/store/filter';
-import { type FindingCounts } from "~/modules/core/types";
+import { type Filter, type FindingCounts } from "~/modules/core/types";
 import ResourceScroller from "~/modules/core/components/ResourceScroller.vue";
+import { NamespacedKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
 
 const route = useRoute()
+const kinds = ref<string[]>([])
 
-const { data: details } = useAPI((api) => api.customBoard(route.params.id), { default: () => ({
-    id: route.params.id,
-    sources: [] as string[],
-    namespaces: [] as string[],
-  })
-});
+const loading = ref(true)
 
-const { data: allSources } = useAPI((api) => api.sources().then((source) => source.map(s => s.name)), {
-  default: () => []
-});
+const { details, sources, namespaces, filterSource } = await Promise.all([
+  callAPI((api) => api.customBoard(route.params.id)),
+  callAPI((api) => api.sources().then((source) => source.map(s => s.name))),
+  callAPI((api) => api.namespaces()),
+]).then(([details, allSources, allNamespaces]) => {
+  const namespaces = details?.namespaces || allNamespaces || []
 
-const sources = computed<string[]>(() => {
-  if (!details.value?.sources || !details.value?.sources.length) return allSources.value || []
+  if (!details?.sources || !details?.sources.length) {
+    return { details, sources: allSources, namespaces, filterSource: false }
+  }
 
-  return allSources.value?.filter(s => details.value?.sources.some(d => s.toLowerCase() === d.toLowerCase())) || []
-})
+  const sources = allSources.filter(s => details?.sources.some(d => s.toLowerCase() === d.toLowerCase())) || []
 
-const multiSource = computed(() => (sources.value.length || 0) > 1)
-const singleSource = computed(() => (sources.value.length || 0) === 1)
+  return {
+    details,
+    sources,
+    namespaces,
+    filterSource: allSources.length !== sources.length
+  }
+}).finally(() => { loading.value = false })
 
-const namespaces = computed(() => details.value?.namespaces || [])
 
-const filter = computed(() => ({
-  kinds: [...kinds.value, ...clusterKinds.value],
-  namespaces: details.value?.namespaces,
-  sources: sources.value.length === allSources.value?.length ? undefined : sources.value
+const filter = computed<Filter>(() => ({
+  kinds: [...kinds.value],
+  namespaced: true,
+  namespaces: details?.namespaces?.length ? details?.namespaces : undefined,
+  sources: filterSource ? sources : undefined,
+  labels: Object.entries((details?.labels || {})).map(([label, value]) => `${label}:${value}`)
 }))
 
 const { data, refresh } = useAPI((api) => api.countFindings(filter.value), { default: () => ({ total: 0, counts: [] }) });
 
-watch(kinds, refresh)
+watch(filter, () => refresh())
+
+provide(ResourceFilter, filter)
+provide(NamespacedKinds, kinds)
 </script>
