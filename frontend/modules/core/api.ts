@@ -10,7 +10,13 @@ import {
   type Pagination,
   type FindingCounts,
   type ResourceResultList,
-  type ResourceResult, type ResourceStatusCount, type Resource, type Source, type CustomBoard, type CustomBoardDetails
+  type ResourceResult,
+  type ResourceStatusCount,
+  type Resource,
+  type Source,
+  type CustomBoard,
+  type CustomBoardDetails,
+  type PolicyResult
 } from './types'
 
 type APIConfig = { baseURL: string; prefix?: string; };
@@ -45,8 +51,8 @@ export class CoreAPI {
     return $fetch<string[]>('/proxy/'+this.cluster+'/core/v1/categories', { baseURL: this.baseURL, params: { sources: [source], kinds: kind ? [kind] : undefined } })
   }
 
-  namespaces (source?: string) {
-    return $fetch<string[]>('/proxy/'+this.cluster+'/core/v1/namespaces', { baseURL: this.baseURL, params: { sources: source ? [source] : undefined } })
+  namespaces (source?: string, filter?: Filter) {
+    return $fetch<string[]>('/proxy/'+this.cluster+'/core/v1/namespaces', { baseURL: this.baseURL, params: { ...filter, sources: source ? [source] : undefined } })
   }
 
   ruleStatusCount (policy: string, rule: string) {
@@ -126,11 +132,15 @@ export class CoreAPI {
   }
 
   results (id: string, pagination?: Pagination, filter?: Filter) {
-    return $fetch<ResultList>('/proxy/'+this.cluster+'/core/v1/results', { baseURL: this.baseURL, params: { id, ...pagination, filter } })
+    return $fetch<ResultList>('/proxy/'+this.cluster+'/core/v1/results', { baseURL: this.baseURL, params: { id, ...pagination, ...filter } })
   }
 
-  sources (id?: string) {
-    return $fetch<Source[]>('/proxy/'+this.cluster+'/core/v1/sources', { baseURL: this.baseURL, params: { id } })
+  sources (id?: string, filter?: Filter) {
+    return $fetch<Source[]>('/proxy/'+this.cluster+'/core/v1/sources', { baseURL: this.baseURL, params: { id, ...applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) } })
+  }
+
+  policies (filter?: Filter) {
+    return $fetch<PolicyResult[]>('/proxy/'+this.cluster+'/core/v1/policies', { baseURL: this.baseURL, params: applyExcludes(filter, this.nsExcludes)})
   }
 
   customBoards () {

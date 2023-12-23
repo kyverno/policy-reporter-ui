@@ -8,9 +8,13 @@
           <CollapseBtn v-model="open" :disabled="!data.items.length" />
         </template>
       </v-toolbar>
-      <v-list v-if="data?.items?.length && open" lines="two">
+      <v-list v-if="data?.items?.length && open" lines="two" class="pt-0">
         <ResourceResultItem v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" />
       </v-list>
+      <template v-if="data.count > options.offset">
+        <v-divider />
+        <v-pagination v-model="options.page" :length="length" class="my-4" />
+      </template>
       <template v-if="!pending && !(data.items.length)">
         <v-divider />
         <v-card-text>
@@ -23,7 +27,7 @@
 
 <script setup lang="ts">
 import CollapseBtn from "~/components/CollapseBtn.vue";
-import type { Filter } from "~/modules/core/types";
+import type { Filter, Pagination } from "~/modules/core/types";
 import type { Ref } from "vue";
 import { NamespacedKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
 import { execOnChange } from "~/helper/compare";
@@ -46,12 +50,33 @@ const combinedFilter = computed(() => ({
   search: search.value,
 }))
 
+const options = reactive<Pagination>({
+  page: 1,
+  offset: 8,
+})
+
+const length = computed(() => {
+  return Math.ceil((data.value?.count || 0) / options.offset)
+})
+
 const { data, refresh, pending } = useAPI(
-    (api) => api.namespacedResourceResults(combinedFilter.value),
+    (api) => api.namespacedResourceResults(combinedFilter.value, options),
     {
       default: () => ({ items: [], count: 0 }),
     }
 );
 
-watch(combinedFilter, (n, o) => execOnChange(n, o, refresh))
+watch(combinedFilter, (o, n) =>
+    execOnChange(o, n, () => {
+      if (options.page !== 1) {
+        options.page = 1
+        return
+      }
+
+      refresh()
+    })
+)
+
+watch(options, () => refresh())
+
 </script>

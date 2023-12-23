@@ -1,22 +1,17 @@
 <template>
-  <v-container fluid v-if="data.counts.length" class="py-4 px-4 main-height">
-    <v-row>
-      <v-col>
-        <v-toolbar color="indigo" elevation="2" rounded>
-          <template #append>
-            <FormKindAutocomplete v-model="kinds" style="min-width: 300px; max-width: 100%; margin-left: 15px;" />
-          </template>
-        </v-toolbar>
-      </v-col>
-    </v-row>
+  <page-layout v-model:kinds="kinds"
+               :title="details.name"
+               :source="sources.length > 1 ? undefined : sources[0]"
+               ns-scoped
+  >
     <SourcesStatus v-if="sources.length > 1" :hide-cluster="true" :data="data as FindingCounts" />
-    <SourceStatus v-if="sources.length === 1" :hide-cluster="true" :data="data.counts[0]" />
+    <SourceStatus v-if="sources.length === 1" :hide-cluster="true" :data="findings" />
     <resource-scroller v-if="details" :list="namespaces">
       <template #default="{ item }">
         <LazyResourceResultList :namespace="item" :details="sources.length > 1" :filter="filter" />
       </template>
     </resource-scroller>
-  </v-container>
+  </page-layout>
 </template>
 
 <script setup lang="ts">
@@ -64,6 +59,11 @@ const { data, refresh } = useAPI((api) => api.countFindings(filter.value), { def
 
 watch(filter, () => refresh())
 
+const findings = computed(() => {
+  if (data.value?.counts?.length) return data.value.counts[0];
+
+  return { source: sources[0], counts: {}, total: 0 }
+})
+
 provide(ResourceFilter, filter)
-provide(NamespacedKinds, kinds)
 </script>

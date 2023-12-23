@@ -1,9 +1,8 @@
 <template>
-  <div v-if="data.count > 0 || !!searchText">
-    <v-toolbar color="secondary">
+  <v-card v-if="data.count > 0 || !!searchText">
+    <v-toolbar color="transparent">
       <template #title>
-        <span v-if="category">{{ category }}</span>
-        <span v-else>Results for {{ capilize(source) }}</span>
+        <span>{{ namespace }}</span>
       </template>
       <template #append>
         <search v-model="searchText" class="mr-4" style="min-width: 400px; float: left;" />
@@ -52,22 +51,20 @@
               </td>
             </tr>
           </template>
+          <template #bottom v-if="results.count <= options.itemsPerPage"></template>
         </v-data-table-server>
       </div>
     </v-expand-transition>
-  </div>
+  </v-card>
 </template>
 
 <script lang="ts" setup>
-import { type Dictionary, Status } from "~/modules/core/types";
-import { capilize } from "~/modules/core/layouthHelper";
 import { mapResults } from "~/modules/core/mapper";
 
 const props = defineProps<{
   source: string;
-  category?: string;
-  resource: string;
-  Status?: Status;
+  namespace: string;
+  policy: string;
 }>()
 
 const options = reactive({
@@ -85,13 +82,14 @@ const open = ref(true)
 const searchText = ref('')
 
 const { data, refresh } = useAPI(
-    (api) => api.results(props.resource, {
+    (api) => api.namespacedResults({
+      sources: props.source ? [props.source] : undefined,
+      policies: [props.policy],
+      namespaces: [props.namespace],
+      search: searchText.value ? searchText.value : undefined,
+    }, {
       page: options.page,
       offset: options.itemsPerPage,
-    }, {
-      sources: props.source ? [props.source] : undefined,
-      categories: props.category ? [props.category] : undefined,
-      search: !!searchText.value ? searchText.value : undefined,
     }),
     {
       default: () => ({ items: [], count: 0 }),
@@ -105,10 +103,12 @@ watch(searchText, () => refresh())
 const results = computed(() => mapResults(data.value))
 
 const headers = [
-  { title: 'Policy', key: 'policy', width: '33%' },
-  { title: 'Rule', key: 'rule', width: '33%' },
-  { title: 'Severity', key: 'severity', width: '17%' },
-  { title: 'Status', key: 'status', width: '17%' }
+  { title: 'APIVersion', key: 'apiVersion', width: '10%' },
+  { title: 'Kind', key: 'kind', width: '16%' },
+  { title: 'Name', key: 'name', width: '25%' },
+  { title: 'Rule', key: 'rule', width: '25%' },
+  { title: 'Severity', key: 'severity', width: '12%' },
+  { title: 'Status', key: 'status', width: '12%' }
 ]
 </script>
 

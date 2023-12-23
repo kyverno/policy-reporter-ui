@@ -1,16 +1,16 @@
 <template>
   <v-autocomplete
-    multiple
-    clearable
-    density="compact"
-    :items="items as string[]"
-    variant="outlined"
-    hide-details
-    label="Kinds"
-    closable-chips
-    :model-value="selected"
-    @update:model-value="input"
-    v-bind="$attrs"
+      multiple
+      clearable
+      density="compact"
+      :items="items as string[]"
+      variant="outlined"
+      hide-details
+      label="Kinds"
+      closable-chips
+      :model-value="selected"
+      @update:model-value="input"
+      v-bind="$attrs"
   >
     <template v-slot:selection="{ item, index }">
       <v-chip v-if="index < 2">
@@ -24,25 +24,21 @@
 </template>
 
 <script lang="ts" setup>
-import { kinds } from "~/modules/core/store/filter";
+const props = defineProps<{ source?: string; modelValue: string[] }>();
 
-const props = defineProps({
-  source: { type: String, default: undefined },
-});
-
-const selected = ref<string[]>(kinds.value);
+const selected = ref<string[]>(props.modelValue);
 const loading = ref<boolean>(true);
 
 const { data: items } = useAPI(
-  ($coreAPI) => {
-    return $coreAPI.namespacedKinds(props.source)
-  },
-  {
-    default: () => [],
-    finally: () => {
-      loading.value = false;
+    ($coreAPI) => {
+      return $coreAPI.namespacedKinds(props.source)
     },
-  }
+    {
+      default: () => [],
+      finally: () => {
+        loading.value = false;
+      },
+    }
 );
 
 const input = defineRouteQuery('kinds', selected);
@@ -51,7 +47,9 @@ watch(items, (current) => {
   input(selected.value.filter((s) => current.includes(s)));
 });
 
+const emit = defineEmits<{ 'update:modelValue': [kinds: string[]] }>()
+
 watch(selected, (current) => {
-  kinds.value = current as string[]
+  emit('update:modelValue', current)
 });
 </script>

@@ -13,7 +13,14 @@ export default defineNuxtPlugin((nuxtApp) => {
     directives,
     blueprint: md3,
     theme: {
-      themes: {}
+      themes: {
+        light: {
+          colors: {
+            primary: '#01579B',
+            secondary: '#FFE0B2',
+          }
+        }
+      }
     }
   })
 

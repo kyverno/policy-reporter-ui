@@ -1,7 +1,7 @@
 <template>
   <v-layout>
     <v-app-bar elevation="1" prominent>
-      <v-app-bar-nav-icon color="white" icon="mdi-menu" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon icon="mdi-menu" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Policy Reporter</v-toolbar-title>
       <template #append>
         <cluster-select />
@@ -65,6 +65,7 @@ const { data: customBoards } = useAPI((api) => api.customBoards(), { default: ()
 
 const navigation = [
   { title: 'Dashboard', path: '/', exact: true },
+  { title: 'Policies', path: '/policies', exact: true },
 ];
 
 const boards = computed(() => (customBoards.value || []).map(b => ({

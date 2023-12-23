@@ -1,5 +1,5 @@
 <template>
-  <v-infinite-scroll :onLoad="load" class="no-scrollbar">
+  <v-infinite-scroll :onLoad="load" class="no-scrollbar" v-if="loaded.length">
     <template v-for="item in loaded" :key="item">
       <v-row>
         <v-col>

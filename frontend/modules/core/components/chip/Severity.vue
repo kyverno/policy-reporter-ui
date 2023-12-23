@@ -9,7 +9,7 @@ import type { PropType } from "vue";
 import { Severity, Status } from "~/modules/core/types";
 
 const props = defineProps({
-  severity: { type: String as PropType<Status>, default: null },
+  severity: { type: String as PropType<string>, default: null },
 })
 
 const color = computed(() => {

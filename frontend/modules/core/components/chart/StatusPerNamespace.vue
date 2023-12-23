@@ -10,7 +10,7 @@ import { mapStatus } from '../../mapper'
 import { NamespacedKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
 import type { Ref } from "vue";
 
-const props = defineProps<{ source: string }>()
+const props = defineProps<{ title?: string; source: string }>()
 
 const filter = inject<Ref<Filter>>(ResourceFilter, ref<Filter>({}))
 const kinds = inject<Ref<string[]>>(NamespacedKinds, ref<string[]>([]))
@@ -85,7 +85,7 @@ const chart = computed(() => {
       plugins: {
         title: {
           display: true,
-          text: `${capilize(props.source)} Results per Namespace`
+          text: `${props.title ?? capilize(props.source)} Results per Namespace`
         },
         legend: {
           display: true,

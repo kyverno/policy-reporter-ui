@@ -1,17 +1,6 @@
 <template>
-  <v-container  v-if="data.counts.length" fluid class="py-4 px-4 main-height">
-    <v-row>
-      <v-col>
-        <v-toolbar color="indigo" elevation="2" rounded>
-          <v-toolbar-title>{{ capilize(route.params.source) }}</v-toolbar-title>
-          <template #append>
-            <FormKindAutocomplete style="min-width: 300px; max-width: 100%; margin-right: 15px;" v-model="kinds" :source="route.params.source" />
-            <FormClusterKindAutocomplete style="min-width: 300px;" v-model="clusterKinds" :source="route.params.source" />
-          </template>
-        </v-toolbar>
-      </v-col>
-    </v-row>
-    <SourceStatus :data="data.counts[0]" />
+  <page-layout :title="capilize(route.params.source)" v-model:kinds="kinds" v-model:cluster-kinds="clusterKinds" :source="route.params.source">
+    <SourceStatus :data="findings" />
     <v-row>
       <v-col>
         <LazyClusterResourceResultList :source="route.params.source" :details="false" />
@@ -22,36 +11,45 @@
         <LazyResourceResultList :namespace="item" :details="false" />
       </template>
     </resource-scroller>
-  </v-container>
+  </page-layout>
 </template>
 
 <script setup lang="ts">
 import { useAPI } from '~/modules/core/composables/api'
-import { clusterKinds, kinds } from '~/modules/core/store/filter';
 import { capilize } from "~/modules/core/layouthHelper";
-import type { Filter } from "~/modules/core/types";
-import { ClusterKinds, NamespacedKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
+import { type Filter } from "~/modules/core/types";
+import { ResourceFilter } from "~/modules/core/provider/dashboard";
 import ResourceScroller from "~/modules/core/components/ResourceScroller.vue";
+import { execOnChange } from "~/helper/compare";
+
+const kinds = ref<string[]>([])
+const clusterKinds = ref<string[]>([])
 
 const route = useRoute()
 
-const namespaces = await callAPI((api) => api.namespaces(route.params.source))
-
-const filter = computed<Filter>(() => ({
-  sources: [route.params.source]
+const namespaces = await callAPI((api) => api.namespaces(route.params.source, {
+  kinds: kinds.value.length ? kinds.value : undefined
 }))
 
-const { data, refresh } = useAPI(
-    (api) => api.countFindings({ ...filter.value, kinds: [...kinds.value, ...clusterKinds.value] }),
+const filter = computed<Filter>(() => ({
+  sources: [route.params.source],
+  kinds: [...kinds.value, ...clusterKinds.value]
+}))
+
+const { data, refresh, pending } = useAPI(
+    (api) => api.countFindings(filter.value),
     {
-      default: () => ({ total: 0, counts: [] }),
+      default: () => ({ total: 0, counts: [{ source: route.params.source, counts: {}}] }),
     }
 );
 
+const findings = computed(() => {
+  if (data.value?.counts?.length) return data.value.counts[0];
 
-watch(kinds, () => refresh())
+  return { source: route.params.source, counts: {}, total: 0 }
+})
+
+watch(filter, (n, o) => execOnChange(n, o, () => refresh()))
 
 provide(ResourceFilter, filter)
-provide(NamespacedKinds, kinds)
-provide(ClusterKinds, clusterKinds)
 </script>

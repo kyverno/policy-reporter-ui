@@ -64,6 +64,20 @@ export type Category = {
     skip: number;
 }
 
+export type PolicyResult = {
+    policy: string;
+    source: string;
+    category: string;
+    severity?: string;
+    results: {
+        pass?: number;
+        warn?: number;
+        fail?: number;
+        error?: number;
+        skip?: number;
+    };
+}
+
 export type CustomBoard = {
     name: string;
     id: string;

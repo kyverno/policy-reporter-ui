@@ -1,6 +1,6 @@
 <template>
     <v-chip :prepend-icon="`mdi-${icons[status]}`" :color="mapStatus(status)" variant="flat">
-        <div class="text-right" style="min-width: 40px;">{{ count }}</div>
+        <div class="text-right" style="min-width: 40px;">{{ count || 0 }}</div>
         <v-tooltip :text="tooltip" location="top" activator="parent" />
     </v-chip>
 </template>
@@ -11,7 +11,7 @@ import { mapStatus } from '../mapper'
 
 defineProps<{
   status: string;
-  count: number;
+  count?: number;
   tooltip: string;
 }>()
 

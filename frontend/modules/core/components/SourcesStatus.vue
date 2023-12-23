@@ -118,7 +118,7 @@ import { type Filter, type FindingCounts, Status } from '../types';
 import { capilize } from "~/modules/core/layouthHelper";
 import { clusterKinds, kinds } from "~/modules/core/store/filter";
 
-const props = defineProps<{ data: FindingCounts; filter?: Filter; hideCluster?: boolean }>();
+const props = defineProps<{ data?: FindingCounts; filter?: Filter; hideCluster?: boolean }>();
 
 const status1 = ref(Status.PASS);
 const status2 = ref(Status.FAIL);
@@ -135,7 +135,7 @@ const totals = ref(initTotals());
 const sources = ref<string[]>([]);
 
 watch(() => props.data, (findings: FindingCounts) => {
-  if (!findings) return;
+  if (!findings) { findings = { total: 0, counts: [] }}
 
   const results = initTotals();
 
