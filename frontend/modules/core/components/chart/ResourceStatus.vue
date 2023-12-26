@@ -17,19 +17,21 @@ const chart = computed(() => {
   const list: { [key: string]: { [key in Status]: number }} = {}
 
   props.data?.forEach(f => {
-    f.items.forEach(i => {
-      if (!list[i.source]) {
-        list[i.source] = {
+      if (!list[f.source]) {
+        list[f.source] = {
           [Status.PASS]: 0,
           [Status.SKIP]: 0,
           [Status.FAIL]: 0,
           [Status.WARN]: 0,
           [Status.ERROR]: 0,
-        }
       }
+    }
 
-      list[i.source][f.status] = i.count
-    })
+      list[f.source].pass +=f.pass
+      list[f.source].skip +=f.skip
+      list[f.source].fail +=f.fail
+      list[f.source].warn +=f.warn
+      list[f.source].error +=f.error
   })
 
   const ordered: any = Object.keys(list).sort((a,b) => a.localeCompare(b)).reduce((obj, k) => ({

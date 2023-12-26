@@ -24,35 +24,27 @@ const filter = inject<Ref<Filter>>(ResourceFilter, ref<Filter>({}))
 const kinds = inject<Ref<string[]>>(ClusterKinds, ref<string[]>([]))
 const statusColors = useStatusColors()
 
-const { data: sc, refresh } = useAPI(
+const { data, refresh } = useAPI(
     (api) => api.statusCount({
       ...filter.value,
       sources: props.source ? [props.source] : undefined,
       kinds: kinds.value.length ? kinds.value : undefined
     }), {
-      default: () => [
-        { status: Status.PASS, count: 0 },
-        { status: Status.WARN, count: 0 },
-        { status: Status.FAIL, count: 0 },
-        { status: Status.ERROR, count: 0 },
-      ],
+      default: () => ({
+        [Status.PASS]: 0,
+        [Status.WARN]: 0,
+        [Status.FAIL]: 0,
+        [Status.ERROR]: 0,
+      }),
     }
 );
 
-const statusCounts = computed<{ [status in Status]: number }>(() => {
-  return sc.value.reduce((acc, item) => {
-    if (item.status === Status.SKIP) return acc;
-
-    acc[item.status] = item.count
-
-    return acc
-  }, {
-    [Status.PASS]: 0,
-    [Status.WARN]: 0,
-    [Status.FAIL]: 0,
-    [Status.ERROR]: 0,
-  })
-})
+const statusCounts = computed<{ [status in Partial<Status>]: number }>(() => ({
+  [Status.PASS]: data.value.pass,
+  [Status.WARN]: data.value.warn,
+  [Status.FAIL]: data.value.fail,
+  [Status.ERROR]: data.value.error,
+}))
 
 
 watch(kinds, () => refresh())

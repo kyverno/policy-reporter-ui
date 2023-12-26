@@ -21,9 +21,10 @@ const props = defineProps<{ data: ResourceStatusCount[] }>()
 const statusColors = useStatusColors()
 const statusCounts = computed(() => {
   return props.data?.reduce<{ [status in Omit<Status, 'skip'>]: number }>((acc, item) => {
-    if (item.status === Status.SKIP) return acc;
-
-    acc[item.status] = item.items.reduce((s, i) => s + i.count, 0)
+    acc.pass += item.pass
+    acc.warn += item.warn
+    acc.fail += item.fail
+    acc.error += item.error
 
     return acc
   }, {

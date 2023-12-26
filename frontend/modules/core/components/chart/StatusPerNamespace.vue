@@ -37,11 +37,9 @@ const statusColors = useStatusColors()
 const chart = computed(() => {
   if (!data.value) return ({})
 
-  const list: { [key: string]: { [key in Status]: number }} = {}
-
   const ordered: any = Object.keys(data.value).sort((a,b) => a.localeCompare(b)).reduce((obj, k) => ({
     ...obj,
-    [k]: list[k]
+    [k]: data.value[k]
   }), {})
 
   const labels = Object.keys(ordered)
