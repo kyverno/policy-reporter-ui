@@ -1,8 +1,9 @@
 <template>
   <v-divider />
   <v-list-item :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.policy } }">
-    <template v-if="details" v-slot:prepend>
-      <v-btn class="mr-2" variant="text" :icon="!open ? `mdi-chevron-up` : `mdi-chevron-down`" @click.stop.prevent="open = !open"></v-btn>
+    <template v-slot:prepend>
+      <v-btn v-if="details" class="mr-2" variant="text" :icon="!open ? `mdi-chevron-up` : `mdi-chevron-down`" @click.stop.prevent="open = !open"></v-btn>
+      <AvatarSeverity :severity="item.severity ?? Severity.INFO" />
     </template>
     <v-list-item-title>
       {{ item.policy }}
@@ -18,7 +19,7 @@
 
 <script setup lang="ts">
 import { type PropType } from "vue";
-import { type PolicyResult, type Filter, Status } from "~/modules/core/types";
+import { type PolicyResult, type Filter, Status, Severity } from "~/modules/core/types";
 
 const open = ref(false)
 

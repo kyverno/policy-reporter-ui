@@ -37,7 +37,7 @@ const filter = computed(() => ({
   kinds: [...kinds.value, ...clusterKinds.value],
 }))
 
-const namespaces = await callAPI((api) => api.namespaces(route.params.source))
+const namespaces = await callAPI((api) => api.namespaces({ sources: [route.params.source] }))
 
 const { data, refresh } = useAPI((api) => api.countFindings(filter.value),
     {

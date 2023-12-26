@@ -6,13 +6,16 @@
 import type { PropType } from "vue";
 import { Pie } from 'vue-chartjs';
 import { type SourceFindings, Status } from '../../types'
-import { mapStatus } from "../../mapper";
 import { capilize } from "../../layouthHelper";
+import { useStatusColors } from "~/modules/core/composables/theme";
 
 const props = defineProps({
   findings: { type: Object as PropType<SourceFindings>, required: true, default: () => ({ counts: {}, total: 0 }) },
   title: { type: String, required: false },
 })
+
+const chartColors = useChartColors()
+const statusColors = useStatusColors()
 
 const chart = computed(() => {
   if (!props.findings) return ({})
@@ -27,7 +30,7 @@ const chart = computed(() => {
 
   const data = Object.values(values).filter(c => !!c)
 
-  const colors = Object.keys(values).filter(v => values[v]).map(s => mapStatus(s))
+  const colors = Object.keys(values).filter(v => values[v]).map(s => statusColors.value[s])
   const labels = Object.keys(values).filter(v => values[v]).map(s => capilize(s))
 
   return {
@@ -38,6 +41,9 @@ const chart = computed(() => {
       ]
     },
     options: {
+      color: chartColors.value.color,
+      borderColor: chartColors.value.borderColor,
+      backgroundColor: chartColors.value.backgroundColor,
       responsive: true,
       maintainAspectRatio: false,
       plugins: {

@@ -1,7 +1,7 @@
 <template>
   <template v-for="item in data" :key="item.source">
     <v-divider />
-    <v-list-item class="bg-grey-lighten-4">
+    <v-list-item :class="bg">
       <v-list-item-title>{{ capilize(item.source) }}</v-list-item-title>
       <template v-slot:append>
         <ResultChip :status="Status.PASS" :count="item.pass" tooltip="pass results" />
@@ -18,6 +18,8 @@ import { type Filter, Status } from '../types'
 import { capilize } from "../layouthHelper";
 
 const props = defineProps<{ id: string; filter?: Filter; }>()
+
+const bg = useBGColor()
 
 const { data } = useAPI(
     (api) => api.resourceResults(props.id, props.filter),

@@ -21,6 +21,7 @@ export default defineNuxtPlugin(async () => {
   const store = useConfigStore()
 
   store.setConfig(apiConfig)
+  store.setDisplayMode(apiConfig.displayMode)
 
   return {
     provide: {

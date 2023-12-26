@@ -14,22 +14,8 @@
               divided
               variant="outlined"
           >
-            <v-btn
-                :color="mapStatus(Status.PASS)"
-                clss="py-1"
-                size="small"
-                v-if="totals[Status.PASS]"
-                :value="Status.PASS"
-            >{{ Status.PASS }}</v-btn
-            >
-            <v-btn
-                :color="mapStatus(Status.SKIP)"
-                clss="py-1"
-                size="small"
-                v-if="totals[Status.SKIP]"
-                :value="Status.SKIP"
-            >{{ Status.SKIP }}</v-btn
-            >
+            <status-btn v-if="totals[Status.PASS]" :status="Status.PASS" />
+            <status-btn v-if="totals[Status.SKIP]" :status="Status.SKIP" />
           </v-btn-toggle>
         </v-card-actions>
       </v-card>
@@ -48,30 +34,9 @@
               divided
               variant="outlined"
           >
-            <v-btn
-                :color="mapStatus(Status.FAIL)"
-                clss="py-1"
-                size="small"
-                v-if="totals[Status.FAIL]"
-                :value="Status.FAIL"
-            >{{ Status.FAIL }}</v-btn
-            >
-            <v-btn
-                :color="mapStatus(Status.WARN)"
-                clss="py-1"
-                size="small"
-                v-if="totals[Status.WARN]"
-                :value="Status.WARN"
-            >{{ Status.WARN }}</v-btn
-            >
-            <v-btn
-                :color="mapStatus(Status.ERROR)"
-                clss="py-1"
-                size="small"
-                v-if="totals[Status.ERROR]"
-                :value="Status.ERROR"
-            >{{ Status.ERROR }}</v-btn
-            >
+            <status-btn v-if="totals[Status.FAIL]" :status="Status.FAIL" />
+            <status-btn v-if="totals[Status.WARN]" :status="Status.WARN" />
+            <status-btn v-if="totals[Status.ERROR]" :status="Status.ERROR" />
           </v-btn-toggle>
         </v-card-actions>
       </v-card>
@@ -113,10 +78,9 @@
 </template>
 
 <script setup lang="ts">
-import { mapStatus } from '../mapper';
 import { type Filter, type FindingCounts, Status } from '../types';
 import { capilize } from "~/modules/core/layouthHelper";
-import { clusterKinds, kinds } from "~/modules/core/store/filter";
+import StatusBtn from "~/components/StatusBtn.vue";
 
 const props = defineProps<{ data?: FindingCounts; filter?: Filter; hideCluster?: boolean }>();
 

@@ -72,7 +72,12 @@ const data = computed(() => ({
   datasets: dataset.value
 }))
 
+const chartColors = useChartColors()
+
 const options = computed(() => ({
+  color: chartColors.value.color,
+  borderColor: chartColors.value.borderColor,
+  backgroundColor: chartColors.value.backgroundColor,
   responsive: true,
   maintainAspectRatio: false,
   plugins: {

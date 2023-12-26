@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-row>
       <v-col v-for="(count, status) in statusCounts" :key="status" cols="12" sm="6" md="3">
-        <v-card flat :title="`${status} results`" class="text-white text-center" :style="`background-color: ${mapStatus(status as Status)}`">
+        <v-card flat :title="`${status} results`" class="text-white text-center" :style="`background-color: ${statusColors[status]}`">
           <v-card-text class="text-h3 my-4">
             {{ count }}
           </v-card-text>
@@ -13,12 +13,12 @@
 </template>
 
 <script setup lang="ts">
-import { mapStatus } from "../../mapper";
 import { type ResourceStatusCount, Status } from "~/modules/core/types";
-import { type PropType } from "vue";
+import { useStatusColors } from "~/modules/core/composables/theme";
 
 const props = defineProps<{ data: ResourceStatusCount[] }>()
 
+const statusColors = useStatusColors()
 const statusCounts = computed(() => {
   return props.data?.reduce<{ [status in Omit<Status, 'skip'>]: number }>((acc, item) => {
     if (item.status === Status.SKIP) return acc;

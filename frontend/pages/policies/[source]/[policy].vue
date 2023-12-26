@@ -3,7 +3,7 @@
     <v-row>
       <v-col>
         <v-card elevation="2" rounded>
-          <v-toolbar color="indigo-darken-4">
+          <v-toolbar color="header">
             <v-toolbar-title>
               {{ route.params.source }}: {{ route.params.policy }}
             </v-toolbar-title>
@@ -46,7 +46,7 @@ const { data: findings, refresh: findingRefresh } = useAPI((api) => api.countFin
   default: () => ({ total: 0, counts: [] })
 });
 
-const { data, refresh } = useAPI((api) => api.namespaces(route.params.source as string, filter.value));
+const { data, refresh } = useAPI((api) => api.namespaces(filter.value));
 
 watch(filter, (n, o) => execOnChange(n, o, () => {
   refresh()

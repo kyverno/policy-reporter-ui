@@ -29,7 +29,7 @@
             <chip-severity v-if="value" @click="searchText = value" :severity="value" />
           </template>
           <template #expanded-row="{ columns, item }">
-            <tr class="table-expand-text">
+            <tr :class="bg">
               <td :colspan="columns.length" class="py-3">
                 <div v-if="item.hasProps">
                   <v-card v-if="item.message" variant="flat">
@@ -39,7 +39,7 @@
                   </v-card>
                   <div>
                     <template v-for="(value, label) in item.chips"  :key="label">
-                      <property-chip :label="label as string" :value="value" class="mr-2 mt-2 rounded-xl" />
+                      <property-chip :label="label as string" :value="value" class="mr-2 mt-2 rounded-lg" />
                     </template>
                     <template v-for="(value, label) in item.cards"  :key="label">
                       <property-card :label="label as string" :value="value" class="mt-2" />
@@ -69,6 +69,8 @@ const props = defineProps<{
   resource: string;
   Status?: Status;
 }>()
+
+const bg = useBGColor()
 
 const options = reactive({
   itemsPerPage: 10,
@@ -111,13 +113,3 @@ const headers = [
   { title: 'Status', key: 'status', width: '17%' }
 ]
 </script>
-
-<style>
-.table-expand-text {
-  background-color: #f5f5f5;
-
-  &:hover {
-    background-color: #f5f5f5 !important;
-  }
-}
-</style>

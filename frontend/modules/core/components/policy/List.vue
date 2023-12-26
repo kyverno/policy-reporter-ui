@@ -46,5 +46,5 @@ const { data, refresh, pending } = useAPI(
     { default: () => ([]) }
 );
 
-watch(combinedFilter, (o, n) => console.log(o,n) || execOnChange(o, n, () => refresh()))
+watch(combinedFilter, (o, n) => execOnChange(o, n, () => refresh()))
 </script>

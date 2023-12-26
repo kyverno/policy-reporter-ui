@@ -6,13 +6,14 @@
 import { Bar } from 'vue-chartjs'
 import { type ResourceStatusCount, Status } from '../../types'
 import { capilize } from "../../layouthHelper"
-import { mapStatus } from '../../mapper'
-import type { PropType } from "vue";
+import { useStatusColors } from "~/modules/core/composables/theme";
 
 const props = defineProps<{ data: ResourceStatusCount[] }>()
 
-const chart = computed(() => {
+const chartColors = useChartColors()
+const statusColors = useStatusColors()
 
+const chart = computed(() => {
   const list: { [key: string]: { [key in Status]: number }} = {}
 
   props.data?.forEach(f => {
@@ -39,10 +40,10 @@ const chart = computed(() => {
   const sources = Object.keys(ordered)
 
   const sets: { [key in Omit<Status, Status.SKIP>]: { data: number[]; label: string; backgroundColor: string } } = {
-    [Status.PASS]: { data: [], label: capilize(Status.PASS), backgroundColor: mapStatus(Status.PASS)},
-    [Status.FAIL]: { data: [], label: capilize(Status.FAIL), backgroundColor: mapStatus(Status.FAIL)},
-    [Status.WARN]: { data: [], label: capilize(Status.WARN), backgroundColor: mapStatus(Status.WARN)},
-    [Status.ERROR]: { data: [], label: capilize(Status.ERROR), backgroundColor: mapStatus(Status.ERROR)},
+    [Status.PASS]: { data: [], label: capilize(Status.PASS), backgroundColor: statusColors.value.pass },
+    [Status.FAIL]: { data: [], label: capilize(Status.FAIL), backgroundColor: statusColors.value.fail },
+    [Status.WARN]: { data: [], label: capilize(Status.WARN), backgroundColor: statusColors.value.warn },
+    [Status.ERROR]: { data: [], label: capilize(Status.ERROR), backgroundColor: statusColors.value.error },
   }
 
   sources.forEach((source) => {
@@ -61,6 +62,9 @@ const chart = computed(() => {
       datasets: Object.values(sets)
     },
     options: {
+      color: chartColors.value.color,
+      borderColor: chartColors.value.borderColor,
+      backgroundColor: chartColors.value.backgroundColor,
       height: '100%',
       indexAxis: 'y',
       responsive: true,

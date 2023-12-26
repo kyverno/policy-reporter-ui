@@ -1,9 +1,9 @@
 export enum Severity {
-    INFO = 'low',
+    INFO = 'info',
     LOW = 'low',
     MEDIUM = 'medium',
     HIGH = 'high',
-    CRITICAL = 'high',
+    CRITICAL = 'critical',
 }
 
 export enum Priority {
@@ -24,6 +24,7 @@ export enum Status {
 }
 
 export enum DisplayMode {
+    UNSPECIFIED = '',
     DARK = 'dark',
     LIGHT = 'light'
 }
@@ -68,7 +69,7 @@ export type PolicyResult = {
     policy: string;
     source: string;
     category: string;
-    severity?: string;
+    severity?: Severity;
     results: {
         pass?: number;
         warn?: number;
@@ -107,7 +108,7 @@ export type SourceConfig = {
 
 export type Config = {
     plugins: string[];
-    displayMode: DisplayMode | '';
+    displayMode: DisplayMode;
     views: ViewsCofig;
     clusters: Cluster[];
     sources: SourceConfig[];
@@ -154,6 +155,10 @@ export type NamespaceCounter = { namespaces: string[]; counts: number[] };
 export type NamespacedStatusCount = {
     status: Status;
     items: Array<{ namespace: string; count: number; }>
+}
+
+export type NamespaceStatusCount = {
+    [key: string]: { [status in Status]: number }
 }
 
 export type ResourceStatusCount = {

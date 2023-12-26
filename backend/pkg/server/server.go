@@ -7,8 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gosimple/slug"
+	"go.uber.org/zap"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/namespaces"
+	"github.com/kyverno/policy-reporter-ui/pkg/core/client"
 	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
 )
 
@@ -17,6 +18,7 @@ type APIHandler interface {
 }
 
 type Server struct {
+	clients map[string]*client.Client
 	engine  *gin.Engine
 	api     *gin.RouterGroup
 	proxies *gin.RouterGroup
@@ -35,8 +37,11 @@ func (s *Server) RegisterUI(path string) {
 	})
 }
 
-func (s *Server) RegisterCluster(name string, proxies map[string]*httputil.ReverseProxy) {
-	group := s.proxies.Group(slug.Make(name))
+func (s *Server) RegisterCluster(name string, client *client.Client, proxies map[string]*httputil.ReverseProxy) {
+	id := slug.Make(name)
+
+	s.clients[id] = client
+	group := s.proxies.Group(id)
 
 	for p, rp := range proxies {
 		group.Group(p).Any("/*proxy", func(ctx *gin.Context) {
@@ -47,13 +52,15 @@ func (s *Server) RegisterCluster(name string, proxies map[string]*httputil.Rever
 			rp.ServeHTTP(ctx.Writer, req)
 		})
 	}
+
+	zap.L().Debug("cluster registered", zap.String("name", name), zap.String("id", id))
 }
 
-func (s *Server) RegisterCustomBoards(client namespaces.Client, configs map[string]api.CustomBoard) {
-	handler := api.NewCustomBoardHandler(client, configs)
+func (s *Server) RegisterCustomBoards(configs map[string]api.CustomBoard) {
+	handler := api.NewCustomBoardHandler(s.clients, configs)
 
 	s.api.GET("custom-board/list", handler.List)
-	s.api.GET("custom-board/:id/details", handler.Details)
+	s.api.GET("custom-board/:cluster/:id", handler.Details)
 }
 
 func (s *Server) RegisterAPI(c api.Config) {
@@ -62,6 +69,7 @@ func (s *Server) RegisterAPI(c api.Config) {
 
 func NewServer(engine *gin.Engine, port int) *Server {
 	return &Server{
+		clients: make(map[string]*client.Client),
 		engine:  engine,
 		api:     engine.Group("/api"),
 		proxies: engine.Group("/proxy"),

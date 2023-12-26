@@ -1,5 +1,5 @@
 <template>
-  <v-chip variant="flat" pill color="indigo-lighten-1">
+  <v-chip variant="flat" color="indigo-lighten-1" :label="true">
     <span class="inline-block mr-1">{{ capilize(label) }}:</span> <a v-if="isURL(value)" :href="value" target="_blank" class="text-white">{{ value }}</a><span v-else>{{ value }}</span>
   </v-chip>
 </template>

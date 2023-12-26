@@ -13,10 +13,10 @@ import (
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/namespaces"
+	"github.com/kyverno/policy-reporter-ui/pkg/core/client"
+	"github.com/kyverno/policy-reporter-ui/pkg/core/proxy"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/logging"
-	"github.com/kyverno/policy-reporter-ui/pkg/proxy"
 	"github.com/kyverno/policy-reporter-ui/pkg/server"
 	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
@@ -32,23 +32,51 @@ type Resolver struct {
 	kubeConfig string
 	devMode    bool
 
-	secrets    secrets.Client
-	namespaces namespaces.Client
+	secrets secrets.Client
 
 	k8sConfig *rest.Config
 	clientset *k8s.Clientset
 }
 
-func (r *Resolver) ExternalProxies(ctx context.Context, cluster Cluster) (map[string]*httputil.ReverseProxy, error) {
+func (r *Resolver) CoreClient(cluster Cluster) (*client.Client, error) {
+	options := []client.ClientOption{
+		client.WithBaseURL(cluster.Host),
+	}
+
+	if cluster.Certificate != "" {
+		options = append(options, client.WithCertificate(cluster.Certificate))
+	} else if cluster.SkipTLS {
+		options = append(options, client.WithSkipTLS())
+	}
+
+	if cluster.BasicAuth.Username != "" {
+		options = append(options, client.WithBaseAuth(client.BasicAuth{
+			Username: cluster.BasicAuth.Username,
+			Password: cluster.BasicAuth.Password,
+		}))
+	}
+
+	if r.config.Logging.Enabled {
+		options = append(options, client.WithLogging())
+	}
+
+	return client.New(options)
+}
+
+func (r *Resolver) LoadClusterSecret(ctx context.Context, cluster Cluster) (Cluster, error) {
 	if cluster.SecretRef != "" {
 		values, err := r.LoadSecret(ctx, cluster.SecretRef)
 		if err != nil {
-			return nil, err
+			return cluster, err
 		}
 
 		cluster = cluster.FromValues(values)
 	}
 
+	return cluster, nil
+}
+
+func (r *Resolver) ExternalProxies(cluster Cluster) (map[string]*httputil.ReverseProxy, error) {
 	if cluster.Host == "" {
 		return nil, ErrMissingAPI
 	}
@@ -172,21 +200,6 @@ func (r *Resolver) Clientset() (*k8s.Clientset, error) {
 	return r.clientset, nil
 }
 
-func (r *Resolver) NamespaceClient() (namespaces.Client, error) {
-	if r.namespaces != nil {
-		return r.namespaces, nil
-	}
-
-	clientset, err := r.Clientset()
-	if err != nil {
-		return nil, err
-	}
-
-	r.namespaces = namespaces.NewClient(clientset.CoreV1().Namespaces())
-
-	return r.namespaces, nil
-}
-
 func (r *Resolver) InitSecretClient() error {
 	clientset, err := r.Clientset()
 	if err != nil {
@@ -210,13 +223,21 @@ func (r *Resolver) Server(ctx context.Context) *server.Server {
 	serv := server.NewServer(engine, r.config.Server.Port)
 
 	for _, cluster := range r.config.Clusters {
-		proxies, err := r.ExternalProxies(ctx, cluster)
+		cluster, err := r.LoadClusterSecret(ctx, cluster)
+		if err != nil {
+			zap.L().Error("failed to load cluster secret", zap.Error(err), zap.String("cluser", cluster.Name))
+			continue
+		}
+
+		proxies, err := r.ExternalProxies(cluster)
 		if err != nil {
 			zap.L().Error("failed to resolve proxies", zap.Error(err), zap.String("cluser", cluster.Name))
 			continue
 		}
 
-		serv.RegisterCluster(cluster.Name, proxies)
+		client, err := r.CoreClient(cluster)
+
+		serv.RegisterCluster(cluster.Name, client, proxies)
 	}
 
 	if !r.config.UI.Disabled {
@@ -227,13 +248,6 @@ func (r *Resolver) Server(ctx context.Context) *server.Server {
 	serv.RegisterAPI(MapConfig(r.config))
 
 	if len(r.config.CustomBoards) > 0 {
-		client, err := r.NamespaceClient()
-		if err != nil {
-			zap.L().Error("failed to create namespace client", zap.Error(err))
-
-			return serv
-		}
-
 		configs := make(map[string]api.CustomBoard, len(r.config.CustomBoards))
 		for _, c := range r.config.CustomBoards {
 			id := slug.Make(c.Name)
@@ -253,7 +267,7 @@ func (r *Resolver) Server(ctx context.Context) *server.Server {
 				}}
 		}
 
-		serv.RegisterCustomBoards(client, configs)
+		serv.RegisterCustomBoards(configs)
 	}
 
 	return serv

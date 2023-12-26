@@ -3,7 +3,7 @@
     <v-row>
       <v-col>
         <v-card elevation="2" rounded>
-          <div  class="bg-indigo">
+          <div class="bg-header">
             <v-card-title>
               <v-container fluid class="ma-0 pa-0">
                 <v-row>
@@ -16,7 +16,7 @@
                 </v-row>
               </v-container>
             </v-card-title>
-            <v-card-subtitle class="pb-4">{{ data?.resource.apiVersion }} {{ data.resource.kind }}</v-card-subtitle>
+            <v-card-subtitle class="pb-4 text-grey-lighten-2" style="opacity: 1">{{ data?.resource.apiVersion }} {{ data.resource.kind }}</v-card-subtitle>
           </div>
           <v-card-text>
             <resource-result-counts :data="data.counts as any" />
@@ -55,8 +55,15 @@ const filter = computed(() => {
   if (route.query.source && typeof route.query.source === 'string') { f.sources = [route.query.source] }
   if (route.query.category && typeof route.query.category === 'string') { f.categories = [route.query.category] }
 
-  if (route.query.sources && typeof route.query.source === 'object') { f.sources = route.query.sources }
-  if (route.query.categories && typeof route.query.category === 'object') { f.categories = route.query.category }
+  if (route.query.categories) {
+    if (typeof route.query.categories === 'object') { f.categories = route.query.categories }
+    if (typeof route.query.categories === 'string') { f.categories = [route.query.categories] }
+  }
+
+  if (route.query.sources) {
+    if (typeof route.query.sources === 'object') { f.sources = route.query.sources }
+    if (typeof route.query.sources === 'string') { f.sources = [route.query.sources] }
+  }
 
   return f
 })
@@ -66,7 +73,7 @@ const { data } = useAPI(
       let [resource, counts, sources] = await Promise.all([
         api.resource(route.params.id as string),
         api.resourceStatusCount(route.params.id as string, filter.value),
-        api.sources(route.params.id as string)
+        api.sources(route.params.id as string, filter.value)
       ]);
 
       if (route.query.source) {

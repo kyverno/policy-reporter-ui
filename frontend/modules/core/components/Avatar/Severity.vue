@@ -1,7 +1,8 @@
 <template>
-  <v-chip :color="color" dark v-bind="$attrs">
-    {{ severity }}
-  </v-chip>
+  <v-avatar :color="color" dark v-bind="$attrs" variant="tonal">
+    {{ severity.charAt(0).toUpperCase() }}
+    <v-tooltip :text="`${severity} severity`" location="top" activator="parent" />
+  </v-avatar>
 </template>
 
 <script lang="ts" setup>

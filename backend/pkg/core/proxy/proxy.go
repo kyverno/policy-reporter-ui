@@ -2,14 +2,13 @@ package proxy
 
 import (
 	"crypto/tls"
-	"crypto/x509"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
 	"time"
 
+	"github.com/kyverno/policy-reporter-ui/pkg/core/utils"
 	"go.uber.org/zap"
 )
 
@@ -49,16 +48,13 @@ func WithAuth(username, password string) DirectorOption {
 
 func WithCertificate(certificatePath string) ProxyOption {
 	return func(proxy *httputil.ReverseProxy) {
-		caCert, err := os.ReadFile(certificatePath)
+		pool, err := utils.LoadCerts(certificatePath)
 		if err != nil {
 			zap.L().Error("failed to read certificate", zap.Error(err), zap.String("path", certificatePath))
 			return
 		}
 
-		caCertPool := x509.NewCertPool()
-		caCertPool.AppendCertsFromPEM(caCert)
-
-		proxy.Transport.(*http.Transport).TLSClientConfig.RootCAs = caCertPool
+		proxy.Transport.(*http.Transport).TLSClientConfig.RootCAs = pool
 	}
 }
 

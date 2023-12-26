@@ -23,7 +23,7 @@ const statusToDarkColor: { [status in Status]: string } = {
   [Status.PASS]: '#1B5E20',
   [Status.WARN]: '#FF6F00',
   [Status.FAIL]: '#D32F2F',
-  [Status.ERROR]: '#B71C1C'
+  [Status.ERROR]: '#950011'
 }
 
 export const mapPriority = (priority: Priority): string => priorityToColor[priority] || priorityToColor[Priority.DEBUG]

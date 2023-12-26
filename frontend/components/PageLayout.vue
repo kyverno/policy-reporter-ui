@@ -3,7 +3,7 @@
     <v-row>
       <v-col>
         <v-card>
-          <v-toolbar color="indigo-darken-4" elevation="2">
+          <v-toolbar color="header" elevation="2">
             <v-toolbar-title>{{ title }}</v-toolbar-title>
             <template #append>
               <FormKindAutocomplete style="min-width: 300px; max-width: 100%; margin-right: 15px;" v-model="kinds" :source="source" />

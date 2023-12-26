@@ -9,46 +9,37 @@ import { capilize } from "../../layouthHelper"
 import { mapStatus } from '../../mapper'
 import { NamespacedKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
 import type { Ref } from "vue";
+import { execOnChange } from "~/helper/compare";
+import { useStatusColors } from "~/modules/core/composables/theme";
 
 const props = defineProps<{ title?: string; source: string }>()
 
 const filter = inject<Ref<Filter>>(ResourceFilter, ref<Filter>({}))
 const kinds = inject<Ref<string[]>>(NamespacedKinds, ref<string[]>([]))
 
-const { data, refresh } = useAPI<NamespacedStatusCount[]>(
-    (api) => api.namespacedStatusCount({
-      ...filter.value,
-      sources: [props.source],
-      kinds: kinds.value.length ? kinds.value : undefined
-    }), {
-      default: () => [],
+const computedFilter = computed(() => ({
+  ...filter.value,
+  sources: [props.source],
+  kinds: kinds.value.length ? kinds.value : undefined
+}))
+
+const { data, refresh } = useAPI(
+    (api) => api.namespacedStatusCount(computedFilter.value), {
+      default: () => ({}),
     }
 );
 
-watch(kinds, () => refresh())
+watch(computedFilter, (n,o) => execOnChange(n,o, () => refresh()))
+
+const colors = useChartColors()
+const statusColors = useStatusColors()
 
 const chart = computed(() => {
   if (!data.value) return ({})
 
   const list: { [key: string]: { [key in Status]: number }} = {}
 
-  data.value.forEach(f => {
-    f.items.forEach(i => {
-      if (!list[i.namespace]) {
-        list[i.namespace] = {
-          [Status.PASS]: 0,
-          [Status.SKIP]: 0,
-          [Status.FAIL]: 0,
-          [Status.WARN]: 0,
-          [Status.ERROR]: 0,
-        }
-      }
-
-      list[i.namespace][f.status] = i.count
-    })
-  })
-
-  const ordered: any = Object.keys(list).sort((a,b) => a.localeCompare(b)).reduce((obj, k) => ({
+  const ordered: any = Object.keys(data.value).sort((a,b) => a.localeCompare(b)).reduce((obj, k) => ({
     ...obj,
     [k]: list[k]
   }), {})
@@ -56,10 +47,10 @@ const chart = computed(() => {
   const labels = Object.keys(ordered)
 
   const sets: { [key in Omit<Status, Status.SKIP>]: { data: number[]; label: string; backgroundColor: string } } = {
-    [Status.PASS]: { data: [], label: capilize(Status.PASS), backgroundColor: mapStatus(Status.PASS)},
-    [Status.FAIL]: { data: [], label: capilize(Status.FAIL), backgroundColor: mapStatus(Status.FAIL)},
-    [Status.WARN]: { data: [], label: capilize(Status.WARN), backgroundColor: mapStatus(Status.WARN)},
-    [Status.ERROR]: { data: [], label: capilize(Status.ERROR), backgroundColor: mapStatus(Status.ERROR)},
+    [Status.PASS]: { data: [], label: capilize(Status.PASS), backgroundColor: statusColors.value.pass },
+    [Status.FAIL]: { data: [], label: capilize(Status.FAIL), backgroundColor: statusColors.value.fail },
+    [Status.WARN]: { data: [], label: capilize(Status.WARN), backgroundColor: statusColors.value.warn },
+    [Status.ERROR]: { data: [], label: capilize(Status.ERROR), backgroundColor: statusColors.value.error },
   }
 
   labels.forEach((ns) => {
@@ -78,6 +69,9 @@ const chart = computed(() => {
       datasets: Object.values(sets)
     },
     options: {
+      color: colors.value.color,
+      borderColor: colors.value.borderColor,
+      backgroundColor: colors.value.backgroundColor,
       height: '100%',
       indexAxis: 'y',
       responsive: true,

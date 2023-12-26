@@ -1,6 +1,6 @@
 <template>
   <v-select
-    :model-value="(displayMode as Readonly<DisplayMode>)"
+    :model-value="config.theme"
     :items="[DisplayMode.LIGHT, DisplayMode.DARK]"
     variant="outlined"
     hide-details
@@ -13,8 +13,10 @@
 
 <script lang="ts" setup>
 import { DisplayMode } from '../../types'
-import { displayMode } from '~/store/session'
+import { useConfigStore } from "~/store/config";
 
-const input = (mode: DisplayMode) => { displayMode.value = mode }
+const config = useConfigStore()
+
+const input = (mode: DisplayMode) => { config.setDisplayMode(mode) }
 
 </script>

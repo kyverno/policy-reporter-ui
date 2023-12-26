@@ -27,7 +27,8 @@ const clusterKinds = ref<string[]>([])
 
 const route = useRoute()
 
-const namespaces = await callAPI((api) => api.namespaces(route.params.source, {
+const namespaces = await callAPI((api) => api.namespaces({
+  sources: [route.params.source],
   kinds: kinds.value.length ? kinds.value : undefined
 }))
 

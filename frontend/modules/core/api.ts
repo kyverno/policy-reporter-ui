@@ -16,7 +16,7 @@ import {
   type Source,
   type CustomBoard,
   type CustomBoardDetails,
-  type PolicyResult
+  type PolicyResult, type NamespaceStatusCount
 } from './types'
 
 type APIConfig = { baseURL: string; prefix?: string; };
@@ -51,8 +51,8 @@ export class CoreAPI {
     return $fetch<string[]>('/proxy/'+this.cluster+'/core/v1/categories', { baseURL: this.baseURL, params: { sources: [source], kinds: kind ? [kind] : undefined } })
   }
 
-  namespaces (source?: string, filter?: Filter) {
-    return $fetch<string[]>('/proxy/'+this.cluster+'/core/v1/namespaces', { baseURL: this.baseURL, params: { ...filter, sources: source ? [source] : undefined } })
+  namespaces (filter?: Filter) {
+    return $fetch<string[]>('/proxy/'+this.cluster+'/core/v1/namespaces', { baseURL: this.baseURL, params: { ...filter } })
   }
 
   ruleStatusCount (policy: string, rule: string) {
@@ -76,7 +76,7 @@ export class CoreAPI {
   }
 
   namespacedStatusCount (filter?: Filter) {
-    return $fetch<NamespacedStatusCount[]>('/proxy/'+this.cluster+'/core/v1/namespaced-resources/status-counts', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes) } })
+    return $fetch<NamespaceStatusCount>('/proxy/'+this.cluster+'/core/v2/namespace-scoped/status-counts', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes) } })
   }
 
   namespacedResults (filter?: Filter, pagination?: Pagination) {
@@ -120,15 +120,15 @@ export class CoreAPI {
   }
 
   resourceResults (id: string, filter?: Filter) {
-    return $fetch<ResourceResult[]>('/proxy/'+this.cluster+'/core/v1/resource-results', { baseURL: this.baseURL, params: { id, filter } })
+    return $fetch<ResourceResult[]>('/proxy/'+this.cluster+'/core/v1/resource-results', { baseURL: this.baseURL, params: { id, ...filter } })
   }
 
   resourceStatusCount (id: string, filter?: Filter) {
-    return $fetch<ResourceStatusCount[]>('/proxy/'+this.cluster+'/core/v1/resource-status-counts', { baseURL: this.baseURL, params: { id, filter }})
+    return $fetch<ResourceStatusCount[]>('/proxy/'+this.cluster+'/core/v1/resource-status-counts', { baseURL: this.baseURL, params: { id, ...filter }})
   }
 
   resource (id: string, filter?: Filter) {
-    return $fetch<Resource>('/proxy/'+this.cluster+'/core/v1/resource', { baseURL: this.baseURL, params: { id, ...applyExcludes(filter, this.nsExcludes) }})
+    return $fetch<Resource>('/proxy/'+this.cluster+'/core/v1/resource', { baseURL: this.baseURL, params: { id, ...filter }})
   }
 
   results (id: string, pagination?: Pagination, filter?: Filter) {
@@ -148,7 +148,7 @@ export class CoreAPI {
   }
 
   customBoard (id: string) {
-    return $fetch<CustomBoardDetails>(`/api/custom-board/${id}/details`, { baseURL: this.baseURL })
+    return $fetch<CustomBoardDetails>(`/api/custom-board/${this.cluster}/${id}`, { baseURL: this.baseURL })
   }
 
   setPrefix (prefix: string): void {

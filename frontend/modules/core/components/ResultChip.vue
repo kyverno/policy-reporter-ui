@@ -1,5 +1,5 @@
 <template>
-    <v-chip :prepend-icon="`mdi-${icons[status]}`" :color="mapStatus(status)" variant="flat">
+    <v-chip :prepend-icon="`mdi-${icons[status]}`" :color="color" variant="flat">
         <div class="text-right" style="min-width: 40px;">{{ count || 0 }}</div>
         <v-tooltip :text="tooltip" location="top" activator="parent" />
     </v-chip>
@@ -7,13 +7,14 @@
 
 <script setup lang="ts">
 import { Status } from '../types'
-import { mapStatus } from '../mapper'
 
-defineProps<{
-  status: string;
+const props = defineProps<{
+  status: Status;
   count?: number;
   tooltip: string;
 }>()
+
+const color = useStatusMapper(props.status)
 
 const icons = {
     [Status.PASS]: 'check',

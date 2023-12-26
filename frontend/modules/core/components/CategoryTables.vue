@@ -2,7 +2,7 @@
   <v-row>
     <v-col cols="12">
       <v-card>
-        <v-toolbar color="primary">
+        <v-toolbar color="category">
           <v-toolbar-title>{{ capilize(source.name) }}</v-toolbar-title>
           <template #append>
             <CollapseBtn v-model="open" />

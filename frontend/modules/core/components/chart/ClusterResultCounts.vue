@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-row>
       <v-col v-for="(count, status) in statusCounts" :key="status" cols="12" sm="6" md="3">
-        <v-card flat :title="`${status} results`" class="text-white text-center" :style="`background-color: ${mapStatus(status as Status)}`">
+        <v-card flat :title="`${status} results`" class="text-white text-center" :style="`background-color: ${statusColors[status]}`">
           <v-card-text class="text-h3 my-4">
             {{ count }}
           </v-card-text>
@@ -13,15 +13,16 @@
 </template>
 
 <script setup lang="ts">
-import { mapStatus } from "../../mapper";
 import { type Filter, Status } from "~/modules/core/types";
 import type { Ref } from "vue";
 import { ClusterKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
+import { useStatusColors } from "~/modules/core/composables/theme";
 
 const props = defineProps<{ source?: string; }>()
 
 const filter = inject<Ref<Filter>>(ResourceFilter, ref<Filter>({}))
 const kinds = inject<Ref<string[]>>(ClusterKinds, ref<string[]>([]))
+const statusColors = useStatusColors()
 
 const { data: sc, refresh } = useAPI(
     (api) => api.statusCount({

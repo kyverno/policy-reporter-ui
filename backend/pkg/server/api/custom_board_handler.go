@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/namespaces"
+	"github.com/kyverno/policy-reporter-ui/pkg/core/client"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
@@ -30,8 +30,8 @@ type CustomBoard struct {
 }
 
 type CustomBoardHandler struct {
-	nsClient namespaces.Client
-	configs  map[string]CustomBoard
+	clients map[string]*client.Client
+	configs map[string]CustomBoard
 }
 
 func (h *CustomBoardHandler) List(ctx *gin.Context) {
@@ -44,10 +44,15 @@ func (h *CustomBoardHandler) Details(ctx *gin.Context) {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
 	}
+	client, ok := h.clients[ctx.Param("cluster")]
+	if !ok {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
 
 	var namespaces []string
 	if len(config.Namespaces.Selector) > 0 {
-		ns, err := h.nsClient.List(ctx, config.Namespaces.Selector)
+		ns, err := client.ResolveNamespaceSelector(ctx, config.Namespaces.Selector)
 		if err != nil {
 			ctx.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -66,6 +71,6 @@ func (h *CustomBoardHandler) Details(ctx *gin.Context) {
 	})
 }
 
-func NewCustomBoardHandler(client namespaces.Client, configs map[string]CustomBoard) *CustomBoardHandler {
-	return &CustomBoardHandler{client, configs}
+func NewCustomBoardHandler(clients map[string]*client.Client, configs map[string]CustomBoard) *CustomBoardHandler {
+	return &CustomBoardHandler{clients, configs}
 }
