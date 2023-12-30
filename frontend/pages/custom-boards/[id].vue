@@ -1,69 +1,45 @@
 <template>
   <page-layout v-model:kinds="kinds"
-               :title="details.name"
-               :source="sources.length > 1 ? undefined : sources[0]"
-               ns-scoped
+               v-model:cluster-kinds="clusterKinds"
+               v-if="data"
   >
-    <SourcesStatus v-if="sources.length > 1" :hide-cluster="true" :data="data as FindingCounts" />
-    <SourceStatus v-if="sources.length === 1" :hide-cluster="true" :data="findings" />
-    <resource-scroller v-if="details" :list="namespaces">
+    <GraphSourceStatus v-if="data.singleSource" :data="data" :source="data.sources[0]" />
+    <GraphSourcesStatus v-else :data="data" />
+    <v-row v-if="data.clusterScope">
+      <v-col>
+        <LazyClusterResourceResultList :details="data.multiSource" />
+      </v-col>
+    </v-row>
+    <resource-scroller :list="data.namespaces" v-if="data.namespaces.length">
       <template #default="{ item }">
-        <LazyResourceResultList :namespace="item" :details="sources.length > 1" :filter="filter" />
+        <LazyResourceResultList :namespace="item" :details="data.multiSource" />
       </template>
     </resource-scroller>
   </page-layout>
 </template>
 
 <script setup lang="ts">
-import { callAPI, useAPI } from '~/modules/core/composables/api'
-import { type Filter, type FindingCounts } from "~/modules/core/types";
+import { useAPI } from '~/modules/core/composables/api'
 import ResourceScroller from "~/modules/core/components/ResourceScroller.vue";
-import { NamespacedKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
+import { onChange } from "~/helper/compare";
+import { ResourceFilter } from "~/modules/core/provider/dashboard";
 
 const route = useRoute()
+
 const kinds = ref<string[]>([])
+const clusterKinds = ref<string[]>([])
 
-const loading = ref(true)
-
-const { details, sources, namespaces, filterSource } = await Promise.all([
-  callAPI((api) => api.customBoard(route.params.id)),
-  callAPI((api) => api.sources().then((source) => source.map(s => s.name))),
-  callAPI((api) => api.namespaces()),
-]).then(([details, allSources, allNamespaces]) => {
-  const namespaces = details?.namespaces || allNamespaces || []
-
-  if (!details?.sources || !details?.sources.length) {
-    return { details, sources: allSources, namespaces, filterSource: false }
-  }
-
-  const sources = allSources.filter(s => details?.sources.some(d => s.toLowerCase() === d.toLowerCase())) || []
-
-  return {
-    details,
-    sources,
-    namespaces,
-    filterSource: allSources.length !== sources.length
-  }
-}).finally(() => { loading.value = false })
-
-
-const filter = computed<Filter>(() => ({
-  kinds: [...kinds.value],
-  namespaced: true,
-  namespaces: details?.namespaces?.length ? details?.namespaces : undefined,
-  sources: filterSource ? sources : undefined,
-  labels: Object.entries((details?.labels || {})).map(([label, value]) => `${label}:${value}`)
+const filter = computed(() => ({
+  kinds: kinds.value,
+  clusterKinds: clusterKinds.value
 }))
 
-const { data, refresh } = useAPI((api) => api.countFindings(filter.value), { default: () => ({ total: 0, counts: [] }) });
+const { data, refresh } = useAPI((api) => api.customBoard(route.params.id, filter.value))
 
-watch(filter, () => refresh())
+watch(filter, onChange(refresh))
 
-const findings = computed(() => {
-  if (data.value?.counts?.length) return data.value.counts[0];
-
-  return { source: sources[0], counts: {}, total: 0 }
-})
-
-provide(ResourceFilter, filter)
+provide(ResourceFilter, computed(() => ({
+  ...filter.value,
+  sources: data.value?.filterSources,
+})))
 </script>

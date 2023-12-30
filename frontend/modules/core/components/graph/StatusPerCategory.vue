@@ -4,42 +4,31 @@
 
 <script setup lang="ts">
 import { Bar } from 'vue-chartjs'
-import { type Filter, type NamespacedStatusCount, Status } from '../../types'
+import { type Source, Status } from '../../types'
 import { capilize } from "../../layouthHelper"
-import { mapStatus } from '../../mapper'
-import { NamespacedKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
-import type { Ref } from "vue";
-import { execOnChange } from "~/helper/compare";
 import { useStatusColors } from "~/modules/core/composables/theme";
 
-const props = defineProps<{ title?: string; source: string }>()
-
-const filter = inject<Ref<Filter>>(ResourceFilter, ref<Filter>({}))
-const kinds = inject<Ref<string[]>>(NamespacedKinds, ref<string[]>([]))
-
-const computedFilter = computed(() => ({
-  ...filter.value,
-  sources: [props.source],
-  kinds: kinds.value.length ? kinds.value : undefined
-}))
-
-const { data, refresh } = useAPI(
-    (api) => api.namespacedStatusCount(computedFilter.value), {
-      default: () => ({}),
-    }
-);
-
-watch(computedFilter, (n,o) => execOnChange(n,o, () => refresh()))
+const props = defineProps<{ source: Source }>()
 
 const colors = useChartColors()
 const statusColors = useStatusColors()
 
 const chart = computed(() => {
-  if (!data.value) return ({})
+  const list: { [key: string]: { [key in Status]: number }} = {}
 
-  const ordered: any = Object.keys(data.value).sort((a,b) => a.localeCompare(b)).reduce((obj, k) => ({
+  props.source.categories.forEach(f => {
+    list[f.name || 'other'] = {
+      [Status.PASS]: f.pass,
+      [Status.SKIP]: f.skip,
+      [Status.FAIL]: f.fail,
+      [Status.WARN]: f.warn,
+      [Status.ERROR]: f.error,
+    }
+  })
+
+  const ordered: any = Object.keys(list).sort((a,b) => a.localeCompare(b)).reduce((obj, k) => ({
     ...obj,
-    [k]: data.value[k]
+    [k]: list[k]
   }), {})
 
   const labels = Object.keys(ordered)
@@ -77,7 +66,7 @@ const chart = computed(() => {
       plugins: {
         title: {
           display: true,
-          text: `${props.title ?? capilize(props.source)} Results per Namespace`
+          text: `Results per Category`
         },
         legend: {
           display: true,
