@@ -11,6 +11,7 @@ type State = {
     sources: SourceConfig[];
     clusterSources: string[];
     namespaceSources: string[];
+    oauth: boolean;
 }
 
 export const useConfigStore = defineStore('config', {
@@ -21,6 +22,7 @@ export const useConfigStore = defineStore('config', {
     sources: [],
     clusterSources: [],
     namespaceSources: [],
+    oauth: false,
   }),
   getters: {
     multiCluster: (state: State) => state.clusters.length > 0,
@@ -38,6 +40,7 @@ export const useConfigStore = defineStore('config', {
     setConfig(config: Config) {
       this.clusters = config.clusters
       this.sources = config.sources
+      this.oauth = config.oauth
     },
     setDisplayMode(mode: DisplayMode) {
       if (!mode || mode === this.displayMode) return;

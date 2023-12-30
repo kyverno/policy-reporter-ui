@@ -3,6 +3,11 @@ import { join } from 'node:path'
 
 export default defineNuxtConfig({
   ssr: false,
+  router: {
+    options: {
+      hashMode: true
+    }
+  },
   devtools: { enabled: true },
   css: ['vuetify/lib/styles/main.sass', '@mdi/font/css/materialdesignicons.min.css'],
   build: { transpile: ["vuetify"] },

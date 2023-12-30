@@ -8,17 +8,16 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/gosimple/slug"
 	"go.uber.org/zap"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
+	"github.com/kyverno/policy-reporter-ui/pkg/auth"
 	"github.com/kyverno/policy-reporter-ui/pkg/core/client"
 	"github.com/kyverno/policy-reporter-ui/pkg/core/proxy"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/logging"
 	"github.com/kyverno/policy-reporter-ui/pkg/server"
-	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
@@ -146,7 +145,12 @@ func (r *Resolver) LoadBasicAuth(ctx context.Context, secretRef string) (*BasicA
 
 func (r *Resolver) LoadSecret(ctx context.Context, secretRef string) (secrets.Values, error) {
 	if r.secrets == nil {
-		return secrets.Values{}, ErrMissingClient
+		clientset, err := r.Clientset()
+		if err != nil {
+			return secrets.Values{}, err
+		}
+
+		r.secrets = secrets.NewClient(clientset.CoreV1().Secrets(r.config.Namespace))
 	}
 
 	values, err := r.secrets.Get(ctx, secretRef)
@@ -200,27 +204,55 @@ func (r *Resolver) Clientset() (*k8s.Clientset, error) {
 	return r.clientset, nil
 }
 
-func (r *Resolver) InitSecretClient() error {
-	clientset, err := r.Clientset()
-	if err != nil {
-		return err
+func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) ([]gin.HandlerFunc, error) {
+	if !r.config.OAuth.Enabled {
+		return make([]gin.HandlerFunc, 0), nil
 	}
 
-	zap.L().Info("secret client initialized")
-	r.secrets = secrets.NewClient(clientset.CoreV1().Secrets(r.config.Namespace))
+	oauth := r.config.OAuth
 
-	return nil
+	if oauth.SecretRef != "" {
+		values, err := r.LoadSecret(ctx, oauth.SecretRef)
+		if err != nil {
+			return nil, err
+		}
+
+		oauth = oauth.FromValues(values)
+	}
+
+	authenticator, err := auth.New(
+		oauth.Domain,
+		oauth.ClientID,
+		oauth.ClientSecret,
+		oauth.Redirect,
+		oauth.Scopes,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	auth.Setup(engine, authenticator)
+
+	return []gin.HandlerFunc{auth.Auth}, nil
 }
 
-func (r *Resolver) Server(ctx context.Context) *server.Server {
-	gin.SetMode(r.config.Server.Mode)
+func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
+	if !r.config.Server.Debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
-	engine := gin.Default()
+	engine := gin.New()
 	if r.config.Server.CORS {
 		engine.Use(cors.Default())
 	}
 
-	serv := server.NewServer(engine, r.config.Server.Port)
+	middleware, err := r.SetupOAuth(ctx, engine)
+	if err != nil {
+		zap.L().Error("failed to setup oauth", zap.Error(err))
+	}
+
+	serv := server.NewServer(engine, r.config.Server.Port, middleware)
 
 	for _, cluster := range r.config.Clusters {
 		cluster, err := r.LoadClusterSecret(ctx, cluster)
@@ -245,32 +277,12 @@ func (r *Resolver) Server(ctx context.Context) *server.Server {
 		serv.RegisterUI(r.config.UI.Path)
 	}
 
-	serv.RegisterAPI(MapConfig(r.config))
+	serv.RegisterAPI(
+		MapConfig(r.config),
+		MapCustomBoards(r.config.CustomBoards),
+	)
 
-	if len(r.config.CustomBoards) > 0 {
-		configs := make(map[string]api.CustomBoard, len(r.config.CustomBoards))
-		for _, c := range r.config.CustomBoards {
-			id := slug.Make(c.Name)
-
-			configs[id] = api.CustomBoard{
-				Name: c.Name,
-				ID:   id,
-				Namespaces: api.Namespaces{
-					Selector: c.Namespaces.Selector,
-					List:     c.Namespaces.List,
-				},
-				Sources: api.Sources{
-					List: c.Sources.List,
-				},
-				PolicyReports: api.PolicyReports{
-					Selector: c.PolicyReports.Selector,
-				}}
-		}
-
-		serv.RegisterCustomBoards(configs)
-	}
-
-	return serv
+	return serv, nil
 }
 
 func (r *Resolver) Logger() *zap.Logger {

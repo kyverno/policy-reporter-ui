@@ -3,7 +3,7 @@
     <v-col cols="12">
       <v-card>
         <v-toolbar color="category">
-          <v-toolbar-title>{{ capilize(source.name) }}</v-toolbar-title>
+          <v-toolbar-title>{{ source.title }}</v-toolbar-title>
           <template #append>
             <CollapseBtn v-model="open" />
           </template>
@@ -11,9 +11,13 @@
         <div v-show="open">
           <v-divider />
           <v-card-text>
-            <ChartStatusPerCategory :source="source" />
+            <GraphStatusPerCategory :source="source.chart" />
           </v-card-text>
-          <result-table :source="source.name" :resource="resource.id" v-for="category in source.categories" :key="category.name" :category="category.name" />
+          <scroller :list="source.categories">
+            <template #default="{ item }">
+              <result-table :source="source.name" :resource="resource.id" :category="item" />
+            </template>
+          </scroller>
         </div>
       </v-card>
     </v-col>
@@ -21,14 +25,13 @@
 </template>
 
 <script setup lang="ts">
-import { capilize } from "~/modules/core/layouthHelper";
-import type { Resource, Source } from "~/modules/core/types";
+import type { Resource, SourceDetails } from "~/modules/core/types";
 import CollapseBtn from "~/components/CollapseBtn.vue";
 
 const open = ref(true)
 
 const props = defineProps<{
-  source: Source;
+  source: SourceDetails;
   resource: Resource;
 }>();
 

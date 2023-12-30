@@ -7,7 +7,7 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
-func MapConfig(c *Config) api.Config {
+func MapConfig(c *Config) *api.Config {
 	clusters := make([]api.Cluster, 0, len(c.Clusters))
 	for _, cl := range c.Clusters {
 		plugins := make([]string, 0, len(cl.Plugins))
@@ -27,9 +27,10 @@ func MapConfig(c *Config) api.Config {
 		current = clusters[0].Slug
 	}
 
-	return api.Config{
+	return &api.Config{
 		Clusters: clusters,
 		Default:  current,
+		OAuth:    c.OAuth.Enabled,
 		DefaultFilter: api.DefaultFilter{
 			Resources:        c.UI.DefaultFilter.Resources,
 			ClusterResources: c.UI.DefaultFilter.ClusterResources,
@@ -44,4 +45,28 @@ func MapConfig(c *Config) api.Config {
 			}
 		}),
 	}
+}
+
+func MapCustomBoards(customBoards []CustomBoard) map[string]api.CustomBoard {
+	configs := make(map[string]api.CustomBoard, len(customBoards))
+
+	for _, c := range customBoards {
+		id := slug.Make(c.Name)
+
+		configs[id] = api.CustomBoard{
+			Name: c.Name,
+			ID:   id,
+			Namespaces: api.Namespaces{
+				Selector: c.Namespaces.Selector,
+				List:     c.Namespaces.List,
+			},
+			Sources: api.Sources{
+				List: c.Sources.List,
+			},
+			PolicyReports: api.PolicyReports{
+				Selector: c.PolicyReports.Selector,
+			}}
+	}
+
+	return configs
 }

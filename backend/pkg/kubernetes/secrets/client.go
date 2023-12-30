@@ -18,6 +18,10 @@ type Values struct {
 	SkipTLS     bool   `json:"skipTLS" mapstructure:"skipTLS"`
 	Username    string `json:"username" mapstructure:"username"`
 	Password    string `json:"password" mapstructure:"password"`
+
+	Domain       string `json:"domain" mapstructure:"domain"`
+	ClientID     string `json:"clientId" mapstructure:"clientId"`
+	ClientSecret string `json:"clientSecret" mapstructure:"clientSecret"`
 }
 
 type Client interface {
@@ -56,6 +60,18 @@ func (c *k8sClient) Get(ctx context.Context, name string) (Values, error) {
 
 	if password, ok := secret.Data["password"]; ok {
 		values.Password = string(password)
+	}
+
+	if domain, ok := secret.Data["domain"]; ok {
+		values.Domain = string(domain)
+	}
+
+	if clientID, ok := secret.Data["clientId"]; ok {
+		values.ClientID = string(clientID)
+	}
+
+	if clientSecret, ok := secret.Data["clientSecret"]; ok {
+		values.ClientSecret = string(clientSecret)
 	}
 
 	if skipTLS, ok := secret.Data["skipTLS"]; ok {

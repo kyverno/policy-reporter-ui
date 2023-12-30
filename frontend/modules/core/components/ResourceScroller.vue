@@ -13,7 +13,6 @@
 
 <script setup lang="ts">
 import { useInfinite } from "~/composables/infinite";
-import { type Filter } from "../types";
 
 const props = defineProps<{ list: any[]; }>()
 

@@ -15,6 +15,30 @@ type BasicAuth struct {
 	SecretRef string `mapstructure:"secretRef"`
 }
 
+type OAuth struct {
+	Enabled      bool     `mapstructure:"enabled"`
+	SecretRef    string   `mapstructure:"secretRef"`
+	Domain       string   `mapstructure:"domain"`
+	Redirect     string   `mapstructure:"redirect"`
+	ClientID     string   `mapstructure:"clientId"`
+	ClientSecret string   `mapstructure:"clientSecret"`
+	Scopes       []string `mapstructure:"scopes"`
+}
+
+func (a OAuth) FromValues(values secrets.Values) OAuth {
+	if values.Domain != "" {
+		a.Domain = values.Domain
+	}
+	if values.ClientID != "" {
+		a.ClientID = values.ClientID
+	}
+	if values.ClientSecret != "" {
+		a.ClientSecret = values.ClientSecret
+	}
+
+	return a
+}
+
 type Plugin struct {
 	Name string `mapstructure:"name"`
 	Host string `mapstructure:"host"`
@@ -68,10 +92,10 @@ type UI struct {
 }
 
 type Server struct {
-	Port          int    `mapstructure:"port"`
-	CORS          bool   `mapstructure:"cors"`
-	Mode          string `mapstructure:"mode"`
-	OverwriteHost bool   `mapstructure:"overwriteHost"`
+	Port          int  `mapstructure:"port"`
+	CORS          bool `mapstructure:"cors"`
+	Debug         bool `mapstructure:"debug"`
+	OverwriteHost bool `mapstructure:"overwriteHost"`
 }
 
 type Source struct {
@@ -106,6 +130,7 @@ type Config struct {
 	UI           UI             `mapstructure:"ui"`
 	Logging      logging.Config `mapstructure:"logging"`
 	Redis        redis.Config   `mapstructure:"redis"`
+	OAuth        OAuth          `mapstructure:"oauth"`
 	CustomBoards []CustomBoard  `mapstructure:"customBoards"`
 	Cluster      bool           `mapstructure:"cluster"`
 }

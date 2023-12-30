@@ -18,16 +18,15 @@ import type { Ref } from "vue";
 import { ClusterKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
 import { useStatusColors } from "~/modules/core/composables/theme";
 
-const props = defineProps<{ source?: string; }>()
+const props = defineProps<{ source: string; }>()
 
 const filter = inject<Ref<Filter>>(ResourceFilter, ref<Filter>({}))
 const kinds = inject<Ref<string[]>>(ClusterKinds, ref<string[]>([]))
 const statusColors = useStatusColors()
 
 const { data, refresh } = useAPI(
-    (api) => api.statusCount({
+    (api) => api.statusCount(props.source, {
       ...filter.value,
-      sources: props.source ? [props.source] : undefined,
       kinds: kinds.value.length ? kinds.value : undefined
     }), {
       default: () => ({

@@ -1,67 +1,25 @@
 <template>
-  <Bar v-bind="chart" />
+  <Bar v-bind="chart"/>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { Bar } from 'vue-chartjs'
-import { type ResourceStatusCount, Status } from '../../types'
-import { capilize } from "../../layouthHelper"
+import { type Chart } from '../../types'
 import { useStatusColors } from "~/modules/core/composables/theme";
 
-const props = defineProps<{ data: ResourceStatusCount[] }>()
+const props = defineProps<{ data: Chart }>()
 
 const chartColors = useChartColors()
 const statusColors = useStatusColors()
 
 const chart = computed(() => {
-  const list: { [key: string]: { [key in Status]: number }} = {}
-
-  props.data?.forEach(f => {
-      if (!list[f.source]) {
-        list[f.source] = {
-          [Status.PASS]: 0,
-          [Status.SKIP]: 0,
-          [Status.FAIL]: 0,
-          [Status.WARN]: 0,
-          [Status.ERROR]: 0,
-      }
-    }
-
-      list[f.source].pass +=f.pass
-      list[f.source].skip +=f.skip
-      list[f.source].fail +=f.fail
-      list[f.source].warn +=f.warn
-      list[f.source].error +=f.error
-  })
-
-  const ordered: any = Object.keys(list).sort((a,b) => a.localeCompare(b)).reduce((obj, k) => ({
-    ...obj,
-    [k]: list[k]
-  }), {})
-
-  const sources = Object.keys(ordered)
-
-  const sets: { [key in Omit<Status, Status.SKIP>]: { data: number[]; label: string; backgroundColor: string } } = {
-    [Status.PASS]: { data: [], label: capilize(Status.PASS), backgroundColor: statusColors.value.pass },
-    [Status.FAIL]: { data: [], label: capilize(Status.FAIL), backgroundColor: statusColors.value.fail },
-    [Status.WARN]: { data: [], label: capilize(Status.WARN), backgroundColor: statusColors.value.warn },
-    [Status.ERROR]: { data: [], label: capilize(Status.ERROR), backgroundColor: statusColors.value.error },
-  }
-
-  sources.forEach((source) => {
-    sets[Status.PASS].data.push(ordered[source][Status.PASS])
-    sets[Status.FAIL].data.push(ordered[source][Status.FAIL])
-    sets[Status.WARN].data.push(ordered[source][Status.WARN])
-    sets[Status.ERROR].data.push(ordered[source][Status.ERROR])
-  })
-
   return {
     style: {
-      minHeight: `${125 + (sources.length * 25)}px`
+      minHeight: `${ 125 + (props.data.labels.length * 25) }px`
     },
     data: {
-      labels: sources.map(l => capilize(l)),
-      datasets: Object.values(sets)
+      labels: props.data.labels,
+      datasets: props.data.datasets.map(d => ({ ...d, backgroundColor: statusColors.value[d.label?.toLowerCase()] }))
     },
     options: {
       color: chartColors.value.color,

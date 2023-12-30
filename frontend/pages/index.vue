@@ -1,48 +1,40 @@
 <template>
   <page-layout v-model:kinds="kinds"
                v-model:cluster-kinds="clusterKinds"
+               v-if="data"
   >
-    <SourcesStatus v-if="sources.length > 1" :data="data as FindingCounts" />
-    <SourceStatus v-if="sources.length === 1" :data="findings" />
+    <GraphSourceStatus v-if="data.singleSource" :data="data" :source="data.sources[0]" />
+    <GraphSourcesStatus v-else :data="data" />
     <v-row>
       <v-col>
-        <LazyClusterResourceResultList :details="sources.length > 1" />
+        <LazyClusterResourceResultList :details="data.multiSource" />
       </v-col>
     </v-row>
-    <resource-scroller :list="namespaces" v-if="namespaces.length">
+    <resource-scroller :list="data.namespaces" v-if="data.namespaces.length">
       <template #default="{ item }">
-        <LazyResourceResultList :namespace="item" :details="sources.length > 1" />
+        <LazyResourceResultList :namespace="item" :details="data.multiSource" />
       </template>
     </resource-scroller>
   </page-layout>
 </template>
 
 <script setup lang="ts">
-import { callAPI, useAPI } from '~/modules/core/composables/api'
-import { type FindingCounts } from "~/modules/core/types";
+import { useAPI } from '~/modules/core/composables/api'
 import ResourceScroller from "~/modules/core/components/ResourceScroller.vue";
-import { execOnChange } from "~/helper/compare";
+import { onChange } from "~/helper/compare";
+import { ResourceFilter } from "~/modules/core/provider/dashboard";
 
 const kinds = ref<string[]>([])
 const clusterKinds = ref<string[]>([])
 
-const [sources, namespaces] = await Promise.all([
-  callAPI((api) => api.sources().then((source) => source.map(s => s.name))),
-  callAPI((api) => api.namespaces())
-])
+const filter = computed(() => ({
+  kinds: kinds.value,
+  clusterKinds: clusterKinds.value
+}))
 
-const filter = computed(() => ({ kinds: [...kinds.value, ...clusterKinds.value] }))
+const { data, refresh } = useAPI((api) => api.dashboard(filter.value))
 
-const { data, refresh } = useAPI((api) => api.countFindings(filter.value), {
-  default: () => ({ total: 0, counts: [] })
-});
+watch(filter, onChange(refresh))
 
-const findings = computed(() => {
-  if (data.value?.counts?.length) return data.value.counts[0];
-
-  return { source: sources[0], counts: {}, total: 0 }
-})
-
-watch(filter, (n, o) => execOnChange(n, o, refresh))
-
+provide(ResourceFilter, filter)
 </script>

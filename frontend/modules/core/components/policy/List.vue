@@ -1,22 +1,27 @@
 <template>
-  <wait>
-      <v-toolbar class="my-0" color="secondary">
-        <v-toolbar-title class="text-subtitle-1 font-weight-bold">{{ category }}</v-toolbar-title>
-        <template #append>
-          <Search class="mr-2" v-model="search" style="min-width: 300px;" />
-          <CollapseBtn v-model="open" :disabled="!data.length" />
-        </template>
-      </v-toolbar>
-      <v-list v-if="data?.length && open" lines="two" class="mt-0 pt-0">
-        <PolicyItem v-for="item in data" :key="item.policy" :item="item" :details="false" />
-      </v-list>
-      <template v-if="!pending && !(data?.length)">
-        <v-divider />
-        <v-card-text>
-          No policies for the selected kinds found
-        </v-card-text>
-      </template>
-  </wait>
+  <v-toolbar class="my-0" color="secondary">
+    <v-toolbar-title class="text-subtitle-1 font-weight-bold">{{ category }}</v-toolbar-title>
+    <template #append>
+      <Search class="mr-2" v-model="search" style="min-width: 300px;" />
+      <CollapseBtn v-model="open" :disabled="!data.length" />
+    </template>
+  </v-toolbar>
+  <v-list v-if="pending" lines="two" class="mt-0 pt-0">
+    <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
+    <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
+    <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
+  </v-list>
+  <template v-else>
+    <v-list v-if="data?.length && open" lines="two" class="mt-0 pt-0">
+      <PolicyItem v-for="item in data" :key="item.policy" :item="item" :details="false" />
+    </v-list>
+    <template v-if="!(data?.length)">
+      <v-divider />
+      <v-card-text>
+        No policies for the selected kinds found
+      </v-card-text>
+    </template>
+  </template>
 </template>
 
 <script setup lang="ts">

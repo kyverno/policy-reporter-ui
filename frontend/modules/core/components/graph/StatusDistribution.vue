@@ -5,12 +5,12 @@
 <script setup lang="ts">
 import type { PropType } from "vue";
 import { Pie } from 'vue-chartjs';
-import { type SourceFindings, Status } from '../../types'
 import { capilize } from "../../layouthHelper";
 import { useStatusColors } from "~/modules/core/composables/theme";
+import type { Chart } from "~/modules/core/types";
 
 const props = defineProps({
-  findings: { type: Object as PropType<SourceFindings>, required: true, default: () => ({ counts: {}, total: 0 }) },
+  data: { type: Object as PropType<Chart>, required: true, default: () => ({ labels: [], datasets: [], name: "" }) },
   title: { type: String, required: false },
 })
 
@@ -18,26 +18,14 @@ const chartColors = useChartColors()
 const statusColors = useStatusColors()
 
 const chart = computed(() => {
-  if (!props.findings) return ({})
-
-  const values = {
-    [Status.PASS]: props.findings.counts[Status.PASS],
-    [Status.SKIP]: props.findings.counts[Status.SKIP],
-    [Status.FAIL]: props.findings.counts[Status.FAIL],
-    [Status.WARN]: props.findings.counts[Status.WARN],
-    [Status.ERROR]: props.findings.counts[Status.ERROR],
-  }
-
-  const data = Object.values(values).filter(c => !!c)
-
-  const colors = Object.keys(values).filter(v => values[v]).map(s => statusColors.value[s])
-  const labels = Object.keys(values).filter(v => values[v]).map(s => capilize(s))
+  const colors = props.data!.labels.map(s => statusColors.value[s.toLowerCase()])
+  const total: number = props.data!.datasets[0].data.reduce((sum: number, i: number) => sum + i, 0)
 
   return {
     data: {
-      labels,
+      labels: props.data?.labels,
       datasets: [
-        { data, backgroundColor: colors }
+        { data: props.data?.datasets[0].data, backgroundColor: colors }
       ]
     },
     options: {
@@ -49,7 +37,7 @@ const chart = computed(() => {
       plugins: {
         title: {
           display: true,
-          text: `${props.findings.total} ${props.title ?? capilize(props.findings.source || '')} Results`
+          text: `${total} ${props.title ?? capilize(props.data!.name || '')} Results`
         },
         legend: {
           position: 'bottom'

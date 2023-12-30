@@ -9,6 +9,10 @@ export default defineNuxtPlugin(async () => {
 
   const apiConfig = await api.config()
 
+  if (apiConfig.oauth) {
+    api.profile().then(console.log)
+  }
+
   api.setPrefix(apiConfig.default)
 
   api.setExcludes((apiConfig.sources || []).reduce<string[]>((acc, config) => {

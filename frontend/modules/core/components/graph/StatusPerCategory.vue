@@ -4,56 +4,22 @@
 
 <script setup lang="ts">
 import { Bar } from 'vue-chartjs'
-import { type Source, Status } from '../../types'
-import { capilize } from "../../layouthHelper"
+import { type Chart } from '../../types'
 import { useStatusColors } from "~/modules/core/composables/theme";
 
-const props = defineProps<{ source: Source }>()
+const props = defineProps<{ source: Chart }>()
 
 const colors = useChartColors()
 const statusColors = useStatusColors()
 
 const chart = computed(() => {
-  const list: { [key: string]: { [key in Status]: number }} = {}
-
-  props.source.categories.forEach(f => {
-    list[f.name || 'other'] = {
-      [Status.PASS]: f.pass,
-      [Status.SKIP]: f.skip,
-      [Status.FAIL]: f.fail,
-      [Status.WARN]: f.warn,
-      [Status.ERROR]: f.error,
-    }
-  })
-
-  const ordered: any = Object.keys(list).sort((a,b) => a.localeCompare(b)).reduce((obj, k) => ({
-    ...obj,
-    [k]: list[k]
-  }), {})
-
-  const labels = Object.keys(ordered)
-
-  const sets: { [key in Omit<Status, Status.SKIP>]: { data: number[]; label: string; backgroundColor: string } } = {
-    [Status.PASS]: { data: [], label: capilize(Status.PASS), backgroundColor: statusColors.value.pass },
-    [Status.FAIL]: { data: [], label: capilize(Status.FAIL), backgroundColor: statusColors.value.fail },
-    [Status.WARN]: { data: [], label: capilize(Status.WARN), backgroundColor: statusColors.value.warn },
-    [Status.ERROR]: { data: [], label: capilize(Status.ERROR), backgroundColor: statusColors.value.error },
-  }
-
-  labels.forEach((ns) => {
-    sets[Status.PASS].data.push(ordered[ns][Status.PASS])
-    sets[Status.FAIL].data.push(ordered[ns][Status.FAIL])
-    sets[Status.WARN].data.push(ordered[ns][Status.WARN])
-    sets[Status.ERROR].data.push(ordered[ns][Status.ERROR])
-  })
-
   return {
     style: {
-      minHeight: `${125 + (labels.length * 25)}px`
+      minHeight: `${125 + (props.source.labels.length * 25)}px`
     },
     data: {
-      labels,
-      datasets: Object.values(sets)
+      labels: props.source.labels,
+      datasets: props.source.datasets.map((d) => ({ ...d, backgroundColor: statusColors.value[d.label?.toLowerCase()] }))
     },
     options: {
       color: colors.value.color,

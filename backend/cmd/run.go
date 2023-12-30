@@ -28,7 +28,10 @@ func newRunCMD() *cobra.Command {
 
 			logger := resolver.Logger()
 
-			serv := resolver.Server(cmd.Context())
+			serv, err := resolver.Server(cmd.Context())
+			if err != nil {
+				return err
+			}
 
 			logger.Info("Server starts", zap.Int("port", c.Server.Port))
 

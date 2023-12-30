@@ -39,6 +39,8 @@ export const mapResults = ({ items, count }: { items: ListResult[], count: numbe
     let hasProps: boolean = false
 
     for (const prop in properties) {
+      if (prop == 'resultID') { continue }
+
       if (properties[prop].length > maxChipLength) {
         cards[prop] = properties[prop]
       } else {

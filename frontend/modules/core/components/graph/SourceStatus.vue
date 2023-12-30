@@ -3,23 +3,23 @@
     <v-col cols="12" md="4">
       <v-card>
         <v-card-text>
-          <ChartStatusDistribution :findings="data" :title="category" />
+          <GraphStatusDistribution :data="data.charts.findings" :title="category" />
         </v-card-text>
       </v-card>
     </v-col>
-    <v-col cols="12" md="8" v-if="source">
+    <v-col cols="12" md="8">
       <v-card style="height: 100%">
         <v-card-text style="height: 100%">
-          <ChartStatusPerNamespace :source="source" :key="source" />
+          <GraphStatusPerNamespace :data="data.charts.namespaceScope[source]" />
         </v-card-text>
       </v-card>
     </v-col>
   </v-row>
-  <template v-if="!hideCluster">
+  <template v-if="data.clusterScope">
     <v-row>
       <v-col>
         <v-card :title="`${capilize(source)} cluster scoped results`">
-          <ChartClusterResultCounts :source="source" />
+          <GraphClusterResultCounts :data="data.charts.clusterScope[source]" />
         </v-card>
       </v-col>
     </v-row>
@@ -27,10 +27,8 @@
 </template>
 
 <script setup lang="ts">
-import type { SourceFindings } from "~/modules/core/types";
 import { capilize } from "~/modules/core/layouthHelper";
+import type { Dashboard } from "~/modules/core/types";
 
-const props = defineProps<{ data: SourceFindings, hideCluster?: boolean; category?: string; }>();
-
-const source = computed(() => props.data.source)
+const props = defineProps<{ data: Dashboard<false>, source: string; category?: string; }>();
 </script>

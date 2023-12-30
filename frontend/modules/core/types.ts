@@ -106,12 +106,100 @@ export type SourceConfig = {
     };
 }
 
+export type Profile = {
+    firstname: string;
+    lastname: string;
+}
+
+export type Navigation = {
+    title: string;
+    subtitle: string;
+    path: string;
+    children?: Navigation[];
+}
+
+export type LayoutConfig = {
+    profile?: Profile;
+    sources: Navigation[]
+    customBoards: Navigation[]
+}
+
+export type Dataset = {
+    data: number[];
+    backgroundColor: string | string[];
+    label?: string;
+}
+
+export type Chart = {
+    labels: string[];
+    datasets: Dataset[];
+    name: string;
+}
+
+export type ClusterScope = {
+    [source: string]: {
+        [key in Status]: number;
+    }
+}
+
+export type NamespaceScope = {
+    [source: string]: Chart
+}
+
+export type Findings = Chart
+
+export type Dashboard<T extends Boolean> = {
+    clusterScope: boolean;
+    filterSources: string[];
+    multiSource: T;
+    singleSource: T extends true ? false : true;
+    charts: {
+        clusterScope: ClusterScope;
+        namespaceScope: NamespaceScope;
+        findings: T extends true ? { [key in Status]: Findings } : Findings
+    };
+    namespaces: string[];
+    sources: string[];
+    sourcesNavi: Array<{ title: string; name: string }>
+    total: {
+        count: number;
+        perResult: {
+            [key in Partial<Status>]: number;
+        }
+    }
+}
+
+export type SourceDetails = {
+    title: string;
+    name: string;
+    categories: string[];
+    chart: Chart;
+}
+export type ResourceDetails = {
+    resource: Resource;
+    results: { [key in Status]: number; }
+    chart?: Chart
+    sources: SourceDetails[]
+}
+
+export type PolicyDetails = {
+    title: string;
+    name: string;
+    namespaces: string[];
+    charts: {
+        findings: Chart;
+        namespaceScope: Chart;
+        clusterScope: { [key in Status]: number; };
+    };
+}
+
 export type Config = {
     plugins: string[];
     displayMode: DisplayMode;
     views: ViewsCofig;
     clusters: Cluster[];
     sources: SourceConfig[];
+    oauth: boolean;
     default: string;
     defaultFilter: {
         resources: string[];
@@ -162,12 +250,14 @@ export type NamespaceStatusCount = {
 }
 
 export type ResourceStatusCount = {
-    status: Status;
-    items: Array<{ source: string; count: number; }>
+    [status in Status]: number;
+} & {
+    source: string;
 }
 
 export type Filter = {
     kinds?: string[];
+    clusterKinds?: string[];
     categories?: string[];
     namespaces?: string[];
     severities?: Severity[];

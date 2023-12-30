@@ -8,7 +8,7 @@
               <v-container fluid class="ma-0 pa-0">
                 <v-row>
                   <v-col>
-                    <span v-if="data?.resource.namespace">{{ data?.resource.namespace }}/</span>{{ data.resource.name }}
+                    <span v-if="data.resource.namespace">{{ data.resource.namespace }}/</span>{{ data.resource.name }}
                   </v-col>
                   <v-col class="text-right">
                     <v-btn variant="text" color="white" prepend-icon="mdi-arrow-left" @click="router.back()">back</v-btn>
@@ -16,24 +16,24 @@
                 </v-row>
               </v-container>
             </v-card-title>
-            <v-card-subtitle class="pb-4 text-grey-lighten-2" style="opacity: 1">{{ data?.resource.apiVersion }} {{ data.resource.kind }}</v-card-subtitle>
+            <v-card-subtitle class="pb-4 text-grey-lighten-2" style="opacity: 1">{{ data.resource.apiVersion }} {{ data.resource.kind }}</v-card-subtitle>
           </div>
           <v-card-text>
-            <resource-result-counts :data="data.counts as any" />
+            <resource-result-counts :data="data.results as any" />
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
-    <v-row v-if="data.sources.length > 1">
+    <v-row v-if="data.chart">
       <v-col>
         <v-card>
           <v-card-text>
-            <resource-status :data="data.counts as any" />
+            <resource-status :data="data.chart" />
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
-    <resource-scroller :list="sources">
+    <resource-scroller :list="data.sources">
       <template #default="{ item }">
         <category-tables :source="item" :resource="data.resource" />
       </template>
@@ -44,8 +44,9 @@
 <script lang="ts" setup>
 import ResourceStatus from "~/modules/core/components/chart/ResourceStatus.vue";
 import ResourceResultCounts from "~/modules/core/components/chart/ResourceResultCounts.vue";
-import type { Filter, Resource, ResourceStatusCount, Source } from "~/modules/core/types";
+import type { Filter } from "~/modules/core/types";
 import ResourceScroller from "~/modules/core/components/ResourceScroller.vue";
+import { onChange } from "~/helper/compare";
 
 const route = useRoute()
 const router = useRouter()
@@ -68,30 +69,7 @@ const filter = computed(() => {
   return f
 })
 
-const { data } = useAPI(
-    async (api) => {
-      let [resource, counts, sources] = await Promise.all([
-        api.resource(route.params.id as string),
-        api.resourceStatusCount(route.params.id as string, filter.value),
-        api.sources(route.params.id as string, filter.value)
-      ]);
+const { data, refresh } = useAPI((api) => api.resource(route.params.id as string, filter.value));
 
-      if (route.query.source) {
-        sources = sources.filter(s => s.name === route.query.source)
-      }
-
-      if (route.query.category) {
-        sources = sources.map(s => ({
-          name: s.name,
-          categories: s.categories.filter(c => c.name === route.query.category)
-        }))
-      }
-
-      return { resource, counts, sources: sources ?? [route.query.source] };
-    }, {
-      default: () => ({ resource: {} as Resource, counts: [] as ResourceStatusCount[], sources: [] as Source[] }),
-    }
-);
-
-const sources = computed(() => (data.value?.sources || []).sort((a: Source, b: Source) => a.name.localeCompare(b.name)))
+watch(filter, onChange(refresh))
 </script>

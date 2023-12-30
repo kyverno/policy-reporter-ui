@@ -1,5 +1,5 @@
 <template>
-  <page-layout v-if="sources?.length"
+  <page-layout v-if="sources"
                title="Policy Dashboard"
                v-model:kinds="kinds"
                v-model:cluster-kinds="clusterKinds"
@@ -13,20 +13,15 @@
 </template>
 
 <script setup lang="ts">
-import { callAPI } from "~/modules/core/composables/api";
 import ResourceScroller from "~/modules/core/components/ResourceScroller.vue";
-import { ClusterKinds, NamespacedKinds } from "~/modules/core/provider/dashboard";
-import { execOnChange } from "~/helper/compare";
+import { onChange } from "~/helper/compare";
 
 const kinds = ref<string[]>([])
 const clusterKinds = ref<string[]>([])
 
 const filter = computed(() => ({ kinds: [...kinds.value, ...clusterKinds.value] }))
 
-const { data: sources, refresh } = useAPI(
-    (api) => api.sources(undefined, filter.value).then(s => s.sort((a, b) => a.name.localeCompare(b.name))),
-    { default: () => [] }
-)
+const { data: sources, refresh } = useAPI((api) => api.policySources(filter.value))
 
-watch(filter, (a, b) => execOnChange(a, b, () => refresh()))
+watch(filter, onChange(refresh))
 </script>
