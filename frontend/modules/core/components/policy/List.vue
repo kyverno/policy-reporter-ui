@@ -6,13 +6,13 @@
       <CollapseBtn v-model="open" :disabled="!data.length" />
     </template>
   </v-toolbar>
-  <v-list v-if="pending" lines="two" class="mt-0 pt-0">
+  <v-list v-if="pending" lines="two" class="mt-0 pt-0 pb-0 mb-0">
     <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
     <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
     <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
   </v-list>
   <template v-else>
-    <v-list v-if="data?.length && open" lines="two" class="mt-0 pt-0">
+    <v-list v-if="data?.length && open" lines="two" class="mt-0 pt-0 pb-0 mb-0">
       <PolicyItem v-for="item in data" :key="item.policy" :item="item" :details="false" />
     </v-list>
     <template v-if="!(data?.length)">
@@ -28,7 +28,7 @@
 import type { Ref } from "vue";
 import CollapseBtn from "~/components/CollapseBtn.vue";
 import type { Filter } from "~/modules/core/types";
-import { NamespacedKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
+import { NamespacedKinds, APIFilter } from "~/modules/core/provider/dashboard";
 import { execOnChange } from "~/helper/compare";
 
 const props = defineProps<{ category: string; }>()
@@ -36,7 +36,7 @@ const props = defineProps<{ category: string; }>()
 const search = ref('')
 const open = ref(true)
 
-const filter = inject<Ref<Filter>>(ResourceFilter, ref<Filter>({}))
+const filter = inject<Ref<Filter>>(APIFilter, ref<Filter>({}))
 const kinds = inject<Ref<string[]>>(NamespacedKinds, ref<string[]>([]))
 
 const combinedFilter = computed(() => ({

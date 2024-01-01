@@ -3,38 +3,45 @@
   <v-toolbar color="transparent">
     <v-toolbar-title>Cluster Resources</v-toolbar-title>
     <template #append>
-      <Search v-model="search" style="min-width: 300px;" />
+      <Search v-model="search" style="min-width: 400px;" />
       <CollapseBtn v-model="open" />
     </template>
   </v-toolbar>
-  <v-list v-if="data?.items?.length && open" lines="two">
-    <ResourceResultItem v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" />
+  <v-list v-if="pending" lines="two" class="mt-0 pt-0">
+    <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
+    <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
+    <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
   </v-list>
-  <template v-if="data.count > options.offset">
-    <v-divider />
-    <v-pagination v-model="options.page" :length="length" class="my-4" />
-  </template>
-  <template v-if="!pending && !(data?.items?.length)">
+  <template v-else>
+    <v-list v-if="data?.items?.length && open" lines="two">
+      <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" />
+    </v-list>
+    <template v-if="data.count > options.offset && open">
+      <v-divider />
+      <v-pagination v-model="options.page" :length="length" class="my-4" />
+    </template>
+    <template v-if="!data?.items?.length">
       <v-divider />
       <v-card-text>
-          No resources for the selected kinds found
+        No resources for the selected kinds found
       </v-card-text>
+    </template>
   </template>
 </v-card>
 </template>
 
 <script setup lang="ts">
-import { type Filter, type Pagination } from '../types'
+import { type Filter, type Pagination } from '~/modules/core/types'
 import CollapseBtn from "~/components/CollapseBtn.vue";
 import type { Ref } from "vue";
-import { ClusterKinds, ResourceFilter } from "~/modules/core/provider/dashboard";
+import { ClusterKinds, APIFilter } from "~/modules/core/provider/dashboard";
 import { execOnChange } from "~/helper/compare";
 
-const props = defineProps<{ source?: string; details: boolean; }>()
+const props = defineProps<{ details: boolean; }>()
 
 const search = ref('')
 const open = ref(true)
-const filter = inject<Ref<Filter>>(ResourceFilter, ref<Filter>({}))
+const filter = inject<Ref<Filter>>(APIFilter, ref<Filter>({}))
 const kinds = inject<Ref<string[]>>(ClusterKinds, ref<string[]>([]))
 
 const options = reactive<Pagination>({

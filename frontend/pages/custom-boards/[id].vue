@@ -7,22 +7,25 @@
     <GraphSourcesStatus v-else :data="data" />
     <v-row v-if="data.clusterScope">
       <v-col>
-        <LazyClusterResourceResultList :details="data.multiSource" />
+        <resource-cluster-list :details="data.multiSource" />
       </v-col>
     </v-row>
-    <resource-scroller :list="data.namespaces" v-if="data.namespaces.length">
-      <template #default="{ item }">
-        <LazyResourceResultList :namespace="item" :details="data.multiSource" />
+    <resource-namespace-section v-if="data.namespaces.length" :namespaces="data.namespaces">
+      <template #default="{ namespaces }">
+        <resource-scroller :list="namespaces" :default-loadings="3">
+          <template #default="{ item }">
+            <resource-list :namespace="item" :details="data.multiSource" />
+          </template>
+        </resource-scroller>
       </template>
-    </resource-scroller>
+    </resource-namespace-section>
   </page-layout>
 </template>
 
 <script setup lang="ts">
 import { useAPI } from '~/modules/core/composables/api'
-import ResourceScroller from "~/modules/core/components/ResourceScroller.vue";
 import { onChange } from "~/helper/compare";
-import { ResourceFilter } from "~/modules/core/provider/dashboard";
+import { APIFilter } from "~/modules/core/provider/dashboard";
 
 const route = useRoute()
 
@@ -38,7 +41,7 @@ const { data, refresh } = useAPI((api) => api.customBoard(route.params.id, filte
 
 watch(filter, onChange(refresh))
 
-provide(ResourceFilter, computed(() => ({
+provide(APIFilter, computed(() => ({
   ...filter.value,
   sources: data.value?.filterSources,
 })))

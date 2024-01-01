@@ -66,7 +66,7 @@ func (s *Server) RegisterAPI(c *api.Config, configs map[string]api.CustomBoard) 
 	s.api.GET("config/:cluster/custom-board/:id", handler.GetCustomBoard)
 	s.api.GET("config/:cluster/resource/:id", handler.GetResourceDetails)
 	s.api.GET("config/:cluster/policy-sources", handler.ListPolicySources)
-	s.api.GET("config/:cluster/:source/policy/:policy/details", handler.GetPolicyDetails)
+	s.api.GET("config/:cluster/:source/policy/details", handler.GetPolicyDetails)
 
 	s.api.GET("config/:cluster/layout", handler.Layout)
 	s.api.GET("config/:cluster/dashboard", handler.Dashboard)

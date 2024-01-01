@@ -53,6 +53,16 @@ func (c *Client) ListSourceCategoryTree(ctx context.Context, query url.Values) (
 	return decodeList[SourceCategoryTree](resp.Body)
 }
 
+func (c *Client) ListResourceCategories(ctx context.Context, id string, query url.Values) ([]SourceCategoryTree, error) {
+	resp, err := c.get(ctx, fmt.Sprintf("/v2/resource/%s/source-categories", id), query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return decodeList[SourceCategoryTree](resp.Body)
+}
+
 func (c *Client) GetFindings(ctx context.Context, query url.Values) (*Findings, error) {
 	resp, err := c.get(ctx, "/v2/findings", query)
 	if err != nil {
@@ -91,6 +101,21 @@ func (c *Client) ListSources(ctx context.Context, query url.Values) ([]string, e
 	defer resp.Body.Close()
 
 	return decodeList[string](resp.Body)
+}
+
+func (c *Client) UseResources(ctx context.Context, source string, query url.Values) (bool, error) {
+	resp, err := c.get(ctx, fmt.Sprintf("/v2/sources/%s/use-resources", source), query)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	result, err := decodeMap[string, bool](resp.Body)
+	if err != nil {
+		return false, err
+	}
+
+	return result["resources"], nil
 }
 
 func (c *Client) ListNamespaces(ctx context.Context, query url.Values) ([]string, error) {

@@ -1,11 +1,9 @@
 <template>
-  <v-infinite-scroll :onLoad="load" class="no-scrollbar" v-if="loaded.length">
+  <v-infinite-scroll :onLoad="load" class="no-scrollbar pb-0 mb-0" v-if="loaded.length">
     <template v-for="item in loaded" :key="item">
-      <v-row>
-        <v-col>
-          <slot :item="item" />
-        </v-col>
-      </v-row>
+      <app-row>
+        <slot :item="item" />
+      </app-row>
     </template>
     <template #empty></template>
   </v-infinite-scroll>
@@ -14,11 +12,11 @@
 <script setup lang="ts">
 import { useInfinite } from "~/composables/infinite";
 
-const props = defineProps<{ list: any[]; }>()
+const props = defineProps<{ list: any[]; defaultLoadings?: number }>()
 
 const list = ref<any[]>(props.list)
 
 watch(() => props.list, () => { list.value = props.list }, { immediate: true })
 
-const { load, loaded } = useInfinite(list)
+const { load, loaded } = useInfinite(list, props.defaultLoadings)
 </script>

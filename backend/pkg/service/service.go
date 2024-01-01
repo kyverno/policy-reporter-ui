@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/url"
 	"sort"
+	"strconv"
 	"sync"
 
 	core "github.com/kyverno/policy-reporter-ui/pkg/core/client"
@@ -140,7 +141,7 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster string, id string
 	var sourcesTree []core.SourceCategoryTree
 	g.Go(func() error {
 		var err error
-		sourcesTree, err = client.ListSourceCategoryTree(ctx, query)
+		sourcesTree, err = client.ListResourceCategories(ctx, id, query)
 
 		return err
 	})
@@ -191,6 +192,7 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 	g := &errgroup.Group{}
 
 	combinedFilter, namespaceFilter, clusterFilter := BuildFilters(query)
+	combinedFilter.Set("namespaced", strconv.FormatBool(!clusterScope))
 
 	var findings *core.Findings
 	g.Go(func() error {
@@ -202,6 +204,7 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 
 	namespaceResults := make(map[string]core.NamespaceStatusCounts, len(sources))
 	clusterResults := make(map[string]map[string]int, len(sources))
+	showResults := make([]string, 0, len(sources))
 
 	mx := &sync.Mutex{}
 	cmx := &sync.Mutex{}
@@ -214,8 +217,16 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 				return err
 			}
 
+			resources, err := client.UseResources(ctx, source, namespaceFilter)
+			if err != nil {
+				return err
+			}
+
 			mx.Lock()
 			namespaceResults[source] = result
+			if !resources {
+				showResults = append(showResults, source)
+			}
 			mx.Unlock()
 
 			return nil
@@ -254,6 +265,7 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 		SingleSource:   len(sources) == 1,
 		Sources:        sources,
 		Namespaces:     namespaces,
+		ShowResults:    showResults,
 		SourcesNavi:    MapFindingSourcesToSourceItem(findings),
 		Charts: Charts{
 			ClusterScope:   clusterResults,

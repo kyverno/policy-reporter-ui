@@ -152,6 +152,7 @@ export type Dashboard<T extends Boolean> = {
     clusterScope: boolean;
     filterSources: string[];
     multiSource: T;
+    showResults: string[];
     singleSource: T extends true ? false : true;
     charts: {
         clusterScope: ClusterScope;

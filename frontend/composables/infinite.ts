@@ -1,14 +1,45 @@
 import type { Ref, UnwrapRef } from "vue";
 import type { UnwrapRefSimple } from "@vue/reactivity";
 
-export const useInfinite = <T>(list: Ref<T[] | null>) => {
+export const useInfinite = <T>(list: Ref<T[] | null>, defaultLoadings = 3) => {
   const loaded = ref<T[]>([])
-  const index = ref(1)
+  const index = ref(0)
 
-  watch(list, (l) => {
-    if (!list.value?.length) return
+  watch(list, (newValue, oldValue) => {
+    const l = newValue || []
+    const length = (l || []).length
+    const oldLength = (oldValue || []).length
 
-    loaded.value = (l || []).slice(0, 1) as UnwrapRefSimple<T>[]
+    if (!length || (length === loaded.value.length && loaded.value.every(i => (l.includes(i as T))))) return;
+
+    if (length - oldLength === 1) {
+      loaded.value = l.slice(0, length) as UnwrapRefSimple<T>[]
+      index.value = length
+
+      return
+    }
+
+    if (oldLength > 0 && oldLength < length) {
+      loaded.value = l.slice(0, oldLength + 1) as UnwrapRefSimple<T>[]
+      index.value = oldLength + 1
+
+      return
+    }
+
+    if (oldLength > length) {
+      loaded.value = l.slice(0, length) as UnwrapRefSimple<T>[]
+      index.value = length
+
+      return
+    }
+
+    let loadCounter = defaultLoadings
+    if (length < defaultLoadings) {
+      loadCounter = length
+    }
+
+    loaded.value = l.slice(0, loadCounter) as UnwrapRefSimple<T>[]
+    index.value = loadCounter
   }, { immediate: true })
 
   const load = ({ done }: any) => {

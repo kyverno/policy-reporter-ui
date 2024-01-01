@@ -1,8 +1,9 @@
 <template>
-  <v-card v-if="data.count > 0 || !!searchText">
-    <v-toolbar color="transparent">
+  <div v-if="data.count > 0 || !!searchText">
+    <v-toolbar color="secondary">
       <template #title>
-        <span>{{ namespace }}</span>
+        <span v-if="category">{{ category }}</span>
+        <span v-else>Results for {{ capilize(source) }}</span>
       </template>
       <template #append>
         <search v-model="searchText" class="mr-4" style="min-width: 400px; float: left;" />
@@ -38,7 +39,7 @@
                   </v-card>
                   <div>
                     <template v-for="(value, label) in item.chips"  :key="label">
-                      <property-chip :label="label as string" :value="value" class="mr-2 mt-2 rounded-xl" />
+                      <property-chip :label="label as string" :value="value" class="mr-2 mt-2 rounded-lg" />
                     </template>
                     <template v-for="(value, label) in item.cards"  :key="label">
                       <property-card :label="label as string" :value="value" class="mt-2" />
@@ -51,25 +52,25 @@
               </td>
             </tr>
           </template>
-          <template #bottom v-if="results.count <= options.itemsPerPage"></template>
         </v-data-table-server>
       </div>
     </v-expand-transition>
-  </v-card>
+  </div>
 </template>
 
 <script lang="ts" setup>
+import { Status } from "~/modules/core/types";
+import { capilize } from "~/modules/core/layouthHelper";
 import { mapResults } from "~/modules/core/mapper";
-import type { Ref } from "vue";
-import type { Filter } from "~/modules/core/types";
-import { APIFilter } from "~/modules/core/provider/dashboard";
-import { onChange } from "~/helper/compare";
 
 const props = defineProps<{
   source: string;
-  namespace: string;
-  policy?: string;
+  category?: string;
+  resource: string;
+  Status?: Status;
 }>()
+
+const bg = useBGColor()
 
 const options = reactive({
   itemsPerPage: 10,
@@ -84,20 +85,15 @@ const options = reactive({
 
 const open = ref(true)
 const searchText = ref('')
-const bg = useBGColor()
-
-const filter = inject<Ref<Filter>>(APIFilter, ref<Filter>({}))
 
 const { data, refresh } = useAPI(
-    (api) => api.namespacedResults({
-      ...filter.value,
-      sources: [props.source],
-      policies: props.policy ? [props.policy] : undefined,
-      namespaces: [props.namespace],
-      search: searchText.value ? searchText.value : undefined,
-    }, {
+    (api) => api.results(props.resource, {
       page: options.page,
       offset: options.itemsPerPage,
+    }, {
+      sources: props.source ? [props.source] : undefined,
+      categories: props.category ? [props.category] : undefined,
+      search: !!searchText.value ? searchText.value : undefined,
     }),
     {
       default: () => ({ items: [], count: 0 }),
@@ -108,37 +104,12 @@ watch(() => options.page, () => refresh())
 watch(() => options.itemsPerPage, () => refresh())
 watch(searchText, () => refresh())
 
-watch(filter, onChange(refresh))
-
 const results = computed(() => mapResults(data.value))
 
-const headers = computed(() => {
-  if (results.value.results.every(r => !r.name)) {
-    return [
-      { title: 'Policy', key: 'policy', width: '36%' },
-      { title: 'Rule', key: 'rule', width: '36%' },
-      { title: 'Severity', key: 'severity', width: '12%' },
-      { title: 'Status', key: 'status', width: '12%' }
-    ]
-  }
-
-  return [
-    { title: 'APIVersion', key: 'apiVersion', width: '10%' },
-    { title: 'Kind', key: 'kind', width: '16%' },
-    { title: 'Name', key: 'name', width: '25%' },
-    { title: 'Rule', key: 'rule', width: '25%' },
-    { title: 'Severity', key: 'severity', width: '12%' },
-    { title: 'Status', key: 'status', width: '12%' }
-  ]
-})
+const headers = [
+  { title: 'Policy', key: 'policy', width: '33%' },
+  { title: 'Rule', key: 'rule', width: '33%' },
+  { title: 'Severity', key: 'severity', width: '17%' },
+  { title: 'Status', key: 'status', width: '17%' }
+]
 </script>
-
-<style>
-.table-expand-text {
-  background-color: #f5f5f5;
-
-  &:hover {
-    background-color: #f5f5f5 !important;
-  }
-}
-</style>

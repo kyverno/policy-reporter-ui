@@ -1,6 +1,6 @@
 import debounce from 'lodash.debounce'
 
-const debounced = debounce((emit: () => void) => { emit() }, 600)
+export const useDebounce = (wait: number = 600) => debounce((emit: () => void) => { emit() }, wait)
 
 export const defineRouteQuery = (key: string, selected: Ref<string[]>) => {
     const router = useRouter()
@@ -19,6 +19,8 @@ export const defineRouteQuery = (key: string, selected: Ref<string[]>) => {
     if (values.length) {
         selected.value = values
     }
+
+    const debounced = useDebounce()
 
     return (inp: string[]) => {
         selected.value = inp

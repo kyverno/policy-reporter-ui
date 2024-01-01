@@ -16,13 +16,11 @@
     </v-col>
   </v-row>
   <template v-if="!hideCluster">
-    <v-row>
-      <v-col>
-        <v-card :title="`${policy} cluster scoped results`">
-          <GraphClusterResultCounts :data="data.charts.clusterScope" />
-        </v-card>
-      </v-col>
-    </v-row>
+    <app-row>
+      <v-card :title="`${policy} cluster scoped results`">
+        <GraphClusterResultCounts :data="data.charts.clusterScope" />
+      </v-card>
+    </app-row>
   </template>
 </template>
 

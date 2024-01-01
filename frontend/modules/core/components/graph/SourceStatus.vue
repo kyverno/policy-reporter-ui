@@ -16,13 +16,11 @@
     </v-col>
   </v-row>
   <template v-if="data.clusterScope">
-    <v-row>
-      <v-col>
-        <v-card :title="`${capilize(source)} cluster scoped results`">
-          <GraphClusterResultCounts :data="data.charts.clusterScope[source]" />
-        </v-card>
-      </v-col>
-    </v-row>
+    <app-row>
+      <v-card :title="`${capilize(source)} Cluster Scoped Results`">
+        <GraphClusterResultCounts :data="data.charts.clusterScope[source]" />
+      </v-card>
+    </app-row>
   </template>
 </template>
 

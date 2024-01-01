@@ -12,13 +12,11 @@
 </template>
 
 <script lang="ts" setup>
-import debounce from 'lodash.debounce'
-
 defineProps({
   modelValue: { type: String, required: false, default: undefined },
 })
 
-const debounced = debounce((emit: () => void) => { emit() }, 600)
+const debounced = useDebounce(600)
 
 const emit = defineEmits(['update:modelValue'])
 </script>

@@ -1,10 +1,6 @@
-import { useFetch } from 'nuxt/app'
 import {
-  type NamespacedStatusCount,
-  type StatusCount,
   type Target,
   type Filter,
-  type Result,
   type Config,
   type ResultList,
   type Pagination,
@@ -12,10 +8,7 @@ import {
   type ResourceResultList,
   type ResourceResult,
   type ResourceStatusCount,
-  type Resource,
   type Source,
-  type CustomBoard,
-  type CustomBoardDetails,
   type PolicyResult,
   type NamespaceStatusCount,
   Status,
@@ -30,7 +23,7 @@ type APIConfig = { baseURL: string; prefix?: string; };
 export const cluster = ref('default')
 
 export class CoreAPI {
-  private baseURL: string
+  private readonly baseURL: string
   private cluster: string = ''
 
   private nsExcludes: string[] = []
@@ -66,7 +59,7 @@ export class CoreAPI {
   }
 
   policyDetails (source: string, policy: string, filter?: Filter) {
-    return $fetch<PolicyDetails>(`/api/config/${this.cluster}/${source}/policy/${policy}/details`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
+    return $fetch<PolicyDetails>(`/api/config/${this.cluster}/${source}/policy/details`, { baseURL: this.baseURL, params: applyExcludes({ ...filter, policies: [policy] }, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 
   config () {
@@ -103,6 +96,10 @@ export class CoreAPI {
 
   clusterResults (filter?: Filter, pagination?: Pagination) {
     return $fetch<ResultList>('/proxy/'+this.cluster+'/core/v1/cluster-resources/results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
+  }
+
+  resultsWithoutResources (filter?: Filter, pagination?: Pagination) {
+    return $fetch<ResultList>('/proxy/'+this.cluster+'/core/v2/results-without-resources', { baseURL: this.baseURL, params: { ...filter, ...pagination } })
   }
 
   countFindings (filter?: Filter) {

@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { useStatusColors } from "~/modules/core/composables/theme";
-import { type ClusterScope, Status } from "../../types";
+import { Status } from "../../types";
 
 const props = defineProps<{ data: { [key in Status]: number; }; }>()
 

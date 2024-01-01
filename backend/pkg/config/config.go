@@ -118,6 +118,9 @@ type CustomBoard struct {
 	PolicyReports struct {
 		Selector map[string]string `mapstructure:"selector"`
 	} `mapstructure:"policyReports"`
+	ClusterScope struct {
+		Enabled bool `mapstructure:"enabled"`
+	} `mapstructure:"clusterScope"`
 }
 
 // Config structure

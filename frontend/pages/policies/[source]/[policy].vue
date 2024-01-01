@@ -16,15 +16,7 @@
     </v-row>
     <policy-status-charts :data="data" :policy="route.params.policy" />
     <policy-cluster-results :source="route.params.source" :policy="route.params.policy" />
-    <resource-scroller :list="data.namespaces">
-      <template #default="{ item }">
-        <v-row>
-          <v-col>
-            <policy-results :namespace="item" :source="route.params.source" :policy="route.params.policy" />
-          </v-col>
-        </v-row>
-      </template>
-    </resource-scroller>
+    <policy-namespace-section :namespaces="data.namespaces" :source="route.params.source" :policy="route.params.policy" />
   </v-container>
 </template>
 

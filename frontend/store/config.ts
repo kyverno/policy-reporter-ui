@@ -8,9 +8,6 @@ type State = {
     displayMode: DisplayMode;
     plugins: string[];
     clusters: Cluster[];
-    sources: SourceConfig[];
-    clusterSources: string[];
-    namespaceSources: string[];
     oauth: boolean;
 }
 
@@ -19,9 +16,6 @@ export const useConfigStore = defineStore('config', {
     displayMode: sessionStorage.getItem(DisplayModeKey) as DisplayMode,
     plugins: [],
     clusters: [],
-    sources: [],
-    clusterSources: [],
-    namespaceSources: [],
     oauth: false,
   }),
   getters: {
@@ -39,7 +33,6 @@ export const useConfigStore = defineStore('config', {
   actions: {
     setConfig(config: Config) {
       this.clusters = config.clusters
-      this.sources = config.sources
       this.oauth = config.oauth
     },
     setDisplayMode(mode: DisplayMode) {

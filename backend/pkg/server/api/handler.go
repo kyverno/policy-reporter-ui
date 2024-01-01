@@ -29,7 +29,7 @@ func (h *Handler) ListCustomBoards(ctx *gin.Context) {
 }
 
 func (h *Handler) GetPolicyDetails(ctx *gin.Context) {
-	details, err := h.service.PolicyDetails(ctx, ctx.Param("cluster"), ctx.Param("source"), ctx.Param("policy"), ctx.Request.URL.Query())
+	details, err := h.service.PolicyDetails(ctx, ctx.Param("cluster"), ctx.Param("source"), ctx.Query("policies"), ctx.Request.URL.Query())
 	if err != nil {
 		zap.L().Error(
 			"failed to generate policy sources",

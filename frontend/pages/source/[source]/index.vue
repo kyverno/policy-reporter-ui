@@ -1,16 +1,18 @@
 <template>
   <page-layout :title="capilize(route.params.source)" v-model:kinds="kinds" v-model:cluster-kinds="clusterKinds" :source="route.params.source" v-if="data">
     <GraphSourceStatus :data="data" :source="route.params.source" />
-    <v-row>
-      <v-col>
-        <LazyClusterResourceResultList :source="route.params.source" :details="false" />
-      </v-col>
-    </v-row>
-    <resource-scroller :list="data.namespaces">
-      <template #default="{ item }">
-        <LazyResourceResultList :namespace="item" :details="false" />
-      </template>
-    </resource-scroller>
+    <template v-if="data.showResults.length === 0">
+      <v-row>
+        <v-col>
+          <resource-cluster-list :source="route.params.source" :details="false" />
+        </v-col>
+      </v-row>
+      <resource-namespace-section v-if="data.namespaces" :namespaces="data.namespaces" />
+    </template>
+    <template v-else>
+      <policy-cluster-results :source="route.params.source" :policy="route.params.policy" />
+      <policy-namespace-section :namespaces="data.namespaces" :source="route.params.source" :policy="route.params.policy" />
+    </template>
   </page-layout>
 </template>
 
@@ -18,8 +20,7 @@
 import { useAPI } from '~/modules/core/composables/api'
 import { capilize } from "~/modules/core/layouthHelper";
 import { type Filter } from "~/modules/core/types";
-import { ResourceFilter } from "~/modules/core/provider/dashboard";
-import ResourceScroller from "~/modules/core/components/ResourceScroller.vue";
+import { APIFilter } from "~/modules/core/provider/dashboard";
 import { onChange } from "~/helper/compare";
 
 const kinds = ref<string[]>([])
@@ -37,5 +38,5 @@ const { data, refresh } = useAPI((api) => api.dashboard(filter.value))
 
 watch(filter, onChange(refresh))
 
-provide(ResourceFilter, filter)
+provide(APIFilter, filter)
 </script>

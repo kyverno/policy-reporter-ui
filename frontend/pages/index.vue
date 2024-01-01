@@ -1,28 +1,36 @@
 <template>
-  <page-layout v-model:kinds="kinds"
+  <page-layout title="Dashboard"
+               v-model:kinds="kinds"
                v-model:cluster-kinds="clusterKinds"
                v-if="data"
   >
     <GraphSourceStatus v-if="data.singleSource" :data="data" :source="data.sources[0]" />
     <GraphSourcesStatus v-else :data="data" />
-    <v-row>
-      <v-col>
-        <LazyClusterResourceResultList :details="data.multiSource" />
-      </v-col>
-    </v-row>
-    <resource-scroller :list="data.namespaces" v-if="data.namespaces.length">
-      <template #default="{ item }">
-        <LazyResourceResultList :namespace="item" :details="data.multiSource" />
+    <template v-for="source in data.showResults" :key="source">
+      <app-row>
+        <results :source="source" :title="`${capilize(source)}: Results without resource information`" />
+      </app-row>
+    </template>
+    <app-row>
+      <resource-cluster-list :details="data.multiSource" />
+    </app-row>
+    <resource-namespace-section v-if="data.namespaces.length" :namespaces="data.namespaces">
+      <template #default="{ namespaces }">
+        <resource-scroller :list="namespaces">
+          <template #default="{ item }">
+            <resource-list :namespace="item" :details="data.multiSource" />
+          </template>
+        </resource-scroller>
       </template>
-    </resource-scroller>
+    </resource-namespace-section>
   </page-layout>
 </template>
 
 <script setup lang="ts">
 import { useAPI } from '~/modules/core/composables/api'
-import ResourceScroller from "~/modules/core/components/ResourceScroller.vue";
 import { onChange } from "~/helper/compare";
-import { ResourceFilter } from "~/modules/core/provider/dashboard";
+import { APIFilter } from "~/modules/core/provider/dashboard";
+import { capilize } from "~/modules/core/layouthHelper";
 
 const kinds = ref<string[]>([])
 const clusterKinds = ref<string[]>([])
@@ -36,5 +44,5 @@ const { data, refresh } = useAPI((api) => api.dashboard(filter.value))
 
 watch(filter, onChange(refresh))
 
-provide(ResourceFilter, filter)
+provide(APIFilter, filter)
 </script>

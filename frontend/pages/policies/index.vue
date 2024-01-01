@@ -13,7 +13,6 @@
 </template>
 
 <script setup lang="ts">
-import ResourceScroller from "~/modules/core/components/ResourceScroller.vue";
 import { onChange } from "~/helper/compare";
 
 const kinds = ref<string[]>([])

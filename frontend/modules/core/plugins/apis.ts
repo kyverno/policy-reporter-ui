@@ -1,17 +1,12 @@
 import { defineNuxtPlugin } from 'nuxt/app'
 import { create } from '~/modules/core/api'
 import { useConfigStore } from "~/store/config";
-import { clusterKinds, kinds } from "~/modules/core/store/filter";
 
 export default defineNuxtPlugin(async () => {
   const config = useRuntimeConfig()
   const api = create({ baseURL: config.public.coreApi as string, prefix: '' })
 
   const apiConfig = await api.config()
-
-  if (apiConfig.oauth) {
-    api.profile().then(console.log)
-  }
 
   api.setPrefix(apiConfig.default)
 

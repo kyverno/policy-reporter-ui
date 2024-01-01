@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { Bar } from 'vue-chartjs'
-import { type Chart } from '../../types'
+import { type Chart } from '~/modules/core/types'
 import { useStatusColors } from "~/modules/core/composables/theme";
 
 const props = defineProps<{ data: Chart }>()

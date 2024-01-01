@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import { DisplayMode } from '../../types'
+import { DisplayMode } from '~/modules/core/types'
 import { useConfigStore } from "~/store/config";
 
 const config = useConfigStore()

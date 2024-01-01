@@ -4,8 +4,8 @@
       <v-app-bar-nav-icon icon="mdi-menu" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Policy Reporter</v-toolbar-title>
       <template #append>
-        <cluster-select />
-        <select-display-mode-select style="width: 150px;" />
+        <form-cluster-select />
+        <form-display-mode-select style="width: 150px;" />
         <user-menu class="ml-4" :profile="layout.profile" v-if="layout.profile" />
       </template>
     </v-app-bar>
@@ -57,7 +57,6 @@
 </template>
 
 <script setup lang="ts">
-import ClusterSelect from "~/modules/core/components/select/ClusterSelect.vue";
 import type { LayoutConfig } from "~/modules/core/types";
 import { useTheme } from "vuetify";
 

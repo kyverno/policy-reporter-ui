@@ -6,9 +6,6 @@
     </template>
     <v-list-item-title>
       {{ item.name }}
-<!--      <nuxt-link to="/" target="_blank" class="text-decoration-none" title="open details">-->
-<!--        {{ item.name }}-->
-<!--      </nuxt-link>-->
     </v-list-item-title>
     <v-list-item-subtitle>{{ item.apiVersion }} {{ item.kind }}</v-list-item-subtitle>
     <template v-slot:append>
@@ -18,11 +15,11 @@
       <ResultChip class="ml-2" :status="Status.ERROR" :count="item.error" tooltip="error results" />
     </template>
   </v-list-item>
-  <LazyResourceResults v-if="open" :id="item.id" :filter="filter" />
+  <resource-source-results v-if="open" :id="item.id" :filter="filter" />
 </template>
 
 <script setup lang="ts">
-import { type Filter, type ResourceResult, Status } from '../types'
+import { type Filter, type ResourceResult, Status } from '~/modules/core/types'
 import { type PropType } from "vue";
 
 const open = ref(false)

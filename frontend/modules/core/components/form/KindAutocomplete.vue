@@ -30,9 +30,7 @@ const selected = ref<string[]>(props.modelValue);
 const loading = ref<boolean>(true);
 
 const { data: items } = useAPI(
-    ($coreAPI) => {
-      return $coreAPI.namespacedKinds(props.source)
-    },
+    (api) => api.namespacedKinds(props.source),
     {
       default: () => [],
       finally: () => {

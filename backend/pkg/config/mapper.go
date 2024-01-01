@@ -65,7 +65,9 @@ func MapCustomBoards(customBoards []CustomBoard) map[string]api.CustomBoard {
 			},
 			PolicyReports: api.PolicyReports{
 				Selector: c.PolicyReports.Selector,
-			}}
+			},
+			ClusterScope: c.ClusterScope.Enabled,
+		}
 	}
 
 	return configs

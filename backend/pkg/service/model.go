@@ -48,6 +48,7 @@ type Dashboard struct {
 	Charts         Charts       `json:"charts"`
 	SourcesNavi    []SourceItem `json:"sourcesNavi"`
 	Total          Total        `json:"total"`
+	ShowResults    []string     `json:"showResults"`
 }
 
 type ResourceDetails struct {

@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { useInfinite } from "../../../composables/infinite";
+import { useInfinite } from "~/composables/infinite";
 
 const props = defineProps<{ list: any[]; }>()
 

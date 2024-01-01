@@ -12,21 +12,25 @@
         <v-card-text>
           <GraphStatusPerCategory :source="source.chart" />
         </v-card-text>
-        <policy-list v-for="item in source.categories" :key="item" :category="item" />
+        <scroller :list="source.categories">
+          <template #default="{ item }">
+            <resource-results :source="source.name" :resource="resource.id" :category="item" />
+          </template>
+        </scroller>
       </div>
     </v-card>
   </app-row>
 </template>
 
 <script setup lang="ts">
-import { APIFilter } from "~/modules/core/provider/dashboard";
-import type { SourceDetails } from "~/modules/core/types";
-import CollapseBtn from "~/components/CollapseBtn.vue";
-
-const props = defineProps<{ source: SourceDetails; }>();
+import type { Resource, SourceDetails } from "../../types";
+import CollapseBtn from "../../../../components/CollapseBtn.vue";
 
 const open = ref(true)
 
-provide(APIFilter, ref({ sources: [props.source.name]}))
+const props = defineProps<{
+  source: SourceDetails;
+  resource: Resource;
+}>();
 
 </script>

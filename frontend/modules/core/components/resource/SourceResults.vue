@@ -14,8 +14,8 @@
 </template>
 
 <script setup lang="ts">
-import { type Filter, Status } from '../types'
-import { capilize } from "../layouthHelper";
+import { type Filter, Status } from '~/modules/core/types'
+import { capilize } from "~/modules/core/layouthHelper";
 
 const props = defineProps<{ id: string; filter?: Filter; }>()
 

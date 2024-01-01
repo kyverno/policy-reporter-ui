@@ -16,8 +16,8 @@
 
 <script lang="ts" setup>
 import { useConfigStore } from "~/store/config";
-import type { CoreAPI } from "~/modules/core/api";
-import { cluster } from "~/modules/core/api";
+import type { CoreAPI } from "../../api";
+import { cluster } from "../../api";
 
 const store = useConfigStore()
 const { $coreAPI } = useNuxtApp()

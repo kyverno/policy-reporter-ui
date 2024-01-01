@@ -42,32 +42,30 @@
       </v-card>
     </v-col>
   </v-row>
-  <v-row>
-    <v-col>
-      <v-card title="Result Overview">
-        <v-tabs v-model="source" bg-color="transparent" fixed-tabs>
-          <v-tab v-for="item in data.sourcesNavi" :key="item.name" :value="item.name" rounded="0">
-            {{ item.title }}
-          </v-tab>
-        </v-tabs>
-        <v-divider />
-        <template v-if="source">
+  <app-row>
+    <v-card title="Result Overview">
+      <v-tabs v-model="source" bg-color="transparent" fixed-tabs>
+        <v-tab v-for="item in data.sourcesNavi" :key="item.name" :value="item.name" rounded="0">
+          {{ item.title }}
+        </v-tab>
+      </v-tabs>
+      <v-divider />
+      <template v-if="source">
+        <v-card-text>
+          <GraphStatusPerNamespace :data="data.charts.namespaceScope[source]" />
+        </v-card-text>
+        <template v-if="!hideCluster">
+          <v-divider />
+          <v-card-title>
+            Cluster Scoped Results
+          </v-card-title>
           <v-card-text>
-            <GraphStatusPerNamespace :data="data.charts.namespaceScope[source]" />
+            <GraphClusterResultCounts :data="data.charts.clusterScope[source]" class="px-0 pb-0" />
           </v-card-text>
-          <template v-if="!hideCluster">
-            <v-divider />
-            <v-card-title>
-              Cluster Scoped Results
-            </v-card-title>
-            <v-card-text>
-              <GraphClusterResultCounts :data="data.charts.clusterScope[source]" class="px-0 pb-0" />
-            </v-card-text>
-          </template>
         </template>
-      </v-card>
-    </v-col>
-  </v-row>
+      </template>
+    </v-card>
+  </app-row>
 </template>
 
 <script setup lang="ts">
