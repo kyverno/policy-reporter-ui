@@ -229,9 +229,22 @@ export type ListResult = {
 
 export type Target = {
     name: string;
+    host?: string;
+    skipTLS?: boolean;
+    useTLS?: boolean;
+    auth?: boolean;
+    mountedSecret?: boolean;
+    secretRef?: boolean;
     minimumPriority: Priority;
-    sources?: string[];
-    skipExistingOnStartup: boolean;
+    filter: {
+        namespaces?: { include: string[]; exclude: string[]; }
+        priorities?: { include: string[]; exclude: string[]; }
+        reportLabels?: { include: string[]; exclude: string[]; }
+        policies?: { include: string[]; exclude: string[]; }
+        sources?: { include: string[]; exclude: string[]; }
+    };
+    customFields: { [key: string]: string; }
+    properties: { [key: string]: any; }
 }
 
 export type StatusCount = {

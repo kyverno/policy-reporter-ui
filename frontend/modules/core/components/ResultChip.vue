@@ -21,5 +21,6 @@ const icons = {
     [Status.WARN]: 'alert',
     [Status.FAIL]: 'alert-circle',
     [Status.ERROR]: 'close',
+    [Status.SKIP]: 'slash-forward',
 }
 </script>

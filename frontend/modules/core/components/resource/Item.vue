@@ -9,7 +9,8 @@
     </v-list-item-title>
     <v-list-item-subtitle>{{ item.apiVersion }} {{ item.kind }}</v-list-item-subtitle>
     <template v-slot:append>
-      <ResultChip :status="Status.PASS" :count="item.pass" tooltip="pass results" />
+      <ResultChip v-if="!!item.skip" :status="Status.SKIP" :count="item.skip" tooltip="skip results" />
+      <ResultChip class="ml-2" :status="Status.PASS" :count="item.pass" tooltip="pass results" />
       <ResultChip class="ml-2" :status="Status.WARN" :count="item.warn" tooltip="warning results" />
       <ResultChip class="ml-2" :status="Status.FAIL" :count="item.fail" tooltip="fail results" />
       <ResultChip class="ml-2" :status="Status.ERROR" :count="item.error" tooltip="error results" />

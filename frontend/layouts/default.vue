@@ -16,6 +16,9 @@
           <v-list-item :title="item.title" :to="item.path" :exact="item.exact"></v-list-item>
         </template>
         <v-divider class="mb-1" />
+        <template v-if="layout.customBoards">
+          <v-list-subheader>Custom Boards</v-list-subheader>
+        </template>
         <template v-for="item in layout.customBoards" :key="item.title">
           <v-list-item :title="item.title" :to="item.path" :exact="item.exact"></v-list-item>
         </template>
@@ -77,5 +80,6 @@ const bg = computed(() => {
 const navigation = [
   { title: 'Dashboard', path: '/', exact: true },
   { title: 'Policies', path: '/policies', exact: true },
+  { title: 'Notification Targets', path: '/targets', exact: true },
 ];
 </script>

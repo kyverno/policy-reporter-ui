@@ -1,18 +1,16 @@
 <template>
   <v-container fluid class="py-4 px-4 main-height">
-    <v-row>
-      <v-col>
-        <v-card>
-          <v-toolbar color="header" elevation="2">
-            <v-toolbar-title v-if="title">{{ title }}</v-toolbar-title>
-            <template #append>
-              <FormKindAutocomplete style="min-width: 300px; max-width: 100%; margin-right: 15px;" v-model="kinds" :source="source" />
-              <FormClusterKindAutocomplete v-if="!nsScoped" style="min-width: 300px;" v-model="clusterKinds" :source="source" />
-            </template>
-          </v-toolbar>
-        </v-card>
-      </v-col>
-    </v-row>
+    <app-row>
+      <v-card>
+        <v-toolbar color="header" elevation="2">
+          <v-toolbar-title v-if="title">{{ title }}</v-toolbar-title>
+          <template #append>
+            <FormKindAutocomplete style="min-width: 300px; max-width: 100%; margin-right: 15px;" v-model="kinds" :source="source" />
+            <FormClusterKindAutocomplete v-if="!nsScoped" style="min-width: 300px;" v-model="clusterKinds" :source="source" />
+          </template>
+        </v-toolbar>
+      </v-card>
+    </app-row>
     <slot />
   </v-container>
 </template>

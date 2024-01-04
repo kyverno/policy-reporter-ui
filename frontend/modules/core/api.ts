@@ -67,11 +67,11 @@ export class CoreAPI {
   }
 
   targets () {
-    return $fetch<Target[]>('/proxy/'+this.cluster+'/core/v1/targets', { baseURL: this.baseURL })
+    return $fetch<{ [type: string]: Target[] }>(`/proxy/${this.cluster}/core/v2/targets`, { baseURL: this.baseURL })
   }
 
   namespaces (filter?: Filter) {
-    return $fetch<string[]>('/proxy/'+this.cluster+'/core/v1/namespaces', { baseURL: this.baseURL, params: { ...filter } })
+    return $fetch<string[]>(`/proxy/${this.cluster}/core/v1/namespaces`, { baseURL: this.baseURL, params: { ...filter } })
   }
 
   namespacedKinds (source?: string) {
