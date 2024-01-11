@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/core/client"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
-func MapFindingSourcesToSourceItem(findings *client.Findings) []SourceItem {
+func MapFindingSourcesToSourceItem(findings *core.Findings) []SourceItem {
 	findingSources := make(map[string]bool, 0)
 	for _, f := range findings.Counts {
 		findingSources[f.Source] = true
@@ -29,7 +29,7 @@ func MapFindingSourcesToSourceItem(findings *client.Findings) []SourceItem {
 	return sourceItems
 }
 
-func MapFindingSourcesToFindingCharts(findings *client.Findings) map[string]*Chart {
+func MapFindingSourcesToFindingCharts(findings *core.Findings) map[string]*Chart {
 	charts := make(map[string]*Chart, 0)
 	totals := make(map[string]int, 0)
 
@@ -68,7 +68,7 @@ func MapFindingSourcesToFindingCharts(findings *client.Findings) map[string]*Cha
 	return charts
 }
 
-func MapFindingsToSourceStatusChart(title string, findings *client.Findings) *Chart {
+func MapFindingsToSourceStatusChart(title string, findings *core.Findings) *Chart {
 	if len(findings.Counts) == 0 {
 		return &Chart{
 			Name:     title,
@@ -106,7 +106,7 @@ func MapFindingsToSourceStatusChart(title string, findings *client.Findings) *Ch
 	}
 }
 
-func MapNamespaceStatusCountsToChart(title string, namespaces client.NamespaceStatusCounts) *Chart {
+func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStatusCounts) *Chart {
 	sets := map[string]*Dataset{
 		StatusPass:  {Label: utils.Title(StatusPass), Data: make([]int, 0)},
 		StatusFail:  {Label: utils.Title(StatusFail), Data: make([]int, 0)},
@@ -156,7 +156,7 @@ func MapNamespaceStatusCountsToChart(title string, namespaces client.NamespaceSt
 	}
 }
 
-func MapNamespaceStatusCountsToCharts(findings map[string]client.NamespaceStatusCounts) map[string]*Chart {
+func MapNamespaceStatusCountsToCharts(findings map[string]core.NamespaceStatusCounts) map[string]*Chart {
 	charts := make(map[string]*Chart, len(findings))
 
 	for source, namespaces := range findings {
@@ -166,7 +166,7 @@ func MapNamespaceStatusCountsToCharts(findings map[string]client.NamespaceStatus
 	return charts
 }
 
-func SumResourceCounts(results []client.ResourceStatusCount) map[string]int {
+func SumResourceCounts(results []core.ResourceStatusCount) map[string]int {
 	values := map[string]int{
 		StatusPass:  0,
 		StatusFail:  0,
@@ -186,7 +186,7 @@ func SumResourceCounts(results []client.ResourceStatusCount) map[string]int {
 	return values
 }
 
-func MapResourceSourceChart(results []client.ResourceStatusCount) *Chart {
+func MapResourceSourceChart(results []core.ResourceStatusCount) *Chart {
 	sets := map[string]*Dataset{
 		StatusPass:  {Label: utils.Title(StatusPass), Data: make([]int, 0)},
 		StatusFail:  {Label: utils.Title(StatusFail), Data: make([]int, 0)},
@@ -235,7 +235,7 @@ func MapResourceSourceChart(results []client.ResourceStatusCount) *Chart {
 	}
 }
 
-func MapCategoriesToChart(title string, categories []client.Category) *Chart {
+func MapCategoriesToChart(title string, categories []core.Category) *Chart {
 	sets := map[string]*Dataset{
 		StatusPass:  {Label: utils.Title(StatusPass), Data: make([]int, 0)},
 		StatusFail:  {Label: utils.Title(StatusFail), Data: make([]int, 0)},

@@ -40,8 +40,32 @@ func (a OAuth) FromValues(values secrets.Values) OAuth {
 }
 
 type Plugin struct {
-	Name string `mapstructure:"name"`
-	Host string `mapstructure:"host"`
+	Name        string    `mapstructure:"name"`
+	Host        string    `mapstructure:"host"`
+	SkipTLS     bool      `mapstructure:"skipTLS"`
+	Certificate string    `mapstructure:"certificate"`
+	SecretRef   string    `mapstructure:"secretRef"`
+	BasicAuth   BasicAuth `mapstructure:"basicAuth"`
+}
+
+func (a Plugin) FromValues(values secrets.Values) Plugin {
+	if values.Host != "" {
+		a.Host = values.Host
+	}
+	if values.Certificate != "" {
+		a.Certificate = values.Certificate
+	}
+	if values.SkipTLS {
+		a.SkipTLS = values.SkipTLS
+	}
+	if values.Username != "" {
+		a.BasicAuth.Username = values.Username
+	}
+	if values.Password != "" {
+		a.BasicAuth.Password = values.Password
+	}
+
+	return a
 }
 
 // APISetup configuration
@@ -58,9 +82,6 @@ type Cluster struct {
 func (a Cluster) FromValues(values secrets.Values) Cluster {
 	if values.Host != "" {
 		a.Host = values.Host
-	}
-	if values.KyvernoAPI != "" {
-		a.Plugins = append(a.Plugins, Plugin{Name: "kyverno", Host: values.KyvernoAPI})
 	}
 	if values.Certificate != "" {
 		a.Certificate = values.Certificate
@@ -135,5 +156,5 @@ type Config struct {
 	Redis        redis.Config   `mapstructure:"redis"`
 	OAuth        OAuth          `mapstructure:"oauth"`
 	CustomBoards []CustomBoard  `mapstructure:"customBoards"`
-	Cluster      bool           `mapstructure:"cluster"`
+	Local        bool           `mapstructure:"local"`
 }

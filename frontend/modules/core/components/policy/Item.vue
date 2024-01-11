@@ -1,12 +1,12 @@
 <template>
   <v-divider />
-  <v-list-item :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.policy } }">
+  <v-list-item :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.name }}">
     <template v-slot:prepend>
-      <v-btn v-if="details" class="mr-2" variant="text" :icon="!open ? `mdi-chevron-up` : `mdi-chevron-down`" @click.stop.prevent="open = !open"></v-btn>
+      <CollapseBtn v-if="item.description" btn-class="mr-2" v-model="open" :size="40" />
       <AvatarSeverity :severity="item.severity ?? Severity.INFO" />
     </template>
     <v-list-item-title>
-      {{ item.policy }}
+      {{ item.title }}
     </v-list-item-title>
     <template v-slot:append>
       <ResultChip :status="Status.PASS" :count="item.results.pass" tooltip="pass results" />
@@ -15,13 +15,22 @@
       <ResultChip class="ml-2" :status="Status.ERROR" :count="item.results.error" tooltip="error results" />
     </template>
   </v-list-item>
+  <template v-if="open">
+    <v-divider />
+    <v-list-item :class="`${bg} text-pre-line`">
+      {{ item.description }}
+    </v-list-item>
+  </template>
 </template>
 
 <script setup lang="ts">
 import { type PropType } from "vue";
 import { type PolicyResult, type Filter, Status, Severity } from "~/modules/core/types";
+import { capilize } from "~/modules/core/layouthHelper";
 
 const open = ref(false)
+
+const bg = useBGColor()
 
 const props = defineProps({
   item: { type: Object as PropType<PolicyResult>, required: true },

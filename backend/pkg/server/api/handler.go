@@ -5,17 +5,22 @@ import (
 	"net/url"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kyverno/policy-reporter-ui/pkg/core/client"
-	core "github.com/kyverno/policy-reporter-ui/pkg/core/client"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/service"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
 
+type Endpoints struct {
+	Core    *core.Client
+	Plugins map[string]*plugin.Client
+}
+
 type Handler struct {
 	config  *Config
-	clients map[string]*core.Client
+	clients map[string]*Endpoints
 	boards  map[string]CustomBoard
 	service *service.Service
 }
@@ -26,21 +31,6 @@ func (h *Handler) Config(ctx *gin.Context) {
 
 func (h *Handler) ListCustomBoards(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, utils.ToList(h.boards))
-}
-
-func (h *Handler) GetPolicyDetails(ctx *gin.Context) {
-	details, err := h.service.PolicyDetails(ctx, ctx.Param("cluster"), ctx.Param("source"), ctx.Query("policies"), ctx.Request.URL.Query())
-	if err != nil {
-		zap.L().Error(
-			"failed to generate policy sources",
-			zap.String("cluster", ctx.Param("cluster")),
-			zap.Error(err),
-		)
-		ctx.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	ctx.JSON(http.StatusOK, details)
 }
 
 func (h *Handler) ListPolicySources(ctx *gin.Context) {
@@ -81,7 +71,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 		return
 	}
 
-	client, ok := h.clients[ctx.Param("cluster")]
+	endpoints, ok := h.clients[ctx.Param("cluster")]
 	if !ok {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
@@ -98,7 +88,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	if len(sources) == 0 {
 		g.Go(func() error {
 			var err error
-			sources, err = client.ListSources(ctx, url.Values{})
+			sources, err = endpoints.Core.ListSources(ctx, url.Values{})
 
 			return err
 		})
@@ -106,7 +96,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 
 	var namespaces []string
 	if len(config.Namespaces.Selector) > 0 {
-		ns, err := client.ResolveNamespaceSelector(ctx, config.Namespaces.Selector)
+		ns, err := endpoints.Core.ResolveNamespaceSelector(ctx, config.Namespaces.Selector)
 		if err != nil {
 			ctx.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -134,13 +124,13 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 }
 
 func (h *Handler) Layout(ctx *gin.Context) {
-	client, ok := h.clients[ctx.Param("cluster")]
+	endpoints, ok := h.clients[ctx.Param("cluster")]
 	if !ok {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
-	sources, err := client.ListSourceCategoryTree(ctx, ctx.Request.URL.Query())
+	sources, err := endpoints.Core.ListSourceCategoryTree(ctx, ctx.Request.URL.Query())
 	if err != nil {
 		zap.L().Error("failed to call core API", zap.Error(err))
 		ctx.AbortWithStatus(http.StatusInternalServerError)
@@ -151,13 +141,14 @@ func (h *Handler) Layout(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"sources":      MapSourceCategoryTreeToNavi(sources),
+		"policies":     MapSourcesToPolicyNavi(sources),
 		"customBoards": MapCustomBoardsToNavi(h.boards),
 		"profile":      profile,
 	})
 }
 
 func (h *Handler) Dashboard(ctx *gin.Context) {
-	client, ok := h.clients[ctx.Param("cluster")]
+	endpoints, ok := h.clients[ctx.Param("cluster")]
 	if !ok {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
@@ -169,7 +160,7 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 	if len(sources) == 0 {
 		g.Go(func() error {
 			var err error
-			sources, err = client.ListSources(ctx, url.Values{})
+			sources, err = endpoints.Core.ListSources(ctx, url.Values{})
 
 			return err
 		})
@@ -180,7 +171,7 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 	var namespaces []string
 	g.Go(func() error {
 		var err error
-		namespaces, err = client.ListNamespaces(ctx, url.Values{
+		namespaces, err = endpoints.Core.ListNamespaces(ctx, url.Values{
 			"sources":    query["sources"],
 			"kinds":      query["kinds"],
 			"categories": query["categories"],
@@ -206,6 +197,61 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dashboard)
 }
 
-func NewHandler(config *Config, clients map[string]*client.Client, customBoards map[string]CustomBoard) *Handler {
-	return &Handler{config, clients, customBoards, service.New(clients)}
+func (h *Handler) Policies(ctx *gin.Context) {
+	endpoints, ok := h.clients[ctx.Param("cluster")]
+	if !ok {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	source := ctx.Param("source")
+
+	query := ctx.Request.URL.Query()
+	query.Set("sources", source)
+
+	list, err := endpoints.Core.ListPolicies(ctx, query)
+	if err != nil {
+		zap.L().Error("failed to load policies from core api", zap.String("cluster", ctx.Param("cluster")), zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	if plugin, ok := endpoints.Plugins[source]; ok {
+		policies, err := plugin.ListPolicies(ctx, query)
+		if err != nil {
+			zap.L().Error("failed to load policies from plugin", zap.String("cluster", ctx.Param("cluster")), zap.String("plugin", source), zap.Error(err))
+		} else {
+			ctx.JSON(http.StatusOK, MapPluginPolicies(policies, list))
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusOK, MapPoliciesFromCore(list))
+}
+
+func (h *Handler) GetPolicyDetails(ctx *gin.Context) {
+	details, err := h.service.PolicyDetails(ctx, ctx.Param("cluster"), ctx.Param("source"), ctx.Query("policies"), ctx.Request.URL.Query())
+	if err != nil {
+		zap.L().Error(
+			"failed to generate policy sources",
+			zap.String("cluster", ctx.Param("cluster")),
+			zap.Error(err),
+		)
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, details)
+}
+
+func NewHandler(config *Config, apis map[string]*Endpoints, customBoards map[string]CustomBoard) *Handler {
+	endpoints := make(map[string]*service.Endpoints, len(apis))
+	for cluster, value := range apis {
+		endpoints[cluster] = &service.Endpoints{
+			Core:    value.Core,
+			Plugins: value.Plugins,
+		}
+	}
+
+	return &Handler{config, apis, customBoards, service.New(endpoints)}
 }

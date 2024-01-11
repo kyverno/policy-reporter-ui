@@ -58,8 +58,12 @@ export class CoreAPI {
     return $fetch<SourceDetails[]>(`/api/config/${this.cluster}/policy-sources`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 
-  policyDetails (source: string, policy: string, filter?: Filter) {
-    return $fetch<PolicyDetails>(`/api/config/${this.cluster}/${source}/policy/details`, { baseURL: this.baseURL, params: applyExcludes({ ...filter, policies: [policy] }, [...this.nsExcludes, ...this.clusterExcludes]) })
+  policyDetails (source: string, policy: string, namespace?: string) {
+    return $fetch<PolicyDetails>(`/api/config/${this.cluster}/${source}/policy/details`, { baseURL: this.baseURL, params: applyExcludes({ policies: [policy], namespace }, [...this.nsExcludes, ...this.clusterExcludes]) })
+  }
+
+  policies (source: string, filter?: Filter) {
+    return $fetch<{ [category: string]: PolicyResult[] }>(`/api/config/${this.cluster}/${source}/policies`, { baseURL: this.baseURL, params: applyExcludes(filter, this.nsExcludes)})
   }
 
   config () {
@@ -134,10 +138,6 @@ export class CoreAPI {
     return $fetch<Source[]>('/proxy/'+this.cluster+'/core/v2/sources/categories', { baseURL: this.baseURL, params: { id, ...applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) } })
   }
 
-  policies (filter?: Filter) {
-    return $fetch<PolicyResult[]>('/proxy/'+this.cluster+'/core/v2/policies', { baseURL: this.baseURL, params: applyExcludes(filter, this.nsExcludes)})
-  }
-
   setPrefix (prefix: string): void {
     this.cluster = prefix
     cluster.value = prefix
@@ -151,7 +151,7 @@ export class CoreAPI {
 
 export const create = (config: APIConfig): CoreAPI => new CoreAPI(config)
 
-const applyExcludes = (filter: Filter | undefined, exclude: string[] | undefined) => {
+const applyExcludes = <T extends Filter>(filter: T | undefined, exclude: string[] | undefined) => {
   if (!filter) return ({ exclude })
 
   if (filter.kinds && filter.kinds.length > 0) return filter

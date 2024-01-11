@@ -1,4 +1,4 @@
-package client
+package core
 
 type Category struct {
 	Name  string `json:"name"`
@@ -7,6 +7,14 @@ type Category struct {
 	Warn  int    `json:"warn"`
 	Error int    `json:"error"`
 	Fail  int    `json:"fail"`
+}
+
+type Policy struct {
+	Source   string         `json:"source,omitempty"`
+	Category string         `json:"category,omitempty"`
+	Name     string         `json:"policy"`
+	Severity string         `json:"severity,omitempty"`
+	Results  map[string]int `json:"results"`
 }
 
 type Resource struct {

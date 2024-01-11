@@ -17,11 +17,13 @@ import { cluster } from "~/modules/core/api";
     overflow: hidden!important;
   }
 
-  .v-theme--dark .v-data-table-footer {
+  .v-theme--dark .v-data-table-footer,
+  .v-theme--dark .top-border {
     border-top: 1px solid rgba(255, 255, 255, 0.12)
   }
 
-  .v-theme--light .v-data-table-footer {
+  .v-theme--light .v-data-table-footer,
+  .v-theme--light .top-border {
     border-top: 1px solid #E1DCDF;
   }
 </style>

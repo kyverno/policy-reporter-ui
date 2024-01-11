@@ -13,8 +13,26 @@
     <v-navigation-drawer v-model="drawer">
       <v-list density="compact" nav color="header" variant="flat">
         <template v-for="item in navigation" :key="item.title">
-          <v-list-item :title="item.title" :to="item.path" :exact="item.exact"></v-list-item>
+          <v-list-item :title="item.title" :to="item.path" :exact="item.exact" />
         </template>
+
+        <v-list-group value="policies" fluid>
+          <template v-slot:activator="{ props }">
+            <v-list-item title="Policies" v-bind="props" base-color="header-item"></v-list-item>
+          </template>
+          <v-divider class="mb-1" />
+          <v-list-item
+              :value="child.path"
+              base-color="sub-item"
+              v-for="child in layout.policies"
+              :key="child.path"
+              :to="child.path"
+              exact
+          >
+            <v-list-item-title class="pl-2">{{ child.title }}</v-list-item-title>
+          </v-list-item>
+        </v-list-group>
+
         <v-divider class="mb-1" />
         <template v-if="layout.customBoards">
           <v-list-subheader>Custom Boards</v-list-subheader>
@@ -79,7 +97,6 @@ const bg = computed(() => {
 
 const navigation = [
   { title: 'Dashboard', path: '/', exact: true },
-  { title: 'Policies', path: '/policies', exact: true },
   { title: 'Notification Targets', path: '/targets', exact: true },
 ];
 </script>

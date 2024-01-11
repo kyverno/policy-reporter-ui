@@ -66,8 +66,11 @@ export type Category = {
 }
 
 export type PolicyResult = {
-    policy: string;
+    name: string;
+    namespace?: string;
+    title: string;
     source: string;
+    description: string;
     category: string;
     severity?: Severity;
     results: {
@@ -120,8 +123,9 @@ export type Navigation = {
 
 export type LayoutConfig = {
     profile?: Profile;
-    sources: Navigation[]
-    customBoards: Navigation[]
+    sources: Navigation[];
+    policies: Navigation[];
+    customBoards: Navigation[];
 }
 
 export type Dataset = {
@@ -187,11 +191,26 @@ export type PolicyDetails = {
     title: string;
     name: string;
     namespaces: string[];
+    references?: string[];
+    description: string;
+    showDetails: boolean;
+    engine?: {
+        name: string;
+        kubernetesVersion: string;
+        version: string;
+        subjects: string[];
+    };
+    sourceCode?: {
+        contentType: string;
+        content: string;
+    };
     charts: {
         findings: Chart;
         namespaceScope: Chart;
         clusterScope: { [key in Status]: number; };
     };
+    additional: { title: string; value: string }[]
+    details: { title: string; items: { title?: string; value: string }[] }[];
 }
 
 export type Config = {

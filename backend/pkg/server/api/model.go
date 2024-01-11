@@ -1,5 +1,16 @@
 package api
 
+type Policy struct {
+	Source      string         `json:"source,omitempty"`
+	Category    string         `json:"category,omitempty"`
+	Namespace   string         `json:"namespace,omitempty"`
+	Name        string         `json:"name"`
+	Title       string         `json:"title"`
+	Description string         `json:"description"`
+	Severity    string         `json:"severity,omitempty"`
+	Results     map[string]int `json:"results"`
+}
+
 type DefaultFilter struct {
 	Resources        []string `json:"resources"`
 	ClusterResources []string `json:"clusterResources"`

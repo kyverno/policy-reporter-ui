@@ -4,29 +4,49 @@
       <v-toolbar color="category">
         <v-toolbar-title>{{ source.title }}</v-toolbar-title>
         <template #append>
-          <CollapseBtn v-model="open" />
+          <CollapseBtn v-model="open"/>
         </template>
       </v-toolbar>
       <div v-show="open">
-        <v-divider />
+        <v-divider/>
         <v-card-text>
-          <GraphStatusPerCategory :source="source.chart" />
+          <GraphStatusPerCategory :source="source.chart"/>
         </v-card-text>
-        <policy-list v-for="item in source.categories" :key="item" :category="item" />
+        <policy-list v-for="item in source.categories"
+                     :key="item"
+                     :category="item"
+                     :pending="pending as boolean"
+                     :policies="data[item] || []"
+        />
       </div>
     </v-card>
   </app-row>
 </template>
 
-<script setup lang="ts">
-import { APIFilter } from "~/modules/core/provider/dashboard";
-import type { SourceDetails } from "~/modules/core/types";
+<script lang="ts" setup>
+import { APIFilter, NamespacedKinds } from "~/modules/core/provider/dashboard";
+import type { Filter, SourceDetails } from "~/modules/core/types";
 import CollapseBtn from "~/components/CollapseBtn.vue";
+import type { Ref } from "vue";
+import { onChange } from "~/helper/compare";
 
 const props = defineProps<{ source: SourceDetails; }>();
 
 const open = ref(true)
 
-provide(APIFilter, ref({ sources: [props.source.name]}))
+const filter = inject<Ref<Filter>>(APIFilter, ref<Filter>({}))
+const kinds = inject<Ref<string[]>>(NamespacedKinds, ref<string[]>([]))
+
+const combinedFilter = computed(() => ({
+  ...filter.value,
+  kinds: kinds.value.length ? kinds.value : undefined,
+}))
+
+const { data, refresh, pending } = useAPI(
+    (api) => api.policies(props.source.name, combinedFilter.value),
+    { default: () => ({}) }
+);
+
+watch(combinedFilter, onChange(refresh))
 
 </script>

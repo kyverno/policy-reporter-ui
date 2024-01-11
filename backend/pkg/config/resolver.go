@@ -12,9 +12,11 @@ import (
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
+	"github.com/kyverno/policy-reporter-ui/pkg/api"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/proxy"
 	"github.com/kyverno/policy-reporter-ui/pkg/auth"
-	"github.com/kyverno/policy-reporter-ui/pkg/core/client"
-	"github.com/kyverno/policy-reporter-ui/pkg/core/proxy"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/logging"
 	"github.com/kyverno/policy-reporter-ui/pkg/server"
@@ -37,29 +39,54 @@ type Resolver struct {
 	clientset *k8s.Clientset
 }
 
-func (r *Resolver) CoreClient(cluster Cluster) (*client.Client, error) {
-	options := []client.ClientOption{
-		client.WithBaseURL(cluster.Host),
+func (r *Resolver) CoreClient(cluster Cluster) (*core.Client, error) {
+	options := []api.ClientOption{
+		api.WithBaseURL(cluster.Host),
 	}
 
 	if cluster.Certificate != "" {
-		options = append(options, client.WithCertificate(cluster.Certificate))
+		options = append(options, api.WithCertificate(cluster.Certificate))
 	} else if cluster.SkipTLS {
-		options = append(options, client.WithSkipTLS())
+		options = append(options, api.WithSkipTLS())
 	}
 
 	if cluster.BasicAuth.Username != "" {
-		options = append(options, client.WithBaseAuth(client.BasicAuth{
+		options = append(options, api.WithBaseAuth(api.BasicAuth{
 			Username: cluster.BasicAuth.Username,
 			Password: cluster.BasicAuth.Password,
 		}))
 	}
 
 	if r.config.Logging.Enabled {
-		options = append(options, client.WithLogging())
+		options = append(options, api.WithLogging())
 	}
 
-	return client.New(options)
+	return core.New(options)
+}
+
+func (r *Resolver) PluginClient(p Plugin) (*plugin.Client, error) {
+	options := []api.ClientOption{
+		api.WithBaseURL(p.Host),
+	}
+
+	if p.Certificate != "" {
+		options = append(options, api.WithCertificate(p.Certificate))
+	} else if p.SkipTLS {
+		options = append(options, api.WithSkipTLS())
+	}
+
+	if p.BasicAuth.Username != "" {
+		options = append(options, api.WithBaseAuth(api.BasicAuth{
+			Username: p.BasicAuth.Username,
+			Password: p.BasicAuth.Password,
+		}))
+	}
+
+	if r.config.Logging.Enabled {
+		options = append(options, api.WithLogging())
+	}
+
+	return plugin.New(options)
 }
 
 func (r *Resolver) LoadClusterSecret(ctx context.Context, cluster Cluster) (Cluster, error) {
@@ -75,7 +102,20 @@ func (r *Resolver) LoadClusterSecret(ctx context.Context, cluster Cluster) (Clus
 	return cluster, nil
 }
 
-func (r *Resolver) ExternalProxies(cluster Cluster) (map[string]*httputil.ReverseProxy, error) {
+func (r *Resolver) LoadPluginSecret(ctx context.Context, plugin Plugin) (Plugin, error) {
+	if plugin.SecretRef != "" {
+		values, err := r.LoadSecret(ctx, plugin.SecretRef)
+		if err != nil {
+			return plugin, err
+		}
+
+		plugin = plugin.FromValues(values)
+	}
+
+	return plugin, nil
+}
+
+func (r *Resolver) Proxies(cluster Cluster) (*httputil.ReverseProxy, error) {
 	if cluster.Host == "" {
 		return nil, ErrMissingAPI
 	}
@@ -109,21 +149,7 @@ func (r *Resolver) ExternalProxies(cluster Cluster) (map[string]*httputil.Revers
 		proxyOptions = append(proxyOptions, proxy.WithCertificate(cluster.Certificate))
 	}
 
-	proxies := map[string]*httputil.ReverseProxy{
-		"core": proxy.New(target, options, proxyOptions),
-	}
-
-	for _, p := range cluster.Plugins {
-		pluginTarget, err := url.Parse(p.Host)
-		if err != nil {
-			zap.L().Error("failed to parse plugin host", zap.String("plugin", p.Name), zap.String("host", p.Host), zap.Error(err))
-			continue
-		}
-
-		proxies[p.Name] = proxy.New(pluginTarget, options, proxyOptions)
-	}
-
-	return proxies, nil
+	return proxy.New(target, options, proxyOptions), nil
 }
 
 func (r *Resolver) LoadBasicAuth(ctx context.Context, secretRef string) (*BasicAuth, error) {
@@ -170,7 +196,7 @@ func (r *Resolver) K8sConfig() (*rest.Config, error) {
 	var k8sConfig *rest.Config
 	var err error
 
-	if r.config.Cluster {
+	if r.config.Local {
 		k8sConfig, err = utils.RestConfig(r.config.KubeConfig)
 	} else {
 		k8sConfig, err = rest.InClusterConfig()
@@ -257,11 +283,11 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	for _, cluster := range r.config.Clusters {
 		cluster, err := r.LoadClusterSecret(ctx, cluster)
 		if err != nil {
-			zap.L().Error("failed to load cluster secret", zap.Error(err), zap.String("cluser", cluster.Name))
+			zap.L().Error("failed to load cluster secret", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("secretRef", cluster.SecretRef))
 			continue
 		}
 
-		proxies, err := r.ExternalProxies(cluster)
+		proxy, err := r.Proxies(cluster)
 		if err != nil {
 			zap.L().Error("failed to resolve proxies", zap.Error(err), zap.String("cluser", cluster.Name))
 			continue
@@ -269,7 +295,30 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 
 		client, err := r.CoreClient(cluster)
 
-		serv.RegisterCluster(cluster.Name, client, proxies)
+		plugins := make(map[string]*plugin.Client, len(cluster.Plugins))
+		for _, p := range cluster.Plugins {
+			p, err := r.LoadPluginSecret(ctx, p)
+			if err != nil {
+				zap.L().Error(
+					"failed to load plugin secret",
+					zap.Error(err),
+					zap.String("cluster", cluster.Name),
+					zap.String("plugin", p.Name),
+					zap.String("secretRef", p.SecretRef),
+				)
+				continue
+			}
+
+			pClient, err := r.PluginClient(p)
+			if err != nil {
+				zap.L().Error("failed to create plugin client", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("plugin", p.Name))
+				continue
+			}
+
+			plugins[p.Name] = pClient
+		}
+
+		serv.RegisterCluster(cluster.Name, client, plugins, proxy)
 	}
 
 	if !r.config.UI.Disabled {

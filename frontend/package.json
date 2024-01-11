@@ -21,11 +21,13 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@highlightjs/vue-plugin": "^2.1.0",
     "@pinia/nuxt": "^0.5.1",
     "@vueuse/nuxt": "^10.6.1",
     "axios": "^1.6.2",
     "chart.js": "^4.4.0",
     "chroma-js": "^2.4.2",
+    "highlight.js": "^11.9.0",
     "lodash.debounce": "^4.0.8",
     "pinia": "^2.1.7",
     "vue-chartjs": "^5.2.0",

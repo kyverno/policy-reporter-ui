@@ -3,7 +3,7 @@
     <v-toolbar-title class="text-subtitle-1 font-weight-bold">{{ category }}</v-toolbar-title>
     <template #append>
       <Search class="mr-2" v-model="search" style="min-width: 300px;" />
-      <CollapseBtn v-model="open" :disabled="!data.length" />
+      <CollapseBtn v-model="open" :disabled="!policies.length" />
     </template>
   </v-toolbar>
   <v-list v-if="pending" lines="two" class="mt-0 pt-0 pb-0 mb-0">
@@ -12,10 +12,10 @@
     <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
   </v-list>
   <template v-else>
-    <v-list v-if="data?.length && open" lines="two" class="mt-0 pt-0 pb-0 mb-0">
-      <PolicyItem v-for="item in data" :key="item.policy" :item="item" :details="false" />
+    <v-list v-if="list.length && open" lines="two" class="mt-0 pt-0 pb-0 mb-0">
+      <PolicyItem v-for="item in list" :key="item.name" :item="item" :details="false" />
     </v-list>
-    <template v-if="!(data?.length)">
+    <template v-if="!list.length">
       <v-divider />
       <v-card-text>
         No policies for the selected kinds found
@@ -25,31 +25,18 @@
 </template>
 
 <script setup lang="ts">
-import type { Ref } from "vue";
 import CollapseBtn from "~/components/CollapseBtn.vue";
-import type { Filter } from "~/modules/core/types";
-import { NamespacedKinds, APIFilter } from "~/modules/core/provider/dashboard";
-import { execOnChange } from "~/helper/compare";
+import type { PolicyResult } from "~/modules/core/types";
 
-const props = defineProps<{ category: string; }>()
+const props = defineProps<{ category: string; policies: PolicyResult[]; pending: boolean; }>()
 
 const search = ref('')
 const open = ref(true)
 
-const filter = inject<Ref<Filter>>(APIFilter, ref<Filter>({}))
-const kinds = inject<Ref<string[]>>(NamespacedKinds, ref<string[]>([]))
+const list = computed(() => {
+  if (!search.value) return props.policies
 
-const combinedFilter = computed(() => ({
-  ...filter.value,
-  categories: [props.category as string],
-  kinds: kinds.value.length ? kinds.value : undefined,
-  search: search.value,
-}))
+  return props.policies.filter((p) => p.title.toLowerCase().includes(search.value.toLowerCase()))
+})
 
-const { data, refresh, pending } = useAPI(
-    (api) => api.policies(combinedFilter.value),
-    { default: () => ([]) }
-);
-
-watch(combinedFilter, (o, n) => execOnChange(o, n, () => refresh()))
 </script>

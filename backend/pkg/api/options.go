@@ -1,11 +1,14 @@
-package client
+package api
 
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/kyverno/policy-reporter-ui/pkg/core/utils"
 )
+
+type BasicAuth struct {
+	Username string
+	Password string
+}
 
 type ClientOption = func(*Client) error
 
@@ -27,7 +30,7 @@ func WithBaseAuth(auth BasicAuth) ClientOption {
 
 func WithCertificate(path string) ClientOption {
 	return func(client *Client) error {
-		certs, err := utils.LoadCerts(path)
+		certs, err := LoadCerts(path)
 		if err != nil {
 			return fmt.Errorf("with certificate failed: %w", err)
 		}
@@ -48,7 +51,7 @@ func WithSkipTLS() ClientOption {
 
 func WithLogging() ClientOption {
 	return func(client *Client) error {
-		client.http.Transport = newLoggingRoundTripper(client.http.Transport)
+		client.http.Transport = NewLoggingRoundTripper(client.http.Transport)
 
 		return nil
 	}

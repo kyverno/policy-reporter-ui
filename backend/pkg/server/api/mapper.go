@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/core/client"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
-func MapSourceCategoryTreeToNavi(sources []client.SourceCategoryTree) []NavigationItem {
+func MapSourceCategoryTreeToNavi(sources []core.SourceCategoryTree) []NavigationItem {
 	sourceBoards := make([]NavigationItem, 0)
 	if len(sources) == 1 {
 		for _, category := range sources[0].Categories {
@@ -60,6 +61,23 @@ func MapSourceCategoryTreeToNavi(sources []client.SourceCategoryTree) []Navigati
 	return sourceBoards
 }
 
+func MapSourcesToPolicyNavi(sources []core.SourceCategoryTree) []NavigationItem {
+	sourceBoards := make([]NavigationItem, 0)
+	for _, source := range sources {
+
+		sourceBoards = append(sourceBoards, NavigationItem{
+			Title: utils.Title(source.Name),
+			Path:  fmt.Sprintf("/policies/%s", source.Name),
+		})
+	}
+
+	sort.SliceStable(sourceBoards, func(a, b int) bool {
+		return sourceBoards[a].Title < sourceBoards[b].Title
+	})
+
+	return sourceBoards
+}
+
 func MapCustomBoardsToNavi(boards map[string]CustomBoard) []NavigationItem {
 	customBoards := make([]NavigationItem, 0, len(boards))
 	for _, board := range boards {
@@ -74,4 +92,82 @@ func MapCustomBoardsToNavi(boards map[string]CustomBoard) []NavigationItem {
 	})
 
 	return customBoards
+}
+
+func MapPoliciesFromCore(policies []core.Policy) map[string][]Policy {
+	results := make(map[string][]Policy)
+	for _, policy := range policies {
+		category := policy.Category
+		if category == "" {
+			category = "Other"
+		}
+
+		if _, ok := results[category]; !ok {
+			results[category] = make([]Policy, 0)
+		}
+
+		results[category] = append(results[category], Policy{
+			Name:     policy.Name,
+			Category: policy.Category,
+			Severity: policy.Severity,
+			Source:   policy.Source,
+			Title:    policy.Name,
+			Results:  policy.Results,
+		})
+	}
+
+	return results
+}
+
+func MapPluginPolicies(policies []plugin.Policy, coreList []core.Policy) map[string][]Policy {
+	results := make(map[string][]Policy)
+
+	if coreList == nil || len(coreList) == 0 {
+		return results
+	}
+
+	cache := make(map[string]map[string]*core.Policy, len(coreList))
+	for _, p := range coreList {
+		p := p
+		if _, ok := cache[p.Category]; !ok {
+			cache[p.Category] = make(map[string]*core.Policy)
+		}
+		cache[p.Category][p.Name] = &p
+	}
+
+	for _, policy := range policies {
+		if _, ok := cache[policy.Category]; !ok {
+			continue
+		}
+
+		corePolicy := cache[policy.Category][policy.ID()]
+		if corePolicy == nil {
+			corePolicy = cache[policy.Category][policy.Name]
+		}
+		if corePolicy == nil {
+			continue
+		}
+
+		category := policy.Category
+		if category == "" {
+			category = "Other"
+		}
+
+		if _, ok := results[category]; !ok {
+			results[category] = make([]Policy, 0)
+		}
+
+		results[category] = append(results[category], Policy{
+			Namespace:   policy.Namespace,
+			Name:        corePolicy.Name,
+			Category:    category,
+			Severity:    policy.Severity,
+			Description: policy.Description,
+			Source:      corePolicy.Source,
+			Title:       policy.Title,
+			Results:     corePolicy.Results,
+		})
+	}
+
+	return results
 }

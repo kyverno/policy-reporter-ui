@@ -1,6 +1,6 @@
 package service
 
-import core "github.com/kyverno/policy-reporter-ui/pkg/core/client"
+import "github.com/kyverno/policy-reporter-ui/pkg/api/core"
 
 const (
 	StatusPass  = "pass"
@@ -71,9 +71,39 @@ type PolicyCharts struct {
 	ClusterScope   map[string]int `json:"clusterScope"`
 }
 
+type Engine struct {
+	Name              string   `json:"name"`
+	KubernetesVersion string   `json:"kubernetesVersion,omitempty"`
+	Version           string   `json:"version,omitempty"`
+	Subjects          []string `json:"subjects,omitempty"`
+}
+
+type SourceCode struct {
+	ContentType string `json:"contentType"`
+	Content     string `json:"content"`
+}
+
+type Item struct {
+	Title string `json:"title"`
+	Value string `json:"value"`
+}
+
+type Details struct {
+	Title string `json:"title"`
+	Items []Item `json:"items"`
+}
+
 type PolicyDetails struct {
-	Title      string       `json:"title"`
-	Name       string       `json:"name"`
-	Namespaces []string     `json:"namespaces"`
-	Chart      PolicyCharts `json:"charts"`
+	Title       string       `json:"title"`
+	Name        string       `json:"name"`
+	Namespaces  []string     `json:"namespaces"`
+	Chart       PolicyCharts `json:"charts"`
+	Description string       `json:"description"`
+	Severity    string       `json:"severity,omitempty"`
+	Engine      *Engine      `json:"engine,omitempty"`
+	SourceCode  *SourceCode  `json:"sourceCode,omitempty"`
+	Additional  []Item       `json:"additional,omitempty"`
+	Details     []Details    `json:"details,omitempty"`
+	References  []string     `json:"references,omitempty"`
+	ShowDetails bool         `json:"showDetails"`
 }

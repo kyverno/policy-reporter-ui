@@ -22,6 +22,9 @@
           v-model:items-per-page="options.itemsPerPage"
           v-model:page="options.page"
         >
+          <template #item.policy="{ value }">
+            <nuxt-link :to="{ name: 'policies-source-info-policy', params: { source, policy: value }}" class="text-decoration-none text-white" target="_blank">{{ value }}</nuxt-link>
+          </template>
           <template #item.status="{ value }">
             <chip-status @click="searchText = value" :status="value" />
           </template>
@@ -33,7 +36,7 @@
               <td :colspan="columns.length" class="py-3">
                 <div v-if="item.hasProps">
                   <v-card v-if="item.message" variant="flat">
-                    <v-alert type="info" variant="flat" class="text-pre">
+                    <v-alert type="info" variant="flat" class="text-pre-line">
                       {{ item.message }}
                     </v-alert>
                   </v-card>
@@ -46,7 +49,7 @@
                     </template>
                   </div>
                 </div>
-                <div class="text-pre" v-else>
+                <div class="text-pre-line" v-else>
                   {{ item.message }}
                 </div>
               </td>

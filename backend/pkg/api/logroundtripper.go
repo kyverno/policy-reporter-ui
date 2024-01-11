@@ -1,4 +1,4 @@
-package client
+package api
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func newLoggingRoundTripper(roundTripper http.RoundTripper) http.RoundTripper {
+func NewLoggingRoundTripper(roundTripper http.RoundTripper) http.RoundTripper {
 	return &logRoundTripper{roundTripper: roundTripper}
 }
 

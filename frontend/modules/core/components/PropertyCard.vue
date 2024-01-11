@@ -4,7 +4,7 @@
     <v-divider />
     <v-card-text class="text-body-2 pa-2">
       <a v-if="isURL(value)" :href="value" target="_blank">{{ value }}</a>
-      <span v-else v-html="value" />
+      <span v-else v-html="value" class="text-pre-line" />
     </v-card-text>
   </v-card>
 </template>

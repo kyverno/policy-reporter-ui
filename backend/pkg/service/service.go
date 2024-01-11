@@ -8,8 +8,10 @@ import (
 	"strconv"
 	"sync"
 
-	core "github.com/kyverno/policy-reporter-ui/pkg/core/client"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -17,20 +19,60 @@ var (
 	ErrNoClient = errors.New("client for cluster not found")
 )
 
+type Endpoints struct {
+	Core    *core.Client
+	Plugins map[string]*plugin.Client
+}
+
 type Service struct {
-	clients map[string]*core.Client
+	endpoints map[string]*Endpoints
+}
+
+func (s *Service) core(cluster string) (*core.Client, error) {
+	endpoints, ok := s.endpoints[cluster]
+	if !ok {
+		return nil, ErrNoClient
+	}
+
+	return endpoints.Core, nil
+}
+
+func (s *Service) plugin(cluster, p string) (*plugin.Client, bool) {
+	endpoints, ok := s.endpoints[cluster]
+	if !ok {
+		return nil, false
+	}
+
+	c, ok := endpoints.Plugins[p]
+
+	return c, ok
 }
 
 func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy string, query url.Values) (any, error) {
-	client, ok := s.clients[cluster]
-	if !ok {
-		return nil, errors.New("cluster not found")
+	client, err := s.core(cluster)
+	if err != nil {
+		return nil, err
 	}
 
 	query["sources"] = []string{source}
 	query["policies"] = []string{policy}
 
 	g := &errgroup.Group{}
+
+	var details *plugin.PolicyDetails
+	if plugin, ok := s.plugin(cluster, source); ok {
+		g.Go(func() error {
+			details, err = plugin.GetPolicy(ctx, policy)
+			zap.L().Error(
+				"failed to load policy details from plugin",
+				zap.String("cluster", cluster),
+				zap.String("source", source),
+				zap.Error(err),
+			)
+
+			return nil
+		})
+	}
 
 	var namespaces []string
 	g.Go(func() error {
@@ -65,22 +107,61 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 		return nil, err
 	}
 
-	return &PolicyDetails{
+	title := utils.Title(policy)
+	if details != nil {
+		title = details.Title
+	}
+
+	response := &PolicyDetails{
 		Namespaces: namespaces,
-		Title:      utils.Title(policy),
+		Title:      title,
 		Name:       policy,
 		Chart: PolicyCharts{
-			Findings:       MapFindingsToSourceStatusChart(utils.Title(policy), findings),
-			NamespaceScope: MapNamespaceStatusCountsToChart(utils.Title(policy), result),
+			Findings:       MapFindingsToSourceStatusChart(title, findings),
+			NamespaceScope: MapNamespaceStatusCountsToChart(title, result),
 			ClusterScope:   clusterResult,
 		},
-	}, nil
+	}
+
+	if details != nil {
+		response.Title = details.Title
+		response.Description = details.Description
+		response.Severity = details.Severity
+		response.References = details.References
+		response.Additional = utils.Map(details.Additional, func(i plugin.Item) Item {
+			return Item{Title: i.Title, Value: i.Value}
+		})
+		response.ShowDetails = true
+
+		response.Engine = &Engine{
+			Name:              details.Engine.Name,
+			Version:           details.Engine.Version,
+			KubernetesVersion: details.Engine.KubernetesVersion,
+			Subjects:          details.Engine.Subjects,
+		}
+
+		response.SourceCode = &SourceCode{
+			ContentType: details.SourceCode.ContentType,
+			Content:     details.SourceCode.Content,
+		}
+
+		response.Details = utils.Map(details.Details, func(d plugin.Details) Details {
+			return Details{
+				Title: d.Title,
+				Items: utils.Map(d.Items, func(i plugin.Item) Item {
+					return Item{Title: i.Title, Value: i.Value}
+				}),
+			}
+		})
+	}
+
+	return response, nil
 }
 
 func (s *Service) PolicySources(ctx context.Context, cluster string, query url.Values) ([]Source, error) {
-	client, ok := s.clients[cluster]
-	if !ok {
-		return nil, errors.New("cluster not found")
+	client, err := s.core(cluster)
+	if err != nil {
+		return nil, err
 	}
 
 	tree, err := client.ListSourceCategoryTree(ctx, query)
@@ -113,9 +194,9 @@ func (s *Service) PolicySources(ctx context.Context, cluster string, query url.V
 }
 
 func (s *Service) ResourceDetails(ctx context.Context, cluster string, id string, query url.Values) (*ResourceDetails, error) {
-	client, ok := s.clients[cluster]
-	if !ok {
-		return nil, errors.New("cluster not found")
+	client, err := s.core(cluster)
+	if err != nil {
+		return nil, err
 	}
 
 	query.Set("resource_id", id)
@@ -184,9 +265,9 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster string, id string
 }
 
 func (s *Service) Dashboard(ctx context.Context, cluster string, sources []string, namespaces []string, clusterScope bool, query url.Values) (*Dashboard, error) {
-	client, ok := s.clients[cluster]
-	if !ok {
-		return nil, errors.New("cluster not found")
+	client, err := s.core(cluster)
+	if err != nil {
+		return nil, err
 	}
 
 	g := &errgroup.Group{}
@@ -306,6 +387,6 @@ func BuildFilters(baseFilter url.Values) (url.Values, url.Values, url.Values) {
 	return combinedFilter, namespaceFilter, clusterFilter
 }
 
-func New(clients map[string]*core.Client) *Service {
+func New(clients map[string]*Endpoints) *Service {
 	return &Service{clients}
 }

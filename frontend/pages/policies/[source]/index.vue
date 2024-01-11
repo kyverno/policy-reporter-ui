@@ -1,0 +1,28 @@
+<template>
+  <page-layout v-if="sources"
+               :title="capilize(route.params.source)"
+               v-model:kinds="kinds"
+               v-model:cluster-kinds="clusterKinds"
+  >
+    <resource-scroller :list="sources">
+      <template #default="{ item }">
+        <policy-source-group :source="item" />
+      </template>
+    </resource-scroller>
+  </page-layout>
+</template>
+
+<script setup lang="ts">
+import { onChange } from "~/helper/compare";
+import { capilize } from "~/modules/core/layouthHelper";
+
+const kinds = ref<string[]>([])
+const clusterKinds = ref<string[]>([])
+const route = useRoute()
+
+const filter = computed(() => ({ sources: [route.params.source], kinds: [...kinds.value, ...clusterKinds.value] }))
+
+const { data: sources, refresh } = useAPI((api) => api.policySources(filter.value))
+
+watch(filter, onChange(refresh))
+</script>

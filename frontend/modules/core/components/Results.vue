@@ -32,7 +32,7 @@
               <td :colspan="columns.length" class="py-3">
                 <div v-if="item.hasProps">
                   <v-card v-if="item.message" variant="flat">
-                    <v-alert type="info" variant="flat">
+                    <v-alert type="info" variant="flat" class="text-pre-line">
                       {{ item.message }}
                     </v-alert>
                   </v-card>
@@ -45,7 +45,7 @@
                     </template>
                   </div>
                 </div>
-                <div v-else>
+                <div class="text-pre-line" v-else>
                   {{ item.message }}
                 </div>
               </td>

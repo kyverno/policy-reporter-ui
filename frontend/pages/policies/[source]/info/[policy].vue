@@ -7,17 +7,22 @@
             {{ capilize(route.params.source) }}: {{ data.title }}
           </v-toolbar-title>
           <template #append>
-            <v-btn variant="text" color="white" prepend-icon="mdi-arrow-left" @click="router.back()">back</v-btn>
+            <v-btn variant="text" color="white" prepend-icon="mdi-close" @click="close">close</v-btn>
           </template>
         </v-toolbar>
       </v-card>
     </app-row>
 
-    <policy-details :policy="data" v-if="data.showDetails" />
-
-    <policy-status-charts :data="data" :policy="route.params.policy" />
-    <policy-cluster-results :source="route.params.source" :policy="route.params.policy" />
-    <policy-namespace-section :namespaces="data.namespaces" :source="route.params.source" :policy="route.params.policy" />
+    <policy-details :policy="data" v-if="data.showDetails" default-open />
+    <app-row v-else>
+      <v-card>
+        <v-card-text>
+          <v-alert type="error" variant="outlined">
+            No additional Information available, ensure that you are running a required Plugin for the {{ route.params.source }} policies.
+          </v-alert>
+        </v-card-text>
+      </v-card>
+    </app-row>
   </v-container>
 </template>
 
@@ -27,9 +32,10 @@ import { useAPI } from "~/modules/core/composables/api";
 import { capilize } from "~/modules/core/layouthHelper";
 
 const route = useRoute()
-const router = useRouter()
 
-const { data, refresh } = useAPI((api) => api.policyDetails(route.params.source, route.params.policy, route.query.namespace));
+const { data, refresh } = useAPI((api) => api.policyDetails(route.params.source, route.params.policy));
 
 watch(route, onChange(refresh))
+
+const close = () => window.close()
 </script>

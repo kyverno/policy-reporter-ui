@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/core/utils"
+	"github.com/kyverno/policy-reporter-ui/pkg/api"
 	"go.uber.org/zap"
 )
 
@@ -48,7 +48,7 @@ func WithAuth(username, password string) DirectorOption {
 
 func WithCertificate(certificatePath string) ProxyOption {
 	return func(proxy *httputil.ReverseProxy) {
-		pool, err := utils.LoadCerts(certificatePath)
+		pool, err := api.LoadCerts(certificatePath)
 		if err != nil {
 			zap.L().Error("failed to read certificate", zap.Error(err), zap.String("path", certificatePath))
 			return
