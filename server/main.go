@@ -89,7 +89,7 @@ func main() {
 	}
 
 	apiRouter.PathPrefix("/v1").Handler(http.StripPrefix("/api", coreProxy)).Methods("GET")
-
+	
 	if kyvernoProxy != nil {
 		conf.Plugins = AddIfNotExist(conf.Plugins, "kyverno")
 
