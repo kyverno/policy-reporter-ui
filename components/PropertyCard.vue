@@ -5,7 +5,7 @@
     </v-system-bar>
     <v-card-text class="property-text-bg pa-2" style="font-size: 0.8rem; line-height: 1.1rem;">
       <a v-if="isURL(value)" :href="value" target="_blank">{{ value }}</a>
-      <span v-else v-html="value" />
+      <span v-else style="white-space: pre-line;" v-html="value" />
     </v-card-text>
   </v-card>
 </template>

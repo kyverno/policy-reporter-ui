@@ -74,7 +74,7 @@
                         </template>
                       </div>
                     </div>
-                    <div v-else>
+                    <div v-else style="white-space: pre-line;">
                       {{ item.message }}
                     </div>
                   </td>
