@@ -2,7 +2,7 @@ apiVersion: v2
 name: ui
 description: Policy Reporter UI
 type: application
-version: 0.0.7
+version: 0.0.8
 appVersion: "2.0.0-alpha.3"
 
 icon: https://github.com/kyverno/kyverno/raw/main/img/logo.png
