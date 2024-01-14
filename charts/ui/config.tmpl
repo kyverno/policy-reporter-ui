@@ -10,23 +10,10 @@ server:
 ui:
   displayMode: {{ .Values.ui.displayMode }}
 
+{{- with .Values.clusters }}
 clusters:
-- name: default
-  host: {{ tpl .Values.policyReporter.host . }}
-  skipTLS: {{ .Values.policyReporter.skipTLS }}
-  certificate: {{ .Values.policyReporter.certificate }}
-  secretRef: {{ .Values.policyReporter.secretRef }}
-  basicAuth:
-    username: {{ .Values.policyReporter.basicAuth.username }}
-    password: {{ .Values.policyReporter.basicAuth.password }}
-  {{- if .Values.plugins }}
-  plugins:
-  {{- if kindIs "slice" .Values.plugins }}
-    {{- toYaml .Values.plugins | nindent 2 }}
-  {{- else }}
-    {{- tpl .Values.plugins . | nindent 2 }}
-  {{- end }}
-  {{- end }}
+  {{- toYaml . | nindent 4 }}
+{{- end }}
 
 {{- with .Values.customBoards }}
 customBoards:

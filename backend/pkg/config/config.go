@@ -95,6 +95,19 @@ func (a Cluster) FromValues(values secrets.Values) Cluster {
 		a.BasicAuth.Password = values.Password
 	}
 
+	for _, p := range values.Plugins {
+		a.Plugins = append(a.Plugins, Plugin{
+			Host:        p.Host,
+			Name:        p.Name,
+			SkipTLS:     p.SkipTLS,
+			Certificate: p.Certificate,
+			BasicAuth: BasicAuth{
+				Username: p.Username,
+				Password: p.Password,
+			},
+		})
+	}
+
 	return a
 }
 

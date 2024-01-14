@@ -2,7 +2,9 @@ package secrets
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
+	"strings"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes"
 	"go.uber.org/zap"
@@ -11,13 +13,22 @@ import (
 	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
-type Values struct {
-	Host        string `json:"api" mapstructure:"api"`
-	KyvernoAPI  string `json:"kyvernoApi" mapstructure:"kyvernoApi"`
+type Plugin struct {
+	Name        string `json:"name" mapstructure:"name"`
+	Host        string `json:"host" mapstructure:"host"`
 	Certificate string `json:"certificate" mapstructure:"certificate"`
 	SkipTLS     bool   `json:"skipTLS" mapstructure:"skipTLS"`
 	Username    string `json:"username" mapstructure:"username"`
 	Password    string `json:"password" mapstructure:"password"`
+}
+
+type Values struct {
+	Host        string   `json:"host" mapstructure:"host"`
+	Plugins     []Plugin `json:"plugins" mapstructure:"plugins"`
+	Certificate string   `json:"certificate" mapstructure:"certificate"`
+	SkipTLS     bool     `json:"skipTLS" mapstructure:"skipTLS"`
+	Username    string   `json:"username" mapstructure:"username"`
+	Password    string   `json:"password" mapstructure:"password"`
 
 	Domain       string `json:"domain" mapstructure:"domain"`
 	ClientID     string `json:"clientId" mapstructure:"clientId"`
@@ -37,17 +48,16 @@ func (c *k8sClient) Get(ctx context.Context, name string) (Values, error) {
 		return c.client.Get(ctx, name, metav1.GetOptions{})
 	})
 
-	values := Values{}
+	values := Values{
+		Plugins: make([]Plugin, 0),
+	}
+
 	if err != nil {
 		return values, err
 	}
 
-	if api, ok := secret.Data["api"]; ok {
-		values.Host = string(api)
-	}
-
-	if kyvernoAPI, ok := secret.Data["kyvernoApi"]; ok {
-		values.KyvernoAPI = string(kyvernoAPI)
+	if host, ok := secret.Data["host"]; ok {
+		values.Host = string(host)
 	}
 
 	if certificate, ok := secret.Data["certificate"]; ok {
@@ -81,6 +91,20 @@ func (c *k8sClient) Get(ctx context.Context, name string) (Values, error) {
 		} else {
 			values.SkipTLS = v
 		}
+	}
+
+	for k, v := range secret.Data {
+		if !strings.HasPrefix(k, "plugin.") {
+			continue
+		}
+
+		plugin := Plugin{}
+		if err := json.Unmarshal(v, &plugin); err != nil {
+			zap.L().Error("failed to unmarshal plugin config", zap.Error(err), zap.String("plugin", k))
+			continue
+		}
+
+		values.Plugins = append(values.Plugins, plugin)
 	}
 
 	return values, nil

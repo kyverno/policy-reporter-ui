@@ -22,12 +22,12 @@ func newFakeClient() v1.SecretInterface {
 			Namespace: "default",
 		},
 		Data: map[string][]byte{
-			"host":        []byte("http://localhost:9200"),
-			"kyvernoApi":  []byte("http://localhost:9200/kyverno"),
-			"username":    []byte("username"),
-			"password":    []byte("password"),
-			"skipTLS":     []byte("true"),
-			"certificate": []byte("certs"),
+			"host":           []byte("http://localhost:9200"),
+			"username":       []byte("username"),
+			"password":       []byte("password"),
+			"skipTLS":        []byte("true"),
+			"certificate":    []byte("certs"),
+			"plugin.kyverno": []byte(`{"host":"http://localhost:8080"}`),
 		},
 	}).CoreV1().Secrets("default")
 }
@@ -45,8 +45,8 @@ func Test_Client(t *testing.T) {
 			t.Errorf("Unexpected CoreAPI: %s", values.Host)
 		}
 
-		if values.KyvernoAPI != "http://localhost:9200/kyverno" {
-			t.Errorf("Unexpected KyvernoAPI: %s", values.KyvernoAPI)
+		if len(values.Plugins) != 1 {
+			t.Errorf("Unexpected Plugin Config: %v", values.Plugins)
 		}
 
 		if !values.SkipTLS {

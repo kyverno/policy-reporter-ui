@@ -79,27 +79,16 @@ sources:
       - Job
       - ReplicaSet
 
-policyReporter:
-  # -- Host of the Policy Reporter Core App
-  host: "http://policy-reporter:8080"
-  # -- Skip TLS Verification
-  skipTLS: false
-  # -- TLS Certificate
-  certificate: ""
-  basicAuth:
-    # -- HTTP BasicAuth Username
-    username: ""
-    # -- HTTP BasicAuth Password
-    password: ""
-  # -- Secret to read the API configuration from
-  # supports `host`, `certificate`, `skipTLS`, `username`, `password` key
-  secretRef: ""
-
-# -- additional Policy Reporter UI Plugin configurations
-plugins: []
-# - name: source
-#   host: http://plugin:8080/api
-
+# -- Connected Policy Reporter APIs
+clusters: []
+# - name: default
+#   host: http://policy-reporter:8080
+#   secretRef: ""
+#   skipTLS: false
+#   certificate: ""
+#   plugins:
+#   - name: kyverno
+#     host: http://policy-reporter-kyverno-plugin:8080
 
 # -- Image pull secrets for image verification policies, this will define the `--imagePullSecrets` argument
 imagePullSecrets: []
