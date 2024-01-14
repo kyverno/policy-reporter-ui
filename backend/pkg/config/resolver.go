@@ -306,7 +306,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 
 		proxy, err := r.Proxies(cluster)
 		if err != nil {
-			zap.L().Error("failed to resolve proxies", zap.Error(err), zap.String("cluser", cluster.Name))
+			zap.L().Error("failed to resolve proxies", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("host", cluster.Host))
 			continue
 		}
 
