@@ -105,6 +105,6 @@ jobs:
     with:
       image: ghcr.io/${{ github.repository_owner }}/policy-reporter-ui
       digest: "${{ needs.publish-images.outputs.digest }}"
-      registry-username: ${{ github.actor }}
+      registry-username: ${{ github.repository_owner }}
     secrets:
-      registry-password: ${{ secrets.GITHUB_TOKEN }}
+      registry-password: ${{ secrets.CR_PAT }}
