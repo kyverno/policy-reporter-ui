@@ -1,0 +1,6 @@
+apiVersion: v2
+name: policy-reporter-ui
+description: Trivy Plugin for Policy Reporter UI
+type: application
+version: 0.0.1
+appVersion: "2.0.0-alpha.1"

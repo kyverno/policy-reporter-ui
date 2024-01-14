@@ -5,8 +5,11 @@ import (
 	"errors"
 	"net/http/httputil"
 	"net/url"
+	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/gzip"
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	k8s "k8s.io/client-go/kubernetes"
@@ -230,12 +233,8 @@ func (r *Resolver) Clientset() (*k8s.Clientset, error) {
 	return r.clientset, nil
 }
 
-func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) ([]gin.HandlerFunc, error) {
-	if !r.config.OAuth.Enabled {
-		return make([]gin.HandlerFunc, 0), nil
-	}
-
-	oauth := r.config.OAuth
+func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) (gin.HandlerFunc, error) {
+	oauth := r.config.OpenIDConnect
 
 	if oauth.SecretRef != "" {
 		values, err := r.LoadSecret(ctx, oauth.SecretRef)
@@ -260,7 +259,7 @@ func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) ([]gin.Ha
 
 	auth.Setup(engine, authenticator)
 
-	return []gin.HandlerFunc{auth.Auth}, nil
+	return auth.Auth, nil
 }
 
 func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
@@ -273,9 +272,27 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 		engine.Use(cors.Default())
 	}
 
-	middleware, err := r.SetupOAuth(ctx, engine)
-	if err != nil {
-		zap.L().Error("failed to setup oauth", zap.Error(err))
+	middleware := []gin.HandlerFunc{
+		gzip.Gzip(gzip.DefaultCompression),
+	}
+
+	if r.config.OpenIDConnect.Enabled {
+		auth, err := r.SetupOAuth(ctx, engine)
+		if err != nil {
+			zap.L().Error("failed to setup oauth", zap.Error(err))
+		} else {
+			middleware = append(middleware, auth)
+		}
+	}
+
+	if r.config.Server.Logging {
+		middleware = append(
+			middleware,
+			ginzap.Ginzap(r.Logger(), time.RFC3339, true),
+			ginzap.RecoveryWithZap(r.Logger(), true),
+		)
+	} else {
+		middleware = append(middleware, gin.Recovery())
 	}
 
 	serv := server.NewServer(engine, r.config.Server.Port, middleware)

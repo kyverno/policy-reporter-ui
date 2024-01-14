@@ -1,0 +1,17 @@
+{{- if (gt (int .Values.replicaCount) 1) }}
+{{- if .Capabilities.APIVersions.Has "policy/v1/PodDisruptionBudget" }}
+apiVersion: policy/v1
+{{- else }}
+apiVersion: policy/v1beta1
+{{- end }}
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "policy-reporter-ui.fullname" . }}
+  labels:
+    {{- include "policy-reporter-ui.labels" . | nindent 4 }}
+spec:
+{{- include "policy-reporter-ui.podDisruptionBudget" . | indent 2 }}
+  selector:
+    matchLabels:
+      {{- include "policy-reporter-ui.selectorLabels" . | nindent 6 }}
+{{- end }}

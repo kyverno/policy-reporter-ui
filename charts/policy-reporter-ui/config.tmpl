@@ -1,0 +1,36 @@
+logging:
+  encoding: {{ .Values.logging.encoding }}
+  logLevel: {{ .Values.logging.logLevel }}
+
+server:
+  port: {{ .Values.server.port }}
+  logging: {{ .Values.server.logging }}
+  overwriteHost: {{ .Values.server.overwriteHost }}
+
+ui:
+  displayMode: {{ .Values.ui.displayMode }}
+
+clusters:
+- name: default
+  host: {{ .Values.policyReporter.host }}
+  skipTLS: {{ .Values.policyReporter.skipTLS }}
+  certificate: {{ .Values.policyReporter.certificate }}
+  secretRef: {{ .Values.policyReporter.secretRef }}
+  basicAuth:
+    username: {{ .Values.policyReporter.basicAuth.username }}
+    password: {{ .Values.policyReporter.basicAuth.password }}
+
+{{- with .Values.customBoards }}
+customBoards:
+  {{- toYaml . | nindent 4 }}
+{{- end }}
+
+{{- with .Values.sources }}
+sources:
+  {{- toYaml . | nindent 4 }}
+{{- end }}
+
+{{- with .Values.openIDConnect }}
+openIDConnect:
+  {{- toYaml . | nindent 4 }}
+{{- end }}

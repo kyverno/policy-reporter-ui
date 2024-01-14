@@ -5,7 +5,6 @@ import (
 
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/logging"
-	"github.com/kyverno/policy-reporter-ui/pkg/redis"
 )
 
 // BasicAuth configuration
@@ -15,7 +14,7 @@ type BasicAuth struct {
 	SecretRef string `mapstructure:"secretRef"`
 }
 
-type OAuth struct {
+type OpenIDConnect struct {
 	Enabled      bool     `mapstructure:"enabled"`
 	SecretRef    string   `mapstructure:"secretRef"`
 	Domain       string   `mapstructure:"domain"`
@@ -25,7 +24,7 @@ type OAuth struct {
 	Scopes       []string `mapstructure:"scopes"`
 }
 
-func (a OAuth) FromValues(values secrets.Values) OAuth {
+func (a OpenIDConnect) FromValues(values secrets.Values) OpenIDConnect {
 	if values.Domain != "" {
 		a.Domain = values.Domain
 	}
@@ -116,6 +115,7 @@ type Server struct {
 	Port          int  `mapstructure:"port"`
 	CORS          bool `mapstructure:"cors"`
 	Debug         bool `mapstructure:"debug"`
+	Logging       bool `mapstructure:"logging"`
 	OverwriteHost bool `mapstructure:"overwriteHost"`
 }
 
@@ -146,15 +146,14 @@ type CustomBoard struct {
 
 // Config structure
 type Config struct {
-	KubeConfig   clientcmd.ConfigOverrides
-	Namespace    string         `mapstructure:"namespace"`
-	Clusters     []Cluster      `mapstructure:"clusters"`
-	Sources      []Source       `mapstructure:"sources"`
-	Server       Server         `mapstructure:"server"`
-	UI           UI             `mapstructure:"ui"`
-	Logging      logging.Config `mapstructure:"logging"`
-	Redis        redis.Config   `mapstructure:"redis"`
-	OAuth        OAuth          `mapstructure:"oauth"`
-	CustomBoards []CustomBoard  `mapstructure:"customBoards"`
-	Local        bool           `mapstructure:"local"`
+	KubeConfig    clientcmd.ConfigOverrides
+	Namespace     string         `mapstructure:"namespace"`
+	Clusters      []Cluster      `mapstructure:"clusters"`
+	Sources       []Source       `mapstructure:"sources"`
+	Server        Server         `mapstructure:"server"`
+	UI            UI             `mapstructure:"ui"`
+	Logging       logging.Config `mapstructure:"logging"`
+	OpenIDConnect OpenIDConnect  `mapstructure:"openIDConnect"`
+	CustomBoards  []CustomBoard  `mapstructure:"customBoards"`
+	Local         bool           `mapstructure:"local"`
 }
