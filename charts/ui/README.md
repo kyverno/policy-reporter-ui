@@ -1,8 +1,8 @@
-# policy-reporter-ui
+# ui
 
-Trivy Plugin for Policy Reporter UI
+Policy Reporter UI
 
-![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0-alpha.1](https://img.shields.io/badge/AppVersion-2.0.0--alpha.1-informational?style=flat-square)
+![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0-alpha.3](https://img.shields.io/badge/AppVersion-2.0.0--alpha.3-informational?style=flat-square)
 
 ## Documentation
 
@@ -13,7 +13,7 @@ You can find detailed Information and Screens about Features and Configurations 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | image.registry | string | `"ghcr.io"` | Image registry |
-| image.repository | string | `"kyverno/policy-reporter/policy-reporter-ui"` | Image repository |
+| image.repository | string | `"kyverno/policy-reporter-ui"` | Image repository |
 | image.pullPolicy | string | `"IfNotPresent"` | Image PullPolicy |
 | image.tag | string | `""` | Image tag Defaults to `Chart.AppVersion` if omitted |
 | replicaCount | int | `1` | Deployment replica count |
@@ -76,12 +76,7 @@ You can find detailed Information and Screens about Features and Configurations 
 | affinity | object | `{}` | Affinity constraints. |
 | kyverno-plugin.enabled | bool | `false` | enables the Kyverno Plugin See: https://github.com/kyverno/policy-reporter-plugins/tree/main/charts/kyverno-plugin for details |
 | trivy-plugin.enabled | bool | `false` | enables the Trivy Plugin See: https://github.com/kyverno/policy-reporter-plugins/tree/main/charts/trivy-plugin for details |
-| trivy-plugin.policyReporter.host. | string | `nil` |  |
-| trivy-plugin.policyReporter.skipTLS. | string | `nil` |  |
-| trivy-plugin.policyReporter.certificate. | string | `nil` |  |
-| trivy-plugin.policyReporter.secretRef. | string | `nil` |  |
-| trivy-plugin.policyReporter.basicAuth.username. | string | `nil` |  |
-| trivy-plugin.policyReporter.basicAuth.password. | string | `nil` |  |
+| trivy-plugin.policyReporter.host | string | `"http://policy-reporter:8080"` |  |
 
 ## Requirements
 
