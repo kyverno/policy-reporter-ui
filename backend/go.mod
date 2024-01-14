@@ -1,6 +1,6 @@
 module github.com/kyverno/policy-reporter-ui
 
-go 1.21.3
+go 1.21.6
 
 require (
 	github.com/coreos/go-oidc/v3 v3.9.0

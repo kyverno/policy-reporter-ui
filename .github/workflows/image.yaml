@@ -62,7 +62,7 @@ jobs:
           COSIGN_REPOSITORY: ghcr.io/${{ github.repository_owner }}/sbom/policy-reporter
         run: |
           set -e
-          echo "digest=$(VERSION=${{ inputs.version }} make ko-publish)" >> $GITHUB_OUTPUT
+          echo "digest=$(make ko-publish)" >> $GITHUB_OUTPUT
 
       - name: Download cyclonedx-gomod
         uses: CycloneDX/gh-gomod-generate-sbom@efc74245d6802c8cefd925620515442756c70d8f #v2.0
@@ -92,7 +92,7 @@ jobs:
         env:
           COSIGN_REPOSITORY: ghcr.io/${{ github.repository_owner }}/sbom/policy-reporter
         run: |
-          cosign attach sbom --sbom ./${{ inputs.sbom-name }}-bom.cdx.json --type cyclonedx ${{ steps.ko-publish.outputs.digest }}
+          cosign attach sbom --sbom ./policy-reporter-ui-bom.cdx.json --type cyclonedx ${{ steps.ko-publish.outputs.digest }}
 
   generate-provenance:
     needs: publish-images
