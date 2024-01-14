@@ -95,6 +95,12 @@ policyReporter:
   # supports `host`, `certificate`, `skipTLS`, `username`, `password` key
   secretRef: ""
 
+# -- additional Policy Reporter UI Plugin configurations
+plugins: []
+# - name: source
+#   host: http://plugin:8080/api
+
+
 # -- Image pull secrets for image verification policies, this will define the `--imagePullSecrets` argument
 imagePullSecrets: []
   # regcred:

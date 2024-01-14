@@ -12,7 +12,7 @@ ui:
 
 clusters:
 - name: default
-  host: {{ .Values.policyReporter.host }}
+  host: {{ tpl .Values.policyReporter.host . }}
   skipTLS: {{ .Values.policyReporter.skipTLS }}
   certificate: {{ .Values.policyReporter.certificate }}
   secretRef: {{ .Values.policyReporter.secretRef }}
@@ -22,11 +22,14 @@ clusters:
   plugins:
   {{- if index .Values "kyverno-plugin" "enabled" }}
   - name: kyverno
-    host: http://{{ .Release.Name }}-kyverno-plugin:8080/api
+    host: http://{{ include "kyverno-plugin.fullname" . }}-kyverno-plugin:{{ index .Values "kyverno-plugin" "service" "port" }}/api
   {{- end }}
   {{- if index .Values "trivy-plugin" "enabled" }}
   - name: Trivy Vulnerability
-    host: http://{{ .Release.Name }}-trivy-plugin:8080/api/vulnr
+    host: http://{{ include "trivy-plugin.fullname" . }}-kyverno-plugin:{{ index .Values "trivy-plugin" "service" "port" }}/api/vulnr
+  {{- end }}
+  {{- with .Values.plugins }}
+    {{- toYaml . | nindent 2 }}
   {{- end }}
 
 {{- with .Values.customBoards }}

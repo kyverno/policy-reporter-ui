@@ -4,6 +4,6 @@ dependencies:
   version: 0.0.1
 - name: trivy-plugin
   repository: oci://ghcr.io/kyverno/charts/policy-reporter
-  version: 0.0.1
-digest: sha256:389b0ad8319d7a5f34942ce69879b2c5b2ee2721f78611ad6b0e1d32e094e8e0
-generated: "2024-01-14T13:45:51.032248+01:00"
+  version: 0.0.2
+digest: sha256:e7cb23e428d9f7f8230259a194a14151ed161e3e1294a24ab85f1b0c0b039ed1
+generated: "2024-01-14T17:16:27.603097+01:00"

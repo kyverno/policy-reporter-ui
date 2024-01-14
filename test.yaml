@@ -1,0 +1,554 @@
+---
+# Source: ui/charts/kyverno-plugin/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: policy-reporter-ui-kyverno-plugin
+  labels:
+    helm.sh/chart: kyverno-plugin-0.0.1
+    app.kubernetes.io/name: kyverno-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: ui/charts/trivy-plugin/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: policy-reporter-ui-trivy-plugin
+  labels:
+    helm.sh/chart: trivy-plugin-0.0.1
+    app.kubernetes.io/name: trivy-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: ui/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: policy-reporter-ui
+  labels:
+    helm.sh/chart: ui-0.0.1
+    app.kubernetes.io/name: ui
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "2.0.0-alpha.3"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: ui/charts/kyverno-plugin/templates/config-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: policy-reporter-ui-kyverno-plugin-config
+  labels:
+    helm.sh/chart: kyverno-plugin-0.0.1
+    app.kubernetes.io/name: kyverno-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  config.yaml: bGVhZGVyRWxlY3Rpb246CiAgZW5hYmxlZDogZmFsc2UKICByZWxlYXNlT25DYW5jZWw6IHRydWUKICBsZWFzZUR1cmF0aW9uOiAxNQogIHJlbmV3RGVhZGxpbmU6IDEwCiAgcmV0cnlQZXJpb2Q6IDIKICBsb2NrTmFtZToga3l2ZXJuby1wbHVnaW4KCmxvZ2dpbmc6CiAgZW5jb2Rpbmc6IGNvbnNvbGUKICBsb2dMZXZlbDogMAoKc2VydmVyOgogIGxvZ2dpbmc6IGZhbHNlCiAgYmFzaWNBdXRoOgogICAgdXNlcm5hbWU6IAogICAgcGFzc3dvcmQ6IAogICAgc2VjcmV0UmVmOiAKYmxvY2tSZXBvcnRzOgogICAgZW5hYmxlZDogZmFsc2UKICAgIGV2ZW50TmFtZXNwYWNlOiBkZWZhdWx0CiAgICByZXN1bHRzOgogICAgICBrZWVwT25seUxhdGVzdDogZmFsc2UKICAgICAgbWF4UGVyUmVwb3J0OiAyMDAK
+---
+# Source: ui/charts/trivy-plugin/templates/config-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: policy-reporter-ui-trivy-plugin-config
+  labels:
+    helm.sh/chart: trivy-plugin-0.0.1
+    app.kubernetes.io/name: trivy-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  config.yaml: bG9nZ2luZzoKICBlbmNvZGluZzogY29uc29sZQogIGxvZ0xldmVsOiAwCgpzZXJ2ZXI6CiAgbG9nZ2luZzogZmFsc2UKICBiYXNpY0F1dGg6CiAgICB1c2VybmFtZTogCiAgICBwYXNzd29yZDogCiAgICBzZWNyZXRSZWY6IAoKY29yZToKICBob3N0OiBodHRwOi8vcG9saWN5LXJlcG9ydGVyOjgwODAKICBza2lwVExTOiBmYWxzZQogIGNlcnRpZmljYXRlOiAKICBzZWNyZXRSZWY6IAogIGJhc2ljQXV0aDoKICAgIHVzZXJuYW1lOiAKICAgIHBhc3N3b3JkOiAKCg==
+---
+# Source: ui/templates/config-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: policy-reporter-ui-config
+  labels:
+    helm.sh/chart: ui-0.0.1
+    app.kubernetes.io/name: ui
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "2.0.0-alpha.3"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  config.yaml: bG9nZ2luZzoKICBlbmNvZGluZzogY29uc29sZQogIGxvZ0xldmVsOiAwCgpzZXJ2ZXI6CiAgcG9ydDogODA4MAogIGxvZ2dpbmc6IGZhbHNlCiAgb3ZlcndyaXRlSG9zdDogCgp1aToKICBkaXNwbGF5TW9kZTogCgpjbHVzdGVyczoKLSBuYW1lOiBkZWZhdWx0CiAgaG9zdDogaHR0cDovL3BvbGljeS1yZXBvcnRlcjo4MDgwCiAgc2tpcFRMUzogZmFsc2UKICBjZXJ0aWZpY2F0ZTogCiAgc2VjcmV0UmVmOiAKICBiYXNpY0F1dGg6CiAgICB1c2VybmFtZTogCiAgICBwYXNzd29yZDogCiAgcGx1Z2luczoKICAtIG5hbWU6IGt5dmVybm8KICAgIGhvc3Q6IGh0dHA6Ly9wb2xpY3ktcmVwb3J0ZXItdWkta3l2ZXJuby1wbHVnaW46ODA4MC9hcGkKICAtIG5hbWU6IFRyaXZ5IFZ1bG5lcmFiaWxpdHkKICAgIGhvc3Q6IGh0dHA6Ly9wb2xpY3ktcmVwb3J0ZXItdWkta3l2ZXJuby1wbHVnaW46ODA4MC9hcGkvdnVsbnIKICAtIGhvc3Q6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MAogICAgbmFtZTogdGVzdApzb3VyY2VzOgogICAgLSBleGNsdWRlczoKICAgICAgICBuYW1lc3BhY2VLaW5kczoKICAgICAgICAtIFBvZAogICAgICAgIC0gSm9iCiAgICAgICAgLSBSZXBsaWNhU2V0CiAgICAgIG5hbWU6IGt5dmVybm8Kb3BlbklEQ29ubmVjdDoKICAgIGNsaWVudElkOiAiIgogICAgY2xpZW50U2VjcmV0OiAiIgogICAgZG9tYWluOiAiIgogICAgZW5hYmxlZDogZmFsc2UKICAgIHNjb3BlczogW10KICAgIHNlY3JldFJlZjogIiI=
+---
+# Source: ui/charts/kyverno-plugin/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    helm.sh/chart: kyverno-plugin-0.0.1
+    app.kubernetes.io/name: kyverno-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+  name: policy-reporter-ui-kyverno-plugin
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - policies
+  - policies/status
+  - clusterpolicies
+  - clusterpolicies/status
+  verbs:
+  - get
+  - list
+---
+# Source: ui/charts/kyverno-plugin/templates/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: policy-reporter-ui-kyverno-plugin
+  labels:
+    helm.sh/chart: kyverno-plugin-0.0.1
+    app.kubernetes.io/name: kyverno-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  kind: ClusterRole
+  name: policy-reporter-ui-kyverno-plugin
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: "ServiceAccount"
+  name: policy-reporter-ui-kyverno-plugin
+  namespace: policy-reporter
+---
+# Source: ui/charts/kyverno-plugin/templates/secret-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    helm.sh/chart: kyverno-plugin-0.0.1
+    app.kubernetes.io/name: kyverno-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+  name: policy-reporter-ui-kyverno-plugin-secret-reader
+rules:
+- apiGroups: ['']
+  resources:
+  - secrets
+  verbs:
+  - get
+---
+# Source: ui/charts/trivy-plugin/templates/secret-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    helm.sh/chart: trivy-plugin-0.0.1
+    app.kubernetes.io/name: trivy-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+  name: policy-reporter-ui-trivy-plugin-secret-reader
+rules:
+- apiGroups: ['']
+  resources:
+  - secrets
+  verbs:
+  - get
+---
+# Source: ui/templates/secret-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    helm.sh/chart: ui-0.0.1
+    app.kubernetes.io/name: ui
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "2.0.0-alpha.3"
+    app.kubernetes.io/managed-by: Helm
+  name: policy-reporter-ui-secret-reader
+rules:
+- apiGroups: ['']
+  resources:
+  - secrets
+  verbs:
+  - get
+---
+# Source: ui/charts/kyverno-plugin/templates/secret-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: policy-reporter-ui-kyverno-plugin-secret-reader
+  labels:
+    helm.sh/chart: kyverno-plugin-0.0.1
+    app.kubernetes.io/name: kyverno-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  kind: Role
+  name: policy-reporter-ui-kyverno-plugin-secret-reader
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: "ServiceAccount"
+  name: policy-reporter-ui-kyverno-plugin
+  namespace: policy-reporter
+---
+# Source: ui/charts/trivy-plugin/templates/secret-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: policy-reporter-ui-trivy-plugin-secret-reader
+  labels:
+    helm.sh/chart: trivy-plugin-0.0.1
+    app.kubernetes.io/name: trivy-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  kind: Role
+  name: policy-reporter-ui-trivy-plugin-secret-reader
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: "ServiceAccount"
+  name: policy-reporter-ui-trivy-plugin
+  namespace: policy-reporter
+---
+# Source: ui/templates/secret-rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: policy-reporter-ui-secret-reader
+  labels:
+    helm.sh/chart: ui-0.0.1
+    app.kubernetes.io/name: ui
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "2.0.0-alpha.3"
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  kind: Role
+  name: policy-reporter-ui-secret-reader
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: "ServiceAccount"
+  name: policy-reporter-ui
+  namespace: policy-reporter
+---
+# Source: ui/charts/kyverno-plugin/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: policy-reporter-ui-kyverno-plugin
+  labels:
+    helm.sh/chart: kyverno-plugin-0.0.1
+    app.kubernetes.io/name: kyverno-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: kyverno-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+---
+# Source: ui/charts/trivy-plugin/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: policy-reporter-ui-trivy-plugin
+  labels:
+    helm.sh/chart: trivy-plugin-0.0.1
+    app.kubernetes.io/name: trivy-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: trivy-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+---
+# Source: ui/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: policy-reporter-ui
+  labels:
+    helm.sh/chart: ui-0.0.1
+    app.kubernetes.io/name: ui
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "2.0.0-alpha.3"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: ui
+    app.kubernetes.io/instance: policy-reporter-ui
+---
+# Source: ui/charts/kyverno-plugin/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: policy-reporter-ui-kyverno-plugin
+  labels:
+    helm.sh/chart: kyverno-plugin-0.0.1
+    app.kubernetes.io/name: kyverno-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kyverno-plugin
+      app.kubernetes.io/instance: policy-reporter-ui
+  template:
+    metadata:
+      annotations:
+        checksum/secret: "140843dd468de5a899af99b9ce5320cea46d85bd674a3d496bd0dba7034c5eed"
+      labels:
+        helm.sh/chart: kyverno-plugin-0.0.1
+        app.kubernetes.io/name: kyverno-plugin
+        app.kubernetes.io/instance: policy-reporter-ui
+        app.kubernetes.io/version: "0.0.2"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: policy-reporter-ui-kyverno-plugin
+      securityContext:
+        runAsGroup: 1234
+        runAsUser: 1234
+      containers:
+        - name: kyverno-plugin
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1234
+            seccompProfile:
+              type: RuntimeDefault
+          image: "ghcr.io/kyverno/policy-reporter/kyverno-plugin:0.0.2"
+          imagePullPolicy: IfNotPresent
+          args:
+            - run
+            - --config=/app/config.yaml
+            - --port=8080
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/policies
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/policies
+              port: http
+          resources:
+            {}
+          volumeMounts:
+          - name: config-file
+            mountPath: /app/config.yaml
+            subPath: config.yaml
+            readOnly: true
+          env:
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+      volumes:
+      - name: config-file
+        secret:
+          secretName: policy-reporter-ui-kyverno-plugin-config
+          optional: true
+---
+# Source: ui/charts/trivy-plugin/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: policy-reporter-ui-trivy-plugin
+  labels:
+    helm.sh/chart: trivy-plugin-0.0.1
+    app.kubernetes.io/name: trivy-plugin
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: trivy-plugin
+      app.kubernetes.io/instance: policy-reporter-ui
+  template:
+    metadata:
+      annotations:
+        checksum/secret: "f08b0ef6453fed5a2d5097ac90fd174f951e1f205264430e1968c02000fc96b5"
+      labels:
+        helm.sh/chart: trivy-plugin-0.0.1
+        app.kubernetes.io/name: trivy-plugin
+        app.kubernetes.io/instance: policy-reporter-ui
+        app.kubernetes.io/version: "0.0.2"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: policy-reporter-ui-trivy-plugin
+      securityContext:
+        runAsGroup: 1234
+        runAsUser: 1234
+      containers:
+        - name: trivy-plugin
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1234
+            seccompProfile:
+              type: RuntimeDefault
+          image: "ghcr.io/kyverno/policy-reporter/trivy-plugin:0.0.2"
+          imagePullPolicy: IfNotPresent
+          args:
+            - run
+            - --config=/app/config.yaml
+            - --port=8080
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/vulnr/policies
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/vulnr/policies
+              port: http
+          resources:
+            {}
+          volumeMounts:
+          - name: config-file
+            mountPath: /app/config.yaml
+            subPath: config.yaml
+            readOnly: true
+          env:
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+      volumes:
+      - name: config-file
+        secret:
+          secretName: policy-reporter-ui-trivy-plugin-config
+          optional: true
+---
+# Source: ui/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: policy-reporter-ui
+  labels:
+    helm.sh/chart: ui-0.0.1
+    app.kubernetes.io/name: ui
+    app.kubernetes.io/instance: policy-reporter-ui
+    app.kubernetes.io/version: "2.0.0-alpha.3"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ui
+      app.kubernetes.io/instance: policy-reporter-ui
+  template:
+    metadata:
+      annotations:
+        checksum/secret: "ff8d7c89d76d307b128a2a854012dbd9ec907aa750b488f100bc2ddfb15bef0e"
+      labels:
+        helm.sh/chart: ui-0.0.1
+        app.kubernetes.io/name: ui
+        app.kubernetes.io/instance: policy-reporter-ui
+        app.kubernetes.io/version: "2.0.0-alpha.3"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: policy-reporter-ui
+      securityContext:
+        runAsGroup: 1234
+        runAsUser: 1234
+      containers:
+        - name: ui
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1234
+            seccompProfile:
+              type: RuntimeDefault
+          image: "ghcr.io/kyverno/policy-reporter-ui:2.0.0-alpha.3"
+          imagePullPolicy: IfNotPresent
+          args:
+            - run
+            - --config=/app/config.yaml
+            - --port=8080
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {}
+          volumeMounts:
+          - name: config-file
+            mountPath: /app/config.yaml
+            subPath: config.yaml
+            readOnly: true
+          env:
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+      volumes:
+      - name: config-file
+        secret:
+          secretName: policy-reporter-ui-config
+          optional: true
