@@ -19,17 +19,13 @@ clusters:
   basicAuth:
     username: {{ .Values.policyReporter.basicAuth.username }}
     password: {{ .Values.policyReporter.basicAuth.password }}
-  plugins:
-  {{- if index .Values "kyverno-plugin" "enabled" }}
-  - name: kyverno
-    host: http://{{ .Release.Name }}-kyverno-plugin:{{ index .Values "kyverno-plugin" "service" "port" }}/api
-  {{- end }}
-  {{- if index .Values "trivy-plugin" "enabled" }}
-  - name: Trivy Vulnerability
-    host: http://{{ .Release.Name }}-trivy-plugin:{{ index .Values "trivy-plugin" "service" "port" }}/api/vulnr
-  {{- end }}
   {{- with .Values.plugins }}
+  plugins:
+  {{- if kindIs "slice" .Values.plugins }}
     {{- toYaml . | nindent 2 }}
+  {{- else }}
+    {{- tpl . }}
+  {{- end }}
   {{- end }}
 
 {{- with .Values.customBoards }}

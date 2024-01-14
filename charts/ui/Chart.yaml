@@ -2,7 +2,7 @@ apiVersion: v2
 name: ui
 description: Policy Reporter UI
 type: application
-version: 0.0.4
+version: 0.0.5
 appVersion: "2.0.0-alpha.3"
 
 icon: https://github.com/kyverno/kyverno/raw/main/img/logo.png
@@ -11,13 +11,3 @@ sources:
   - https://github.com/kyverno/policy-reporter-ui
 maintainers:
   - name: Frank Jogeleit
-
-dependencies:
-  - name: kyverno-plugin
-    version: "0.0.1"
-    repository: "oci://ghcr.io/kyverno/charts/policy-reporter"
-    condition: kyverno-plugin.enabled
-  - name: trivy-plugin
-    version: "0.0.3"
-    repository: "oci://ghcr.io/kyverno/charts/policy-reporter"
-    condition: trivy-plugin.enabled
