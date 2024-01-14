@@ -22,11 +22,11 @@ clusters:
   plugins:
   {{- if index .Values "kyverno-plugin" "enabled" }}
   - name: kyverno
-    host: http://{{ include "kyverno-plugin.fullname" . }}-kyverno-plugin:{{ index .Values "kyverno-plugin" "service" "port" }}/api
+    host: http://{{ .Release.Name }}-kyverno-plugin:{{ index .Values "kyverno-plugin" "service" "port" }}/api
   {{- end }}
   {{- if index .Values "trivy-plugin" "enabled" }}
   - name: Trivy Vulnerability
-    host: http://{{ include "trivy-plugin.fullname" . }}-kyverno-plugin:{{ index .Values "trivy-plugin" "service" "port" }}/api/vulnr
+    host: http://{{ .Release.Name }}-trivy-plugin:{{ index .Values "trivy-plugin" "service" "port" }}/api/vulnr
   {{- end }}
   {{- with .Values.plugins }}
     {{- toYaml . | nindent 2 }}
