@@ -17,7 +17,7 @@ jobs:
       packages: write
       id-token: write
     outputs:
-      digest: ${{ steps.ko-publish.outputs.digest }}
+      digest: ${{ steps.digest.outputs.digest }}
     steps:
       - name: Checkout
         uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
@@ -95,6 +95,14 @@ jobs:
           COSIGN_REPOSITORY: ghcr.io/${{ github.repository_owner }}/sbom/policy-reporter
         run: |
           cosign attach sbom --sbom ./policy-reporter-ui-bom.cdx.json --type cyclonedx ${{ steps.ko-publish.outputs.digest }}
+
+      - shell: bash
+        id: digest
+        run: |
+          echo "The image generated is: ${{ steps.ko-publish.outputs.digest }}"
+          DIGEST=$(echo ${{ steps.ko-publish.outputs.digest }} | cut -d '@' -f2)
+          echo "Digest from image is: $DIGEST"
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
 
   generate-provenance:
     needs: publish-images
