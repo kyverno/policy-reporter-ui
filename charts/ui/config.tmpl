@@ -19,12 +19,12 @@ clusters:
   basicAuth:
     username: {{ .Values.policyReporter.basicAuth.username }}
     password: {{ .Values.policyReporter.basicAuth.password }}
-  {{- with .Values.plugins }}
+  {{- if .Values.plugins }}
   plugins:
   {{- if kindIs "slice" .Values.plugins }}
-    {{- toYaml . | nindent 2 }}
+    {{- toYaml .Values.plugins | nindent 2 }}
   {{- else }}
-    {{- tpl . }}
+    {{- tpl .Values.plugins . | nindent 2 }}
   {{- end }}
   {{- end }}
 
