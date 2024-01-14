@@ -102,8 +102,8 @@ type PolicyDetails struct {
 	Severity    string       `json:"severity,omitempty"`
 	Engine      *Engine      `json:"engine,omitempty"`
 	SourceCode  *SourceCode  `json:"sourceCode,omitempty"`
-	Additional  []Item       `json:"additional,omitempty"`
-	Details     []Details    `json:"details,omitempty"`
+	Details     []Item       `json:"details,omitempty"`
+	Additional  []Details    `json:"additional,omitempty"`
 	References  []string     `json:"references,omitempty"`
 	ShowDetails bool         `json:"showDetails"`
 }

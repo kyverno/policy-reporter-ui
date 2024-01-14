@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sort"
 
+	plugin "github.com/kyverno/policy-reporter-plugins/sdk/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
-	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
@@ -119,7 +119,7 @@ func MapPoliciesFromCore(policies []core.Policy) map[string][]Policy {
 	return results
 }
 
-func MapPluginPolicies(policies []plugin.Policy, coreList []core.Policy) map[string][]Policy {
+func MapPluginPolicies(policies []plugin.PolicyListItem, coreList []core.Policy) map[string][]Policy {
 	results := make(map[string][]Policy)
 
 	if coreList == nil || len(coreList) == 0 {
@@ -140,7 +140,7 @@ func MapPluginPolicies(policies []plugin.Policy, coreList []core.Policy) map[str
 			continue
 		}
 
-		corePolicy := cache[policy.Category][policy.ID()]
+		corePolicy := cache[policy.Category][policyID(policy)]
 		if corePolicy == nil {
 			corePolicy = cache[policy.Category][policy.Name]
 		}
@@ -170,4 +170,12 @@ func MapPluginPolicies(policies []plugin.Policy, coreList []core.Policy) map[str
 	}
 
 	return results
+}
+
+func policyID(p plugin.PolicyListItem) string {
+	if p.Namespace == "" {
+		return p.Name
+	}
+
+	return fmt.Sprintf("%s/%s", p.Namespace, p.Name)
 }

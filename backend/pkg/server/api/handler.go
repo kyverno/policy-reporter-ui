@@ -217,7 +217,7 @@ func (h *Handler) Policies(ctx *gin.Context) {
 	}
 
 	if plugin, ok := endpoints.Plugins[source]; ok {
-		policies, err := plugin.ListPolicies(ctx, query)
+		policies, err := plugin.GetPolicies(ctx)
 		if err != nil {
 			zap.L().Error("failed to load policies from plugin", zap.String("cluster", ctx.Param("cluster")), zap.String("plugin", source), zap.Error(err))
 		} else {

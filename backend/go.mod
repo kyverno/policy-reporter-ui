@@ -9,6 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gosimple/slug v1.13.1
+	github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20240111213703-af5a15ec3660
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.0
 	go.uber.org/zap v1.26.0

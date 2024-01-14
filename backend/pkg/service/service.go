@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"sync"
 
+	pluginAPI "github.com/kyverno/policy-reporter-plugins/sdk/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
@@ -59,7 +60,7 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 
 	g := &errgroup.Group{}
 
-	var details *plugin.PolicyDetails
+	var details *pluginAPI.Policy
 	if plugin, ok := s.plugin(cluster, source); ok {
 		g.Go(func() error {
 			details, err = plugin.GetPolicy(ctx, policy)
@@ -123,39 +124,7 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 		},
 	}
 
-	if details != nil {
-		response.Title = details.Title
-		response.Description = details.Description
-		response.Severity = details.Severity
-		response.References = details.References
-		response.Additional = utils.Map(details.Additional, func(i plugin.Item) Item {
-			return Item{Title: i.Title, Value: i.Value}
-		})
-		response.ShowDetails = true
-
-		response.Engine = &Engine{
-			Name:              details.Engine.Name,
-			Version:           details.Engine.Version,
-			KubernetesVersion: details.Engine.KubernetesVersion,
-			Subjects:          details.Engine.Subjects,
-		}
-
-		response.SourceCode = &SourceCode{
-			ContentType: details.SourceCode.ContentType,
-			Content:     details.SourceCode.Content,
-		}
-
-		response.Details = utils.Map(details.Details, func(d plugin.Details) Details {
-			return Details{
-				Title: d.Title,
-				Items: utils.Map(d.Items, func(i plugin.Item) Item {
-					return Item{Title: i.Title, Value: i.Value}
-				}),
-			}
-		})
-	}
-
-	return response, nil
+	return MapPolicyDetails(response, details), nil
 }
 
 func (s *Service) PolicySources(ctx context.Context, cluster string, query url.Values) ([]Source, error) {

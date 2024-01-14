@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
+	plugin "github.com/kyverno/policy-reporter-plugins/sdk/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
 )
 
@@ -12,24 +13,24 @@ type Client struct {
 	*api.Client
 }
 
-func (c *Client) ListPolicies(ctx context.Context, query url.Values) ([]Policy, error) {
-	resp, err := c.Get(ctx, "/policies", query)
+func (c *Client) GetPolicies(ctx context.Context) ([]plugin.PolicyListItem, error) {
+	resp, err := c.Get(ctx, "/policies", url.Values{})
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	return api.DecodeList[Policy](resp.Body)
+	return api.DecodeList[plugin.PolicyListItem](resp.Body)
 }
 
-func (c *Client) GetPolicy(ctx context.Context, name string) (*PolicyDetails, error) {
+func (c *Client) GetPolicy(ctx context.Context, name string) (*plugin.Policy, error) {
 	resp, err := c.Get(ctx, fmt.Sprintf("/policies/%s", name), url.Values{})
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	return api.Decode[PolicyDetails](resp.Body)
+	return api.Decode[plugin.Policy](resp.Body)
 }
 
 func New(options []api.ClientOption) (*Client, error) {

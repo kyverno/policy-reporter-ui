@@ -209,8 +209,8 @@ export type PolicyDetails = {
         namespaceScope: Chart;
         clusterScope: { [key in Status]: number; };
     };
-    additional: { title: string; value: string }[]
-    details: { title: string; items: { title?: string; value: string }[] }[];
+    details: { title: string; value: string }[]
+    additional: { title: string; items: { title?: string; value: string }[] }[];
 }
 
 export type Config = {

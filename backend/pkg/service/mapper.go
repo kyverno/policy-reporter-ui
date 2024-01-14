@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 
+	plugin "github.com/kyverno/policy-reporter-plugins/sdk/api"
+	pluginAPI "github.com/kyverno/policy-reporter-plugins/sdk/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
@@ -283,4 +285,49 @@ func MapCategoriesToChart(title string, categories []core.Category) *Chart {
 			sets[StatusSkip],
 		},
 	}
+}
+
+func MapPolicyDetails(details *PolicyDetails, policy *plugin.Policy) *PolicyDetails {
+	if policy == nil {
+		return details
+	}
+
+	details.Title = policy.Title
+	details.Description = policy.Description
+	details.Severity = policy.Severity
+	details.References = utils.Map(policy.References, func(ref pluginAPI.Reference) string {
+		return ref.URL
+	})
+
+	details.ShowDetails = true
+
+	if policy.Engine != nil {
+		details.Engine = &Engine{
+			Name:     policy.Engine.Name,
+			Version:  policy.Engine.Version,
+			Subjects: policy.Engine.Subjects,
+		}
+	}
+
+	if policy.SourceCode != nil {
+		details.SourceCode = &SourceCode{
+			ContentType: policy.SourceCode.ContentType,
+			Content:     policy.SourceCode.Content,
+		}
+	}
+
+	details.Additional = utils.Map(policy.Additional, func(d pluginAPI.Details) Details {
+		return Details{
+			Title: d.Title,
+			Items: utils.Map(d.Items, func(i pluginAPI.DetailsItem) Item {
+				return Item{Title: i.Title, Value: i.Value}
+			}),
+		}
+	})
+
+	details.Details = utils.Map(policy.Details, func(i pluginAPI.DetailsItem) Item {
+		return Item{Title: i.Title, Value: i.Value}
+	})
+
+	return details
 }
