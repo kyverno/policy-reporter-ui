@@ -2,7 +2,7 @@ image:
     # -- (string) Image registry
   registry: ghcr.io
     # -- (string) Image repository
-  repository: kyverno/policy-reporter/policy-reporter-ui
+  repository: kyverno/policy-reporter-ui
     # -- (string) Image PullPolicy
   pullPolicy: IfNotPresent
     # -- (string) Image tag
@@ -234,3 +234,15 @@ tolerations: []
 
   # -- Affinity constraints.
 affinity: {}
+
+kyverno-plugin:
+  # -- enables the Kyverno Plugin
+  # See: https://github.com/kyverno/policy-reporter-plugins/tree/main/charts/kyverno-plugin for details
+  enabled: false
+
+trivy-plugin:
+  # -- enables the Trivy Plugin
+  # See: https://github.com/kyverno/policy-reporter-plugins/tree/main/charts/trivy-plugin for details
+  enabled: false
+  policyReporter:
+    host: "http://policy-reporter:8080"

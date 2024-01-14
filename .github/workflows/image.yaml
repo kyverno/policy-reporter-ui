@@ -1,23 +1,21 @@
-name: image
+name: Publish Policy Reporter UI
 
 on:
   push:
-    branches:
-      - 2.x
+    tags:
+      - 'policy-reporter-ui-v*'
 
-    paths-ignore:
-      - README.md
-      - charts/**
-
-permissions:
-  contents: read
-  id-token: write
-  packages: write
-  security-events: write
+permissions: {}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  ko:
+  publish-images:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
@@ -27,33 +25,61 @@ jobs:
         with:
           go-version-file: backend/go.mod
           cache-dependency-path: backend/go.sum
-      
-      - name: Login
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+
+      - name: Run Trivy vulnerability scanner in repo mode
+        uses: aquasecurity/trivy-action@d43c1f16c00cfd3978dde6c07f4bbcf9eb6993ca # v0.16.1
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.CR_PAT }}
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@11086d25041f77fe8fe7b9ea4e48e3b9192b8f19 # v3.1.2
-      
+        uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
+
       - uses: oven-sh/setup-bun@a1800f471a0bc25cddac36bb13e6f436ddf341d7 # v1
         with:
           bun-version: latest
-      
+
+      - name: Set version
+        run: |
+          set -e
+          TAG=${{ github.ref_name }}
+          echo "VERSION=${TAG#policy-reporter-ui-v}" >> $GITHUB_ENV
+
       - name: Build frontend
         run: |
           set -e
           make build-frontend
-      
-      - name: Publish image
+
+      - name: Publish Image
+        shell: bash
         id: ko-publish
+        env:
+          REGISTRY_USERNAME: ${{ github.actor }}
+          REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          COSIGN_REPOSITORY: ghcr.io/${{ github.repository_owner }}/sbom/policy-reporter
         run: |
           set -e
-          echo "digest=$(make ko-publish)" >> $GITHUB_OUTPUT
-      
-      - name: Sign image
+          echo "digest=$(VERSION=${{ inputs.version }} make ko-publish)" >> $GITHUB_OUTPUT
+
+      - name: Download cyclonedx-gomod
+        uses: CycloneDX/gh-gomod-generate-sbom@efc74245d6802c8cefd925620515442756c70d8f #v2.0
+        with:
+          version: v1
+      - shell: bash
+        name: Generate SBOM
+        run: cd ./backend && cyclonedx-gomod app -licenses -json -output ../policy-reporter-ui-bom.cdx.json -main .
+
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          name: policy-reporter-ui-bom-cdx
+          path: policy-reporter-ui-bom.cdx.json
+
+      - shell: bash
+        env:
+          COSIGN_REPOSITORY: ghcr.io/${{ github.repository_owner }}/signatures/policy-reporter
         run: |
           set -e
           cosign sign --yes \
@@ -61,3 +87,24 @@ jobs:
             -a "workflow=${{ github.workflow }}" \
             -a "ref=${{ github.sha }}" \
             ${{ steps.ko-publish.outputs.digest }}
+
+      - shell: bash
+        env:
+          COSIGN_REPOSITORY: ghcr.io/${{ github.repository_owner }}/sbom/policy-reporter
+        run: |
+          cosign attach sbom --sbom ./${{ inputs.sbom-name }}-bom.cdx.json --type cyclonedx ${{ steps.ko-publish.outputs.digest }}
+
+  generate-provenance:
+    needs: publish-images
+    permissions:
+      id-token: write   # To sign the provenance.
+      packages: write   # To upload assets to release.
+      actions: read     # To read the workflow path.
+    # NOTE: The container generator workflow is not officially released as GA.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.9.0
+    with:
+      image: ghcr.io/${{ github.repository_owner }}/policy-reporter-ui
+      digest: "${{ needs.publish-images.outputs.digest }}"
+      registry-username: ${{ github.actor }}
+    secrets:
+      registry-password: ${{ secrets.GITHUB_TOKEN }}

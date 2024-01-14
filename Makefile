@@ -7,7 +7,7 @@ KUBECONFIG           ?= ""
 PIP                  ?= "pip3"
 GO 					 ?= go
 BUILD 				 ?= build
-IMAGE_TAG 			 ?= 2.0.0-preview
+IMAGE_TAG 			 ?= 2.0.0-alpha.1
 
 #############
 # VARIABLES #
@@ -22,7 +22,7 @@ OWNER               ?= kyverno
 KO_REGISTRY         := ko.local
 LD_FLAGS            := "-s -w"
 LOCAL_PLATFORM      := linux/$(GOARCH)
-PLATFORMS           := linux/arm64,linux/amd64
+PLATFORMS           := all
 IMAGE   			:= policy-reporter-ui
 REPO                := $(REGISTRY)/$(OWNER)/$(IMAGE)
 KO_TAGS             := $(shell git rev-parse --short HEAD)
@@ -72,6 +72,23 @@ gofumpt: $(GOFUMPT)
 .PHONY: fmt
 fmt: gci gofumpt
 
+###########
+# CODEGEN #
+###########
+
+.PHONY: codegen-helm-docs
+codegen-helm-docs: ## Generate helm docs
+	@echo Generate helm docs... >&2
+	@docker run -v ${PWD}/charts:/work -w /work jnorwood/helm-docs:v1.11.0 -s file
+
+.PHONY: verify-helm-docs
+verify-helm-docs: codegen-helm-docs ## Check Helm charts are up to date
+	@echo Checking helm charts are up to date... >&2
+	@git --no-pager diff -- charts
+	@echo 'If this test fails, it is because the git diff is non-empty after running "make codegen-helm-docs".' >&2
+	@echo 'To correct this, locally run "make codegen-helm-docs", commit the changes, and re-run tests.' >&2
+	@git diff --quiet --exit-code -- charts
+
 .PHONY: build-frontend
 build-frontend:
 	@echo Build frontend with bun... >&2
@@ -85,8 +102,12 @@ ko-build: $(KO)
 	@cd backend && LDFLAGS='$(LD_FLAGS)' KOCACHE=$(KOCACHE) KO_DOCKER_REPO=$(KO_REGISTRY) \
 		$(KO) build . --tags=$(KO_TAGS) --platform=$(LOCAL_PLATFORM)
 
+.PHONY: ko-login
+ko-login: $(KO)
+	@$(KO) login $(REGISTRY) --username "$(REGISTRY_USERNAME)" --password "$(REGISTRY_PASSWORD)"
+
 .PHONY: ko-publish
-ko-publish: $(KO)
+ko-publish: ko-login
 	@echo Publishing image "$(KO_TAGS)" with ko... >&2
 	@rm -rf backend/kodata
 	@cp -r frontend/dist backend/kodata

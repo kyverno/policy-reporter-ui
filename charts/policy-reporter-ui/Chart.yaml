@@ -4,3 +4,13 @@ description: Trivy Plugin for Policy Reporter UI
 type: application
 version: 0.0.1
 appVersion: "2.0.0-alpha.1"
+
+dependencies:
+  - name: kyverno-plugin
+    version: "0.0.1"
+    repository: "oci://ghcr.io/kyverno/charts/policy-reporter"
+    condition: kyverno-plugin.enabled
+  - name: trivy-plugin
+    version: "0.0.1"
+    repository: "oci://ghcr.io/kyverno/charts/policy-reporter"
+    condition: trivy-plugin.enabled
