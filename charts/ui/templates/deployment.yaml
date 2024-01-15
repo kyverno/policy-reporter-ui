@@ -21,6 +21,7 @@ spec:
         {{- with .Values.podAnnotations }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
+        {{- include "ui.checksums" . | nindent 8 }}
       labels:
         {{- include "ui.labels" . | nindent 8 }}
 	{{- with .Values.podLabels }}

@@ -72,3 +72,5 @@ minAvailable: {{ default 1 .Values.podDisruptionBudget.minAvailable }}
 maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
 {{- end }}
 {{- end }}
+
+{{- define "ui.checksums" -}}{{- end }}
