@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	k8s "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/metadata"
 	"k8s.io/client-go/rest"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
@@ -179,7 +180,7 @@ func (r *Resolver) LoadSecret(ctx context.Context, secretRef string) (secrets.Va
 			return secrets.Values{}, err
 		}
 
-		r.secrets = secrets.NewClient(clientset.CoreV1().Secrets(r.config.Namespace))
+		r.secrets = secrets.NewClient(r.config.Namespace, clientset)
 	}
 
 	values, err := r.secrets.Get(ctx, secretRef)
@@ -262,6 +263,20 @@ func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) (gin.Hand
 	return auth.Auth, nil
 }
 
+func (r *Resolver) MetadataClient() (metadata.Interface, error) {
+	k8sConfig, err := r.K8sConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := metadata.NewForConfig(k8sConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}
+
 func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	if !r.config.Server.Debug {
 		gin.SetMode(gin.ReleaseMode)
@@ -296,47 +311,6 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	}
 
 	serv := server.NewServer(engine, r.config.Server.Port, middleware)
-
-	for _, cluster := range r.config.Clusters {
-		cluster, err := r.LoadClusterSecret(ctx, cluster)
-		if err != nil {
-			zap.L().Error("failed to load cluster secret", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("secretRef", cluster.SecretRef))
-			continue
-		}
-
-		proxy, err := r.Proxies(cluster)
-		if err != nil {
-			zap.L().Error("failed to resolve proxies", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("host", cluster.Host))
-			continue
-		}
-
-		client, err := r.CoreClient(cluster)
-
-		plugins := make(map[string]*plugin.Client, len(cluster.Plugins))
-		for _, p := range cluster.Plugins {
-			p, err := r.LoadPluginSecret(ctx, p)
-			if err != nil {
-				zap.L().Error(
-					"failed to load plugin secret",
-					zap.Error(err),
-					zap.String("cluster", cluster.Name),
-					zap.String("plugin", p.Name),
-					zap.String("secretRef", p.SecretRef),
-				)
-				continue
-			}
-
-			pClient, err := r.PluginClient(p)
-			if err != nil {
-				zap.L().Error("failed to create plugin client", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("plugin", p.Name))
-				continue
-			}
-
-			plugins[p.Name] = pClient
-		}
-
-		serv.RegisterCluster(cluster.Name, client, plugins, proxy)
-	}
 
 	if !r.config.UI.Disabled {
 		zap.L().Info("register UI", zap.String("path", r.config.UI.Path))

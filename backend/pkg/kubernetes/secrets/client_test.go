@@ -7,15 +7,15 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/fake"
-	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 )
 
 const secretName = "secret-values"
 
-func newFakeClient() v1.SecretInterface {
+func newFakeClient() k8s.Interface {
 	return fake.NewSimpleClientset(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      secretName,
@@ -29,11 +29,11 @@ func newFakeClient() v1.SecretInterface {
 			"certificate":    []byte("certs"),
 			"plugin.kyverno": []byte(`{"host":"http://localhost:8080"}`),
 		},
-	}).CoreV1().Secrets("default")
+	})
 }
 
 func Test_Client(t *testing.T) {
-	client := secrets.NewClient(newFakeClient())
+	client := secrets.NewClient("default", newFakeClient())
 
 	t.Run("Get values from existing secret", func(t *testing.T) {
 		values, err := client.Get(context.Background(), secretName)

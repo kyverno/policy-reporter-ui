@@ -14,6 +14,13 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
 )
 
+type Cluster struct {
+	Name    string
+	Core    *core.Client
+	Plugins map[string]*plugin.Client
+	Proxy   *httputil.ReverseProxy
+}
+
 type APIHandler interface {
 	Register(*gin.RouterGroup)
 }
