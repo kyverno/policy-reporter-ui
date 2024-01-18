@@ -304,7 +304,7 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 	var findingChart any
 	if len(sources) > 1 {
 		findingChart = MapFindingSourcesToFindingCharts(findings)
-	} else {
+	} else if len(sources) == 1 {
 		findingChart = MapFindingsToSourceStatusChart(sources[0], findings)
 	}
 

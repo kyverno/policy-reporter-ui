@@ -65,6 +65,8 @@ func (h *Handler) GetResourceDetails(ctx *gin.Context) {
 }
 
 func (h *Handler) GetCustomBoard(ctx *gin.Context) {
+	var err error
+
 	config, ok := h.boards[ctx.Param("id")]
 	if !ok {
 		ctx.AbortWithStatus(http.StatusNotFound)
@@ -84,14 +86,12 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 		query["sources"] = sources
 	}
 
-	g := &errgroup.Group{}
 	if len(sources) == 0 {
-		g.Go(func() error {
-			var err error
-			sources, err = endpoints.Core.ListSources(ctx, url.Values{})
-
-			return err
-		})
+		sources, err = endpoints.Core.ListSources(ctx, url.Values{})
+		if err != nil {
+			ctx.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	var namespaces []string
