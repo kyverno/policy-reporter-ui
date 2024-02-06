@@ -249,6 +249,7 @@ func (h *Handler) PolicyReport(ctx *gin.Context) {
 		Policies:     ctx.Request.URL.Query()["policies"],
 		ClusterScope: ctx.Request.URL.Query().Get("clusterScope") != "0",
 		Categories:   ctx.Request.URL.Query()["categories"],
+		Kinds:        ctx.Request.URL.Query()["kinds"],
 	})
 	if err != nil {
 		zap.L().Error("failed to load generate report data", zap.String("cluster", ctx.Param("cluster")), zap.Error(err))
@@ -273,6 +274,7 @@ func (h *Handler) NamespaceReport(ctx *gin.Context) {
 		Namespaces: ctx.Request.URL.Query()["namespaces"],
 		Policies:   ctx.Request.URL.Query()["policies"],
 		Categories: ctx.Request.URL.Query()["categories"],
+		Kinds:      ctx.Request.URL.Query()["kinds"],
 	})
 	if err != nil {
 		zap.L().Error("failed to load generate report data", zap.String("cluster", ctx.Param("cluster")), zap.Error(err))

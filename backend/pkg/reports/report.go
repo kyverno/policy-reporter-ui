@@ -86,6 +86,7 @@ func (g *ReportGenerator) GeneratePerPolicy(ctx context.Context, cluster, source
 			"namespaces": []string{ns},
 			"categories": filter.Categories,
 			"policies":   filter.Policies,
+			"kinds":      filter.Kinds,
 		})
 		if err != nil {
 			zap.L().Error("failed to list results", zap.Error(err), zap.String("namespace", ns), zap.String("source", source))
@@ -239,6 +240,7 @@ func (g *ReportGenerator) GeneratePerNamespace(ctx context.Context, cluster, sou
 			"namespaces": []string{ns},
 			"policies":   filter.Policies,
 			"categories": filter.Categories,
+			"kinds":      filter.Kinds,
 		})
 		if err != nil {
 			zap.L().Error("failed to list results", zap.Error(err), zap.String("namespace", ns), zap.String("source", source))

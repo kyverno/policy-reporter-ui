@@ -57,6 +57,7 @@ type Filter struct {
 	Namespaces   []string
 	Policies     []string
 	Categories   []string
+	Kinds        []string
 	ClusterScope bool
 }
 

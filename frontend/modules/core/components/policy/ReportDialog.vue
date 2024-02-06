@@ -16,6 +16,9 @@
           <app-row>
             <form-namespace-select :source="source" v-model="namespaces" />
           </app-row>
+          <app-row>
+            <policy-kind-select :source="source" v-model="kinds" />
+          </app-row>
           <app-row v-if="report === 'policy-report'">
             <v-switch v-model="clusterScope" hide-details label="Cluster Scoped Resources" color="info" />
           </app-row>
@@ -39,6 +42,7 @@ const open = ref(false)
 const report = ref<string>('policy-report')
 const categories = ref<string[]>(props.category ? [props.category] : [])
 const namespaces = ref<string[]>([])
+const kinds = ref<string[]>([])
 const clusterScope = ref<boolean>(true)
 
 const loading = ref<boolean>(false)
@@ -59,9 +63,9 @@ const request = async () => {
 
   try {
     if (report.value === 'policy-report') {
-      response = await callAPI((api) => api.policyHTMLReport(props.source, { categories: categories.value , namespaces: namespaces.value, clusterScope: clusterScope.value }))
+      response = await callAPI((api) => api.policyHTMLReport(props.source, { categories: categories.value , namespaces: namespaces.value, kinds: kinds.value, clusterScope: clusterScope.value }))
     } else {
-      response = await callAPI((api) => api.namespaceHTMLReport(props.source, { categories: categories.value , namespaces: namespaces.value }))
+      response = await callAPI((api) => api.namespaceHTMLReport(props.source, { categories: categories.value , namespaces: namespaces.value, kinds: kinds.value }))
     }
   } catch (error) {
     err.value = error
