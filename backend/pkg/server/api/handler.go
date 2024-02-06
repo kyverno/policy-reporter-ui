@@ -256,7 +256,7 @@ func (h *Handler) PolicyReport(ctx *gin.Context) {
 		return
 	}
 
-	tmpl, err := template.New("policy-report-details.html").Funcs(funcMap).ParseFiles(path.Join(os.Getenv("KO_DATA_PATH"), "templates", "reports", "policy-report-details.html"), path.Join("templates", "reports", "mui.css"))
+	tmpl, err := template.New("policy-report-details.html").Funcs(funcMap).ParseFiles(path.Join(os.Getenv("KO_DATA_PATH"), "templates", "reports", "policy-report-details.html"), path.Join(os.Getenv("KO_DATA_PATH"), "templates", "reports", "mui.css"))
 	if err != nil {
 		zap.L().Error("failed to create template", zap.String("cluster", ctx.Param("cluster")), zap.Error(err))
 		ctx.AbortWithStatus(http.StatusInternalServerError)
@@ -280,7 +280,7 @@ func (h *Handler) NamespaceReport(ctx *gin.Context) {
 		return
 	}
 
-	tmpl, err := template.New("namespace-report-details.html").Funcs(funcMap).ParseFiles(path.Join(os.Getenv("KO_DATA_PATH"), "templates", "reports", "namespace-report-details.html"), path.Join("templates", "reports", "mui.css"))
+	tmpl, err := template.New("namespace-report-details.html").Funcs(funcMap).ParseFiles(path.Join(os.Getenv("KO_DATA_PATH"), "templates", "reports", "namespace-report-details.html"), path.Join(os.Getenv("KO_DATA_PATH"), "templates", "reports", "mui.css"))
 	if err != nil {
 		zap.L().Error("failed to create template", zap.String("cluster", ctx.Param("cluster")), zap.Error(err))
 		ctx.AbortWithStatus(http.StatusInternalServerError)
