@@ -97,7 +97,7 @@ build-frontend:
 .PHONY: ko-build
 ko-build: $(KO)
 	@echo Build image with ko... >&2
-	@rm -rf backend/kodata
+	@rm -rf backend/kodata && mkdir backend/kodata
 	@cp -r frontend/dist backend/kodata/ui
 	@cp -r backend/templates backend/kodata/templates
 	@cd backend && LDFLAGS='$(LD_FLAGS)' KOCACHE=$(KOCACHE) KO_DOCKER_REPO=$(KO_REGISTRY) \
@@ -110,7 +110,7 @@ ko-login: $(KO)
 .PHONY: ko-publish
 ko-publish: ko-login
 	@echo Publishing image "$(KO_TAGS)" with ko... >&2
-	@rm -rf backend/kodata
+	@rm -rf backend/kodata && mkdir backend/kodata
 	@cp -r frontend/dist backend/kodata/ui
 	@cp -r backend/templates backend/kodata/templates
 	@cd backend && LDFLAGS='$(LD_FLAGS)' KOCACHE=$(KOCACHE) KO_DOCKER_REPO=$(REPO) \
