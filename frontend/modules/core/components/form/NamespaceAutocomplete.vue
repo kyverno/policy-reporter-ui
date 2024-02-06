@@ -3,7 +3,7 @@
       multiple
       clearable
       density="compact"
-      :items="items as string[]"
+      :items="items"
       variant="outlined"
       hide-details
       label="Namespaces"

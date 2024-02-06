@@ -1,28 +1,27 @@
 package api
 
 import (
+	"html/template"
 	"net/http"
 	"net/url"
+	"os"
+	"path"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
-	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
+	"github.com/kyverno/policy-reporter-ui/pkg/reports"
 	"github.com/kyverno/policy-reporter-ui/pkg/service"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
 
-type Endpoints struct {
-	Core    *core.Client
-	Plugins map[string]*plugin.Client
-}
-
 type Handler struct {
-	config  *Config
-	clients map[string]*Endpoints
-	boards  map[string]CustomBoard
-	service *service.Service
+	config   *Config
+	clients  map[string]*model.Endpoints
+	boards   map[string]CustomBoard
+	service  *service.Service
+	reporter *reports.ReportGenerator
 }
 
 func (h *Handler) Config(ctx *gin.Context) {
@@ -244,14 +243,61 @@ func (h *Handler) GetPolicyDetails(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, details)
 }
 
-func NewHandler(config *Config, apis map[string]*Endpoints, customBoards map[string]CustomBoard) *Handler {
-	endpoints := make(map[string]*service.Endpoints, len(apis))
-	for cluster, value := range apis {
-		endpoints[cluster] = &service.Endpoints{
-			Core:    value.Core,
-			Plugins: value.Plugins,
-		}
+func (h *Handler) PolicyReport(ctx *gin.Context) {
+	data, err := h.reporter.GeneratePerPolicy(ctx, ctx.Param("cluster"), ctx.Param("source"), reports.Filter{
+		Namespaces:   ctx.Request.URL.Query()["namespaces"],
+		Policies:     ctx.Request.URL.Query()["policies"],
+		ClusterScope: ctx.Request.URL.Query().Get("clusterScope") != "0",
+		Categories:   ctx.Request.URL.Query()["categories"],
+	})
+	if err != nil {
+		zap.L().Error("failed to load generate report data", zap.String("cluster", ctx.Param("cluster")), zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
 	}
 
-	return &Handler{config, apis, customBoards, service.New(endpoints)}
+	tmpl, err := template.New("policy-report-details.html").Funcs(funcMap).ParseFiles(path.Join(os.Getenv("KO_DATA_PATH"), "templates", "reports", "policy-report-details.html"), path.Join("templates", "reports", "mui.css"))
+	if err != nil {
+		zap.L().Error("failed to create template", zap.String("cluster", ctx.Param("cluster")), zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	if err = tmpl.Execute(ctx.Writer, data); err != nil {
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+	}
+}
+
+func (h *Handler) NamespaceReport(ctx *gin.Context) {
+	data, err := h.reporter.GeneratePerNamespace(ctx, ctx.Param("cluster"), ctx.Param("source"), reports.Filter{
+		Namespaces: ctx.Request.URL.Query()["namespaces"],
+		Policies:   ctx.Request.URL.Query()["policies"],
+		Categories: ctx.Request.URL.Query()["categories"],
+	})
+	if err != nil {
+		zap.L().Error("failed to load generate report data", zap.String("cluster", ctx.Param("cluster")), zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	tmpl, err := template.New("namespace-report-details.html").Funcs(funcMap).ParseFiles(path.Join(os.Getenv("KO_DATA_PATH"), "templates", "reports", "namespace-report-details.html"), path.Join("templates", "reports", "mui.css"))
+	if err != nil {
+		zap.L().Error("failed to create template", zap.String("cluster", ctx.Param("cluster")), zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	if err = tmpl.Execute(ctx.Writer, data); err != nil {
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+	}
+}
+
+func NewHandler(config *Config, apis map[string]*model.Endpoints, customBoards map[string]CustomBoard) *Handler {
+	return &Handler{config, apis, customBoards, service.New(apis), reports.New(apis)}
+}
+
+var funcMap = template.FuncMap{
+	"add": func(i, j int) int {
+		return i + j
+	},
 }

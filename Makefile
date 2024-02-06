@@ -98,7 +98,8 @@ build-frontend:
 ko-build: $(KO)
 	@echo Build image with ko... >&2
 	@rm -rf backend/kodata
-	@cp -r frontend/dist backend/kodata
+	@cp -r frontend/dist backend/kodata/ui
+	@cp -r backend/templates backend/kodata/templates
 	@cd backend && LDFLAGS='$(LD_FLAGS)' KOCACHE=$(KOCACHE) KO_DOCKER_REPO=$(KO_REGISTRY) \
 		$(KO) build . --tags=$(KO_TAGS) --platform=$(LOCAL_PLATFORM)
 
@@ -110,6 +111,7 @@ ko-login: $(KO)
 ko-publish: ko-login
 	@echo Publishing image "$(KO_TAGS)" with ko... >&2
 	@rm -rf backend/kodata
-	@cp -r frontend/dist backend/kodata
+	@cp -r frontend/dist backend/kodata/ui
+	@cp -r backend/templates backend/kodata/templates
 	@cd backend && LDFLAGS='$(LD_FLAGS)' KOCACHE=$(KOCACHE) KO_DOCKER_REPO=$(REPO) \
 		$(KO) build . --bare --tags=$(KO_TAGS) --push --platform=$(PLATFORMS)

@@ -3,6 +3,7 @@
                v-model:cluster-kinds="clusterKinds"
                v-model:kinds="kinds"
                :source="route.params.source"
+               :category="route.params.category"
                :title="`${capilize(route.params.source)}: ${ route.params.category }`"
   >
     <GraphSourceStatus :category="route.params.category" :data="data" :source="route.params.source"/>

@@ -14,7 +14,7 @@ type Client struct {
 }
 
 func (c *Client) GetPolicies(ctx context.Context) ([]plugin.PolicyListItem, error) {
-	resp, err := c.Get(ctx, "/policies", url.Values{})
+	resp, err := c.Get(ctx, "/v1/policies", url.Values{})
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (c *Client) GetPolicies(ctx context.Context) ([]plugin.PolicyListItem, erro
 }
 
 func (c *Client) GetPolicy(ctx context.Context, name string) (*plugin.Policy, error) {
-	resp, err := c.Get(ctx, fmt.Sprintf("/policies/%s", name), url.Values{})
+	resp, err := c.Get(ctx, fmt.Sprintf("/v1/policies/%s", name), url.Values{})
 	if err != nil {
 		return nil, err
 	}

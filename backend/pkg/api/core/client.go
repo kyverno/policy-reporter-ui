@@ -137,6 +137,26 @@ func (c *Client) ResolveNamespaceSelector(ctx context.Context, selector map[stri
 	return api.DecodeList[string](resp.Body)
 }
 
+func (c *Client) ListNamespaceScopedResults(ctx context.Context, query url.Values) (*Paginated[PolicyResult], error) {
+	resp, err := c.Get(ctx, "/v2/namespace-scoped/results", query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.Decode[Paginated[PolicyResult]](resp.Body)
+}
+
+func (c *Client) ListClusterScopedResults(ctx context.Context, query url.Values) (*Paginated[PolicyResult], error) {
+	resp, err := c.Get(ctx, "/v2/cluster-scoped/results", query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.Decode[Paginated[PolicyResult]](resp.Body)
+}
+
 func New(options []api.ClientOption) (*Client, error) {
 	baseClient, err := api.New(options)
 	if err != nil {

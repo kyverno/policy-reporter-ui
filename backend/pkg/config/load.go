@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -27,7 +28,7 @@ func Load(c *Config, cfgFile string) error {
 	err := v.Unmarshal(c)
 
 	if c.UI.Path == "" {
-		c.UI.Path = os.Getenv("KO_DATA_PATH")
+		c.UI.Path = path.Join(os.Getenv("KO_DATA_PATH"), "ui")
 	}
 
 	return err

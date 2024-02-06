@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
 )
@@ -20,7 +21,7 @@ type APIHandler interface {
 
 type Server struct {
 	middelware []gin.HandlerFunc
-	apis       map[string]*api.Endpoints
+	apis       map[string]*model.Endpoints
 	engine     *gin.Engine
 	api        *gin.RouterGroup
 	proxies    *gin.RouterGroup
@@ -44,7 +45,7 @@ func (s *Server) RegisterUI(path string) {
 func (s *Server) RegisterCluster(name string, client *core.Client, plugins map[string]*plugin.Client, proxy *httputil.ReverseProxy) {
 	id := slug.Make(name)
 
-	s.apis[id] = &api.Endpoints{Core: client, Plugins: plugins}
+	s.apis[id] = &model.Endpoints{Core: client, Plugins: plugins}
 	group := s.proxies.Group(id)
 
 	group.Group("core").Any("/*proxy", func(ctx *gin.Context) {
@@ -67,6 +68,8 @@ func (s *Server) RegisterAPI(c *api.Config, configs map[string]api.CustomBoard) 
 	s.api.GET("config/:cluster/policy-sources", handler.ListPolicySources)
 	s.api.GET("config/:cluster/:source/policy/details", handler.GetPolicyDetails)
 	s.api.GET("config/:cluster/:source/policies", handler.Policies)
+	s.api.GET("config/:cluster/:source/policy-report", handler.PolicyReport)
+	s.api.GET("config/:cluster/:source/namespace-report", handler.NamespaceReport)
 
 	s.api.GET("config/:cluster/layout", handler.Layout)
 	s.api.GET("config/:cluster/dashboard", handler.Dashboard)
@@ -75,7 +78,7 @@ func (s *Server) RegisterAPI(c *api.Config, configs map[string]api.CustomBoard) 
 func NewServer(engine *gin.Engine, port int, middleware []gin.HandlerFunc) *Server {
 	return &Server{
 		middelware: middleware,
-		apis:       make(map[string]*api.Endpoints),
+		apis:       make(map[string]*model.Endpoints),
 		engine:     engine,
 		api:        engine.Group("/api", middleware...),
 		proxies:    engine.Group("/proxy", middleware...),

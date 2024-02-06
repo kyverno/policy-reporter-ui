@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      {{ template "mui.css" }}
+
+      body {
+        padding: 1rem;
+        -webkit-print-color-adjust:exact !important;
+        print-color-adjust:exact !important;
+      }
+
+      @media print {
+        body {
+          font-size: 10px;
+        }
+
+        body .mui-panel {
+          margin-top: 1cm;
+        }
+
+        body .mui--text-display2 {
+          font-size: 30px;
+          line-height: 33px;
+        }
+
+        body .mui--text-display1 {
+          font-size: 25px;
+          line-height: 28px;
+        }
+      }
+
+      .chip {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        min-width: 80%;
+      }
+      .pass {
+        background-color: #198754!important;
+        color: #fff!important;
+      }
+      .warning, .warn {
+        background-color: #fd7e14;
+        color: #fff;
+      }
+      .fail {
+        background-color: #dc3545;
+        color: #fff;
+      }
+      .error {
+        background-color: #891e29;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="mui-panel">
+      <h1 class="mui--text-display2">Namespace Report</h1>
+    </header>
+
+    {{ range $key, $validation := . }}
+      <section class="mui-panel policy">
+        <h2 style="margin-bottom: 0.15rem; margin-top: 0;">Namespace: {{ or $validation.Name "Cluster Scoped" }}</h2>
+        {{ $pass := 0 }}
+        {{ $warning := 0 }}
+        {{ $fail := 0 }}
+        {{ $error := 0 }}
+
+        <h3 style="margin-top: 1rem;">Summary</h3>
+
+        <table class="mui-table mui-table--bordered" style="table-layout: fixed;">
+          <colgroup>
+            <col style="width:30%">
+            <col style="width:30%">
+            <col style="width:10%">
+            <col style="width:10%">
+            <col style="width:10%">
+            <col style="width:10%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Policy</th>
+              <th>Rule</th>
+              <th class="mui--text-right">Pass</th>
+              <th class="mui--text-right">Warning</th>
+              <th class="mui--text-right">Fail</th>
+              <th class="mui--text-right">Error</th>
+            </tr>
+          </thead>
+          {{ $pass := 0 }}
+          {{ $warning := 0 }}
+          {{ $fail := 0 }}
+          {{ $error := 0 }}
+
+          <tbody>
+          {{ range $policy, $val := $validation.Groups }}
+          {{ range $ruleName, $rule := $val.Rules }}
+            {{ $pass = add $pass $rule.Summary.Pass }}
+            {{ $warning = add $warning $rule.Summary.Warning }}
+            {{ $fail = add $fail $rule.Summary.Fail }}
+            {{ $error = add $error $rule.Summary.Error }}
+
+            <tr>
+              <td>{{ $val.Policy.Title }}</td>
+              <td>{{ $ruleName }}</td>
+              <td class="mui--text-right"><div class="chip pass">{{ $rule.Summary.Pass }}</div></td>
+              <td class="mui--text-right"><div class="chip warning">{{ $rule.Summary.Warning }}</div></td>
+              <td class="mui--text-right"><spdivan class="chip fail">{{ $rule.Summary.Fail }}</spdivan></td>
+              <td class="mui--text-right"><div class="chip error">{{ $rule.Summary.Error }}</div></td>
+            </tr>
+            {{ end }}
+          {{ end }}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2" style="font-weight: bold;">Summary</td>
+              <td class="mui--text-right"><div style="font-weight: bold;" class="chip pass">{{ $pass }}</div></td>
+              <td class="mui--text-right"><div style="font-weight: bold;" class="chip warning">{{ $warning }}</div></td>
+              <td class="mui--text-right"><div style="font-weight: bold;" class="chip fail">{{ $fail }}</div></td>
+              <td class="mui--text-right"><div style="font-weight: bold;" class="chip error">{{ $error }}</div></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <h3 style="margin-top: 1rem;">Details per Policy</h3>
+
+        {{ range $policy, $val := $validation.Groups }}
+
+        <div style="margin: 2rem 0;">
+          <h5 class="mui--text-title" style="font-weight: bold;">{{ $val.Policy.Title }}</h5>
+          <h6 class="mui--text-subhead" style="margin-top: 0.5rem;">{{ $val.Name }} | {{ $val.Policy.Category }} | Severity: {{ $val.Policy.Severity }}</h6>
+          <p>
+              {{ $val.Policy.Description }}
+          </p>
+      </div>
+
+        <div style="border: 1px solid #ccc; border-radius: 4px; padding: 8px; margin-bottom: 1.5rem;">
+          <div class="mui-container-fluid" style="padding-left: 0; margin-bottom: 8px;">
+            <div class="mui-row" style="padding-bottom: 8px;">
+              <div class="mui-col-xs-3 mui--text-center">Pass</div>
+              <div class="mui-col-xs-3 mui--text-center">Warning</div>
+              <div class="mui-col-xs-3 mui--text-center">Fail</div>
+              <div class="mui-col-xs-3 mui--text-center">Error</div>
+            </div>
+            <div class="mui-row">
+              <div class="mui-col-xs-3"><div style="width: 100%;" class="mui--text-center chip pass">{{ $val.Summary.Pass }}</div></div>
+              <div class="mui-col-xs-3"><div style="width: 100%;" class="mui--text-center chip warning">{{ $val.Summary.Warning }}</div></div>
+              <div class="mui-col-xs-3"><div style="width: 100%;" class="mui--text-center chip fail">{{ $val.Summary.Fail }}</div></div>
+              <div class="mui-col-xs-3"><div style="width: 100%;" class="mui--text-center chip error">{{ $val.Summary.Error }}</div></div>
+            </div>
+          </div>
+        </div>
+
+        <h6 class="mui--text-subhead">Resource Details</h6>
+
+        <table class="mui-table mui-table--bordered" style="table-layout: fixed;">
+          <colgroup>
+            <col style="width:10%">
+            <col style="width:10%">
+            <col style="width:1ß%">
+            <col style="width:30%">
+            <col style="width:30%">
+            <col style="width:10%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Namespace</th>
+              <th>APIVersion</th>
+              <th>Kind</th>
+              <th>Name</th>
+              <th>Rule</th>
+              <th class="mui--text-right">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range $ruleName, $rule := $val.Rules }}
+            {{ range $key, $resource := $rule.Resources }}
+            <tr>
+              <td>{{ $validation.Name }}</td>
+              <td>{{ $resource.APIVersion }}</td>
+              <td>{{ $resource.Kind }}</td>
+              <td>{{ $resource.Name }}</td>
+              <td>{{ $ruleName }}</td>
+              <td class="mui--text-center"><div class="chip {{ $resource.Status }}">{{ $resource.Status }}</div></td>
+            </tr>
+            {{ end }}
+            {{ end }}
+          </tbody>
+        </table>
+        {{ end }}
+      </section>
+    {{ end }}
+  </body>
+  </html>

@@ -11,6 +11,7 @@
     :model-value="selected"
     @update:model-value="input"
     v-bind="$attrs"
+    v-if="items.length"
   >
     <template v-slot:selection="{ item, index }">
       <v-chip v-if="index < 2">

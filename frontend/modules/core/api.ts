@@ -62,6 +62,14 @@ export class CoreAPI {
     return $fetch<PolicyDetails>(`/api/config/${this.cluster}/${source}/policy/details`, { baseURL: this.baseURL, params: applyExcludes({ policies: [policy], namespace }, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 
+  policyHTMLReport (source: string, filter: { namespaces: string[]; categories: string[]; clusterScope: boolean; }) {
+    return $fetch<BlobPart>(`/api/config/${this.cluster}/${source}/policy-report`, { baseURL: this.baseURL, params: filter, responseType: 'blob' })
+  }
+
+  namespaceHTMLReport (source: string, filter: { namespaces: string[]; categories: string[]; }) {
+    return $fetch<BlobPart>(`/api/config/${this.cluster}/${source}/namespace-report`, { baseURL: this.baseURL, params: filter, responseType: 'blob' })
+  }
+
   policies (source: string, filter?: Filter) {
     return $fetch<{ [category: string]: PolicyResult[] }>(`/api/config/${this.cluster}/${source}/policies`, { baseURL: this.baseURL, params: applyExcludes(filter, this.nsExcludes)})
   }

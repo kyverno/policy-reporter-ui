@@ -10,6 +10,7 @@ import (
 
 	pluginAPI "github.com/kyverno/policy-reporter-plugins/sdk/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 	"go.uber.org/zap"
@@ -20,13 +21,8 @@ var (
 	ErrNoClient = errors.New("client for cluster not found")
 )
 
-type Endpoints struct {
-	Core    *core.Client
-	Plugins map[string]*plugin.Client
-}
-
 type Service struct {
-	endpoints map[string]*Endpoints
+	endpoints map[string]*model.Endpoints
 }
 
 func (s *Service) core(cluster string) (*core.Client, error) {
@@ -356,6 +352,6 @@ func BuildFilters(baseFilter url.Values) (url.Values, url.Values, url.Values) {
 	return combinedFilter, namespaceFilter, clusterFilter
 }
 
-func New(clients map[string]*Endpoints) *Service {
+func New(clients map[string]*model.Endpoints) *Service {
 	return &Service{clients}
 }

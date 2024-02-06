@@ -53,3 +53,24 @@ type Findings struct {
 }
 
 type NamespaceStatusCounts = map[string]map[string]int
+
+type PolicyResult struct {
+	ID         string            `json:"id"`
+	Namespace  string            `json:"namespace,omitempty"`
+	Kind       string            `json:"kind"`
+	APIVersion string            `json:"apiVersion"`
+	Name       string            `json:"name"`
+	Message    string            `json:"message"`
+	Category   string            `json:"category,omitempty"`
+	Policy     string            `json:"policy"`
+	Rule       string            `json:"rule"`
+	Status     string            `json:"status"`
+	Severity   string            `json:"severity,omitempty"`
+	Timestamp  int64             `json:"timestamp,omitempty"`
+	Properties map[string]string `json:"properties,omitempty"`
+}
+
+type Paginated[T any] struct {
+	Items []T `json:"items"`
+	Count int `json:"count"`
+}
