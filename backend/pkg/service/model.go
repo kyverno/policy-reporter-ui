@@ -39,6 +39,7 @@ type Total struct {
 }
 
 type Dashboard struct {
+	Title          string       `json:"title"`
 	FilterSources  []string     `json:"filterSources,omitempty"`
 	ClusterScope   bool         `json:"clusterScope"`
 	Sources        []string     `json:"sources"`

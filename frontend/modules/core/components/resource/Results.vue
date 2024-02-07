@@ -88,7 +88,6 @@ const options = reactive({
 
 const open = ref(true)
 const searchText = ref('')
-
 const { data, refresh } = useAPI(
     (api) => api.results(props.resource, {
       page: options.page,

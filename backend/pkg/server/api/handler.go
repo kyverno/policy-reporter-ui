@@ -118,6 +118,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	}
 
 	dashboard.FilterSources = query["sources"]
+	dashboard.Title = config.Name
 
 	ctx.JSON(http.StatusOK, dashboard)
 }

@@ -2,8 +2,7 @@
   <v-autocomplete
       multiple
       clearable
-      :items="items as string[]"
-      :loading="pending as boolean"
+      :items="store.categories"
       variant="outlined"
       hide-details
       label="Categories"
@@ -26,17 +25,8 @@
 const props = defineProps<{ source: string; modelValue: string[] }>();
 
 const selected = ref<string[]>(props.modelValue);
-const loading = ref<boolean>(true);
 
-const { data: items, pending } = useAPI(
-    (api) => api.categoryTree(undefined, { sources: [props.source] }).then(list => list.length ? list[0].categories.map(c => c.name) : []),
-    {
-      default: () => [],
-      finally: () => {
-        loading.value = false;
-      },
-    }
-);
+const { store } = useSourceStore(props.source)
 
 const emit = defineEmits<{ 'update:modelValue': [kinds: string[]] }>()
 

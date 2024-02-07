@@ -2,8 +2,8 @@
   <v-autocomplete
       multiple
       clearable
-      :items="items as string[]"
-      :loading="pending as boolean"
+      :items="store.namespaces"
+      :loading="loading"
       variant="outlined"
       hide-details
       label="Namespaces"
@@ -26,17 +26,8 @@
 const props = defineProps<{ source: string; modelValue: string[] }>();
 
 const selected = ref<string[]>(props.modelValue);
-const loading = ref<boolean>(true);
 
-const { data: items, pending } = useAPI(
-    (api) => api.namespaces({ sources: [props.source] }),
-    {
-      default: () => [],
-      finally: () => {
-        loading.value = false;
-      },
-    }
-);
+const { store, loading } = useSourceStore(props.source)
 
 const emit = defineEmits<{ 'update:modelValue': [kinds: string[]] }>()
 

@@ -2,13 +2,13 @@
   <v-autocomplete
       multiple
       clearable
-      :items="items as string[]"
-      :loading="pending as boolean"
+      :items="store.kinds.namespaced"
       variant="outlined"
       hide-details
       label="Kinds"
       closable-chips
-      v-model="selected"
+      :model-value="modelValue"
+      @update:model-value="emit('update:modelValue', $event)"
       v-bind="$attrs"
   >
     <template v-slot:selection="{ item, index }">
@@ -16,7 +16,7 @@
         <span>{{ item.title }}</span>
       </v-chip>
       <span v-if="index === 2" class="text-caption align-self-center">
-        (+{{ selected.length - 2 }} others)
+        (+{{ modelValue.length - 2 }} others)
       </span>
     </template>
   </v-autocomplete>
@@ -25,22 +25,7 @@
 <script lang="ts" setup>
 const props = defineProps<{ source: string; modelValue: string[] }>();
 
-const selected = ref<string[]>(props.modelValue);
-const loading = ref<boolean>(true);
-
-const { data: items, pending } = useAPI(
-    (api) => api.namespacedKinds(props.source),
-    {
-      default: () => [],
-      finally: () => {
-        loading.value = false;
-      },
-    }
-);
+const { store } = useSourceStore(props.source)
 
 const emit = defineEmits<{ 'update:modelValue': [kinds: string[]] }>()
-
-watch(selected, (current) => {
-  emit('update:modelValue', current)
-});
 </script>

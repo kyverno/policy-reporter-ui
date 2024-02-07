@@ -21,15 +21,17 @@
 </template>
 
 <script lang="ts" setup>
-import { useAPI } from '~/modules/core/composables/api'
 import { capilize } from "~/modules/core/layouthHelper";
 import { APIFilter } from "~/modules/core/provider/dashboard";
 import { onChange } from "~/helper/compare";
 
+const route = useRoute()
+
+const store = useSourceStore(route.params.source)
+await store.load()
+
 const kinds = ref<string[]>([])
 const clusterKinds = ref<string[]>([])
-
-const route = useRoute()
 
 const filter = computed(() => ({
   sources: [route.params.source],

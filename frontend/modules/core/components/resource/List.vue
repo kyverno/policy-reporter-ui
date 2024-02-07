@@ -73,6 +73,6 @@ watch(combinedFilter, onChange(() => {
   refresh()
 }))
 
-watch(options, onChange<Pagination>(refresh))
+watch(options, () => refresh())
 
 </script>

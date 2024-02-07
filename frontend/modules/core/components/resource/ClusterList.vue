@@ -1,33 +1,33 @@
 <template>
-<v-card>
-  <v-toolbar color="transparent">
-    <v-toolbar-title>Cluster Resources</v-toolbar-title>
-    <template #append>
-      <Search v-model="search" style="min-width: 400px;" />
-      <CollapseBtn v-model="open" />
-    </template>
-  </v-toolbar>
-  <v-list v-if="pending" lines="two" class="mt-0 pt-0">
-    <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
-    <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
-    <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
-  </v-list>
-  <template v-else>
-    <v-list v-if="data?.items?.length && open" lines="two">
-      <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" />
+  <v-card>
+    <v-toolbar color="transparent">
+      <v-toolbar-title>Cluster Resources</v-toolbar-title>
+      <template #append>
+        <Search v-model="search" style="min-width: 400px;" />
+        <CollapseBtn v-model="open" />
+      </template>
+    </v-toolbar>
+    <v-list v-if="pending" lines="two" class="mt-0 pt-0">
+      <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
+      <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
+      <v-skeleton-loader class="mx-auto border" type="list-item-avatar" />
     </v-list>
-    <template v-if="data.count > options.offset && open">
-      <v-divider />
-      <v-pagination v-model="options.page" :length="length" class="my-4" />
+    <template v-else>
+      <v-list v-if="data?.items?.length && open" lines="two">
+        <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" />
+      </v-list>
+      <template v-if="data.count > options.offset && open">
+        <v-divider />
+        <v-pagination v-model="options.page" :length="length" class="my-4" />
+      </template>
+      <template v-if="!data?.items?.length">
+        <v-divider />
+        <v-card-text>
+          No resources for the selected kinds found
+        </v-card-text>
+      </template>
     </template>
-    <template v-if="!data?.items?.length">
-      <v-divider />
-      <v-card-text>
-        No resources for the selected kinds found
-      </v-card-text>
-    </template>
-  </template>
-</v-card>
+  </v-card>
 </template>
 
 <script setup lang="ts">
@@ -35,7 +35,7 @@ import { type Filter, type Pagination } from '~/modules/core/types'
 import CollapseBtn from "~/components/CollapseBtn.vue";
 import type { Ref } from "vue";
 import { ClusterKinds, APIFilter } from "~/modules/core/provider/dashboard";
-import { execOnChange } from "~/helper/compare";
+import { onChange } from "~/helper/compare";
 
 const props = defineProps<{ details: boolean; }>()
 
@@ -66,8 +66,7 @@ const { data, refresh, pending } = useAPI(
     }
 );
 
-watch(combinedFilter, (o, n) =>
-  execOnChange(o, n, () => {
+watch(combinedFilter, onChange(() => {
     if (options.page !== 1) {
       options.page = 1
       return

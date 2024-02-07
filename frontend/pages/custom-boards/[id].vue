@@ -1,6 +1,7 @@
 <template>
   <page-layout v-model:kinds="kinds"
                v-model:cluster-kinds="clusterKinds"
+               :title="data.title"
                v-if="data"
   >
     <GraphSourceStatus v-if="data.singleSource" :data="data" :source="data.sources[0]" />

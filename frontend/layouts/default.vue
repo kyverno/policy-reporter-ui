@@ -78,12 +78,12 @@
 </template>
 
 <script setup lang="ts">
-import type { LayoutConfig } from "~/modules/core/types";
 import { useTheme } from "vuetify";
+import type { LayoutConfig } from "~/modules/core/types";
 
 const drawer = ref(true)
 
-const { data: layout } = useAPI((api) => api.layout(), { default: (): LayoutConfig => ({ sources: [], customBoards: [] }) })
+const { data: layout } = useAPI((api) => api.layout(), { default: (): LayoutConfig => ({ sources: [], customBoards: [], policies: [] }) })
 
 const theme = useTheme()
 

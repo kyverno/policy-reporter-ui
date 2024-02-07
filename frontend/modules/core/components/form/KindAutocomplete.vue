@@ -3,7 +3,7 @@
       multiple
       clearable
       density="compact"
-      :items="items as string[]"
+      :items="store.kinds.namespaced"
       variant="outlined"
       hide-details
       label="Kinds"
@@ -27,21 +27,12 @@
 const props = defineProps<{ source?: string; modelValue: string[] }>();
 
 const selected = ref<string[]>(props.modelValue);
-const loading = ref<boolean>(true);
 
-const { data: items } = useAPI(
-    (api) => api.namespacedKinds(props.source),
-    {
-      default: () => [],
-      finally: () => {
-        loading.value = false;
-      },
-    }
-);
+const { store } = useSourceStore(props.source)
 
 const input = defineRouteQuery('kinds', selected);
 
-watch(items, (current) => {
+watch(store.kinds.namespaced, (current) => {
   input(selected.value.filter((s) => current.includes(s)));
 });
 

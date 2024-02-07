@@ -1,5 +1,7 @@
 import { CoreAPI } from "../api";
 
+type CancelFunc = (reason?: string) => void
+
 type Callback<T> = (api: CoreAPI) => Promise<T>
 
 export type APIResult<T> = {
@@ -24,9 +26,9 @@ export const useAPI = <T>(callback: Callback<T>, options?: { default?: () => T, 
         pending.value = true
 
         try {
-            await callback($coreAPI as CoreAPI).then((content) => {
+            await  callback($coreAPI as CoreAPI).then((content) => {
                 error.value = null
-                data.value = content as T
+                data.value = content
             })
         } catch (err) {
             error.value = err as Error

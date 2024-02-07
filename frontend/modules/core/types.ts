@@ -153,6 +153,7 @@ export type NamespaceScope = {
 export type Findings = Chart
 
 export type Dashboard<T extends Boolean> = {
+    title?: string;
     clusterScope: boolean;
     filterSources: string[];
     multiSource: T;

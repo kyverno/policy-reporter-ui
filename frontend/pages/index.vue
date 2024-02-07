@@ -2,6 +2,7 @@
   <page-layout title="Dashboard"
                v-model:kinds="kinds"
                v-model:cluster-kinds="clusterKinds"
+               :source="data.singleSource ? data.sources[0] : undefined"
                v-if="data"
   >
     <GraphSourceStatus v-if="data.singleSource" :data="data" :source="data.sources[0]" />
@@ -32,6 +33,9 @@ import { onChange } from "~/helper/compare";
 import { APIFilter } from "~/modules/core/provider/dashboard";
 import { capilize } from "~/modules/core/layouthHelper";
 
+const store = useSourceStore()
+await store.load()
+
 const kinds = ref<string[]>([])
 const clusterKinds = ref<string[]>([])
 
@@ -40,7 +44,7 @@ const filter = computed(() => ({
   clusterKinds: clusterKinds.value
 }))
 
-const { data, refresh } = useAPI((api) => api.dashboard(filter.value))
+const { data, refresh } = useAPI(api => api.dashboard(filter.value))
 
 watch(filter, onChange(refresh))
 
