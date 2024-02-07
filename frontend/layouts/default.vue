@@ -12,34 +12,7 @@
 
     <v-navigation-drawer v-model="drawer">
       <v-list density="compact" nav color="header" variant="flat">
-        <v-list-item title="Dashboard" to="/" exact />
-        <v-list-item title="Notification Targets" to="/targets" exact v-if="layout.targets" />
-
-        <v-list-group value="policies" fluid v-if="layout.policies.length > 1">
-          <template v-slot:activator="{ props }">
-            <v-list-item title="Policies" v-bind="props" base-color="header-item"></v-list-item>
-          </template>
-          <v-divider class="mb-1" />
-          <v-list-item
-              :value="child.path"
-              base-color="sub-item"
-              v-for="child in layout.policies"
-              :key="child.path"
-              :to="child.path"
-              exact
-          >
-            <v-list-item-title class="pl-2">{{ child.title }}</v-list-item-title>
-          </v-list-item>
-        </v-list-group>
-
-        <v-list-item title="Policies" :to="layout.policies[0].path" exact v-if="layout.policies.length === 1" />
-
-        <v-divider class="mb-1" />
-        <v-list-subheader v-if="layout.customBoards.length">Custom Boards</v-list-subheader>
-        <template v-for="item in layout.customBoards" :key="item.title">
-          <v-list-item :title="item.title" :to="item.path" :exact="item.exact"></v-list-item>
-        </template>
-        <v-divider class="mb-1" v-if="layout.customBoards.length" />
+        <v-list-item title="Dashboard" to="/" base-color="header" exact />
 
         <template v-for="item in layout.sources" :key="item.path">
           <template v-if="item.children">
@@ -63,11 +36,30 @@
             <v-divider class="mb-1" />
           </template>
 
-          <v-list-item :to="item.path" :prepend-icon="item.icon" exact :lines="item.subtitle ? 'two' : 'one'" base-color="header-item" v-else>
+          <v-list-item :to="item.path" :prepend-icon="item.icon" exact lines="one" base-color="header-item" v-else>
             <v-list-item-title>{{ item.title }}</v-list-item-title>
-            <v-list-item-subtitle v-if="item.subtitle" style="opacity: 0.75">{{ item.subtitle }}</v-list-item-subtitle>
           </v-list-item>
         </template>
+
+        <div class="mb-1 mt-8" />
+
+          <v-list-item base-color="header" title="Policy Dashboard" to="/policies" exact />
+          <template v-for="item in layout.policies" :key="item.path">
+            <v-list-item :to="item.path" :prepend-icon="item.icon" exact lines="one" base-color="header-item">
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item>
+          </template>
+
+        <div class="mb-1 mt-8" />
+
+        <v-list-item base-color="header" v-if="layout.customBoards.length" title="Custom Boards" />
+        <template v-for="item in layout.customBoards" :key="item.path">
+          <v-list-item base-color="header-item" :title="item.title" :to="item.path" :exact="item.exact"></v-list-item>
+        </template>
+
+        <div class="mb-1 mt-8" />
+
+        <v-list-item title="Notification Targets" to="/targets" exact base-color="header-item" v-if="layout.targets" />
       </v-list>
     </v-navigation-drawer>
 

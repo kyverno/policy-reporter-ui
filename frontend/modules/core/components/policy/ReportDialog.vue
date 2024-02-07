@@ -1,7 +1,7 @@
 <template>
     <v-dialog v-model="open" max-width="500">
       <template v-slot:activator="{ props }">
-        <v-btn v-bind="props" rounded="4" class="mr-4" variant="tonal" color="primary" height="40">Generate Report</v-btn>
+        <v-btn v-bind="props" rounded="4" class="mr-4" variant="tonal" color="white" height="40">Generate Report</v-btn>
       </template>
 
       <v-card title="Generate HTML Report">
