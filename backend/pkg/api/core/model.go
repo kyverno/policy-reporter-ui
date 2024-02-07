@@ -74,3 +74,8 @@ type Paginated[T any] struct {
 	Items []T `json:"items"`
 	Count int `json:"count"`
 }
+
+type Target struct {
+	Name string `json:"name"`
+	Host string `json:"host"`
+}

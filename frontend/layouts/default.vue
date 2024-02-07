@@ -12,11 +12,10 @@
 
     <v-navigation-drawer v-model="drawer">
       <v-list density="compact" nav color="header" variant="flat">
-        <template v-for="item in navigation" :key="item.title">
-          <v-list-item :title="item.title" :to="item.path" :exact="item.exact" />
-        </template>
+        <v-list-item title="Dashboard" to="/" exact />
+        <v-list-item title="Notification Targets" to="/targets" exact v-if="layout.targets" />
 
-        <v-list-group value="policies" fluid>
+        <v-list-group value="policies" fluid v-if="layout.policies.length > 1">
           <template v-slot:activator="{ props }">
             <v-list-item title="Policies" v-bind="props" base-color="header-item"></v-list-item>
           </template>
@@ -33,14 +32,15 @@
           </v-list-item>
         </v-list-group>
 
+        <v-list-item title="Policies" :to="layout.policies[0].path" exact v-if="layout.policies.length === 1" />
+
         <v-divider class="mb-1" />
-        <template v-if="layout.customBoards">
-          <v-list-subheader>Custom Boards</v-list-subheader>
-        </template>
+        <v-list-subheader v-if="layout.customBoards.length">Custom Boards</v-list-subheader>
         <template v-for="item in layout.customBoards" :key="item.title">
           <v-list-item :title="item.title" :to="item.path" :exact="item.exact"></v-list-item>
         </template>
-        <v-divider class="mb-1" />
+        <v-divider class="mb-1" v-if="layout.customBoards.length" />
+
         <template v-for="item in layout.sources" :key="item.path">
           <template v-if="item.children">
             <v-list-item
@@ -63,7 +63,7 @@
             <v-divider class="mb-1" />
           </template>
 
-          <v-list-item :to="item.path" :prepend-icon="item.icon" exact lines="two" base-color="header-item" v-else>
+          <v-list-item :to="item.path" :prepend-icon="item.icon" exact :lines="item.subtitle ? 'two' : 'one'" base-color="header-item" v-else>
             <v-list-item-title>{{ item.title }}</v-list-item-title>
             <v-list-item-subtitle v-if="item.subtitle" style="opacity: 0.75">{{ item.subtitle }}</v-list-item-subtitle>
           </v-list-item>
@@ -106,9 +106,4 @@ const bg = computed(() => {
 
   return 'bg-grey-lighten-4'
 })
-
-const navigation = [
-  { title: 'Dashboard', path: '/', exact: true },
-  { title: 'Notification Targets', path: '/targets', exact: true },
-];
 </script>

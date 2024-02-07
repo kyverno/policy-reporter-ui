@@ -139,7 +139,15 @@ func (h *Handler) Layout(ctx *gin.Context) {
 
 	profile, _ := ctx.Get("profile")
 
+	targets, err := endpoints.Core.ListTargets(ctx)
+	if err != nil {
+		zap.L().Error("failed to call core API", zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
+		"targets":      len(targets) > 0,
 		"sources":      MapSourceCategoryTreeToNavi(sources),
 		"policies":     MapSourcesToPolicyNavi(sources),
 		"customBoards": MapCustomBoardsToNavi(h.boards),

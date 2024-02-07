@@ -157,6 +157,16 @@ func (c *Client) ListClusterScopedResults(ctx context.Context, query url.Values)
 	return api.Decode[Paginated[PolicyResult]](resp.Body)
 }
 
+func (c *Client) ListTargets(ctx context.Context) (map[string][]Target, error) {
+	resp, err := c.Get(ctx, "/v2/targets", url.Values{})
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.DecodeMap[string, []Target](resp.Body)
+}
+
 func New(options []api.ClientOption) (*Client, error) {
 	baseClient, err := api.New(options)
 	if err != nil {

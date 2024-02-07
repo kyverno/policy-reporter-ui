@@ -122,6 +122,7 @@ export type Navigation = {
 }
 
 export type LayoutConfig = {
+    targets: boolean;
     profile?: Profile;
     sources: Navigation[];
     policies: Navigation[];

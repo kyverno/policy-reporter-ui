@@ -23,7 +23,7 @@
           v-model:page="options.page"
         >
           <template #item.policy="{ value }">
-            <nuxt-link :to="{ name: 'policies-source-info-policy', params: { source, policy: value }}" class="text-decoration-none text-white" target="_blank">{{ value }}</nuxt-link>
+            <nuxt-link :to="{ name: 'policies-source-info-policy', params: { source, policy: value }}" class="text-decoration-none text-primary" target="_blank">{{ value }}</nuxt-link>
           </template>
           <template #item.status="{ value }">
             <chip-status @click="searchText = value" :status="value" />
