@@ -9,6 +9,7 @@ type State = {
     plugins: string[];
     clusters: Cluster[];
     oauth: boolean;
+    error?: Error;
 }
 
 export const useConfigStore = defineStore('config', {
@@ -32,6 +33,7 @@ export const useConfigStore = defineStore('config', {
   },
   actions: {
     setConfig(config: Config) {
+      this.error = config.error
       this.clusters = config.clusters
       this.oauth = config.oauth
     },

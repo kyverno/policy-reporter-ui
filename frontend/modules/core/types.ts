@@ -215,9 +215,9 @@ export type PolicyDetails = {
 }
 
 export type Config = {
+    error?: Error;
     plugins: string[];
     displayMode: DisplayMode;
-    views: ViewsCofig;
     clusters: Cluster[];
     sources: SourceConfig[];
     oauth: boolean;

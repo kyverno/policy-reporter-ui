@@ -72,7 +72,15 @@
     </v-navigation-drawer>
 
     <v-main :class="bg">
-      <slot />
+      <v-container fluid v-if="config.error">
+        <app-row>
+          <v-card class="pa-2">
+            <v-alert variant="outlined" type="error">Failed to access API: {{ config.error }}</v-alert>
+          </v-card>
+        </app-row>
+      </v-container>
+
+      <slot v-else />
     </v-main>
   </v-layout>
 </template>
@@ -80,12 +88,16 @@
 <script setup lang="ts">
 import { useTheme } from "vuetify";
 import type { LayoutConfig } from "~/modules/core/types";
+import {use} from "h3";
+import {useConfigStore} from "~/store/config";
 
 const drawer = ref(true)
 
 const { data: layout } = useAPI((api) => api.layout(), { default: (): LayoutConfig => ({ sources: [], customBoards: [], policies: [] }) })
 
 const theme = useTheme()
+
+const config = useConfigStore()
 
 const bg = computed(() => {
   if (theme.current.value.dark) {

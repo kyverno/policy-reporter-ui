@@ -1,12 +1,26 @@
-import { defineNuxtPlugin } from 'nuxt/app'
-import { create } from '~/modules/core/api'
-import { useConfigStore } from "~/store/config";
+import {defineNuxtPlugin} from 'nuxt/app'
+import {create} from '~/modules/core/api'
+import {useConfigStore} from "~/store/config";
+import {type Config, DisplayMode} from "~/modules/core/types";
 
 export default defineNuxtPlugin(async () => {
   const config = useRuntimeConfig()
   const api = create({ baseURL: config.public.coreApi as string, prefix: '' })
 
-  const apiConfig = await api.config()
+  const apiConfig = await api.config().catch((error): Config => {
+    console.error(`failed to load config: ${error}`)
+
+    return {
+      error,
+      displayMode: DisplayMode.UNSPECIFIED,
+      default: 'default',
+      sources: [],
+      plugins: [],
+      defaultFilter: { resources: [], clusterResources: [] },
+      clusters: [{ name: 'Default', slug: 'default', plugins: [] }],
+      oauth: false,
+    }
+  })
 
   api.setPrefix(apiConfig.default)
 
