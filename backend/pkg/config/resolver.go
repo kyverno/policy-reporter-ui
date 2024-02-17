@@ -12,6 +12,7 @@ import (
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
@@ -20,6 +21,8 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/proxy"
 	"github.com/kyverno/policy-reporter-ui/pkg/auth"
+	"github.com/kyverno/policy-reporter-ui/pkg/auth/oauth"
+	"github.com/kyverno/policy-reporter-ui/pkg/auth/oidc"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/logging"
 	"github.com/kyverno/policy-reporter-ui/pkg/server"
@@ -234,23 +237,64 @@ func (r *Resolver) Clientset() (*k8s.Clientset, error) {
 }
 
 func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) (gin.HandlerFunc, error) {
-	oauth := r.config.OpenIDConnect
+	var err error
 
-	if oauth.SecretRef != "" {
-		values, err := r.LoadSecret(ctx, oauth.SecretRef)
+	config := r.config.OAuth
+
+	if config.SecretRef != "" {
+		values, err := r.LoadSecret(ctx, config.SecretRef)
 		if err != nil {
 			return nil, err
 		}
 
-		oauth = oauth.FromValues(values)
+		config = config.FromValues(values)
 	}
 
-	authenticator, err := auth.New(
-		oauth.Domain,
-		oauth.ClientID,
-		oauth.ClientSecret,
-		oauth.Redirect,
-		oauth.Scopes,
+	var endpoint oauth2.Endpoint
+	if config.Provider != "" {
+		endpoint, err = oauth.ProviderEndpoint(config.Provider)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		endpoint = config.Endpoint.ToEndpoint()
+	}
+
+	authenticator, err := oauth.New(
+		config.ClientID,
+		config.ClientSecret,
+		config.Redirect,
+		endpoint,
+		config.Scopes,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	oauth.Setup(engine, authenticator)
+
+	return auth.Auth, nil
+}
+
+func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) (gin.HandlerFunc, error) {
+	oid := r.config.OpenIDConnect
+
+	if oid.SecretRef != "" {
+		values, err := r.LoadSecret(ctx, oid.SecretRef)
+		if err != nil {
+			return nil, err
+		}
+
+		oid = oid.FromValues(values)
+	}
+
+	authenticator, err := oidc.New(
+		oid.Domain,
+		oid.ClientID,
+		oid.ClientSecret,
+		oid.Redirect,
+		oid.Scopes,
 	)
 
 	if err != nil {
@@ -277,6 +321,13 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	}
 
 	if r.config.OpenIDConnect.Enabled {
+		auth, err := r.SetupOIDC(ctx, engine)
+		if err != nil {
+			zap.L().Error("failed to setup oidc", zap.Error(err))
+		} else {
+			middleware = append(middleware, auth)
+		}
+	} else if r.config.OAuth.Enabled {
 		auth, err := r.SetupOAuth(ctx, engine)
 		if err != nil {
 			zap.L().Error("failed to setup oauth", zap.Error(err))

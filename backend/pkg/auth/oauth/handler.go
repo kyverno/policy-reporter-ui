@@ -1,22 +1,26 @@
-package auth
+package oauth
 
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/kyverno/policy-reporter-ui/pkg/auth"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
 )
 
 type Handler struct {
-	authenticator Authenticator
+	authenticator *Authenticator
 }
 
-func NewHandler(auth Authenticator) *Handler {
+func NewHandler(auth *Authenticator) *Handler {
 	return &Handler{authenticator: auth}
 }
 
@@ -36,22 +40,8 @@ func (h *Handler) Callback(ctx *gin.Context) {
 		return
 	}
 
-	idToken, err := h.authenticator.VerifyIDToken(ctx.Request.Context(), token)
-	if err != nil {
-		zap.L().Error("failed to verify ID Token", zap.Error(err))
-
-		ctx.String(http.StatusInternalServerError, "Failed to verify ID Token.")
-		return
-	}
-
-	var profile Profile
-	if err := idToken.Claims(&profile); err != nil {
-		ctx.String(http.StatusInternalServerError, err.Error())
-		return
-	}
-
 	session.Set("token", token)
-	session.Set("profile", profile)
+	session.Set("profile", auth.Profile{})
 	if err := session.Save(); err != nil {
 		ctx.String(http.StatusInternalServerError, err.Error())
 		return
@@ -79,40 +69,68 @@ func (h *Handler) Login(ctx *gin.Context) {
 }
 
 func (h *Handler) Logout(ctx *gin.Context) {
-	logoutURL, err := url.Parse(strings.TrimSuffix(h.authenticator.GetConfig().Endpoint.AuthURL, "/auth") + "/logout")
+	urlParts := strings.Split(h.authenticator.GetConfig().Endpoint.TokenURL, "/")
+	urlParts[len(urlParts)-1] = "revoke"
+
+	logoutURL, err := url.Parse(strings.Join(urlParts, "/"))
 	if err != nil {
 		ctx.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	scheme := "http"
-	if ctx.Request.TLS != nil {
-		scheme = "https"
-	}
-
-	returnTo, err := url.Parse(scheme + "://" + ctx.Request.Host)
-	if err != nil {
-		ctx.String(http.StatusInternalServerError, err.Error())
+	token := sessions.Default(ctx).Get("token")
+	if token == nil {
+		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
 	parameters := url.Values{}
-	parameters.Add("returnTo", returnTo.String())
+	parameters.Add("token", token.(*oauth2.Token).AccessToken)
 	parameters.Add("client_id", h.authenticator.GetConfig().ClientID)
+	parameters.Add("client_secret", h.authenticator.GetConfig().ClientSecret)
+
 	logoutURL.RawQuery = parameters.Encode()
 
-	ctx.Redirect(http.StatusTemporaryRedirect, logoutURL.String())
+	client := h.authenticator.Client(ctx, token.(*oauth2.Token))
+	resp, err := client.Post(logoutURL.String(), "application/x-www-form-urlencoded", nil)
+	if err != nil {
+		zap.L().Error("failed to revoke token", zap.Error(err), zap.String("host", logoutURL.Host), zap.String("path", logoutURL.Path))
+	} else if resp.StatusCode <= 300 {
+		content, _ := io.ReadAll(resp.Body)
+		zap.L().Info("revoke respose", zap.String("host", logoutURL.Host), zap.String("path", logoutURL.Path), zap.ByteString("body", content))
+	}
+
+	sessions.Default(ctx).Clear()
+
+	ctx.Set("profile", nil)
+	ctx.Set("token", nil)
+
+	ctx.Redirect(http.StatusTemporaryRedirect, "/login")
 }
 
 func (h *Handler) Profile(ctx *gin.Context) {
-	profile := ProfileFrom(ctx)
-	if profile == nil {
-		ctx.AbortWithStatus(http.StatusNotFound)
+	token := sessions.Default(ctx).Get("token")
+	if token == nil {
+		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
+	client := h.authenticator.Client(ctx, token.(*oauth2.Token))
+	resp, err := client.Get("https://gitlab.example.com/oauth/userinfo")
+	if err != nil {
+		zap.L().Error("failed to receive userinfo", zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	profile := &auth.Profile{}
+
+	if err := json.NewDecoder(resp.Body).Decode(profile); err != nil {
+		zap.L().Error("failed to unmarshal userinfo", zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
-		"id":   profile.SUB,
 		"name": profile.GetName(),
 	})
 }

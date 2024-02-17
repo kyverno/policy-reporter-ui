@@ -30,7 +30,16 @@ type Values struct {
 	Username    string   `json:"username" mapstructure:"username"`
 	Password    string   `json:"password" mapstructure:"password"`
 
-	Domain       string `json:"domain" mapstructure:"domain"`
+	// OAuth Values
+	AuthURL   string `json:"authURL" mapstructure:"authURL"`
+	TokenURL  string `json:"tokenURL" mapstructure:"tokenURL"`
+	AuthStyle string `json:"authStyle" mapstructure:"authStyle"`
+	Provider  string `json:"provider" mapstructure:"provider"`
+
+	// OpenIDConnect
+	Domain string `json:"domain" mapstructure:"domain"`
+
+	// OAuth + OpenIDConnect
 	ClientID     string `json:"clientId" mapstructure:"clientId"`
 	ClientSecret string `json:"clientSecret" mapstructure:"clientSecret"`
 }

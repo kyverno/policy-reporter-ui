@@ -1,11 +1,31 @@
 package auth
 
-import "github.com/gin-gonic/gin"
+import (
+	"strings"
+
+	"github.com/gin-gonic/gin"
+)
 
 type Profile struct {
-	ID        string `json:"sub"`
+	SUB       string `json:"sub"`
 	Lastname  string `json:"family_name"`
 	Firstname string `json:"given_name"`
+
+	Name  string `json:"name"`
+	Login string `json:"login"`
+	Email string `json:"email"`
+}
+
+func (p Profile) GetName() string {
+	if p.Name != "" {
+		return p.Name
+	}
+
+	if p.Firstname != "" || p.Lastname != "" {
+		return strings.TrimSpace(p.Firstname + " " + p.Lastname)
+	}
+
+	return p.Login
 }
 
 func ProfileFrom(ctx *gin.Context) *Profile {
