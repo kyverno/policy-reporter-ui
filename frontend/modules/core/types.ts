@@ -110,8 +110,8 @@ export type SourceConfig = {
 }
 
 export type Profile = {
-    firstname: string;
-    lastname: string;
+    id?: string;
+    name: string;
 }
 
 export type Navigation = {

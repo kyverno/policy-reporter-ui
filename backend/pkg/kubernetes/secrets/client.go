@@ -31,14 +31,9 @@ type Values struct {
 	Password    string   `json:"password" mapstructure:"password"`
 
 	// OAuth Values
-	AuthURL   string `json:"authURL" mapstructure:"authURL"`
-	TokenURL  string `json:"tokenURL" mapstructure:"tokenURL"`
-	AuthStyle string `json:"authStyle" mapstructure:"authStyle"`
-	Provider  string `json:"provider" mapstructure:"provider"`
-
+	Provider string `json:"provider" mapstructure:"provider"`
 	// OpenIDConnect
-	Domain string `json:"domain" mapstructure:"domain"`
-
+	DiscoveryURL string `json:"domain" mapstructure:"discoveryURL"`
 	// OAuth + OpenIDConnect
 	ClientID     string `json:"clientId" mapstructure:"clientId"`
 	ClientSecret string `json:"clientSecret" mapstructure:"clientSecret"`
@@ -82,7 +77,7 @@ func (c *k8sClient) Get(ctx context.Context, name string) (Values, error) {
 	}
 
 	if domain, ok := secret.Data["domain"]; ok {
-		values.Domain = string(domain)
+		values.DiscoveryURL = string(domain)
 	}
 
 	if clientID, ok := secret.Data["clientId"]; ok {

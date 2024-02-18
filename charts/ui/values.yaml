@@ -12,6 +12,9 @@ image:
 # -- Deployment replica count
 replicaCount: 1
 
+# -- Temporary Directory to persist session data for authentication
+tempDir: "/tmp"
+
 logging:
   # -- log encoding
   # possible encodings are console and json
@@ -36,8 +39,10 @@ server:
 openIDConnect:
   # -- Enable openID Connect authentication
   enabled: false
-  # -- OpenID Connect API Domain
-  domain: ""
+  # -- OpenID Connect Discovery URL
+  discoveryUrl: ""
+  # -- OpenID Connect Callback URL
+  callbackUrl: ""
   # -- OpenID Connect ClientID
   clientId: ""
   # -- OpenID Connect ClientSecret
@@ -45,7 +50,25 @@ openIDConnect:
   # -- OpenID Connect allowed Scopes
   scopes: []
   # -- Provide OpenID Connect configuration via Secret
-  # supported keys: `domain`, `clientId`, `clientSecret`
+  # supported keys: `discoveryUrl`, `clientId`, `clientSecret`
+  secretRef: ""
+
+oauth:
+  # -- Enable openID Connect authentication
+  enabled: false
+  # -- OAuth2 Provider
+  # supported: amazon, gitlab, github, apple, google, yandex, azuread
+  provider: ""
+  # -- OpenID Connect Callback URL
+  callbackUrl: ""
+  # -- OpenID Connect ClientID
+  clientId: ""
+  # -- OpenID Connect ClientSecret
+  clientSecret: ""
+  # -- OpenID Connect allowed Scopes
+  scopes: []
+  # -- Provide OpenID Connect configuration via Secret
+  # supported keys: `provider`, `clientId`, `clientSecret`
   secretRef: ""
 
 ui:

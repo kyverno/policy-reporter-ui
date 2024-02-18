@@ -2,7 +2,7 @@
 
 Policy Reporter UI
 
-![Version: 0.0.18](https://img.shields.io/badge/Version-0.0.18-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0-alpha.13](https://img.shields.io/badge/AppVersion-2.0.0--alpha.13-informational?style=flat-square)
+![Version: 0.0.19](https://img.shields.io/badge/Version-0.0.19-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0-alpha.14](https://img.shields.io/badge/AppVersion-2.0.0--alpha.14-informational?style=flat-square)
 
 ## Documentation
 
@@ -17,6 +17,7 @@ You can find detailed Information and Screens about Features and Configurations 
 | image.pullPolicy | string | `"IfNotPresent"` | Image PullPolicy |
 | image.tag | string | `""` | Image tag Defaults to `Chart.AppVersion` if omitted |
 | replicaCount | int | `1` | Deployment replica count |
+| tempDir | string | `"/tmp"` | Temporary Directory to persist session data for authentication |
 | logging.encoding | string | `"console"` | log encoding possible encodings are console and json |
 | logging.logLevel | int | `0` | log level default info |
 | server.port | int | `8080` | Application port |
@@ -25,11 +26,19 @@ You can find detailed Information and Screens about Features and Configurations 
 | server.basicAuth.password | string | `""` | HTTP BasicAuth password |
 | server.basicAuth.secretRef | string | `""` | Read HTTP BasicAuth credentials from secret |
 | openIDConnect.enabled | bool | `false` | Enable openID Connect authentication |
-| openIDConnect.domain | string | `""` | OpenID Connect API Domain |
+| openIDConnect.discoveryUrl | string | `""` | OpenID Connect Discovery URL |
+| openIDConnect.callbackUrl | string | `""` | OpenID Connect Callback URL |
 | openIDConnect.clientId | string | `""` | OpenID Connect ClientID |
 | openIDConnect.clientSecret | string | `""` | OpenID Connect ClientSecret |
 | openIDConnect.scopes | list | `[]` | OpenID Connect allowed Scopes |
-| openIDConnect.secretRef | string | `""` | Provide OpenID Connect configuration via Secret supported keys: `domain`, `clientId`, `clientSecret` |
+| openIDConnect.secretRef | string | `""` | Provide OpenID Connect configuration via Secret supported keys: `discoveryUrl`, `clientId`, `clientSecret` |
+| oauth.enabled | bool | `false` | Enable openID Connect authentication |
+| oauth.provider | string | `""` | OAuth2 Provider supported: amazon, gitlab, github, apple, google, yandex, azuread |
+| oauth.callbackUrl | string | `""` | OpenID Connect Callback URL |
+| oauth.clientId | string | `""` | OpenID Connect ClientID |
+| oauth.clientSecret | string | `""` | OpenID Connect ClientSecret |
+| oauth.scopes | list | `[]` | OpenID Connect allowed Scopes |
+| oauth.secretRef | string | `""` | Provide OpenID Connect configuration via Secret supported keys: `provider`, `clientId`, `clientSecret` |
 | ui.displayMode | string | `""` | DisplayMode dark/light uses the OS configured prefered color scheme as default |
 | customBoards | list | `[]` | Additional customizable dashboards |
 | sources | list | `[{"excludes":{"namespaceKinds":["Pod","Job","ReplicaSet"]},"name":"kyverno"}]` | source specific configurations |

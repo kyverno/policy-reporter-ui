@@ -64,6 +64,8 @@ spec:
             mountPath: /app/config.yaml
             subPath: config.yaml
             readOnly: true
+          - name: tmp
+            mountPath: /tmp
           env:
           - name: POD_NAMESPACE
             valueFrom:
@@ -77,6 +79,8 @@ spec:
         secret:
           secretName: {{ include "ui.fullname" . }}-config
           optional: true
+      - name: tmp
+        emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

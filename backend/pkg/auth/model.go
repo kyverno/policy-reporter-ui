@@ -1,36 +1,60 @@
 package auth
 
 import (
-	"strings"
+	"time"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/markbates/goth"
 )
 
 type Profile struct {
-	SUB       string `json:"sub"`
-	Lastname  string `json:"family_name"`
-	Firstname string `json:"given_name"`
-
-	Name  string `json:"name"`
-	Login string `json:"login"`
-	Email string `json:"email"`
+	ID           string    `json:"id"`
+	AvatarURL    string    `json:"avatar"`
+	NickName     string    `json:"nickname"`
+	Lastname     string    `json:"lastname"`
+	Firstname    string    `json:"firstname"`
+	Name         string    `json:"name"`
+	Email        string    `json:"email"`
+	RefreshToken string    `json:"-"`
+	AccessToken  string    `json:"-"`
+	IDToken      string    `json:"-"`
+	ExpiresAt    time.Time `json:"-"`
 }
 
-func (p Profile) GetName() string {
+func (p *Profile) GetName() string {
 	if p.Name != "" {
 		return p.Name
 	}
 
-	if p.Firstname != "" || p.Lastname != "" {
-		return strings.TrimSpace(p.Firstname + " " + p.Lastname)
+	if p.NickName != "" {
+		return p.NickName
 	}
 
-	return p.Login
+	return p.Email
+}
+
+func NewProfile(user goth.User) Profile {
+	return Profile{
+		ID:           user.UserID,
+		AvatarURL:    user.AvatarURL,
+		NickName:     user.NickName,
+		Firstname:    user.FirstName,
+		Lastname:     user.LastName,
+		Name:         user.Name,
+		Email:        user.Email,
+		ExpiresAt:    user.ExpiresAt,
+		AccessToken:  user.AccessToken,
+		RefreshToken: user.RefreshToken,
+		IDToken:      user.IDToken,
+	}
 }
 
 func ProfileFrom(ctx *gin.Context) *Profile {
-	profile, ok := ctx.Get("profile")
-	if !ok {
+	session := sessions.Default(ctx)
+	profile := session.Get("profile")
+
+	if profile == nil {
 		return nil
 	}
 

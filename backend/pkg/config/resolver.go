@@ -5,14 +5,16 @@ import (
 	"errors"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/providers/openidConnect"
 	"go.uber.org/zap"
-	"golang.org/x/oauth2"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
@@ -21,8 +23,6 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/proxy"
 	"github.com/kyverno/policy-reporter-ui/pkg/auth"
-	"github.com/kyverno/policy-reporter-ui/pkg/auth/oauth"
-	"github.com/kyverno/policy-reporter-ui/pkg/auth/oidc"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/logging"
 	"github.com/kyverno/policy-reporter-ui/pkg/server"
@@ -236,74 +236,51 @@ func (r *Resolver) Clientset() (*k8s.Clientset, error) {
 	return r.clientset, nil
 }
 
-func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) (gin.HandlerFunc, error) {
-	var err error
-
+func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) error {
 	config := r.config.OAuth
 
 	if config.SecretRef != "" {
 		values, err := r.LoadSecret(ctx, config.SecretRef)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		config = config.FromValues(values)
 	}
 
-	var endpoint oauth2.Endpoint
-	if config.Provider != "" {
-		endpoint, err = oauth.ProviderEndpoint(config.Provider)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		endpoint = config.Endpoint.ToEndpoint()
+	provider := auth.NewProvider(config.Provider, config.ClientID, config.ClientSecret, config.CallbackURL, config.Scopes)
+	if provider == nil {
+		return errors.New("provider not available")
 	}
 
-	authenticator, err := oauth.New(
-		config.ClientID,
-		config.ClientSecret,
-		config.Redirect,
-		endpoint,
-		config.Scopes,
-	)
+	goth.UseProviders(provider)
+	auth.Setup(engine, config.Provider, r.config.TempDir)
 
-	if err != nil {
-		return nil, err
-	}
-
-	oauth.Setup(engine, authenticator)
-
-	return auth.Auth, nil
+	return nil
 }
 
-func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) (gin.HandlerFunc, error) {
+func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) error {
 	oid := r.config.OpenIDConnect
 
 	if oid.SecretRef != "" {
 		values, err := r.LoadSecret(ctx, oid.SecretRef)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		oid = oid.FromValues(values)
 	}
 
-	authenticator, err := oidc.New(
-		oid.Domain,
-		oid.ClientID,
-		oid.ClientSecret,
-		oid.Redirect,
-		oid.Scopes,
-	)
-
+	provider, err := openidConnect.New(oid.ClientID, oid.ClientSecret, oid.CallbackURL, strings.TrimSuffix(oid.DiscoveryURL, "/")+"/.well-known/openid-configuration", oid.Scopes...)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	auth.Setup(engine, authenticator)
+	goth.UseProviders(provider)
 
-	return auth.Auth, nil
+	auth.Setup(engine, "openid-connect", r.config.TempDir)
+
+	return nil
 }
 
 func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
@@ -321,19 +298,17 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	}
 
 	if r.config.OpenIDConnect.Enabled {
-		auth, err := r.SetupOIDC(ctx, engine)
-		if err != nil {
+		if err := r.SetupOIDC(ctx, engine); err != nil {
 			zap.L().Error("failed to setup oidc", zap.Error(err))
-		} else {
-			middleware = append(middleware, auth)
 		}
+
+		middleware = append(middleware, auth.Provider("openid-connect"), auth.Auth)
 	} else if r.config.OAuth.Enabled {
-		auth, err := r.SetupOAuth(ctx, engine)
-		if err != nil {
+		if err := r.SetupOAuth(ctx, engine); err != nil {
 			zap.L().Error("failed to setup oauth", zap.Error(err))
-		} else {
-			middleware = append(middleware, auth)
 		}
+
+		middleware = append(middleware, auth.Provider(r.config.OAuth.Provider), auth.Auth)
 	}
 
 	if r.config.Server.Logging {
@@ -390,8 +365,13 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	}
 
 	if !r.config.UI.Disabled {
+		var uiMiddleware []gin.HandlerFunc
+		if r.config.AuthEnabled() {
+			uiMiddleware = append(uiMiddleware, auth.Valid)
+		}
+
 		zap.L().Info("register UI", zap.String("path", r.config.UI.Path))
-		serv.RegisterUI(r.config.UI.Path)
+		serv.RegisterUI(r.config.UI.Path, uiMiddleware)
 	}
 
 	serv.RegisterAPI(

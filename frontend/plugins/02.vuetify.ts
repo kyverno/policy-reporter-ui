@@ -3,7 +3,6 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { md3 } from 'vuetify/blueprints'
 import { useConfigStore } from "~/store/config";
-import type { DebuggerEvent } from "vue";
 
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useConfigStore()
@@ -43,7 +42,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   })
 
   config.$subscribe((mutation, state) => {
-    if ((mutation.events as DebuggerEvent).key !== 'displayMode') return;
+    if (vuetify.theme.global.name.value === state.displayMode) return;
 
     vuetify.theme.global.name.value = state.displayMode
   })

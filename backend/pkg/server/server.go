@@ -32,14 +32,14 @@ func (s *Server) Start() error {
 	return s.engine.Run(fmt.Sprintf(":%d", s.port))
 }
 
-func (s *Server) RegisterUI(path string) {
+func (s *Server) RegisterUI(path string, middleware []gin.HandlerFunc) {
 	fileServer := http.FileServer(http.Dir(path))
 
-	handler := append(s.middelware, func(c *gin.Context) {
-		fileServer.ServeHTTP(c.Writer, c.Request)
-	})
+	handler := append(s.middelware, middleware...)
 
-	s.engine.NoRoute(handler...)
+	s.engine.NoRoute(append(handler, func(c *gin.Context) {
+		fileServer.ServeHTTP(c.Writer, c.Request)
+	})...)
 }
 
 func (s *Server) RegisterCluster(name string, client *core.Client, plugins map[string]*plugin.Client, proxy *httputil.ReverseProxy) {

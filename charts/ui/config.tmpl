@@ -31,3 +31,8 @@ sources:
 openIDConnect:
   {{- toYaml . | nindent 4 }}
 {{- end }}
+
+{{- with .Values.oauth }}
+oauth:
+  {{- toYaml . | nindent 4 }}
+{{- end }}

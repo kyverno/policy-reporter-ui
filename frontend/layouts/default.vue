@@ -6,7 +6,7 @@
       <template #append>
         <form-cluster-select />
         <form-display-mode-select style="width: 150px;" />
-        <user-menu class="ml-4" :profile="layout.profile" v-if="layout.profile" />
+        <user-menu class="ml-4" />
       </template>
     </v-app-bar>
 
