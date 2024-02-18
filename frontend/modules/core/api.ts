@@ -44,11 +44,11 @@ export class CoreAPI {
     return exec<LayoutConfig>(`/api/config/${this.cluster}/layout`, { baseURL: this.baseURL })
   }
 
-  dashboard <T extends Boolean>(filter?: Filter) {
+  dashboard <T extends boolean>(filter?: Filter) {
     return exec<Dashboard<T>>(`/api/config/${this.cluster}/dashboard`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 
-  customBoard <T extends Boolean>(id: string, filter?: Filter) {
+  customBoard <T extends boolean>(id: string, filter?: Filter) {
     return exec<Dashboard<T>>(`/api/config/${this.cluster}/custom-board/${id}`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 

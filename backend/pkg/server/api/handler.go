@@ -106,9 +106,24 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 		namespaces = config.Namespaces.List
 	}
 
-	if len(namespaces) > 0 {
-		query["namespaces"] = namespaces
+	if len(namespaces) == 0 {
+		ctx.JSON(http.StatusOK, service.Dashboard{
+			Title:          config.Name,
+			ClusterScope:   config.ClusterScope,
+			Sources:        sources,
+			SingleSource:   len(sources) == 1,
+			MultipleSource: len(sources) > 1,
+			Namespaces:     make([]string, 0),
+			Charts: service.Charts{
+				ClusterScope:   make(map[string]map[string]int),
+				NamespaceScope: make(map[string]*service.Chart),
+				Findings:       &service.Chart{},
+			},
+		})
+		return
 	}
+
+	query["namespaces"] = namespaces
 
 	dashboard, err := h.service.Dashboard(ctx, ctx.Param("cluster"), sources, namespaces, config.ClusterScope, query)
 	if err != nil {

@@ -15,9 +15,10 @@
 <script setup lang="ts">
 const logout = () => {
   document.cookie.split(";").forEach((c) => { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
+  // @ts-ignore
   window.location = '/logout'
 }
 
-const { data: profile } = useAPI(api => api.profile(), { default: () => ({ name: 'Frank Jogeleit' } )})
+const { data: profile } = useAPI(api => api.profile(), { default: () => ({ name: 'Frank Jogeleit', id: undefined } )})
 
 </script>

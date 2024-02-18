@@ -1,4 +1,4 @@
-import vuetify from "vite-plugin-vuetify";
+import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import { join } from 'node:path'
 
 export default defineNuxtConfig({
@@ -30,6 +30,13 @@ export default defineNuxtConfig({
     output: {
       publicDir: join(__dirname, 'dist')
     }
+  },
+  vite: {
+    vue: {
+      template: {
+        transformAssetUrls,
+      },
+    },
   },
   app: {
     head: {

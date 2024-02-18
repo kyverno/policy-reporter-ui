@@ -6,7 +6,7 @@
       <template #append>
         <form-cluster-select />
         <form-display-mode-select style="width: 150px;" />
-        <user-menu class="ml-4" />
+        <user-menu />
       </template>
     </v-app-bar>
 
@@ -80,12 +80,11 @@
 <script setup lang="ts">
 import { useTheme } from "vuetify";
 import type { LayoutConfig } from "~/modules/core/types";
-import {use} from "h3";
-import {useConfigStore} from "~/store/config";
+import { useConfigStore } from "~/store/config";
 
 const drawer = ref(true)
 
-const { data: layout } = useAPI((api) => api.layout(), { default: (): LayoutConfig => ({ sources: [], customBoards: [], policies: [] }) })
+const { data: layout } = useAPI((api) => api.layout(), { default: (): LayoutConfig => ({ sources: [], customBoards: [], policies: [], targets: false }) })
 
 const theme = useTheme()
 

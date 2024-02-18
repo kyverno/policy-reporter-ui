@@ -304,6 +304,10 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 		findingChart = MapFindingsToSourceStatusChart(sources[0], findings)
 	}
 
+	if namespaces == nil {
+		namespaces = make([]string, 0)
+	}
+
 	return &Dashboard{
 		FilterSources:  make([]string, 0),
 		ClusterScope:   clusterScope,

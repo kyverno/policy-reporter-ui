@@ -4,22 +4,31 @@
                :title="data.title"
                v-if="data"
   >
-    <GraphSourceStatus v-if="data.singleSource" :data="data" :source="data.sources[0]" />
-    <GraphSourcesStatus v-else :data="data" :hide-cluster="!data.clusterScope" />
-    <v-row v-if="data.clusterScope">
-      <v-col>
-        <resource-cluster-list :details="data.multiSource" />
-      </v-col>
-    </v-row>
-    <resource-namespace-section v-if="data.namespaces.length" :namespaces="data.namespaces">
-      <template #default="{ namespaces }">
-        <resource-scroller :list="namespaces" :default-loadings="3">
-          <template #default="{ item }">
-            <resource-list :namespace="item" :details="data.multiSource" />
-          </template>
-        </resource-scroller>
-      </template>
-    </resource-namespace-section>
+    <template v-if="data.namespaces.length">
+      <GraphSourceStatus v-if="data.singleSource" :data="data" :source="data.sources[0]" />
+      <GraphSourcesStatus v-else :data="data" :hide-cluster="!data.clusterScope" />
+      <v-row v-if="data.clusterScope">
+        <v-col>
+          <resource-cluster-list :details="data.multiSource" />
+        </v-col>
+      </v-row>
+      <resource-namespace-section v-if="data.namespaces.length" :namespaces="data.namespaces">
+        <template #default="{ namespaces }">
+          <resource-scroller :list="namespaces" :default-loadings="3">
+            <template #default="{ item }">
+              <resource-list :namespace="item" :details="data.multiSource" />
+            </template>
+          </resource-scroller>
+        </template>
+      </resource-namespace-section>
+    </template>
+    <v-card class="mt-4" v-else>
+      <v-card-text>
+        <v-alert variant="outlined" type="error">
+          No configured namespaces are found
+        </v-alert>
+      </v-card-text>
+    </v-card>
   </page-layout>
 </template>
 

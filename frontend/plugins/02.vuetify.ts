@@ -3,6 +3,7 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { md3 } from 'vuetify/blueprints'
 import { useConfigStore } from "~/store/config";
+import 'vuetify/styles'
 
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useConfigStore()
