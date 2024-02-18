@@ -2,7 +2,6 @@ package auth
 
 import (
 	"encoding/gob"
-	"math"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -18,7 +17,7 @@ func Setup(engine *gin.Engine, provider string, tempDir string) {
 	gob.Register(map[string]any{})
 
 	authStore := gsessions.NewFilesystemStore(tempDir, []byte("auth-store"))
-	authStore.MaxLength(math.MaxInt64)
+	authStore.MaxLength(2147483647)
 	authStore.Options = &gsessions.Options{
 		HttpOnly: true,
 		MaxAge:   86400 * 30,
