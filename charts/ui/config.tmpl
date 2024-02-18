@@ -1,5 +1,7 @@
 namespace: {{ .Release.Namespace }}
 
+tempDir: {{ .Values.tempDir }}
+
 logging:
   encoding: {{ .Values.logging.encoding }}
   logLevel: {{ .Values.logging.logLevel }}
