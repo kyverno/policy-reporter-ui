@@ -19,6 +19,6 @@ const logout = () => {
   window.location = '/logout'
 }
 
-const { data: profile } = useAPI(api => api.profile(), { default: () => ({ name: 'Frank Jogeleit', id: undefined } )})
+const { data: profile } = useAPI(api => api.profile())
 
 </script>
