@@ -1,5 +1,5 @@
 <template>
-  <v-layout>
+  <v-layout v-if="layout">
     <v-app-bar elevation="1" prominent>
       <v-app-bar-nav-icon icon="mdi-menu" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>Policy Reporter</v-toolbar-title>
@@ -36,7 +36,7 @@
             <v-divider class="mb-1" />
           </template>
 
-          <v-list-item :to="item.path" :prepend-icon="item.icon" exact lines="one" base-color="header-item" v-else>
+          <v-list-item :to="item.path" exact lines="one" base-color="header-item" v-else>
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
         </template>
@@ -45,7 +45,7 @@
 
           <v-list-item base-color="header" title="Policy Dashboard" to="/policies" exact />
           <template v-for="item in layout.policies" :key="item.path">
-            <v-list-item :to="item.path" :prepend-icon="item.icon" exact lines="one" base-color="header-item">
+            <v-list-item :to="item.path" exact lines="one" base-color="header-item">
               <v-list-item-title>{{ item.title }}</v-list-item-title>
             </v-list-item>
           </template>

@@ -3,7 +3,6 @@
       multiple
       clearable
       :items="store.namespaces"
-      :loading="loading"
       variant="outlined"
       hide-details
       label="Namespaces"
@@ -27,7 +26,7 @@ const props = defineProps<{ source: string; modelValue: string[] }>();
 
 const selected = ref<string[]>(props.modelValue);
 
-const { store, loading } = useSourceStore(props.source)
+const { store } = useSourceStore(props.source)
 
 const emit = defineEmits<{ 'update:modelValue': [kinds: string[]] }>()
 

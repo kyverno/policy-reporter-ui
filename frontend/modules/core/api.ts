@@ -44,12 +44,12 @@ export class CoreAPI {
     return exec<LayoutConfig>(`/api/config/${this.cluster}/layout`, { baseURL: this.baseURL })
   }
 
-  dashboard <T extends boolean>(filter?: Filter) {
-    return exec<Dashboard<T>>(`/api/config/${this.cluster}/dashboard`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
+  dashboard (filter?: Filter) {
+    return exec<Dashboard>(`/api/config/${this.cluster}/dashboard`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 
-  customBoard <T extends boolean>(id: string, filter?: Filter) {
-    return exec<Dashboard<T>>(`/api/config/${this.cluster}/custom-board/${id}`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
+  customBoard (id: string, filter?: Filter) {
+    return exec<Dashboard>(`/api/config/${this.cluster}/custom-board/${id}`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 
   resource (id: string, filter?: Filter) {
@@ -88,8 +88,8 @@ export class CoreAPI {
     return exec<string[]>(`/proxy/${this.cluster}/core/v1/namespaces`, { baseURL: this.baseURL, params: { ...filter } })
   }
 
-  namespacedKinds (source?: string) {
-    return exec<string[]>('/proxy/'+this.cluster+'/core/v1/namespaced-resources/kinds', { baseURL: this.baseURL, params: { sources: source ? [source] : undefined } })
+  namespacedKinds (sources?: string[]) {
+    return exec<string[]>('/proxy/'+this.cluster+'/core/v1/namespaced-resources/kinds', { baseURL: this.baseURL, params: { sources } })
   }
 
   namespacedStatusCount (source: string, filter?: Filter) {
@@ -104,8 +104,8 @@ export class CoreAPI {
     return exec<{ [status in Status]: number }>(`/proxy/${this.cluster}/core/v2/namespace-scoped/${source}/status-counts`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.clusterExcludes) } })
   }
 
-  clusterKinds (source?: string) {
-    return exec<string[]>('/proxy/'+this.cluster+'/core/v1/cluster-resources/kinds', { baseURL: this.baseURL, params: { sources: source ? [source] : undefined } })
+  clusterKinds (sources?: string[]) {
+    return exec<string[]>('/proxy/'+this.cluster+'/core/v1/cluster-resources/kinds', { baseURL: this.baseURL, params: { sources } })
   }
 
   clusterResults (filter?: Filter, pagination?: Pagination) {

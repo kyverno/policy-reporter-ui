@@ -3,6 +3,9 @@
                v-model:cluster-kinds="clusterKinds"
                :title="data.title"
                v-if="data"
+               :source="data.singleSource ? data.sources[0] : undefined"
+               :ns-scoped="!data.clusterScope"
+               :store="route.params.id"
   >
     <template v-if="data.namespaces.length">
       <GraphSourceStatus v-if="data.singleSource" :data="data" :source="data.sources[0]" />
@@ -48,6 +51,14 @@ const filter = computed(() => ({
 }))
 
 const { data, refresh } = useAPI((api) => api.customBoard(route.params.id, filter.value))
+
+const store = useSourceStore(route.params.id)
+
+watchEffect(() => {
+  if (!data.value) return;
+
+  store.load(data.value.sources)
+})
 
 watch(filter, onChange(refresh))
 

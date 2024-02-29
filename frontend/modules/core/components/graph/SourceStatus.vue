@@ -28,5 +28,5 @@
 import { capilize } from "~/modules/core/layouthHelper";
 import type { Dashboard } from "~/modules/core/types";
 
-const props = defineProps<{ data: Dashboard<false>, source: string; category?: string; }>();
+const props = defineProps<{ data: Dashboard; source: string; category?: string; }>();
 </script>

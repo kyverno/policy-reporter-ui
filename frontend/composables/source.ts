@@ -4,17 +4,17 @@ type Store = {
     categories: string[]
 }
 
-const sources: { [source: string]: Store } = {}
+const sources: { [source: string]: Store } = reactive({})
 
-export const useSourceStore = (source?: string) => {
-    const key = source || 'global'
+export const useSourceStore = (key?: string) => {
+    if (!key) { key = 'global' }
 
     if (!sources[key]) {
-        sources[key] = reactive({
+        sources[key] = {
             kinds: { namespaced: [], cluster: [] },
             namespaces: [],
             categories: [],
-        })
+        }
     }
 
     const store = sources[key]
@@ -22,15 +22,21 @@ export const useSourceStore = (source?: string) => {
     const loading = ref(false)
     const error = ref<Error | null>(null)
 
-    const load = () => {
+    const load = (source?: string[] | string) => {
         loading.value = true
         error.value = null
 
+        if (typeof source === 'string') {
+            source = [source]
+        } else if (Array.isArray(source) && !source.length) {
+            source = undefined
+        }
+    
         return Promise.all([
-            callAPI(api => api.namespaces({ sources: source ? [source] : undefined })),
-            callAPI(api => api.namespacedKinds(source)),
-            callAPI(api => api.clusterKinds(source)),
-            callAPI(api => api.categoryTree(undefined, { sources: source ? [source] : undefined })),
+            callAPI(api => api.namespaces({ sources: source as string[] })),
+            callAPI(api => api.namespacedKinds(source as string[])),
+            callAPI(api => api.clusterKinds(source as string[])),
+            callAPI(api => api.categoryTree(undefined, { sources: source as string[] })),
         ]).then(([namespaces, nsKinds, clusterKinds, categoryTrees]) => {
             store.kinds.namespaced = nsKinds || []
             store.kinds.cluster = clusterKinds || []

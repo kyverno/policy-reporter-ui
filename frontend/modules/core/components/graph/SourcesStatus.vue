@@ -3,7 +3,7 @@
     <v-col cols="12" md="6">
       <v-card>
         <v-card-text class="mb-0 pb-0">
-          <GraphFindings :data="data.charts.findings[status1]" :status="status1" :key="status1" />
+          <GraphFindings :data="(data.charts.findings[status1] as Findings)" :status="status1" :key="status1" />
         </v-card-text>
         <v-card-actions style="margin-top: -40px">
           <v-btn-toggle
@@ -23,7 +23,7 @@
     <v-col cols="12" md="6">
       <v-card>
         <v-card-text class="mb-0 pb-0">
-          <GraphFindings :data="data.charts.findings[status2]" :status="status2" :key="status2" :time="1200" />
+          <GraphFindings :data="(data.charts.findings[status2] as Findings)" :status="status2" :key="status2" :time="1200" />
         </v-card-text>
         <v-card-actions style="margin-top: -40px">
           <v-btn-toggle
@@ -70,9 +70,9 @@
 
 <script setup lang="ts">
 import StatusBtn from "~/components/StatusBtn.vue";
-import { type Dashboard, Status } from "~/modules/core/types";
+import { type Dashboard, Status, Findings } from "~/modules/core/types";
 
-const props = defineProps<{ data: Dashboard<true>; hideCluster?: boolean }>();
+const props = defineProps<{ data: Dashboard; hideCluster?: boolean }>();
 
 const status1 = ref(Status.PASS);
 const status2 = ref(Status.FAIL);

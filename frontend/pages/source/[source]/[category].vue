@@ -28,7 +28,7 @@ import { onChange } from "~/helper/compare";
 const route = useRoute()
 
 const store = useSourceStore(route.params.source)
-await store.load()
+await store.load(route.params.source)
 
 const kinds = ref<string[]>([])
 const clusterKinds = ref<string[]>([])

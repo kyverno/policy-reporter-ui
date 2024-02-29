@@ -121,7 +121,7 @@ func (r *Resolver) LoadPluginSecret(ctx context.Context, plugin Plugin) (Plugin,
 	return plugin, nil
 }
 
-func (r *Resolver) Proxies(cluster Cluster) (*httputil.ReverseProxy, error) {
+func (r *Resolver) Proxy(cluster Cluster) (*httputil.ReverseProxy, error) {
 	if cluster.Host == "" {
 		return nil, ErrMissingAPI
 	}
@@ -330,7 +330,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 			continue
 		}
 
-		proxy, err := r.Proxies(cluster)
+		proxy, err := r.Proxy(cluster)
 		if err != nil {
 			zap.L().Error("failed to resolve proxies", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("host", cluster.Host))
 			continue

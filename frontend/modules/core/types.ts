@@ -119,6 +119,7 @@ export type Navigation = {
     subtitle: string;
     path: string;
     children?: Navigation[];
+    exact?: boolean;
 }
 
 export type LayoutConfig = {
@@ -153,17 +154,17 @@ export type NamespaceScope = {
 
 export type Findings = Chart
 
-export type Dashboard<T extends boolean> = {
+export type Dashboard = {
     title?: string;
     clusterScope: boolean;
     filterSources: string[];
-    multiSource: T;
+    multiSource: boolean;
     showResults: string[];
-    singleSource: T extends true ? false : true;
+    singleSource: boolean;
     charts: {
         clusterScope: ClusterScope;
         namespaceScope: NamespaceScope;
-        findings: T extends true ? { [key in Status]: Findings } : Findings
+        findings: { [key in Status]: Findings } | Findings
     };
     namespaces: string[];
     sources: string[];
