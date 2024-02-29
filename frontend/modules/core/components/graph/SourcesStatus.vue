@@ -70,7 +70,7 @@
 
 <script setup lang="ts">
 import StatusBtn from "~/components/StatusBtn.vue";
-import { type Dashboard, Status, Findings } from "~/modules/core/types";
+import { type Dashboard, Status, type Findings } from "~/modules/core/types";
 
 const props = defineProps<{ data: Dashboard; hideCluster?: boolean }>();
 

@@ -7,12 +7,14 @@
         <CollapseBtn v-model="open" :disabled="!data.items.length" />
       </template>
     </v-toolbar>
-    <v-list v-if="data?.items?.length && open" lines="two" class="pt-0">
-      <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" />
-    </v-list>
-    <template v-if="data.count > options.offset">
-      <v-divider />
-      <v-pagination v-model="options.page" :length="length" class="my-4" />
+    <template v-if="open">
+      <v-list v-if="data?.items?.length" lines="two" class="pt-0">
+        <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" />
+      </v-list>
+      <template v-if="data.count > options.offset">
+        <v-divider />
+        <v-pagination v-model="options.page" :length="length" class="my-4" />
+      </template>
     </template>
     <template v-if="!pending && !(data.items.length)">
       <v-divider />
