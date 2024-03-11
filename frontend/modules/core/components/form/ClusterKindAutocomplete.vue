@@ -41,5 +41,5 @@ const emit = defineEmits<{ 'update:modelValue': [kinds: string[]] }>()
 
 watch(selected, (current) => {
   emit('update:modelValue', current)
-});
+}, { immediate: true });
 </script>

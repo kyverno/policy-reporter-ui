@@ -15,7 +15,7 @@
       </v-card>
     </v-col>
   </v-row>
-  <template v-if="!hideCluster">
+  <template v-if="clusterScope">
     <app-row>
       <v-card :title="`${data.title} cluster scoped results`">
         <GraphClusterResultCounts :data="data.charts.clusterScope" />
@@ -28,6 +28,12 @@
 import type { PolicyDetails } from "~/modules/core/types";
 
 const props = defineProps<{ data: PolicyDetails, hideCluster?: boolean; policy: string; }>();
+
+const clusterScope = computed(() => {
+  if (props.hideCluster) return false
+
+  return Object.values(props.data.charts.clusterScope || {}).reduce((acc, res) => acc + res, 0) > 0
+})
 
 const source = computed(() => props.data.source)
 </script>

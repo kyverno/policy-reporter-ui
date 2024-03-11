@@ -1,9 +1,0 @@
-dependencies:
-- name: kyverno-plugin
-  repository: oci://ghcr.io/kyverno/charts/policy-reporter
-  version: 0.0.1
-- name: trivy-plugin
-  repository: oci://ghcr.io/kyverno/charts/policy-reporter
-  version: 0.0.3
-digest: sha256:9f4e6239b8b32e665c59bc45a76835db6af21b1023e7ff41f50717c3d2841ba7
-generated: "2024-01-14T17:23:14.856361+01:00"
