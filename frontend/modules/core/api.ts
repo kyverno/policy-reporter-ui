@@ -60,8 +60,8 @@ export class CoreAPI {
     return exec<SourceDetails[]>(`/api/config/${this.cluster}/policy-sources`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 
-  policyDetails (source: string, policy: string, namespace?: string) {
-    return exec<PolicyDetails>(`/api/config/${this.cluster}/${source}/policy/details`, { baseURL: this.baseURL, params: applyExcludes({ policies: [policy], namespace }, [...this.nsExcludes, ...this.clusterExcludes]) })
+  policyDetails (source: string, policy: string, namespace?: string, status?: Status[]) {
+    return exec<PolicyDetails>(`/api/config/${this.cluster}/${source}/policy/details`, { baseURL: this.baseURL, params: applyExcludes({ policies: [policy], namespace, status }, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 
   policyHTMLReport (source: string, filter: { namespaces: string[]; categories: string[]; kinds: string[]; clusterScope: boolean; }) {

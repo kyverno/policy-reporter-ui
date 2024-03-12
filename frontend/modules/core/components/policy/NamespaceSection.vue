@@ -5,7 +5,6 @@
         <v-toolbar color="header">
           <v-toolbar-title>Namespace Scoped Results</v-toolbar-title>
           <template #append>
-            <form-status-select v-model="status" class="mr-2" />
             <form-namespace-autocomplete v-model="internal" :items="props.namespaces" />
           </template>
         </v-toolbar>
@@ -24,10 +23,9 @@
 <script setup lang="ts">
 import type { Status } from "~/modules/core/types";
 
-const props = defineProps<{ namespaces: string[]; source: string; policy?: string;  }>()
+const props = defineProps<{ namespaces: string[]; source: string; policy?: string; status?: Status[];  }>()
 
 const internal = ref<string[]>([])
-const status = ref<Status[]>([])
 
 const list = computed(() => {
   if (internal.value.length > 0) return internal.value

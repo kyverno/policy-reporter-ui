@@ -1,12 +1,11 @@
 <template>
-  <app-row v-if="data.count > 0 || !!searchText || !!(status || []).length">
+  <app-row v-if="data.count > 0 || !!searchText">
     <v-card>
       <v-toolbar color="transparent">
         <template #title>
           <span>Cluster Scoped Results</span>
         </template>
         <template #append>
-          <form-status-select v-model="status" class="mr-4" />
           <search v-model="searchText" class="mr-4" style="min-width: 300px; float: left;" />
           <v-btn :icon="open ? 'mdi-chevron-up' : 'mdi-chevron-down'" @click="open = !open" variant="text" />
         </template>
@@ -72,6 +71,7 @@ const props = defineProps<{
   source: string;
   category?: string;
   policy?: string;
+  status?: Status[];
 }>()
 
 const options = reactive({
@@ -88,7 +88,6 @@ const options = reactive({
 const open = ref(true)
 const searchText = ref('')
 const bg = useBGColor()
-const status = ref<Status[]>([])
 
 const filter = inject<Ref<Filter>>(APIFilter, ref<Filter>({}))
 
@@ -96,7 +95,7 @@ const { data, refresh } = useAPI(
     (api) => api.clusterResults({
       ...filter.value,
       sources: [props.source],
-      status: status.value ? status.value : undefined,
+      status: props.status ? props.status : undefined,
       policies: props.policy ? [props.policy] : undefined,
       search: searchText.value ? searchText.value : undefined,
     }, {
@@ -110,8 +109,8 @@ const { data, refresh } = useAPI(
 
 watch(() => options.page, () => refresh())
 watch(() => options.itemsPerPage, () => refresh())
+watch(() => props.status, () => refresh())
 watch(searchText, () => refresh())
-watch(status, () => refresh())
 
 watch(filter, onChange(refresh))
 
