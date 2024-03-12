@@ -6,7 +6,7 @@
       :items="items"
       variant="outlined"
       hide-details
-      label="Results"
+      label="Status"
       closable-chips
       :model-value="modelValue"
       @update:model-value="input"
