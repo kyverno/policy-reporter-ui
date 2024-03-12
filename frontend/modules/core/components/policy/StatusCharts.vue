@@ -34,6 +34,4 @@ const clusterScope = computed(() => {
 
   return Object.values(props.data.charts.clusterScope || {}).reduce((acc, res) => acc + res, 0) > 0
 })
-
-const source = computed(() => props.data.source)
 </script>

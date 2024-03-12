@@ -18,7 +18,7 @@
           <v-card-subtitle class="pb-4 text-grey-lighten-2" style="opacity: 1">{{ data.resource.apiVersion }} {{ data.resource.kind }}</v-card-subtitle>
         </div>
         <v-card-text>
-          <graph-resource-result-counts :data="data.results as any" />
+          <graph-resource-result-counts :data="data.results" />
         </v-card-text>
       </v-card>
     </app-row>

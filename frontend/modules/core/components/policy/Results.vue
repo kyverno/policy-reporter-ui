@@ -1,73 +1,76 @@
 <template>
-  <v-card v-if="data.count > 0 || !!searchText">
-    <v-toolbar color="transparent">
-      <template #title>
-        <span>{{ namespace }}</span>
-      </template>
-      <template #append>
-        <search v-model="searchText" class="mr-4" style="min-width: 400px; float: left;" />
-        <v-btn :icon="open ? 'mdi-chevron-up' : 'mdi-chevron-down'" @click="open = !open" variant="text" />
-      </template>
-    </v-toolbar>
-    <v-expand-transition>
-      <div v-show="open">
-        <v-divider />
-        <v-data-table-server
-          :items="results.results"
-          :items-length="results.count"
-          :headers="headers"
-          item-value="id"
-          show-expand
-          v-model:items-per-page="options.itemsPerPage"
-          v-model:page="options.page"
-        >
-          <template #item.status="{ value }">
-            <chip-status @click="searchText = value" :status="value" />
-          </template>
-          <template #item.severity="{ value }">
-            <chip-severity v-if="value" @click="searchText = value" :severity="value" />
-          </template>
-          <template #expanded-row="{ columns, item }">
-            <tr :class="bg">
-              <td :colspan="columns.length" class="py-3">
-                <div v-if="item.hasProps">
-                  <v-card v-if="item.message" variant="flat">
-                    <v-alert type="info" variant="flat">
-                      {{ item.message }}
-                    </v-alert>
-                  </v-card>
-                  <div>
-                    <template v-for="(value, label) in item.chips"  :key="label">
-                      <property-chip :label="label as string" :value="value" class="mr-2 mt-2 rounded-xl" />
-                    </template>
-                    <template v-for="(value, label) in item.cards"  :key="label">
-                      <property-card :label="label as string" :value="value" class="mt-2" />
-                    </template>
+  <app-row v-if="data.count > 0 || !!searchText">
+    <v-card>
+      <v-toolbar color="transparent">
+        <template #title>
+          <span>{{ namespace }}</span>
+        </template>
+        <template #append>
+          <search v-model="searchText" class="mr-4" style="min-width: 400px; float: left;" />
+          <v-btn :icon="open ? 'mdi-chevron-up' : 'mdi-chevron-down'" @click="open = !open" variant="text" />
+        </template>
+      </v-toolbar>
+      <v-expand-transition>
+        <div v-show="open">
+          <v-divider />
+          <v-data-table-server
+            :items="results.results"
+            :items-length="results.count"
+            :headers="headers"
+            item-value="id"
+            show-expand
+            v-model:items-per-page="options.itemsPerPage"
+            v-model:page="options.page"
+          >
+            <template #item.status="{ value }">
+              <chip-status @click="searchText = value" :status="value" />
+            </template>
+            <template #item.severity="{ value }">
+              <chip-severity v-if="value" @click="searchText = value" :severity="value" />
+            </template>
+            <template #expanded-row="{ columns, item }">
+              <tr :class="bg">
+                <td :colspan="columns.length" class="py-3">
+                  <div v-if="item.hasProps">
+                    <v-card v-if="item.message" variant="flat">
+                      <v-alert type="info" variant="flat">
+                        {{ item.message }}
+                      </v-alert>
+                    </v-card>
+                    <div>
+                      <template v-for="(value, label) in item.chips"  :key="label">
+                        <property-chip :label="label as string" :value="value" class="mr-2 mt-2 rounded-xl" />
+                      </template>
+                      <template v-for="(value, label) in item.cards"  :key="label">
+                        <property-card :label="label as string" :value="value" class="mt-2" />
+                      </template>
+                    </div>
                   </div>
-                </div>
-                <div v-else>
-                  {{ item.message }}
-                </div>
-              </td>
-            </tr>
-          </template>
-          <template #bottom v-if="results.count <= options.itemsPerPage"></template>
-        </v-data-table-server>
-      </div>
-    </v-expand-transition>
-  </v-card>
+                  <div v-else>
+                    {{ item.message }}
+                  </div>
+                </td>
+              </tr>
+            </template>
+            <template #bottom v-if="results.count <= options.itemsPerPage"></template>
+          </v-data-table-server>
+        </div>
+      </v-expand-transition>
+    </v-card>
+  </app-row>
 </template>
 
 <script lang="ts" setup>
 import { mapResults } from "~/modules/core/mapper";
 import type { Ref } from "vue";
-import type { Filter } from "~/modules/core/types";
+import { type Filter, Status } from "~/modules/core/types";
 import { APIFilter } from "~/modules/core/provider/dashboard";
 import { onChange } from "~/helper/compare";
 
 const props = defineProps<{
   source: string;
   namespace: string;
+  status?: Status[];
   policy?: string;
 }>()
 
@@ -93,6 +96,7 @@ const { data, refresh } = useAPI(
       ...filter.value,
       sources: [props.source],
       policies: props.policy ? [props.policy] : undefined,
+      status: props.status ? props.status : undefined,
       namespaces: [props.namespace],
       search: searchText.value ? searchText.value : undefined,
     }, {
@@ -106,6 +110,7 @@ const { data, refresh } = useAPI(
 
 watch(() => options.page, () => refresh())
 watch(() => options.itemsPerPage, () => refresh())
+watch(() => props.status, () => refresh())
 watch(searchText, () => refresh())
 
 watch(filter, onChange(refresh))
