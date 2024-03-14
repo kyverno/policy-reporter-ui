@@ -8,6 +8,7 @@ import (
 	pluginAPI "github.com/kyverno/policy-reporter-plugins/sdk/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
+	"golang.org/x/exp/maps"
 )
 
 func MapFindingSourcesToSourceItem(findings *core.Findings) []SourceItem {
@@ -158,14 +159,55 @@ func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStat
 	}
 }
 
-func MapNamespaceStatusCountsToCharts(findings map[string]core.NamespaceStatusCounts) map[string]*Chart {
-	charts := make(map[string]*Chart, len(findings))
+func MapNamespaceStatusCountsToCharts(findings map[string]core.NamespaceStatusCounts) map[string]*ChartVariants {
+	charts := make(map[string]*ChartVariants, len(findings))
 
 	for source, namespaces := range findings {
-		charts[source] = MapNamespaceStatusCountsToChart(utils.Title(source), namespaces)
+		charts[source] = &ChartVariants{
+			Complete: MapNamespaceStatusCountsToChart(utils.Title(source), namespaces),
+		}
+
+		if len(namespaces) > 8 {
+			prev := make(core.NamespaceStatusCounts, 8)
+			ns := maps.Keys(namespaces)
+			sort.Strings(ns)
+
+			for _, v := range ns {
+				if hasFailure(namespaces[v]) {
+					prev[v] = namespaces[v]
+				}
+
+				if len(prev) >= 7 {
+					break
+				}
+			}
+
+			if len(prev) == 0 {
+				for _, v := range ns[0:6] {
+					prev[v] = namespaces[v]
+				}
+			}
+
+			charts[source].Preview = MapNamespaceStatusCountsToChart(utils.Title(source), prev)
+		}
 	}
 
 	return charts
+}
+
+func hasFailure(ns map[string]int) bool {
+	var failures int
+	if v, ok := ns["fail"]; ok {
+		failures += v
+	}
+	if v, ok := ns["warn"]; ok {
+		failures += v
+	}
+	if v, ok := ns["error"]; ok {
+		failures += v
+	}
+
+	return failures > 0
 }
 
 func SumResourceCounts(results []core.ResourceStatusCount) map[string]int {

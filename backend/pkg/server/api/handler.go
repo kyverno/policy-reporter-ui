@@ -116,7 +116,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 			Namespaces:     make([]string, 0),
 			Charts: service.Charts{
 				ClusterScope:   make(map[string]map[string]int),
-				NamespaceScope: make(map[string]*service.Chart),
+				NamespaceScope: make(map[string]*service.ChartVariants),
 				Findings:       &service.Chart{},
 			},
 		})

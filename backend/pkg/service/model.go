@@ -27,9 +27,14 @@ type Chart struct {
 	Name     string     `json:"name"`
 }
 
+type ChartVariants struct {
+	Preview  *Chart `json:"preview"`
+	Complete *Chart `json:"complete"`
+}
+
 type Charts struct {
 	ClusterScope   map[string]map[string]int `json:"clusterScope"`
-	NamespaceScope map[string]*Chart         `json:"namespaceScope"`
+	NamespaceScope map[string]*ChartVariants `json:"namespaceScope"`
 	Findings       any                       `json:"findings"`
 }
 
