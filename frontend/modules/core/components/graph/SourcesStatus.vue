@@ -51,8 +51,14 @@
       </v-tabs>
       <v-divider />
       <template v-if="source">
-        <v-card-text>
-          <GraphStatusPerNamespace :data="data.charts.namespaceScope[source]" />
+        <v-card-text style="position: relative;">
+          <GraphStatusPerNamespace v-if="showExpanded" :data="data.charts.namespaceScope[source].complete" />
+          <GraphStatusPerNamespace v-else :data="data.charts.namespaceScope[source].preview" />
+
+          <v-btn v-if="hasPreview" variant="outlined" size="small" @click="expand = !expand" style="position: absolute; bottom: 10px; right: 10px;" rounded="0">
+            <span v-if="showExpanded">Show preview</span>
+            <span v-else>Show Complete List</span>
+          </v-btn>
         </v-card-text>
         <template v-if="!hideCluster">
           <v-divider />
@@ -78,6 +84,18 @@ const status1 = ref(Status.PASS);
 const status2 = ref(Status.FAIL);
 
 const source = ref('');
+
+const expand = ref(false)
+
+const hasPreview = computed(() => !!props.data.charts.namespaceScope[source.value].preview)
+
+const showExpanded = computed(() => {
+  if (!props.data.charts.namespaceScope[source.value].preview) {
+    return true
+  }
+
+  return expand.value
+})
 
 watch(() => props.data.sources, (s) => {
   if (!s || !s.length || source.value) return

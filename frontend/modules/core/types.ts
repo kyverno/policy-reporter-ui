@@ -163,7 +163,10 @@ export type Dashboard = {
     singleSource: boolean;
     charts: {
         clusterScope: ClusterScope;
-        namespaceScope: NamespaceScope;
+        namespaceScope: {
+            preview?: NamespaceScope
+            complete: NamespaceScope
+        };
         findings: { [key in Status]: Findings } | Findings
     };
     namespaces: string[];
