@@ -9,8 +9,13 @@
     </v-col>
     <v-col cols="12" md="8">
       <v-card style="height: 100%">
-        <v-card-text style="height: 100%">
-          <GraphStatusPerNamespace :data="data.charts.namespaceScope" />
+        <v-card-text style="height: 100%; position: relative;">
+          <GraphStatusPerNamespace v-if="showExpanded" :data="data.charts.namespaceScope.complete" />
+          <GraphStatusPerNamespace v-else :data="data.charts.namespaceScope.preview" />
+          <v-btn v-if="hasPreview" variant="outlined" size="small" @click="expand = !expand" style="position: absolute; bottom: 10px; right: 10px;" rounded="0">
+            <span v-if="showExpanded">Show preview</span>
+            <span v-else>Show Complete List</span>
+          </v-btn>
         </v-card-text>
       </v-card>
     </v-col>
@@ -28,6 +33,18 @@
 import type { PolicyDetails } from "~/modules/core/types";
 
 const props = defineProps<{ data: PolicyDetails, hideCluster?: boolean; policy: string; }>();
+
+const expand = ref(false)
+
+const hasPreview = computed(() => !!props.data.charts.namespaceScope.preview)
+
+const showExpanded = computed(() => {
+  if (!props.data.charts.namespaceScope.preview) {
+    return true
+  }
+
+  return expand.value
+})
 
 const clusterScope = computed(() => {
   if (props.hideCluster) return false

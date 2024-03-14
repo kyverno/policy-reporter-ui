@@ -73,7 +73,7 @@ type Source struct {
 
 type PolicyCharts struct {
 	Findings       *Chart         `json:"findings"`
-	NamespaceScope *Chart         `json:"namespaceScope"`
+	NamespaceScope *ChartVariants `json:"namespaceScope"`
 	ClusterScope   map[string]int `json:"clusterScope"`
 }
 

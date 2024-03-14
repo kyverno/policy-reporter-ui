@@ -3,6 +3,7 @@
                :title="capilize(route.params.source)"
                v-model:kinds="kinds"
                v-model:cluster-kinds="clusterKinds"
+               :source="route.params.source"
   >
     <resource-scroller :list="sources">
       <template #default="{ item }">
@@ -16,9 +17,13 @@
 import { onChange } from "~/helper/compare";
 import { capilize } from "~/modules/core/layouthHelper";
 
+const route = useRoute()
+
+const { load } = useSourceStore(route.params.source)
+await load(route.params.source)
+
 const kinds = ref<string[]>([])
 const clusterKinds = ref<string[]>([])
-const route = useRoute()
 
 const filter = computed(() => ({ sources: [route.params.source], kinds: [...kinds.value, ...clusterKinds.value] }))
 

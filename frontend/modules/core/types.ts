@@ -212,7 +212,10 @@ export type PolicyDetails = {
     };
     charts: {
         findings: Chart;
-        namespaceScope: Chart;
+        namespaceScope: {
+            complete: Chart;
+            preview: Chart;
+        };
         clusterScope: { [key in Status]: number; };
     };
     details: { title: string; value: string }[]

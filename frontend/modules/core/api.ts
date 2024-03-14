@@ -60,8 +60,8 @@ export class CoreAPI {
     return exec<SourceDetails[]>(`/api/config/${this.cluster}/policy-sources`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 
-  policyDetails (source: string, policy: string, namespace?: string, status?: Status[]) {
-    return exec<PolicyDetails>(`/api/config/${this.cluster}/${source}/policy/details`, { baseURL: this.baseURL, params: applyExcludes({ policies: [policy], namespace, status }, [...this.nsExcludes, ...this.clusterExcludes]) })
+  policyDetails (source: string, policy: string, namespace?: string, status?: Status[], kinds?: string[] ) {
+    return exec<PolicyDetails>(`/api/config/${this.cluster}/${source}/policy/details`, { baseURL: this.baseURL, params: applyExcludes({ policies: [policy], namespace, status, kinds }, [...this.nsExcludes, ...this.clusterExcludes], source) })
   }
 
   policyHTMLReport (source: string, filter: { namespaces: string[]; categories: string[]; kinds: string[]; clusterScope: boolean; }) {
@@ -166,7 +166,7 @@ const exec = <T>(api: string, opts: NitroFetchOptions<NitroFetchRequest>): Promi
   return $fetch<T>(api, opts)
 }
 
-const applyExcludes = <T extends Filter>(filter: T | undefined, exclude: string[] | undefined) => {
+const applyExcludes = <T extends Filter>(filter: T | undefined, exclude: string[] | undefined, source?: string) => {
   if (!filter) return ({ exclude })
 
   if (filter.kinds && filter.kinds.length > 0) return filter
@@ -175,6 +175,10 @@ const applyExcludes = <T extends Filter>(filter: T | undefined, exclude: string[
 
   if (filter.sources && filter.sources.length > 0) {
     exclude = exclude.filter((e) => filter.sources?.some(s => e.startsWith(s)))
+  }
+
+  if (source) {
+    exclude = exclude.filter((e) => e.startsWith(source))
   }
 
   return {

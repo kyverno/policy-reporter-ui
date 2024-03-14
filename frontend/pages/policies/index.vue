@@ -15,6 +15,9 @@
 <script setup lang="ts">
 import { onChange } from "~/helper/compare";
 
+const { load } = useSourceStore()
+await load()
+
 const kinds = ref<string[]>([])
 const clusterKinds = ref<string[]>([])
 

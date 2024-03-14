@@ -37,10 +37,7 @@ import type { Dashboard } from "~/modules/core/types";
 
 const props = defineProps<{ data: Dashboard; source: string; category?: string; }>();
 
-console.log(props.data)
-
 const expand = ref(false)
-
 const hasPreview = computed(() => !!props.data.charts.namespaceScope[props.source].preview)
 
 const showExpanded = computed(() => {

@@ -9,7 +9,6 @@ import { useChartColors, useStatusColors } from "~/modules/core/composables/them
 import type { Chart } from "~/modules/core/types";
 
 const props = defineProps<{ title?: string; data: Chart }>()
-
 const colors = useChartColors()
 const statusColors = useStatusColors()
 

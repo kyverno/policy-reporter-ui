@@ -5,9 +5,11 @@
         <v-toolbar color="header" elevation="2">
           <v-toolbar-title v-if="title">{{ title }}</v-toolbar-title>
           <template #append>
-            <policy-report-dialog :source="source" :category="category" v-if="source" />
+            <slot name="prepend" />
+            <policy-report-dialog :source="source" :category="category" v-if="source && !hideReport" />
             <FormKindAutocomplete style="min-width: 300px; max-width: 100%; margin-right: 15px;" v-model="kinds" :source="store || source" />
             <FormClusterKindAutocomplete v-if="!nsScoped" style="min-width: 300px;" v-model="clusterKinds" :source="store || source" />
+            <slot name="append" />
           </template>
         </v-toolbar>
       </v-card>
@@ -19,7 +21,7 @@
 <script setup lang="ts">
 import { ClusterKinds, NamespacedKinds } from "~/modules/core/provider/dashboard";
 
-const props = defineProps<{ title?: string; category?: string; source?: string; store?: string; nsScoped?: boolean; kinds?: string[]; clusterKinds?: string[] }>()
+const props = defineProps<{ title?: string; category?: string; source?: string; store?: string; nsScoped?: boolean; kinds?: string[]; clusterKinds?: string[]; hideReport: boolean }>()
 
 const kinds = ref<string[]>(props.kinds ?? [])
 const clusterKinds = ref<string[]>(props.clusterKinds ?? [])

@@ -109,6 +109,47 @@ func MapFindingsToSourceStatusChart(title string, findings *core.Findings) *Char
 	}
 }
 
+func MapNamespaceScopeChartVariant(title string, namespaces core.NamespaceStatusCounts) *ChartVariants {
+	chart := &ChartVariants{
+		Complete: MapNamespaceStatusCountsToChart(title, namespaces),
+	}
+
+	if len(namespaces) > 8 {
+		prev := make(core.NamespaceStatusCounts, 8)
+		ns := maps.Keys(namespaces)
+		sort.Strings(ns)
+
+		for _, v := range ns {
+			if hasFailure(namespaces[v]) {
+				prev[v] = namespaces[v]
+			}
+
+			if len(prev) >= 7 {
+				break
+			}
+		}
+
+		if len(prev) == 0 {
+			for _, v := range ns[0:6] {
+				prev[v] = namespaces[v]
+			}
+		} else if len(prev) < 7 {
+			for _, v := range ns {
+				if _, ok := prev[v]; !ok {
+					prev[v] = namespaces[v]
+				}
+				if len(prev) >= 7 {
+					break
+				}
+			}
+		}
+
+		chart.Preview = MapNamespaceStatusCountsToChart(title, prev)
+	}
+
+	return chart
+}
+
 func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStatusCounts) *Chart {
 	sets := map[string]*Dataset{
 		StatusPass:  {Label: utils.Title(StatusPass), Data: make([]int, 0)},
@@ -163,33 +204,7 @@ func MapNamespaceStatusCountsToCharts(findings map[string]core.NamespaceStatusCo
 	charts := make(map[string]*ChartVariants, len(findings))
 
 	for source, namespaces := range findings {
-		charts[source] = &ChartVariants{
-			Complete: MapNamespaceStatusCountsToChart(utils.Title(source), namespaces),
-		}
-
-		if len(namespaces) > 8 {
-			prev := make(core.NamespaceStatusCounts, 8)
-			ns := maps.Keys(namespaces)
-			sort.Strings(ns)
-
-			for _, v := range ns {
-				if hasFailure(namespaces[v]) {
-					prev[v] = namespaces[v]
-				}
-
-				if len(prev) >= 7 {
-					break
-				}
-			}
-
-			if len(prev) == 0 {
-				for _, v := range ns[0:6] {
-					prev[v] = namespaces[v]
-				}
-			}
-
-			charts[source].Preview = MapNamespaceStatusCountsToChart(utils.Title(source), prev)
-		}
+		charts[source] = MapNamespaceScopeChartVariant(utils.Title(source), namespaces)
 	}
 
 	return charts

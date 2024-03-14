@@ -115,7 +115,7 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 		Name:       policy,
 		Chart: PolicyCharts{
 			Findings:       MapFindingsToSourceStatusChart(title, findings),
-			NamespaceScope: MapNamespaceStatusCountsToChart(title, result),
+			NamespaceScope: MapNamespaceScopeChartVariant(title, result),
 			ClusterScope:   clusterResult,
 		},
 	}
