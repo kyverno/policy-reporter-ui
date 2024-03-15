@@ -26,7 +26,9 @@ export enum Status {
 export enum DisplayMode {
     UNSPECIFIED = '',
     DARK = 'dark',
-    LIGHT = 'light'
+    LIGHT = 'light',
+    COLOR_BLIND = 'colorblind',
+    COLOR_BLIND_DARK = 'colorblinddark'
 }
 
 export enum Direction {

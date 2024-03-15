@@ -6,8 +6,8 @@ import type { DebuggerEvent } from "vue";
 const { Chart, registerables } = ChartJs;
 
 const configColors = (mode: DisplayMode) => {
-  if (mode === DisplayMode.DARK) {
-    Chart.defaults.color = "#ADBABD";
+  if ([DisplayMode.DARK, DisplayMode.COLOR_BLIND_DARK].includes(mode)) {
+    Chart.defaults.color = "#CCCCCC";
     Chart.defaults.borderColor = "rgba(255,255,255,0.1)";
     Chart.defaults.backgroundColor = "rgba(255,255,0,0.1)";
     return;

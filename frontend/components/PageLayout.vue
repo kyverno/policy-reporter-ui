@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { ClusterKinds, NamespacedKinds } from "~/modules/core/provider/dashboard";
 
-const props = defineProps<{ title?: string; category?: string; source?: string; store?: string; nsScoped?: boolean; kinds?: string[]; clusterKinds?: string[]; hideReport: boolean }>()
+const props = defineProps<{ title?: string; category?: string; source?: string; store?: string; nsScoped?: boolean; kinds?: string[]; clusterKinds?: string[]; hideReport?: boolean }>()
 
 const kinds = ref<string[]>(props.kinds ?? [])
 const clusterKinds = ref<string[]>(props.clusterKinds ?? [])

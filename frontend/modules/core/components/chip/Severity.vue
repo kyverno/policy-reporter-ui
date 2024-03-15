@@ -1,5 +1,5 @@
 <template>
-  <v-chip :color="color" dark v-bind="$attrs">
+  <v-chip :color="`severity-${severity}`" dark v-bind="$attrs">
     {{ severity }}
   </v-chip>
 </template>
@@ -8,6 +8,4 @@
 import type { Severity } from "~/modules/core/types";
 
 const props = defineProps<{ severity: Severity }>()
-
-const color = useSeverityColor(props.severity)
 </script>

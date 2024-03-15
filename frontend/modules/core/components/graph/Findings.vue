@@ -20,6 +20,7 @@ import { type Findings, Status } from '../../types'
 import chroma from 'chroma-js'
 import { mapStatus } from "../../mapper";
 import { capilize } from "../../layouthHelper";
+import {useTheme} from "vuetify";
 
 const props = defineProps({
   status: { type: String as PropType<Status>, default: Status.FAIL, required: true },
@@ -28,10 +29,11 @@ const props = defineProps({
 })
 
 const diff = 0.80
+const theme = useTheme()
 
 const colors = (status: Status, amount: number) => {
   const middle = Math.floor(amount / 2)
-  const base = chroma(mapStatus(status))
+  const base = chroma(theme.current.value.colors[`status-${status}`])
 
   return Array.from(Array(amount).keys()).map((index) => {
     if (index < middle) {

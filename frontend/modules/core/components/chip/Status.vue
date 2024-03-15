@@ -1,14 +1,11 @@
 <template>
-  <v-chip :color="color" dark v-bind="$attrs" variant="tonal">
+  <v-chip :color="`btn-${status}`" dark v-bind="$attrs" variant="tonal">
     {{ status }}
   </v-chip>
 </template>
 
 <script lang="ts" setup>
 import { Status } from "~/modules/core/types";
-import { useStatusBtnColor } from "~/modules/core/composables/theme";
 
 const props = defineProps<{ status: Status }>()
-
-const color = useStatusBtnColor(props.status)
 </script>

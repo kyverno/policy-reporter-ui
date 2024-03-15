@@ -5,7 +5,7 @@
       <v-toolbar-title>Policy Reporter</v-toolbar-title>
       <template #append>
         <form-cluster-select />
-        <form-display-mode-select style="width: 150px;" />
+        <form-display-mode-select />
         <user-menu />
       </template>
     </v-app-bar>

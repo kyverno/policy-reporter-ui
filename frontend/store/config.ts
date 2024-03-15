@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import { type Cluster, type Config, DisplayMode, type SourceConfig } from '~/modules/core/types'
+import { type Cluster, type Config, DisplayMode } from '~/modules/core/types'
 
 const DisplayModeKey = 'dm'
 
@@ -24,7 +24,7 @@ export const useConfigStore = defineStore('config', {
     theme: (state: State) => {
       let mode = state.displayMode
 
-      if (![DisplayMode.UNSPECIFIED, DisplayMode.LIGHT, DisplayMode.DARK].includes(mode)) {
+      if (!Object.values(DisplayMode).includes(mode)) {
         return preferredDisplayMode()
       }
 
@@ -40,7 +40,7 @@ export const useConfigStore = defineStore('config', {
     setDisplayMode(mode: DisplayMode) {
       if (!mode || mode === this.displayMode) return;
 
-      if (![DisplayMode.DARK, DisplayMode.LIGHT].includes(mode)) {
+      if (!Object.values(DisplayMode).includes(mode)) {
         mode = preferredDisplayMode()
       }
 
