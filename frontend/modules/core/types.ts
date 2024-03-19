@@ -162,6 +162,7 @@ export type Dashboard = {
     filterSources: string[];
     multiSource: boolean;
     showResults: string[];
+    status: string[];
     singleSource: boolean;
     charts: {
         clusterScope: ClusterScope;
@@ -185,6 +186,7 @@ export type Dashboard = {
 export type SourceDetails = {
     title: string;
     name: string;
+    status: Status[];
     categories: string[];
     chart: Chart;
 }
@@ -193,6 +195,7 @@ export type ResourceDetails = {
     results: { [key in Status]: number; }
     chart?: Chart
     sources: SourceDetails[]
+    status: Status[];
 }
 
 export type PolicyDetails = {

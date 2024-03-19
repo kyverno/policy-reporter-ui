@@ -23,6 +23,7 @@ var (
 
 type Service struct {
 	endpoints map[string]*model.Endpoints
+	configs   map[string]model.SourceConfig
 }
 
 func (s *Service) core(cluster string) (*core.Client, error) {
@@ -53,6 +54,8 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 
 	query["sources"] = []string{source}
 	query["policies"] = []string{policy}
+
+	config := s.configs[source]
 
 	g := &errgroup.Group{}
 
@@ -115,7 +118,7 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 		Name:       policy,
 		Chart: PolicyCharts{
 			Findings:       MapFindingsToSourceStatusChart(title, findings),
-			NamespaceScope: MapNamespaceScopeChartVariant(title, result),
+			NamespaceScope: MapNamespaceScopeChartVariant(title, result, config.EnabledResults()),
 			ClusterScope:   clusterResult,
 		},
 	}
@@ -143,11 +146,14 @@ func (s *Service) PolicySources(ctx context.Context, cluster string, query url.V
 
 		title := utils.Title(source.Name)
 
+		status := s.configs[source.Name].EnabledResults()
+
 		list = append(list, Source{
 			Name:       source.Name,
 			Title:      title,
+			Status:     status,
 			Categories: categories,
-			Chart:      MapCategoriesToChart(title, source.Categories),
+			Chart:      MapCategoriesToChart(title, source.Categories, status),
 		})
 	}
 
@@ -195,10 +201,8 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster string, id string
 		return nil, err
 	}
 
-	var chart *Chart
-	if len(sourcesTree) > 1 {
-		chart = MapResourceSourceChart(statusCounts)
-	}
+	statusMap := map[string]bool{}
+	status := make([]string, 0, 5)
 
 	list := make([]Source, 0, len(sourcesTree))
 	for _, source := range sourcesTree {
@@ -209,22 +213,40 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster string, id string
 
 		title := utils.Title(source.Name)
 
+		config := s.configs[source.Name]
+		for _, r := range config.EnabledResults() {
+			statusMap[r] = true
+		}
+
 		list = append(list, Source{
 			Name:       source.Name,
 			Title:      title,
 			Categories: categories,
-			Chart:      MapCategoriesToChart(title, source.Categories),
+			Status:     status,
+			Chart:      MapCategoriesToChart(title, source.Categories, config.EnabledResults()),
 		})
+	}
+
+	for r, ok := range statusMap {
+		if ok {
+			status = append(status, r)
+		}
 	}
 
 	sort.Slice(list, func(i, j int) bool {
 		return list[i].Title < list[j].Title
 	})
 
+	var chart *Chart
+	if len(sourcesTree) > 1 {
+		chart = MapResourceSourceChart(statusCounts, status)
+	}
+
 	return &ResourceDetails{
 		Resource: resource,
 		Sources:  list,
 		Chart:    chart,
+		Status:   status,
 		Results:  SumResourceCounts(statusCounts),
 	}, nil
 }
@@ -240,6 +262,16 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 	combinedFilter, namespaceFilter, clusterFilter := BuildFilters(query)
 	combinedFilter.Set("namespaced", strconv.FormatBool(!clusterScope))
 
+	namespaceResults := make(map[string]core.NamespaceStatusCounts, len(sources))
+	clusterResults := make(map[string]map[string]int, len(sources))
+	showResults := make([]string, 0, len(sources))
+
+	mx := &sync.Mutex{}
+	cmx := &sync.Mutex{}
+
+	statusMap := map[string]bool{}
+	status := make([]string, 0, 5)
+
 	var findings *core.Findings
 	g.Go(func() error {
 		var err error
@@ -248,15 +280,12 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 		return err
 	})
 
-	namespaceResults := make(map[string]core.NamespaceStatusCounts, len(sources))
-	clusterResults := make(map[string]map[string]int, len(sources))
-	showResults := make([]string, 0, len(sources))
+	for _, source := range sources {
+		c := s.configs[source]
+		for _, r := range c.EnabledResults() {
+			statusMap[r] = true
+		}
 
-	mx := &sync.Mutex{}
-	cmx := &sync.Mutex{}
-
-	for _, s := range sources {
-		source := s
 		g.Go(func() error {
 			result, err := client.GetNamespaceStatusCounts(ctx, source, namespaceFilter)
 			if err != nil {
@@ -293,6 +322,13 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 			})
 		}
 	}
+
+	for r, ok := range statusMap {
+		if ok {
+			status = append(status, r)
+		}
+	}
+
 	if err := g.Wait(); err != nil {
 		return nil, err
 	}
@@ -317,10 +353,11 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 		Namespaces:     namespaces,
 		ShowResults:    showResults,
 		SourcesNavi:    MapFindingSourcesToSourceItem(findings),
+		Status:         status,
 		Charts: Charts{
 			ClusterScope:   clusterResults,
 			Findings:       findingChart,
-			NamespaceScope: MapNamespaceStatusCountsToCharts(namespaceResults),
+			NamespaceScope: MapNamespaceStatusCountsToCharts(namespaceResults, status),
 		},
 		Total: Total{
 			Count:     findings.Total,
@@ -356,6 +393,6 @@ func BuildFilters(baseFilter url.Values) (url.Values, url.Values, url.Values) {
 	return combinedFilter, namespaceFilter, clusterFilter
 }
 
-func New(clients map[string]*model.Endpoints) *Service {
-	return &Service{clients}
+func New(clients map[string]*model.Endpoints, configs map[string]model.SourceConfig) *Service {
+	return &Service{clients, configs}
 }

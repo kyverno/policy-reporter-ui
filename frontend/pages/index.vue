@@ -49,4 +49,5 @@ const { data, refresh } = useAPI(api => api.dashboard(filter.value))
 watch(filter, onChange(refresh))
 
 provide(APIFilter, filter)
+useStatusProvider(data)
 </script>

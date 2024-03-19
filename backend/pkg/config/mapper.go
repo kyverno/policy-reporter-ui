@@ -41,6 +41,7 @@ func MapConfig(c *Config) *api.Config {
 				Excludes: api.Excludes{
 					NamespaceKinds: s.Excludes.NamespaceKinds,
 					ClusterKinds:   s.Excludes.ClusterKinds,
+					Results:        s.Excludes.Results,
 				},
 			}
 		}),

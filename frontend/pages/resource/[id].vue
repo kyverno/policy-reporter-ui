@@ -65,4 +65,6 @@ const filter = computed(() => {
 const { data, refresh } = useAPI((api) => api.resource(route.params.id as string, filter.value));
 
 watch(filter, onChange(refresh))
+
+useStatusProvider(data)
 </script>

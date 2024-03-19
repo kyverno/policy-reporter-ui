@@ -8,12 +8,9 @@
       {{ item.name }}
     </v-list-item-title>
     <v-list-item-subtitle>{{ item.apiVersion }} {{ item.kind }}</v-list-item-subtitle>
+    <ResultChip v-if="showSkipped" class="ml-2" :status="Status.SKIP" :count="item[Status.SKIP]" tooltip="skip results" />
     <template v-slot:append>
-      <ResultChip v-if="!!item.skip" :status="Status.SKIP" :count="item.skip" tooltip="skip results" />
-      <ResultChip class="ml-2" :status="Status.PASS" :count="item.pass" tooltip="pass results" />
-      <ResultChip class="ml-2" :status="Status.WARN" :count="item.warn" tooltip="warning results" />
-      <ResultChip class="ml-2" :status="Status.FAIL" :count="item.fail" tooltip="fail results" />
-      <ResultChip class="ml-2" :status="Status.ERROR" :count="item.error" tooltip="error results" />
+      <ResultChip v-for="status in showed" :key="status" class="ml-2" :status="status" :count="item[status]" :tooltip="`${status} results`" />
     </template>
   </v-list-item>
   <resource-source-results v-if="open" :id="item.id" :filter="filter" />
@@ -22,6 +19,7 @@
 <script setup lang="ts">
 import { type Filter, type ResourceResult, Status } from '~/modules/core/types'
 import { type PropType } from "vue";
+import { useStatusInjection } from "~/composables/status";
 
 const open = ref(false)
 
@@ -40,4 +38,8 @@ const rsFilter = computed(() => {
   }
 })
 
+const status = useStatusInjection()
+
+const showSkipped = computed(() => status.value.includes(Status.SKIP) && !!props.item?.[Status.SKIP])
+const showed = computed(() => status.value.filter((s) => s !== Status.SKIP))
 </script>

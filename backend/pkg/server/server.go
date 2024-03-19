@@ -58,8 +58,8 @@ func (s *Server) RegisterCluster(name string, client *core.Client, plugins map[s
 	zap.L().Debug("cluster registered", zap.String("name", name), zap.String("id", id))
 }
 
-func (s *Server) RegisterAPI(c *api.Config, configs map[string]api.CustomBoard) {
-	handler := api.NewHandler(c, s.apis, configs)
+func (s *Server) RegisterAPI(c *api.Config, customBoards map[string]api.CustomBoard) {
+	handler := api.NewHandler(c, s.apis, customBoards)
 
 	s.api.GET("config", handler.Config)
 	s.api.GET("custom-board/list", handler.ListCustomBoards)

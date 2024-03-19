@@ -11,6 +11,8 @@ import (
 	"golang.org/x/exp/maps"
 )
 
+var allStatus = []string{StatusPass, StatusWarn, StatusFail, StatusError, StatusSkip}
+
 func MapFindingSourcesToSourceItem(findings *core.Findings) []SourceItem {
 	findingSources := make(map[string]bool, 0)
 	for _, f := range findings.Counts {
@@ -109,9 +111,9 @@ func MapFindingsToSourceStatusChart(title string, findings *core.Findings) *Char
 	}
 }
 
-func MapNamespaceScopeChartVariant(title string, namespaces core.NamespaceStatusCounts) *ChartVariants {
+func MapNamespaceScopeChartVariant(title string, namespaces core.NamespaceStatusCounts, status []string) *ChartVariants {
 	chart := &ChartVariants{
-		Complete: MapNamespaceStatusCountsToChart(title, namespaces),
+		Complete: MapNamespaceStatusCountsToChart(title, namespaces, status),
 	}
 
 	if len(namespaces) > 8 {
@@ -144,19 +146,20 @@ func MapNamespaceScopeChartVariant(title string, namespaces core.NamespaceStatus
 			}
 		}
 
-		chart.Preview = MapNamespaceStatusCountsToChart(title, prev)
+		chart.Preview = MapNamespaceStatusCountsToChart(title, prev, status)
 	}
 
 	return chart
 }
 
-func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStatusCounts) *Chart {
-	sets := map[string]*Dataset{
-		StatusPass:  {Label: utils.Title(StatusPass), Data: make([]int, 0)},
-		StatusFail:  {Label: utils.Title(StatusFail), Data: make([]int, 0)},
-		StatusWarn:  {Label: utils.Title(StatusWarn), Data: make([]int, 0)},
-		StatusError: {Label: utils.Title(StatusError), Data: make([]int, 0)},
-		StatusSkip:  {Label: utils.Title(StatusSkip), Data: make([]int, 0)},
+func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStatusCounts, status []string) *Chart {
+	var sets = make(map[string]*Dataset)
+	if len(status) == 0 {
+		status = allStatus
+	}
+
+	for _, s := range status {
+		sets[s] = &Dataset{Label: utils.Title(s), Data: make([]int, 0)}
 	}
 
 	labels := make([]string, 0, len(namespaces))
@@ -169,7 +172,9 @@ func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStat
 		index++
 
 		for status, count := range results {
-			sets[status].Data = append(sets[status].Data, count)
+			if _, ok := sets[status]; ok {
+				sets[status].Data = append(sets[status].Data, count)
+			}
 		}
 	}
 
@@ -187,24 +192,25 @@ func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStat
 		set.Data = data
 	}
 
+	datasets := make([]*Dataset, 0, len(sets))
+	for _, s := range allStatus {
+		if set, ok := sets[s]; ok {
+			datasets = append(datasets, set)
+		}
+	}
+
 	return &Chart{
-		Name:   title,
-		Labels: labels,
-		Datasets: []*Dataset{
-			sets[StatusPass],
-			sets[StatusWarn],
-			sets[StatusFail],
-			sets[StatusError],
-			sets[StatusSkip],
-		},
+		Name:     title,
+		Labels:   labels,
+		Datasets: datasets,
 	}
 }
 
-func MapNamespaceStatusCountsToCharts(findings map[string]core.NamespaceStatusCounts) map[string]*ChartVariants {
+func MapNamespaceStatusCountsToCharts(findings map[string]core.NamespaceStatusCounts, status []string) map[string]*ChartVariants {
 	charts := make(map[string]*ChartVariants, len(findings))
 
 	for source, namespaces := range findings {
-		charts[source] = MapNamespaceScopeChartVariant(utils.Title(source), namespaces)
+		charts[source] = MapNamespaceScopeChartVariant(utils.Title(source), namespaces, status)
 	}
 
 	return charts
@@ -245,13 +251,14 @@ func SumResourceCounts(results []core.ResourceStatusCount) map[string]int {
 	return values
 }
 
-func MapResourceSourceChart(results []core.ResourceStatusCount) *Chart {
-	sets := map[string]*Dataset{
-		StatusPass:  {Label: utils.Title(StatusPass), Data: make([]int, 0)},
-		StatusFail:  {Label: utils.Title(StatusFail), Data: make([]int, 0)},
-		StatusWarn:  {Label: utils.Title(StatusWarn), Data: make([]int, 0)},
-		StatusError: {Label: utils.Title(StatusError), Data: make([]int, 0)},
-		StatusSkip:  {Label: utils.Title(StatusSkip), Data: make([]int, 0)},
+func MapResourceSourceChart(results []core.ResourceStatusCount, status []string) *Chart {
+	var sets = make(map[string]*Dataset)
+	if len(status) == 0 {
+		status = allStatus
+	}
+
+	for _, s := range status {
+		sets[s] = &Dataset{Label: utils.Title(s), Data: make([]int, 0)}
 	}
 
 	labels := make([]string, 0, len(results))
@@ -261,11 +268,17 @@ func MapResourceSourceChart(results []core.ResourceStatusCount) *Chart {
 		sorting[label] = index
 		labels = append(labels, label)
 
-		sets[StatusPass].Data = append(sets[StatusPass].Data, result.Pass)
-		sets[StatusWarn].Data = append(sets[StatusWarn].Data, result.Warn)
-		sets[StatusFail].Data = append(sets[StatusFail].Data, result.Fail)
-		sets[StatusError].Data = append(sets[StatusError].Data, result.Error)
-		sets[StatusSkip].Data = append(sets[StatusSkip].Data, result.Skip)
+		mapping := map[string]int{
+			StatusPass:  result.Pass,
+			StatusWarn:  result.Warn,
+			StatusFail:  result.Fail,
+			StatusError: result.Error,
+			StatusSkip:  result.Skip,
+		}
+
+		for _, s := range status {
+			sets[s].Data = append(sets[s].Data, mapping[s])
+		}
 	}
 
 	sort.Slice(labels, func(i, j int) bool {
@@ -282,25 +295,27 @@ func MapResourceSourceChart(results []core.ResourceStatusCount) *Chart {
 		set.Data = data
 	}
 
+	datasets := make([]*Dataset, 0, len(sets))
+	for _, s := range allStatus {
+		if set, ok := sets[s]; ok {
+			datasets = append(datasets, set)
+		}
+	}
+
 	return &Chart{
-		Labels: labels,
-		Datasets: []*Dataset{
-			sets[StatusPass],
-			sets[StatusWarn],
-			sets[StatusFail],
-			sets[StatusError],
-			sets[StatusSkip],
-		},
+		Labels:   labels,
+		Datasets: datasets,
 	}
 }
 
-func MapCategoriesToChart(title string, categories []core.Category) *Chart {
-	sets := map[string]*Dataset{
-		StatusPass:  {Label: utils.Title(StatusPass), Data: make([]int, 0)},
-		StatusFail:  {Label: utils.Title(StatusFail), Data: make([]int, 0)},
-		StatusWarn:  {Label: utils.Title(StatusWarn), Data: make([]int, 0)},
-		StatusError: {Label: utils.Title(StatusError), Data: make([]int, 0)},
-		StatusSkip:  {Label: utils.Title(StatusSkip), Data: make([]int, 0)},
+func MapCategoriesToChart(title string, categories []core.Category, status []string) *Chart {
+	var sets = make(map[string]*Dataset)
+	if len(status) == 0 {
+		status = allStatus
+	}
+
+	for _, s := range status {
+		sets[s] = &Dataset{Label: utils.Title(s), Data: make([]int, 0)}
 	}
 
 	labels := make([]string, 0, len(categories))
@@ -310,11 +325,17 @@ func MapCategoriesToChart(title string, categories []core.Category) *Chart {
 		sorting[category.Name] = index
 		labels = append(labels, category.Name)
 
-		sets[StatusPass].Data = append(sets[StatusPass].Data, category.Pass)
-		sets[StatusWarn].Data = append(sets[StatusWarn].Data, category.Warn)
-		sets[StatusFail].Data = append(sets[StatusFail].Data, category.Fail)
-		sets[StatusError].Data = append(sets[StatusError].Data, category.Error)
-		sets[StatusSkip].Data = append(sets[StatusSkip].Data, category.Skip)
+		mapping := map[string]int{
+			StatusPass:  category.Pass,
+			StatusWarn:  category.Warn,
+			StatusFail:  category.Fail,
+			StatusError: category.Error,
+			StatusSkip:  category.Skip,
+		}
+
+		for _, s := range status {
+			sets[s].Data = append(sets[s].Data, mapping[s])
+		}
 	}
 
 	sort.Slice(labels, func(i, j int) bool {
@@ -331,16 +352,17 @@ func MapCategoriesToChart(title string, categories []core.Category) *Chart {
 		set.Data = data
 	}
 
+	datasets := make([]*Dataset, 0, len(sets))
+	for _, s := range allStatus {
+		if set, ok := sets[s]; ok {
+			datasets = append(datasets, set)
+		}
+	}
+
 	return &Chart{
-		Name:   title,
-		Labels: labels,
-		Datasets: []*Dataset{
-			sets[StatusPass],
-			sets[StatusWarn],
-			sets[StatusFail],
-			sets[StatusError],
-			sets[StatusSkip],
-		},
+		Name:     title,
+		Labels:   labels,
+		Datasets: datasets,
 	}
 }
 

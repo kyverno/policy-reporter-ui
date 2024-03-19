@@ -9,10 +9,10 @@
       {{ item.title }}
     </v-list-item-title>
     <template v-slot:append>
-      <ResultChip :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.name }, query: { status: Status.PASS, kinds: route.query?.kinds, 'cluster-kinds': route.query['cluster-kinds'] }}" :status="Status.PASS" :count="item.results.pass" tooltip="pass results" />
-      <ResultChip :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.name }, query: { status: Status.WARN, kinds: route.query?.kinds, 'cluster-kinds': route.query['cluster-kinds'] }}" class="ml-2" :status="Status.WARN" :count="item.results.warn" tooltip="warning results" />
-      <ResultChip :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.name }, query: { status: Status.FAIL, kinds: route.query?.kinds, 'cluster-kinds': route.query['cluster-kinds'] }}" class="ml-2" :status="Status.FAIL" :count="item.results.fail" tooltip="fail results" />
-      <ResultChip :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.name }, query: { status: Status.ERROR, kinds: route.query?.kinds, 'cluster-kinds': route.query['cluster-kinds'] }}" class="ml-2" :status="Status.ERROR" :count="item.results.error" tooltip="error results" />
+      <ResultChip v-if="showSkipped" :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.name }, query: { status: Status.SKIP, kinds: route.query?.kinds, 'cluster-kinds': route.query['cluster-kinds'] }}" class="ml-2" :status="Status.SKIP" :count="item.results[Status.SKIP]" tooltip="skip results" />
+      <template v-for="status in showed" :key="status">
+        <ResultChip :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.name }, query: { status, kinds: route.query?.kinds, 'cluster-kinds': route.query['cluster-kinds'] }}" class="ml-2" :status="status" :count="item.results[status]" :tooltip="`${status} results`" />
+      </template>
     </template>
   </v-list-item>
   <template v-if="open">
@@ -26,7 +26,6 @@
 <script setup lang="ts">
 import { type PropType } from "vue";
 import { type PolicyResult, type Filter, Status, Severity } from "~/modules/core/types";
-import { capilize } from "~/modules/core/layouthHelper";
 
 const open = ref(false)
 
@@ -39,4 +38,9 @@ const props = defineProps({
   details: { type: Boolean, default: false },
   filter: { type: Object as PropType<Filter>, required: false },
 })
+
+const status = useStatusInjection()
+
+const showSkipped = computed(() => console.log(status.value.includes(Status.SKIP) && !!props.item?.results[Status.SKIP]) || status.value.includes(Status.SKIP) && !!props.item?.results[Status.SKIP])
+const showed = computed(() => status.value.filter((s) => s !== Status.SKIP))
 </script>

@@ -49,4 +49,5 @@ const { data, refresh, pending } = useAPI(
 
 watch(combinedFilter, onChange(refresh))
 
+useStatusProvider(ref({ status: props.source.status }))
 </script>

@@ -161,6 +161,7 @@ type Source struct {
 	Excludes struct {
 		NamespaceKinds []string `mapstructure:"namespaceKinds"`
 		ClusterKinds   []string `mapstructure:"clusterKinds"`
+		Results        []string `mapstructure:"results"`
 	} `mapstructure:"excludes"`
 }
 

@@ -18,8 +18,8 @@
 
 <script setup lang="ts">
 import { capilize } from "~/modules/core/layouthHelper";
-import { type Filter } from "~/modules/core/types";
-import { APIFilter } from "~/modules/core/provider/dashboard";
+import { type Filter, Status } from "~/modules/core/types";
+import { APIFilter, ShowedStatus } from "~/modules/core/provider/dashboard";
 import { onChange } from "~/helper/compare";
 
 const route = useRoute()
@@ -41,4 +41,5 @@ const { data, refresh } = useAPI((api) => api.dashboard(filter.value))
 watch(filter, onChange(refresh))
 
 provide(APIFilter, filter)
+provide(ShowedStatus, computed(() => data.value?.status || [Status.SKIP, Status.PASS, Status.WARN, Status.FAIL, Status.ERROR]))
 </script>

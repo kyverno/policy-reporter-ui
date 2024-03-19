@@ -19,6 +19,7 @@ type DefaultFilter struct {
 type Excludes struct {
 	NamespaceKinds []string `json:"namespaceKinds"`
 	ClusterKinds   []string `json:"clusterKinds"`
+	Results        []string `json:"results"`
 }
 
 type Source struct {
