@@ -162,7 +162,7 @@ export type Dashboard = {
     filterSources: string[];
     multiSource: boolean;
     showResults: string[];
-    status: string[];
+    status: Status[];
     singleSource: boolean;
     charts: {
         clusterScope: ClusterScope;

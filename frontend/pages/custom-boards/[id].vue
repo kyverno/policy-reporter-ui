@@ -66,4 +66,6 @@ provide(APIFilter, computed(() => ({
   ...filter.value,
   sources: data.value?.filterSources,
 })))
+
+useStatusProvider(data)
 </script>
