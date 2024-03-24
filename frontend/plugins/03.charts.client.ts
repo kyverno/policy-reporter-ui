@@ -1,7 +1,6 @@
 import * as ChartJs from 'chart.js';
 import { DisplayMode } from "~/modules/core/types";
 import { useConfigStore } from "~/store/config";
-import type { DebuggerEvent } from "vue";
 
 const { Chart, registerables } = ChartJs;
 
@@ -26,6 +25,6 @@ export default defineNuxtPlugin(() => {
   configColors(config.theme)
 
   config.$subscribe((mutation, state) => {
-    if ((mutation.events as DebuggerEvent).key === 'displayMode') { configColors(state.displayMode) }
+    configColors(state.displayMode)
   })
 });
