@@ -18,7 +18,7 @@
             </app-row>
             <app-row style="position: relative;">
               <highlightjs :code="content" />
-              <v-btn style="position: absolute; top: 25px; right: 25px;" rounded="0" color="primary" variant="tonal" @click="copy(content)" :icon="copied ? 'mdi-content-save-check' : 'mdi-content-save'" />
+              <v-btn theme="dark" style="position: absolute; top: 25px; right: 25px;" rounded="0" color="primary" variant="tonal" @click="copy(content)" :icon="copied ? 'mdi-content-save-check' : 'mdi-content-save'" />
             </app-row>
           </template>
         </v-container>
