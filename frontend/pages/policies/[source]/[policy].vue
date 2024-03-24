@@ -15,7 +15,13 @@
 
     <policy-status-charts :data="data" :policy="route.params.policy" />
     <policy-cluster-results :source="route.params.source" :policy="route.params.policy" :status="status" />
-    <policy-namespace-section :namespaces="data.namespaces" :source="route.params.source" :policy="route.params.policy" :status="status" />
+    <policy-namespace-section
+        :exceptions="data.exceptions"
+        :namespaces="data.namespaces"
+        :source="route.params.source"
+        :policy="route.params.policy"
+        :status="status"
+    />
   </page-layout>
 </template>
 

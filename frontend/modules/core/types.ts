@@ -189,7 +189,9 @@ export type SourceDetails = {
     status: Status[];
     categories: string[];
     chart: Chart;
+    exceptions: boolean;
 }
+
 export type ResourceDetails = {
     resource: Resource;
     results: { [key in Status]: number; }
@@ -205,6 +207,7 @@ export type PolicyDetails = {
     references?: string[];
     description: string;
     showDetails: boolean;
+    exceptions: boolean;
     engine?: {
         name: string;
         kubernetesVersion: string;
@@ -253,6 +256,7 @@ export type ListResult = {
     namespace: string;
     kind: string;
     name: string;
+    resourceId: string;
     message: string;
     policy: string;
     rule: string;
@@ -363,6 +367,16 @@ export type ResourceResult = {
     fail: number;
     error: number;
     skip: number;
+}
+
+export type ExceptionRequest = {
+    policy: string;
+    source: string;
+    rule?: string;
+}
+
+export type ExceptionResponse = {
+    resource: string;
 }
 
 export type ResourceResultList = { items: ResourceResult[], count: number }

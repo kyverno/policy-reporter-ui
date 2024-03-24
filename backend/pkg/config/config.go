@@ -157,8 +157,9 @@ type Server struct {
 }
 
 type Source struct {
-	Name     string `mapstructure:"name"`
-	Excludes struct {
+	Name       string `mapstructure:"name"`
+	Exceptions bool   `mapstructure:"exceptions"`
+	Excludes   struct {
 		NamespaceKinds []string `mapstructure:"namespaceKinds"`
 		ClusterKinds   []string `mapstructure:"clusterKinds"`
 		Results        []string `mapstructure:"results"`

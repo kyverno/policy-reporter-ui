@@ -47,6 +47,32 @@ func (h *Handler) ListPolicySources(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, details)
 }
 
+func (h *Handler) CreateException(ctx *gin.Context) {
+	req := service.ExceptionRequest{
+		Cluster:  ctx.Param("cluster"),
+		Resource: ctx.Param("id"),
+	}
+
+	if err := ctx.BindJSON(&req); err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	details, err := h.service.CreateException(ctx, req)
+	if err != nil {
+		zap.L().Error(
+			"failed to create exception",
+			zap.String("cluster", ctx.Param("cluster")),
+			zap.String("id", ctx.Param("id")),
+			zap.Error(err),
+		)
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, details)
+}
+
 func (h *Handler) GetResourceDetails(ctx *gin.Context) {
 	details, err := h.service.ResourceDetails(ctx, ctx.Param("cluster"), ctx.Param("id"), ctx.Request.URL.Query())
 	if err != nil {
@@ -321,7 +347,7 @@ func (h *Handler) NamespaceReport(ctx *gin.Context) {
 func NewHandler(config *Config, apis map[string]*model.Endpoints, customBoards map[string]CustomBoard) *Handler {
 	sources := make(map[string]model.SourceConfig, len(config.Sources))
 	for _, s := range config.Sources {
-		sources[s.Name] = model.SourceConfig{Results: s.Excludes.Results}
+		sources[s.Name] = model.SourceConfig{Results: s.Excludes.Results, Exceptions: s.Exceptions}
 	}
 
 	return &Handler{config, apis, customBoards, service.New(apis, sources), reports.New(apis)}

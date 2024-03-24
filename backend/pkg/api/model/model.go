@@ -20,7 +20,8 @@ type Endpoints struct {
 }
 
 type SourceConfig struct {
-	Results []string
+	Results    []string
+	Exceptions bool
 }
 
 func (s SourceConfig) EnabledResults() []string {

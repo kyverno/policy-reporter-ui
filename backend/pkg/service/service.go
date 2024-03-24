@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/url"
 	"sort"
 	"strconv"
@@ -52,8 +53,8 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 		return nil, err
 	}
 
-	query["sources"] = []string{source}
-	query["policies"] = []string{policy}
+	query.Set("sources", source)
+	query.Set("policies", policy)
 
 	config := s.configs[source]
 
@@ -67,6 +68,7 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 				"failed to load policy details from plugin",
 				zap.String("cluster", cluster),
 				zap.String("source", source),
+				zap.String("policy", policy),
 				zap.Error(err),
 			)
 
@@ -116,6 +118,7 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 		Namespaces: namespaces,
 		Title:      title,
 		Name:       policy,
+		Exceptions: s.configs[source].Exceptions,
 		Chart: PolicyCharts{
 			Findings:       MapFindingsToSourceStatusChart(title, findings),
 			NamespaceScope: MapNamespaceScopeChartVariant(title, result, config.EnabledResults()),
@@ -164,7 +167,43 @@ func (s *Service) PolicySources(ctx context.Context, cluster string, query url.V
 	return list, nil
 }
 
-func (s *Service) ResourceDetails(ctx context.Context, cluster string, id string, query url.Values) (*ResourceDetails, error) {
+func (s *Service) CreateException(ctx context.Context, req ExceptionRequest) (*pluginAPI.ExceptionResponse, error) {
+	plugin, ok := s.plugin(req.Cluster, req.Source)
+	if !ok {
+		return nil, ErrNoClient
+	}
+	client, err := s.core(req.Cluster)
+	if err != nil {
+		return nil, err
+	}
+
+	resource, err := client.GetResource(ctx, req.Resource)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get resource: %w", err)
+	}
+
+	request := &pluginAPI.ExceptionRequest{
+		Resource: pluginAPI.Resource{
+			Name:       resource.Name,
+			Namespace:  resource.Namespace,
+			Kind:       resource.Kind,
+			APIVersion: resource.APIVersion,
+		},
+		Policy: struct {
+			Name  string   `json:"name"`
+			Rules []string `json:"rules"`
+		}{
+			Name: req.Policy,
+		},
+	}
+
+	if req.Rule != "" {
+		request.Policy.Rules = append(request.Policy.Rules, req.Rule)
+	}
+
+	return plugin.CreateException(ctx, request)
+}
+func (s *Service) ResourceDetails(ctx context.Context, cluster, id string, query url.Values) (*ResourceDetails, error) {
 	client, err := s.core(cluster)
 	if err != nil {
 		return nil, err
@@ -223,6 +262,7 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster string, id string
 			Title:      title,
 			Categories: categories,
 			Status:     status,
+			Exceptions: config.Exceptions,
 			Chart:      MapCategoriesToChart(title, source.Categories, config.EnabledResults()),
 		})
 	}

@@ -23,8 +23,9 @@ type Excludes struct {
 }
 
 type Source struct {
-	Name     string   `json:"name"`
-	Excludes Excludes `json:"excludes"`
+	Name       string   `json:"name"`
+	Exceptions bool     `mapstructure:"exceptions"`
+	Excludes   Excludes `json:"excludes"`
 }
 
 type Cluster struct {

@@ -14,7 +14,7 @@
         </v-card-text>
         <scroller :list="source.categories">
           <template #default="{ item }">
-            <resource-results :source="source.name" :resource="resource.id" :category="item" />
+            <resource-results :source="source.name" :resource="resource.id" :category="item" :exceptions="source.exceptions" />
           </template>
         </scroller>
       </div>

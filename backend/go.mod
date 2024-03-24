@@ -10,7 +10,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/gorilla/sessions v1.2.2
 	github.com/gosimple/slug v1.14.0
-	github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20240310092637-ef8f6e3e7d87
+	github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20240321205330-6f1abcd63600
 	github.com/markbates/goth v1.79.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2

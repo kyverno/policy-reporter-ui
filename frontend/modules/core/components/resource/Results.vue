@@ -31,6 +31,9 @@
           <template #item.severity="{ value }">
             <chip-severity v-if="value" @click="searchText = value" :severity="value" />
           </template>
+          <template #item.exception="{ item }" v-if="props.exceptions">
+            <exception-dialog :resource="props.resource" :source="props.source" :policy="item.policy" :rule="item.rule" />
+          </template>
           <template #expanded-row="{ columns, item }">
             <tr :class="bg">
               <td :colspan="columns.length" class="py-3">
@@ -65,10 +68,12 @@
 import { Status } from "~/modules/core/types";
 import { capilize } from "~/modules/core/layouthHelper";
 import { mapResults } from "~/modules/core/mapper";
+import ExceptionDialog from "~/modules/core/components/resource/ExceptionDialog.vue";
 
 const props = defineProps<{
   source: string;
   category?: string;
+  exceptions?: boolean;
   resource: string;
   Status?: Status;
 }>()
@@ -108,10 +113,22 @@ watch(searchText, () => refresh())
 
 const results = computed(() => mapResults(data.value))
 
-const headers = [
-  { title: 'Policy', key: 'policy', width: '33%' },
-  { title: 'Rule', key: 'rule', width: '33%' },
-  { title: 'Severity', key: 'severity', width: '17%' },
-  { title: 'Status', key: 'status', width: '17%' }
-]
+const headers = computed(() => {
+  if (props.exceptions) {
+    return [
+      { title: 'Policy', key: 'policy', width: '33%' },
+      { title: 'Rule', key: 'rule', width: '33%' },
+      { title: 'Severity', key: 'severity', width: '12%' },
+      { title: 'Status', key: 'status', width: '12%' },
+      { title: 'Actions', key: 'exception', width: '12%', sortable: false }
+    ]
+  }
+
+  return [
+    { title: 'Policy', key: 'policy', width: '33%' },
+    { title: 'Rule', key: 'rule', width: '33%' },
+    { title: 'Severity', key: 'severity', width: '17%' },
+    { title: 'Status', key: 'status', width: '17%' }
+  ]
+})
 </script>

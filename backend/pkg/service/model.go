@@ -72,6 +72,7 @@ type Source struct {
 	Categories []string `json:"categories"`
 	Status     []string `json:"status"`
 	Chart      *Chart   `json:"chart"`
+	Exceptions bool     `json:"exceptions"`
 }
 
 type PolicyCharts struct {
@@ -115,4 +116,13 @@ type PolicyDetails struct {
 	Additional  []Details    `json:"additional,omitempty"`
 	References  []string     `json:"references,omitempty"`
 	ShowDetails bool         `json:"showDetails"`
+	Exceptions  bool         `json:"exceptions"`
+}
+
+type ExceptionRequest struct {
+	Resource string `json:"resource"`
+	Cluster  string `json:"cluster"`
+	Source   string `json:"source"`
+	Policy   string `json:"policy"`
+	Rule     string `json:"rule"`
 }

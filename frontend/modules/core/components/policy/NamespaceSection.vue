@@ -14,7 +14,7 @@
   <slot :namespaces="list">
     <policy-scroller :list="list">
       <template #default="{ item }">
-        <policy-results :namespace="item" :source="source" :policy="policy" :status="status" />
+        <policy-results :namespace="item" :source="source" :policy="policy" :status="status" :exceptions="exceptions" />
       </template>
     </policy-scroller>
   </slot>
@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import type { Status } from "~/modules/core/types";
 
-const props = defineProps<{ namespaces: string[]; source: string; policy?: string; status?: Status[];  }>()
+const props = defineProps<{ namespaces: string[]; source: string; policy?: string; exceptions?: boolean; status?: Status[];  }>()
 
 const internal = ref<string[]>([])
 

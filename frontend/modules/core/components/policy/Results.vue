@@ -28,6 +28,9 @@
             <template #item.severity="{ value }">
               <chip-severity v-if="value" @click="searchText = value" :severity="value" />
             </template>
+            <template #item.exception="{ item }" v-if="props.exceptions && props.policy">
+              <exception-dialog :resource="item.resourceId" :source="props.source" :policy="props.policy" :rule="item.rule" />
+            </template>
             <template #expanded-row="{ columns, item }">
               <tr :class="bg">
                 <td :colspan="columns.length" class="py-3">
@@ -66,12 +69,14 @@ import type { Ref } from "vue";
 import { type Filter, Status } from "~/modules/core/types";
 import { APIFilter } from "~/modules/core/provider/dashboard";
 import { onChange } from "~/helper/compare";
+import ExceptionDialog from "~/modules/core/components/resource/ExceptionDialog.vue";
 
 const props = defineProps<{
   source: string;
   namespace: string;
   status?: Status[];
   policy?: string;
+  exceptions?: boolean;
 }>()
 
 const options = reactive({
@@ -118,22 +123,46 @@ watch(filter, onChange(refresh))
 const results = computed(() => mapResults(data.value))
 
 const headers = computed(() => {
-  if (results.value.results.every(r => !r.name)) {
+  const noResources = results.value.results.every(r => !r.name)
+
+  if (noResources && !props.exceptions) {
     return [
       { title: 'Policy', key: 'policy', width: '36%' },
       { title: 'Rule', key: 'rule', width: '36%' },
       { title: 'Severity', key: 'severity', width: '12%' },
-      { title: 'Status', key: 'status', width: '12%' }
+      { title: 'Status', key: 'status', width: '12%' },
+    ]
+  }
+
+  if (noResources && props.exceptions && props.policy) {
+    return [
+      { title: 'Policy', key: 'policy', width: '30%' },
+      { title: 'Rule', key: 'rule', width: '30%' },
+      { title: 'Severity', key: 'severity', width: '12%' },
+      { title: 'Status', key: 'status', width: '12%' },
+      { title: 'Actions', key: 'exception', width: '12%' },
+    ]
+  }
+
+  if (props.exceptions && props.policy) {
+    return [
+      { title: 'APIVersion', key: 'apiVersion', width: '10%' },
+      { title: 'Kind', key: 'kind', width: '16%' },
+      { title: 'Name', key: 'name', width: '19%' },
+      { title: 'Rule', key: 'rule', width: '19%' },
+      { title: 'Severity', key: 'severity', width: '12%' },
+      { title: 'Status', key: 'status', width: '12%' },
+      { title: 'Actions', key: 'exception', width: '12%' },
     ]
   }
 
   return [
-    { title: 'APIVersion', key: 'apiVersion', width: '10%' },
-    { title: 'Kind', key: 'kind', width: '16%' },
-    { title: 'Name', key: 'name', width: '25%' },
-    { title: 'Rule', key: 'rule', width: '25%' },
-    { title: 'Severity', key: 'severity', width: '12%' },
-    { title: 'Status', key: 'status', width: '12%' }
+    {title: 'APIVersion', key: 'apiVersion', width: '10%'},
+    {title: 'Kind', key: 'kind', width: '16%'},
+    {title: 'Name', key: 'name', width: '25%'},
+    {title: 'Rule', key: 'rule', width: '25%'},
+    {title: 'Severity', key: 'severity', width: '12%'},
+    {title: 'Status', key: 'status', width: '12%'}
   ]
 })
 </script>
