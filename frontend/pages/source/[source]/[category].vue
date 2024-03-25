@@ -11,11 +11,11 @@
       <app-row>
         <resource-cluster-list :details="false" :exceptions="data.exceptions" />
       </app-row>
-      <resource-namespace-section v-if="data.namespaces.length" :namespaces="data.namespaces" />
+      <resource-namespace-section v-if="data.namespaces.length" :namespaces="data.namespaces" :exceptions="data.exceptions" />
     </template>
     <template v-else>
       <policy-cluster-results :source="route.params.source" :policy="route.params.policy" />
-      <policy-namespace-section :namespaces="data.namespaces" :source="route.params.source" :policy="route.params.policy" />
+      <policy-namespace-section :namespaces="data.namespaces" :source="route.params.source" :policy="route.params.policy" :exceptions="data.exceptions" />
     </template>
   </page-layout>
 </template>

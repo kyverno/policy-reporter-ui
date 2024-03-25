@@ -18,7 +18,8 @@
             </app-row>
             <app-row style="position: relative;">
               <highlightjs :code="content" />
-              <v-btn theme="dark" style="position: absolute; top: 25px; right: 25px;" rounded="0" color="primary" variant="tonal" @click="copy(content)" :icon="copied ? 'mdi-content-save-check' : 'mdi-content-save'" />
+              <v-btn alt="Copy to Clipboard" theme="dark" style="position: absolute; top: 25px; right: 25px;" rounded="0" color="primary" variant="tonal" @click="copy(content)" :icon="copied ? 'mdi-content-save-check' : 'mdi-content-save'" />
+              <v-btn alt="Download as File" theme="dark" style="position: absolute; top: 25px; right: 87px;" rounded="0" color="primary" variant="tonal" @click="download()" icon="mdi-file-download" />
             </app-row>
           </template>
         </v-container>
@@ -33,7 +34,8 @@
 <script setup lang="ts">
 import { callAPI } from "~/modules/core/composables/api";
 import { useClipboard } from '@vueuse/core'
-import {FetchError} from "ofetch";
+import { FetchError } from "ofetch";
+import { parse } from "yaml";
 
 
 const props = defineProps<{
@@ -68,6 +70,25 @@ const request = async () => {
   } finally {
     loading.value = false
     open.value = true
+  }
+}
+
+const download = () => {
+  if (!content.value) return;
+
+  try {
+    const res = parse(content.value)
+
+    let element = document.createElement('a');
+    element.setAttribute('href', 'data:application/yaml;charset=utf-8,' + encodeURIComponent(content.value));
+    element.setAttribute('download', `${res?.metadata?.name || props.resource}.yaml`);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+    document.body.removeChild(element);
+  } catch {
   }
 }
 </script>
