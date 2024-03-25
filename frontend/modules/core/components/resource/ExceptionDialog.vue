@@ -41,6 +41,7 @@ import { parse } from "yaml";
 const props = defineProps<{
   source: string;
   resource: string;
+  category?: string;
   policies?: { name: string; rules: string[] }[];
   height?: string | number;
 }>()
@@ -60,7 +61,7 @@ const request = async () => {
   loading.value = true
 
   try {
-    const response = await callAPI((api) => api.createException(props.resource, props.source, props.policies))
+    const response = await callAPI((api) => api.createException(props.resource, props.source, props.policies, props.category))
     content.value = response.resource
     err.value = undefined
 

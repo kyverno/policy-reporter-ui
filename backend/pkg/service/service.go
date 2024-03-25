@@ -184,17 +184,24 @@ func (s *Service) CreateException(ctx context.Context, req ExceptionRequest) (*p
 
 	var list *core.Paginated[core.PolicyResult]
 	if len(req.Policies) == 0 {
+		var categories []string
+		if req.Category != "" {
+			categories = []string{req.Category}
+		}
+
 		if resource.Namespace != "" {
 			list, err = client.ListNamespaceScopedResults(ctx, url.Values{
 				"resource_id": []string{req.Resource},
 				"status":      []string{StatusFail, StatusWarn},
 				"sources":     []string{req.Source},
+				"categories":  categories,
 			})
 		} else {
 			list, err = client.ListClusterScopedResults(ctx, url.Values{
 				"resource_id": []string{req.Resource},
 				"status":      []string{StatusFail, StatusWarn},
 				"sources":     []string{req.Source},
+				"categories":  categories,
 			})
 		}
 		if err != nil {

@@ -12,7 +12,7 @@
     <template v-slot:append>
       <ResultChip v-for="status in showed" :key="status" class="ml-2" :status="status" :count="item[status]" :tooltip="`${status} results`" />
 
-      <exception-dialog v-if="source && exceptions" :resource="item.id" :source="source" :height="32" />
+      <exception-dialog v-if="source && exceptions" :resource="item.id" :source="source" :category="category" :height="32" />
     </template>
   </v-list-item>
   <resource-source-results v-if="open" :id="item.id" :filter="filter" />
@@ -48,4 +48,10 @@ const source = injectSourceContext()
 
 const showSkipped = computed(() => status.value.includes(Status.SKIP) && !!props.item?.[Status.SKIP])
 const showed = computed(() => status.value.filter((s) => s !== Status.SKIP))
+
+const category = computed(() => {
+  if (props?.filter?.categories?.length !== 1) return undefined
+
+  return props.filter?.categories[0]
+})
 </script>

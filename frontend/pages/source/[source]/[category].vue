@@ -44,7 +44,7 @@ const { data, refresh } = useAPI((api) => api.dashboard(filter.value));
 
 watch(filter, onChange(refresh))
 
-provide(APIFilter, ref(filter))
+provide(APIFilter, filter)
 useStatusProvider(data)
 useSourceContext(ref(route.params.source))
 </script>

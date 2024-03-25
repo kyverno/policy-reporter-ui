@@ -129,5 +129,6 @@ type ExceptionRequest struct {
 	Resource string            `json:"resource"`
 	Cluster  string            `json:"cluster"`
 	Source   string            `json:"source"`
+	Category string            `json:"category"`
 	Policies []ExceptionPolicy `json:"policies"`
 }
