@@ -4,10 +4,10 @@
     <template v-if="data.showResults.length === 0">
       <v-row>
         <v-col>
-          <resource-cluster-list :source="route.params.source" :details="false" />
+          <resource-cluster-list :source="route.params.source" :details="false" :exceptions="data.exceptions" />
         </v-col>
       </v-row>
-      <resource-namespace-section v-if="data.namespaces" :namespaces="data.namespaces" />
+      <resource-namespace-section v-if="data.namespaces" :namespaces="data.namespaces" :exceptions="data.exceptions" />
     </template>
     <template v-else>
       <policy-cluster-results :source="route.params.source" :policy="route.params.policy" />
@@ -18,8 +18,8 @@
 
 <script setup lang="ts">
 import { capilize } from "~/modules/core/layouthHelper";
-import { type Filter, Status } from "~/modules/core/types";
-import { APIFilter, ShowedStatus } from "~/modules/core/provider/dashboard";
+import { type Filter } from "~/modules/core/types";
+import { APIFilter } from "~/modules/core/provider/dashboard";
 import { onChange } from "~/helper/compare";
 
 const route = useRoute()
@@ -41,5 +41,6 @@ const { data, refresh } = useAPI((api) => api.dashboard(filter.value))
 watch(filter, onChange(refresh))
 
 provide(APIFilter, filter)
-provide(ShowedStatus, computed(() => data.value?.status || [Status.SKIP, Status.PASS, Status.WARN, Status.FAIL, Status.ERROR]))
+useStatusProvider(data)
+useSourceContext(ref(route.params.source))
 </script>

@@ -56,8 +56,8 @@ export class CoreAPI {
     return exec<ResourceDetails>(`/api/config/${this.cluster}/resource/${id}`, { baseURL: this.baseURL, params: filter })
   }
 
-  createException (id: string, source: string, policy: string, rule?: string) {
-    return exec<ExceptionResponse>(`/api/config/${this.cluster}/resource/${id}/exception`, { baseURL: this.baseURL, method: "POST", body: { policy, rule, source } })
+  createException (id: string, source: string, policies: { name: string, rules: string[] }[]) {
+    return exec<ExceptionResponse>(`/api/config/${this.cluster}/resource/${id}/exception`, { baseURL: this.baseURL, method: "POST", body: { policies, source } })
   }
 
   policySources (filter?: Filter) {

@@ -182,6 +182,43 @@ func (s *Service) CreateException(ctx context.Context, req ExceptionRequest) (*p
 		return nil, fmt.Errorf("failed to get resource: %w", err)
 	}
 
+	var list *core.Paginated[core.PolicyResult]
+	if len(req.Policies) == 0 {
+		if resource.Namespace != "" {
+			list, err = client.ListNamespaceScopedResults(ctx, url.Values{
+				"resource_id": []string{req.Resource},
+				"status":      []string{StatusFail, StatusWarn},
+				"sources":     []string{req.Source},
+			})
+		} else {
+			list, err = client.ListClusterScopedResults(ctx, url.Values{
+				"resource_id": []string{req.Resource},
+				"status":      []string{StatusFail, StatusWarn},
+				"sources":     []string{req.Source},
+			})
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to get resource results: %w", err)
+		}
+
+		results := make(map[string][]string, 0)
+		for _, r := range list.Items {
+			if _, ok := results[r.Policy]; ok {
+				results[r.Policy] = append(results[r.Policy], r.Rule)
+			} else {
+				results[r.Policy] = []string{r.Rule}
+			}
+		}
+
+		req.Policies = make([]ExceptionPolicy, 0, len(results))
+		for p, rules := range results {
+			req.Policies = append(req.Policies, ExceptionPolicy{
+				Name:  p,
+				Rules: rules,
+			})
+		}
+	}
+
 	request := &pluginAPI.ExceptionRequest{
 		Resource: pluginAPI.Resource{
 			Name:       resource.Name,
@@ -189,16 +226,12 @@ func (s *Service) CreateException(ctx context.Context, req ExceptionRequest) (*p
 			Kind:       resource.Kind,
 			APIVersion: resource.APIVersion,
 		},
-		Policy: struct {
-			Name  string   `json:"name"`
-			Rules []string `json:"rules"`
-		}{
-			Name: req.Policy,
-		},
-	}
-
-	if req.Rule != "" {
-		request.Policy.Rules = append(request.Policy.Rules, req.Rule)
+		Policies: utils.Map(req.Policies, func(p ExceptionPolicy) *pluginAPI.ExceptionPolicy {
+			return &pluginAPI.ExceptionPolicy{
+				Name:  p.Name,
+				Rules: p.Rules,
+			}
+		}),
 	}
 
 	return plugin.CreateException(ctx, request)
@@ -384,11 +417,19 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 		namespaces = make([]string, 0)
 	}
 
+	singleSource := len(sources) == 1
+
+	var exceptions bool
+	if singleSource {
+		exceptions = s.configs[sources[0]].Exceptions
+	}
+
 	return &Dashboard{
 		FilterSources:  make([]string, 0),
 		ClusterScope:   clusterScope,
 		MultipleSource: len(sources) > 1,
-		SingleSource:   len(sources) == 1,
+		SingleSource:   singleSource,
+		Exceptions:     exceptions,
 		Sources:        sources,
 		Namespaces:     namespaces,
 		ShowResults:    showResults,

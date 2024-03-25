@@ -51,6 +51,7 @@ type Dashboard struct {
 	Namespaces     []string     `json:"namespaces"`
 	SingleSource   bool         `json:"singleSource"`
 	MultipleSource bool         `json:"multiSource"`
+	Exceptions     bool         `json:"exceptions"`
 	Charts         Charts       `json:"charts"`
 	SourcesNavi    []SourceItem `json:"sourcesNavi"`
 	Total          Total        `json:"total"`
@@ -119,10 +120,14 @@ type PolicyDetails struct {
 	Exceptions  bool         `json:"exceptions"`
 }
 
+type ExceptionPolicy struct {
+	Name  string   `json:"name"`
+	Rules []string `json:"rules"`
+}
+
 type ExceptionRequest struct {
-	Resource string `json:"resource"`
-	Cluster  string `json:"cluster"`
-	Source   string `json:"source"`
-	Policy   string `json:"policy"`
-	Rule     string `json:"rule"`
+	Resource string            `json:"resource"`
+	Cluster  string            `json:"cluster"`
+	Source   string            `json:"source"`
+	Policies []ExceptionPolicy `json:"policies"`
 }

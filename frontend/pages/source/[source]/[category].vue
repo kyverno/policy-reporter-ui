@@ -9,7 +9,7 @@
     <GraphSourceStatus :category="route.params.category" :data="data" :source="route.params.source"/>
     <template v-if="data.showResults.length === 0">
       <app-row>
-        <resource-cluster-list :details="data.multiSource" />
+        <resource-cluster-list :details="false" :exceptions="data.exceptions" />
       </app-row>
       <resource-namespace-section v-if="data.namespaces.length" :namespaces="data.namespaces" />
     </template>
@@ -46,4 +46,5 @@ watch(filter, onChange(refresh))
 
 provide(APIFilter, ref(filter))
 useStatusProvider(data)
+useSourceContext(ref(route.params.source))
 </script>

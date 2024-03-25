@@ -1,7 +1,7 @@
 <template>
     <v-dialog v-model="open" max-width="700">
       <template v-slot:activator="{ props }">
-        <v-btn @click="request" rounded="0" class="ml-4" variant="flat" color="secondary" size="small">Exception</v-btn>
+        <v-btn @click.prevent.stop="request" rounded="0" class="ml-4" variant="flat" color="secondary" size="small" :height="height as any">Exception</v-btn>
       </template>
 
       <v-card title="Resource Exception">
@@ -36,14 +36,19 @@ import { useClipboard } from '@vueuse/core'
 import {FetchError} from "ofetch";
 
 
-const props = defineProps<{ source: string; resource: string; policy: string; rule?: string }>()
+const props = defineProps<{
+  source: string;
+  resource: string;
+  policies?: { name: string; rules: string[] }[];
+  height?: string | number;
+}>()
 
 const content = ref('')
 const open = ref(false)
 const loading = ref(false)
 const err = ref<string>()
 
-const { text, copy, copied, isSupported } = useClipboard({ source: content })
+const { text, copy, copied } = useClipboard({ source: content })
 
 const close = () => {
   open.value = false
@@ -53,7 +58,7 @@ const request = async () => {
   loading.value = true
 
   try {
-    const response = await callAPI((api) => api.createException(props.resource, props.source, props.policy, props.rule))
+    const response = await callAPI((api) => api.createException(props.resource, props.source, props.policies))
     content.value = response.resource
     err.value = undefined
 

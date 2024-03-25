@@ -11,6 +11,8 @@
     <ResultChip v-if="showSkipped" class="ml-2" :status="Status.SKIP" :count="item[Status.SKIP]" tooltip="skip results" />
     <template v-slot:append>
       <ResultChip v-for="status in showed" :key="status" class="ml-2" :status="status" :count="item[status]" :tooltip="`${status} results`" />
+
+      <exception-dialog v-if="source && exceptions" :resource="item.id" :source="source" :height="32" />
     </template>
   </v-list-item>
   <resource-source-results v-if="open" :id="item.id" :filter="filter" />
@@ -20,12 +22,15 @@
 import { type Filter, type ResourceResult, Status } from '~/modules/core/types'
 import { type PropType } from "vue";
 import { useStatusInjection } from "~/composables/status";
+import ExceptionDialog from "~/modules/core/components/resource/ExceptionDialog.vue";
+import {injectSourceContext} from "~/composables/source";
 
 const open = ref(false)
 
 const props = defineProps({
   item: { type: Object as PropType<ResourceResult>, required: true },
   details: { type: Boolean, default: false },
+  exceptions: { type: Boolean, default: false },
   filter: { type: Object as PropType<Filter>, required: false },
 })
 
@@ -39,6 +44,7 @@ const rsFilter = computed(() => {
 })
 
 const status = useStatusInjection()
+const source = injectSourceContext()
 
 const showSkipped = computed(() => status.value.includes(Status.SKIP) && !!props.item?.[Status.SKIP])
 const showed = computed(() => status.value.filter((s) => s !== Status.SKIP))

@@ -9,7 +9,7 @@
     </v-toolbar>
     <template v-if="open">
       <v-list v-if="data?.items?.length" lines="two" class="pt-0">
-        <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" />
+        <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" :exceptions="exceptions" />
       </v-list>
       <template v-if="data.count > options.offset">
         <v-divider />
@@ -35,6 +35,7 @@ import { onChange } from "~/helper/compare";
 const props = defineProps<{
   namespace: string;
   details: boolean;
+  exceptions?: boolean;
 }>()
 
 const search = ref('')
@@ -55,9 +56,7 @@ const options = reactive<Pagination>({
   offset: 8,
 })
 
-const length = computed(() => {
-  return Math.ceil((data.value?.count || 0) / options.offset)
-})
+const length = computed(() => Math.ceil((data.value?.count || 0) / options.offset))
 
 const { data, refresh, pending } = useAPI(
     (api) => api.namespacedResourceResults(combinedFilter.value, options),

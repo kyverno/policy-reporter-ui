@@ -32,7 +32,7 @@
             <chip-severity v-if="value" @click="searchText = value" :severity="value" />
           </template>
           <template #item.exception="{ item }" v-if="props.exceptions">
-            <exception-dialog :resource="props.resource" :source="props.source" :policy="item.policy" :rule="item.rule" />
+            <exception-dialog :resource="props.resource" :source="props.source" :policies="[{ name: item.policy, rules: [item.rule]}]" />
           </template>
           <template #expanded-row="{ columns, item }">
             <tr :class="bg">

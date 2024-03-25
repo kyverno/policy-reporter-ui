@@ -13,13 +13,13 @@
       </app-row>
     </template>
     <app-row>
-      <resource-cluster-list :details="data.multiSource" />
+      <resource-cluster-list :details="data.multiSource"  :exceptions="data.exceptions" />
     </app-row>
     <resource-namespace-section v-if="data.namespaces.length" :namespaces="data.namespaces">
       <template #default="{ namespaces }">
         <resource-scroller :list="namespaces">
           <template #default="{ item }">
-            <resource-list :namespace="item" :details="data.multiSource" />
+            <resource-list :namespace="item" :details="data.multiSource" :exceptions="data.exceptions" />
           </template>
         </resource-scroller>
       </template>
@@ -32,6 +32,7 @@ import { useAPI } from '~/modules/core/composables/api'
 import { onChange } from "~/helper/compare";
 import { APIFilter } from "~/modules/core/provider/dashboard";
 import { capilize } from "~/modules/core/layouthHelper";
+import { useSourceContext } from "~/composables/source";
 
 const store = useSourceStore()
 await store.load()
@@ -49,5 +50,12 @@ const { data, refresh } = useAPI(api => api.dashboard(filter.value))
 watch(filter, onChange(refresh))
 
 provide(APIFilter, filter)
+
+useSourceContext(computed(() => {
+  if (data.value?.sources.length !== 1) return undefined
+
+  return data.value?.sources[0]
+}))
+
 useStatusProvider(data)
 </script>

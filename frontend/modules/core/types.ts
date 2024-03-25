@@ -164,6 +164,7 @@ export type Dashboard = {
     showResults: string[];
     status: Status[];
     singleSource: boolean;
+    exceptions: boolean;
     charts: {
         clusterScope: ClusterScope;
         namespaceScope: {

@@ -132,6 +132,10 @@ github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20240310092637-ef8f6e3
 github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20240310092637-ef8f6e3e7d87/go.mod h1:B6bwQr0mBUEMXltiWfgI8czu0O8bz6y/gVhZ2AvuCpk=
 github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20240321205330-6f1abcd63600 h1:nMQEKGkeC7Bo7M0zDGXSBJmdVRWjB26eFtlWoZ3/7Ug=
 github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20240321205330-6f1abcd63600/go.mod h1:VHxzQWYn6XRIGGWE+K5LZWa7UhUXaS0BmplTfHMHmrw=
+github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20240324104935-96e94a8ecaca h1:7Pdxn34IbZ4jd0uv8wze+2xqoKztaQx1C3jGBbLP/A8=
+github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20240324104935-96e94a8ecaca/go.mod h1:VHxzQWYn6XRIGGWE+K5LZWa7UhUXaS0BmplTfHMHmrw=
+github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20240325083038-a6ae859a1f9a h1:9bhGth1CXFc8ucUNH2MC64DuUIXcI1i7nJ/MGPqudF0=
+github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20240325083038-a6ae859a1f9a/go.mod h1:VHxzQWYn6XRIGGWE+K5LZWa7UhUXaS0BmplTfHMHmrw=
 github.com/leodido/go-urn v1.2.1/go.mod h1:zt4jvISO2HfUBqxjfIshjdMTYS56ZS/qv49ictyFfxY=
 github.com/leodido/go-urn v1.4.0 h1:WT9HwE9SGECu3lg4d/dIA+jxlljEa1/ffXKmRjqdmIQ=
 github.com/leodido/go-urn v1.4.0/go.mod h1:bvxc+MVxLKB4z00jd1z+Dvzr47oO32F/QSNjSBOlFxI=

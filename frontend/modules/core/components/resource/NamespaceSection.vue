@@ -12,14 +12,14 @@
   <slot :namespaces="list">
     <resource-scroller :list="list">
       <template #default="{ item }">
-        <resource-list :namespace="item" :details="false" />
+        <resource-list :namespace="item" :details="false" :exceptions="exceptions" />
       </template>
     </resource-scroller>
   </slot>
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{ namespaces: string[]; }>()
+const props = defineProps<{ namespaces: string[]; exceptions?: boolean; }>()
 
 const internal = ref<string[]>([])
 

@@ -1,3 +1,6 @@
+import type {Ref} from "vue";
+import {SourceContext} from "~/modules/core/provider/dashboard";
+
 type Store = {
     kinds: { namespaced: string[]; cluster: string[] },
     namespaces: string[]
@@ -58,3 +61,9 @@ export const useSourceStore = (key?: string) => {
         load
     }
 }
+
+export const useSourceContext = (source: Ref<string | undefined>) => {
+    provide(SourceContext, source)
+}
+
+export const injectSourceContext = () => inject(SourceContext, ref(undefined))

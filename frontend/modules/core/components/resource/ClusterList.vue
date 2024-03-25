@@ -14,7 +14,7 @@
     </v-list>
     <template v-else>
       <v-list v-if="data?.items?.length && open" lines="two">
-        <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" />
+        <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" :exceptions="exceptions" />
       </v-list>
       <template v-if="data.count > options.offset && open">
         <v-divider />
@@ -37,7 +37,7 @@ import type { Ref } from "vue";
 import { ClusterKinds, APIFilter } from "~/modules/core/provider/dashboard";
 import { onChange } from "~/helper/compare";
 
-const props = defineProps<{ details: boolean; }>()
+const props = defineProps<{ details: boolean; exceptions?: boolean; }>()
 
 const search = ref('')
 const open = ref(true)
