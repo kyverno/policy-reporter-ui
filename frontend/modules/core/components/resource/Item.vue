@@ -12,7 +12,7 @@
     <template v-slot:append>
       <ResultChip v-for="status in showed" :key="status" class="ml-2" :status="status" :count="item[status]" :tooltip="`${status} results`" />
 
-      <exception-dialog v-if="source && exceptions" :resource="item.id" :source="source" :category="category" :height="32" />
+      <exception-dialog v-if="source && exceptions" :resource="item.id" :source="source" :category="category" :height="32" btn-class="ml-4" />
     </template>
   </v-list-item>
   <resource-source-results v-if="open" :id="item.id" :filter="filter" />
