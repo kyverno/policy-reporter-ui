@@ -14,7 +14,7 @@
     "@nuxt/devtools": "latest",
     "@types/chroma-js": "^2.4.3",
     "@types/lodash.debounce": "^4.0.9",
-    "nuxt": "^3.10.3",
+    "nuxt": "^3.11.1",
     "sass": "^1.69.5",
     "vite-plugin-vuetify": "^2.0.1",
     "vue": "^3.3.8",

@@ -120,9 +120,14 @@ type PolicyDetails struct {
 	Exceptions  bool         `json:"exceptions"`
 }
 
+type ExceptionRule struct {
+	Name  string            `json:"name"`
+	Props map[string]string `json:"props"`
+}
+
 type ExceptionPolicy struct {
-	Name  string   `json:"name"`
-	Rules []string `json:"rules"`
+	Name  string          `json:"name"`
+	Rules []ExceptionRule `json:"rules"`
 }
 
 type ExceptionRequest struct {

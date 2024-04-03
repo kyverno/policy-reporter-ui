@@ -370,13 +370,11 @@ export type ResourceResult = {
     skip: number;
 }
 
-export type ExceptionRequest = {
-    policy: string;
-    source: string;
-    rule?: string;
-}
+export type ExceptionRule = { name: string, props: { [key: string]: string } }
+export type ExceptionPolicy = { name: string, rules: ExceptionRule[] }
 
 export type ExceptionResponse = {
+    minVersion?: string;
     resource: string;
 }
 

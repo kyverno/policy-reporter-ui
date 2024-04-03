@@ -14,7 +14,7 @@ func MapSourceCategoryTreeToNavi(sources []core.SourceCategoryTree) []Navigation
 	if len(sources) == 1 {
 		for _, category := range sources[0].Categories {
 			sourceBoards = append(sourceBoards, NavigationItem{
-				Title: category.Name,
+				Title: utils.Fallback(category.Name, "Other"),
 				Path:  fmt.Sprintf("/source/%s/%s", sources[0].Name, category.Name),
 			})
 		}
@@ -32,7 +32,7 @@ func MapSourceCategoryTreeToNavi(sources []core.SourceCategoryTree) []Navigation
 		} else if count == 1 {
 			sourceBoards = append(sourceBoards, NavigationItem{
 				Title:    utils.Title(source.Name),
-				Subtitle: source.Categories[0].Name,
+				Subtitle: utils.Fallback(source.Categories[0].Name, "Other"),
 				Path:     fmt.Sprintf("/source/%s/%s", source.Name, source.Categories[0].Name),
 			})
 		} else {
@@ -44,7 +44,7 @@ func MapSourceCategoryTreeToNavi(sources []core.SourceCategoryTree) []Navigation
 
 			for _, category := range source.Categories {
 				item.Children = append(item.Children, NavigationItem{
-					Title: category.Name,
+					Title: utils.Fallback(category.Name, "Other"),
 					Path:  fmt.Sprintf("/source/%s/%s", source.Name, category.Name),
 				})
 			}

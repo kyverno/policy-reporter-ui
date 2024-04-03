@@ -51,7 +51,7 @@ export const mapResults = ({ items, count }: { items: ListResult[], count: numbe
 
     return {
       ...result,
-      properties: {},
+      properties,
       cards: sortByKeys(cards),
       chips: sortByKeys(chips),
       hasProps

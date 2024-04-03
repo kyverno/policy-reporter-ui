@@ -29,7 +29,7 @@
               <chip-severity v-if="value" @click="searchText = value" :severity="value" />
             </template>
             <template #item.exception="{ item }" v-if="props.exceptions && props.policy">
-              <exception-dialog :resource="item.resourceId" :source="props.source" :policies="[{ name: props.policy, rules: [item.rule]}]" />
+              <resource-exception-dialog :resource="item.resourceId" :source="props.source" :policies="[{ name: props.policy, rules: [{ name: item.rule, props: item.properties }]}]" />
             </template>
             <template #expanded-row="{ columns, item }">
               <tr :class="bg">
@@ -69,7 +69,6 @@ import type { Ref } from "vue";
 import { type Filter, Status } from "~/modules/core/types";
 import { APIFilter } from "~/modules/core/provider/dashboard";
 import { onChange } from "~/helper/compare";
-import ExceptionDialog from "~/modules/core/components/resource/ExceptionDialog.vue";
 
 const props = defineProps<{
   source: string;

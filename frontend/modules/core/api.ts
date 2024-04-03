@@ -15,7 +15,11 @@ import {
   type Profile,
   type LayoutConfig,
   type Dashboard,
-  type ResourceDetails, type SourceDetails, type PolicyDetails, type ExceptionResponse
+  type ResourceDetails,
+  type SourceDetails,
+  type PolicyDetails,
+  type ExceptionResponse,
+  type ExceptionPolicy,
 } from './types'
 
 import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
@@ -56,7 +60,7 @@ export class CoreAPI {
     return exec<ResourceDetails>(`/api/config/${this.cluster}/resource/${id}`, { baseURL: this.baseURL, params: filter })
   }
 
-  createException (id: string, source: string, policies: { name: string, rules: string[] }[], category?: string) {
+  createException (id: string, source: string, policies: ExceptionPolicy[], category?: string) {
     return exec<ExceptionResponse>(`/api/config/${this.cluster}/resource/${id}/exception`, { baseURL: this.baseURL, method: "POST", body: { policies, source, category } })
   }
 

@@ -20,6 +20,9 @@
           <v-alert variant="tonal" type="error">Failed to create exception: {{ err }}</v-alert>
         </app-row>
         <template v-else>
+          <app-row v-if="minVersion">
+            <v-alert color="severity-info" icon="mdi-information" variant="tonal">Requires at least {{ capilize(source) }} {{ minVersion }}</v-alert>
+          </app-row>
           <app-row>
             <v-alert type="warning" variant="tonal">
               Creating many small PolicyExceptions can impact the performance. If you need to exclude multiple resources
@@ -72,18 +75,20 @@ import { callAPI } from "~/modules/core/composables/api";
 import { useClipboard } from '@vueuse/core'
 import { FetchError } from "ofetch";
 import { parse } from "yaml";
-
+import { type ExceptionPolicy } from "~/modules/core/types";
+import {capilize} from "../../layouthHelper";
 
 const props = defineProps<{
   source: string;
   resource: string;
   category?: string;
-  policies?: { name: string; rules: string[] }[];
+  policies?: ExceptionPolicy[];
   height?: string | number;
   btnClass?: string | undefined;
 }>()
 
 const content = ref('')
+const minVersion = ref()
 const open = ref(false)
 const loading = ref(false)
 const err = ref<string>()
@@ -100,6 +105,7 @@ const request = async () => {
   try {
     const response = await callAPI((api) => api.createException(props.resource, props.source, props.policies, props.category))
     content.value = response.resource
+    minVersion.value = response.minVersion
     err.value = undefined
 
   } catch (error: FetchError) {

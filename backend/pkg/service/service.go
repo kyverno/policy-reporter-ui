@@ -208,12 +208,12 @@ func (s *Service) CreateException(ctx context.Context, req ExceptionRequest) (*p
 			return nil, fmt.Errorf("failed to get resource results: %w", err)
 		}
 
-		results := make(map[string][]string, 0)
+		results := make(map[string][]ExceptionRule, 0)
 		for _, r := range list.Items {
 			if _, ok := results[r.Policy]; ok {
-				results[r.Policy] = append(results[r.Policy], r.Rule)
+				results[r.Policy] = append(results[r.Policy], ExceptionRule{Name: r.Rule, Props: r.Properties})
 			} else {
-				results[r.Policy] = []string{r.Rule}
+				results[r.Policy] = []ExceptionRule{{Name: r.Rule, Props: r.Properties}}
 			}
 		}
 
@@ -235,8 +235,13 @@ func (s *Service) CreateException(ctx context.Context, req ExceptionRequest) (*p
 		},
 		Policies: utils.Map(req.Policies, func(p ExceptionPolicy) *pluginAPI.ExceptionPolicy {
 			return &pluginAPI.ExceptionPolicy{
-				Name:  p.Name,
-				Rules: p.Rules,
+				Name: p.Name,
+				Rules: utils.Map(p.Rules, func(rule ExceptionRule) pluginAPI.ExceptionRule {
+					return pluginAPI.ExceptionRule{
+						Name:  rule.Name,
+						Props: rule.Props,
+					}
+				}),
 			}
 		}),
 	}
