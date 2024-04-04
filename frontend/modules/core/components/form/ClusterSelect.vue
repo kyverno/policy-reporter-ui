@@ -1,5 +1,6 @@
 <template>
   <v-select
+    class="mr-2"
     :model-value="cluster"
     :items="clusters"
     item-title="title"
@@ -24,6 +25,8 @@ const { $coreAPI } = useNuxtApp()
 
 const clusters = computed(() => store.clusters.map(c => ({ title: c.name, value: c.slug })))
 
-const input = (slug: string) => { ($coreAPI as CoreAPI).setPrefix(slug) }
+const input = (slug: string) => {
+  ($coreAPI as CoreAPI).setPrefix(slug)
+}
 
 </script>

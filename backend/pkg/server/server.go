@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gosimple/slug"
@@ -50,7 +51,7 @@ func (s *Server) RegisterCluster(name string, client *core.Client, plugins map[s
 
 	group.Group("core").Any("/*proxy", func(ctx *gin.Context) {
 		req := ctx.Request.Clone(ctx)
-		req.URL.Path = ctx.Param("proxy")
+		req.URL.Path = strings.TrimPrefix(ctx.Param("proxy"), "/")
 
 		proxy.ServeHTTP(ctx.Writer, req)
 	})

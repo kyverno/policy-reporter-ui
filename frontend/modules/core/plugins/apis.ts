@@ -1,11 +1,11 @@
 import {defineNuxtPlugin} from 'nuxt/app'
-import {create} from '~/modules/core/api'
+import {cluster, create} from '~/modules/core/api'
 import {useConfigStore} from "~/store/config";
 import {type Config, DisplayMode} from "~/modules/core/types";
 
 export default defineNuxtPlugin(async () => {
   const config = useRuntimeConfig()
-  const api = create({ baseURL: config.public.coreApi as string, prefix: '' })
+  const api = create({ baseURL: config.public.coreApi as string, prefix: cluster.value })
 
   const apiConfig = await api.config().catch((error): Config => {
     console.error(`failed to load config: ${error}`)
@@ -22,7 +22,9 @@ export default defineNuxtPlugin(async () => {
     }
   })
 
-  api.setPrefix(apiConfig.default)
+  if (!apiConfig.clusters.some(c => c.slug === cluster.value)) {
+    api.setPrefix(apiConfig.default)
+  }
 
   api.setExcludes((apiConfig.sources || []).reduce<string[]>((acc, config) => {
     return [...acc, ...(config.excludes.namespaceKinds || []).map(k => `${config.name}:${k}`)]

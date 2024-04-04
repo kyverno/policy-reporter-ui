@@ -26,7 +26,7 @@ import type { NitroFetchOptions, NitroFetchRequest } from "nitropack";
 
 type APIConfig = { baseURL: string; prefix?: string; };
 
-export const cluster = ref('default')
+export const cluster = useSessionStorage('cluster', 'default')
 
 export class CoreAPI {
   private readonly baseURL: string
