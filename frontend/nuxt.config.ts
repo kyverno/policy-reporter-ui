@@ -39,6 +39,7 @@ export default defineNuxtConfig({
     },
   },
   app: {
+    baseURL: process.env.NODE_ENV === 'production' ? '.' : '/',
     head: {
       title: 'Policy Reporter UI',
       htmlAttrs: {
@@ -51,8 +52,8 @@ export default defineNuxtConfig({
         { name: 'format-detection', content: 'telephone=no' }
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+        { rel: 'icon', type: 'image/x-icon', href: './favicon.ico' }
       ]
     }
-  }
+  },
 })
