@@ -3,9 +3,11 @@ import {cluster, create} from '~/modules/core/api'
 import {useConfigStore} from "~/store/config";
 import {type Config, DisplayMode} from "~/modules/core/types";
 
+const trimSlashes = (str: string) => str.split('/').filter(p => !!p).join('/')
+
 export default defineNuxtPlugin(async () => {
   const config = useRuntimeConfig()
-  const api = create({ baseURL: config.public.coreApi as string, prefix: cluster.value })
+  const api = create({ baseURL: config.public.coreApi || `//${window.location.host}/${trimSlashes(window.location.pathname)}`, prefix: cluster.value })
 
   const apiConfig = await api.config().catch((error): Config => {
     console.error(`failed to load config: ${error}`)
