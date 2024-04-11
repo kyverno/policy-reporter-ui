@@ -75,7 +75,7 @@ func Auth(ctx *gin.Context) {
 	profile := ProfileFrom(ctx)
 
 	if profile == nil {
-		abort(ctx, "missing session key")
+		abort(ctx, "")
 		return
 	}
 
@@ -88,12 +88,14 @@ func Auth(ctx *gin.Context) {
 }
 
 func abort(ctx *gin.Context, err string) {
-	zap.L().Info("abort request", zap.String("path", ctx.Request.URL.Path), zap.String("err", err))
+	if err != "" {
+		zap.L().Info("abort request", zap.String("path", ctx.Request.URL.Path), zap.String("err", err))
+	}
 
 	logout(ctx)
 
 	if ctx.Request.URL.Path == "/" {
-		ctx.Redirect(http.StatusSeeOther, "/login")
+		ctx.Redirect(http.StatusSeeOther, "login")
 	} else {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 	}

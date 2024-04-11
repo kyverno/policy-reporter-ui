@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -271,7 +270,7 @@ func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) error {
 		oid = oid.FromValues(values)
 	}
 
-	provider, err := openidConnect.New(oid.ClientID, oid.ClientSecret, oid.CallbackURL, strings.TrimSuffix(oid.DiscoveryURL, "/")+"/.well-known/openid-configuration", oid.Scopes...)
+	provider, err := openidConnect.New(oid.ClientID, oid.ClientSecret, oid.Callback(), oid.Discovery(), oid.Scopes...)
 	if err != nil {
 		return err
 	}
