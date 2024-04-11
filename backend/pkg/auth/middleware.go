@@ -73,23 +73,25 @@ func Valid(ctx *gin.Context) {
 	ctx.Next()
 }
 
-func Auth(ctx *gin.Context) {
-	profile := ProfileFrom(ctx)
+func Auth(basePath string) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		profile := ProfileFrom(ctx)
 
-	if profile == nil {
-		abort(ctx, "")
-		return
+		if profile == nil {
+			abort(ctx, basePath, "")
+			return
+		}
+
+		if !profile.ExpiresAt.IsZero() && profile.ExpiresAt.Before(time.Now()) {
+			abort(ctx, basePath, "expired session")
+			return
+		}
+
+		ctx.Next()
 	}
-
-	if !profile.ExpiresAt.IsZero() && profile.ExpiresAt.Before(time.Now()) {
-		abort(ctx, "expired session")
-		return
-	}
-
-	ctx.Next()
 }
 
-func abort(ctx *gin.Context, err string) {
+func abort(ctx *gin.Context, basePath, err string) {
 	if err != "" {
 		zap.L().Info("abort request", zap.String("path", ctx.Request.URL.Path), zap.String("err", err))
 	}
@@ -98,7 +100,7 @@ func abort(ctx *gin.Context, err string) {
 
 	if ctx.Request.URL.Path == "/" {
 		zap.L().Debug("request URL", zap.Reflect("URL", ctx.Request.URL))
-		ctx.Redirect(http.StatusSeeOther, "login")
+		ctx.Redirect(http.StatusSeeOther, basePath+"login")
 	} else {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 	}

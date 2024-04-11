@@ -7,6 +7,7 @@ import (
 
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/logging"
+	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
 // BasicAuth configuration
@@ -24,6 +25,10 @@ type OpenIDConnect struct {
 	ClientID     string   `mapstructure:"clientId"`
 	ClientSecret string   `mapstructure:"clientSecret"`
 	Scopes       []string `mapstructure:"scopes"`
+}
+
+func (a OpenIDConnect) BasePath() string {
+	return utils.BasePath(a.CallbackURL)
 }
 
 func (a OpenIDConnect) Callback() string {
@@ -78,6 +83,10 @@ func (a OAuth) FromValues(values secrets.Values) OAuth {
 	}
 
 	return a
+}
+
+func (a OAuth) BasePath() string {
+	return utils.BasePath(a.CallbackURL)
 }
 
 type Plugin struct {

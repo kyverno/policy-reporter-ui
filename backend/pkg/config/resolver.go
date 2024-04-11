@@ -235,13 +235,13 @@ func (r *Resolver) Clientset() (*k8s.Clientset, error) {
 	return r.clientset, nil
 }
 
-func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) error {
+func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) ([]gin.HandlerFunc, error) {
 	config := r.config.OAuth
 
 	if config.SecretRef != "" {
 		values, err := r.LoadSecret(ctx, config.SecretRef)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		config = config.FromValues(values)
@@ -249,22 +249,22 @@ func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) error {
 
 	provider := auth.NewProvider(config.Provider, config.ClientID, config.ClientSecret, config.CallbackURL, config.Scopes)
 	if provider == nil {
-		return errors.New("provider not available")
+		return nil, errors.New("provider not available")
 	}
 
 	goth.UseProviders(provider)
-	auth.Setup(engine, config.Provider, r.config.TempDir)
+	auth.Setup(engine, config.Provider, r.config.OAuth.BasePath(), r.config.TempDir)
 
-	return nil
+	return []gin.HandlerFunc{auth.Provider(r.config.OAuth.Provider), auth.Auth(r.config.OAuth.BasePath())}, nil
 }
 
-func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) error {
+func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) ([]gin.HandlerFunc, error) {
 	oid := r.config.OpenIDConnect
 
 	if oid.SecretRef != "" {
 		values, err := r.LoadSecret(ctx, oid.SecretRef)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		oid = oid.FromValues(values)
@@ -272,14 +272,14 @@ func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) error {
 
 	provider, err := openidConnect.New(oid.ClientID, oid.ClientSecret, oid.Callback(), oid.Discovery(), oid.Scopes...)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	goth.UseProviders(provider)
 
-	auth.Setup(engine, "openid-connect", r.config.TempDir)
+	auth.Setup(engine, "openid-connect", r.config.OpenIDConnect.BasePath(), r.config.TempDir)
 
-	return nil
+	return []gin.HandlerFunc{auth.Provider("openid-connect"), auth.Auth(r.config.OpenIDConnect.BasePath())}, nil
 }
 
 func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
@@ -297,17 +297,19 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	}
 
 	if r.config.OpenIDConnect.Enabled {
-		if err := r.SetupOIDC(ctx, engine); err != nil {
+		handler, err := r.SetupOIDC(ctx, engine)
+		if err != nil {
 			zap.L().Error("failed to setup oidc", zap.Error(err))
 		}
 
-		middleware = append(middleware, auth.Provider("openid-connect"), auth.Auth)
+		middleware = append(middleware, handler...)
 	} else if r.config.OAuth.Enabled {
-		if err := r.SetupOAuth(ctx, engine); err != nil {
+		handler, err := r.SetupOAuth(ctx, engine)
+		if err != nil {
 			zap.L().Error("failed to setup oauth", zap.Error(err))
 		}
 
-		middleware = append(middleware, auth.Provider(r.config.OAuth.Provider), auth.Auth)
+		middleware = append(middleware, handler...)
 	}
 
 	if r.config.Server.Logging {

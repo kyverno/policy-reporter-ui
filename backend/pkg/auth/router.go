@@ -12,7 +12,7 @@ import (
 
 const SessionKey = "auth-session"
 
-func Setup(engine *gin.Engine, provider string, tempDir string) {
+func Setup(engine *gin.Engine, basePath, provider, tempDir string) {
 	gob.Register(Profile{})
 	gob.Register(map[string]any{})
 
@@ -21,7 +21,7 @@ func Setup(engine *gin.Engine, provider string, tempDir string) {
 	authStore.Options = &gsessions.Options{
 		HttpOnly: true,
 		MaxAge:   86400 * 30,
-		Path:     "/",
+		Path:     basePath,
 	}
 
 	gothic.Store = authStore
@@ -32,7 +32,7 @@ func Setup(engine *gin.Engine, provider string, tempDir string) {
 
 	engine.GET("/login", Provider(provider), handler.Login)
 	engine.GET("/logout", Provider(provider), handler.Logout)
-	engine.GET("/profile", Provider(provider), Auth, handler.Profile)
+	engine.GET("/profile", Provider(provider), Auth(basePath), handler.Profile)
 	engine.GET("/callback", Provider(provider), handler.Callback)
 
 	zap.L().Info("setup oauth routes")
