@@ -12,15 +12,19 @@ import (
 )
 
 type Handler struct {
+	basePath string
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(basePath string) *Handler {
+	return &Handler{
+		basePath: basePath,
+	}
 }
 
 func (h *Handler) Callback(ctx *gin.Context) {
 	user, err := gothic.CompleteUserAuth(ctx.Writer, ctx.Request)
 	if err != nil {
+		zap.L().Error("failed to complete user", zap.Error(err))
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
@@ -34,7 +38,7 @@ func (h *Handler) Callback(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Redirect(http.StatusTemporaryRedirect, "/")
+	ctx.Redirect(http.StatusTemporaryRedirect, h.basePath)
 }
 
 func (h *Handler) Login(ctx *gin.Context) {
@@ -47,7 +51,7 @@ func (h *Handler) Login(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	session.Set("profile", NewProfile(user))
 
-	ctx.Redirect(http.StatusTemporaryRedirect, "/")
+	ctx.Redirect(http.StatusTemporaryRedirect, h.basePath)
 }
 
 func (h *Handler) Logout(ctx *gin.Context) {
@@ -56,7 +60,7 @@ func (h *Handler) Logout(ctx *gin.Context) {
 	session.Clear()
 	session.Save()
 
-	ctx.Redirect(http.StatusTemporaryRedirect, "/login")
+	ctx.Redirect(http.StatusTemporaryRedirect, h.basePath+"login")
 }
 
 func (h *Handler) Profile(ctx *gin.Context) {

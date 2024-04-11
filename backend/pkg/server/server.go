@@ -62,6 +62,7 @@ func (s *Server) RegisterCluster(name string, client *core.Client, plugins map[s
 func (s *Server) RegisterAPI(c *api.Config, customBoards map[string]api.CustomBoard) {
 	handler := api.NewHandler(c, s.apis, customBoards)
 
+	s.engine.GET("healthz", handler.Healthz)
 	s.api.GET("config", handler.Config)
 	s.api.GET("custom-board/list", handler.ListCustomBoards)
 	s.api.GET("config/:cluster/custom-board/:id", handler.GetCustomBoard)

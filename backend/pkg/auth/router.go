@@ -21,14 +21,14 @@ func Setup(engine *gin.Engine, basePath, provider, tempDir string) {
 	authStore.Options = &gsessions.Options{
 		HttpOnly: true,
 		MaxAge:   86400 * 30,
-		Path:     basePath,
+		Path:     "/",
 	}
 
 	gothic.Store = authStore
 
 	engine.Use(sessions.Sessions(SessionKey, NewStore(authStore)))
 
-	handler := NewHandler()
+	handler := NewHandler(basePath)
 
 	engine.GET("/login", Provider(provider), handler.Login)
 	engine.GET("/logout", Provider(provider), handler.Logout)

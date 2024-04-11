@@ -24,6 +24,10 @@ type Handler struct {
 	reporter *reports.ReportGenerator
 }
 
+func (h *Handler) Healthz(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, nil)
+}
+
 func (h *Handler) Config(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, h.config)
 }
