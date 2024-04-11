@@ -253,7 +253,7 @@ func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) ([]gin.Ha
 	}
 
 	goth.UseProviders(provider)
-	auth.Setup(engine, config.Provider, r.config.OAuth.BasePath(), r.config.TempDir)
+	auth.Setup(engine, r.config.OAuth.BasePath(), config.Provider, r.config.TempDir)
 
 	return []gin.HandlerFunc{auth.Provider(r.config.OAuth.Provider), auth.Auth(r.config.OAuth.BasePath())}, nil
 }
@@ -277,7 +277,7 @@ func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) ([]gin.Han
 
 	goth.UseProviders(provider)
 
-	auth.Setup(engine, "openid-connect", r.config.OpenIDConnect.BasePath(), r.config.TempDir)
+	auth.Setup(engine, r.config.OpenIDConnect.BasePath(), "openid-connect", r.config.TempDir)
 
 	return []gin.HandlerFunc{auth.Provider("openid-connect"), auth.Auth(r.config.OpenIDConnect.BasePath())}, nil
 }
