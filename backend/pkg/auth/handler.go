@@ -21,6 +21,7 @@ func NewHandler() *Handler {
 func (h *Handler) Callback(ctx *gin.Context) {
 	user, err := gothic.CompleteUserAuth(ctx.Writer, ctx.Request)
 	if err != nil {
+		zap.L().Error("failed to complete user", zap.Error(err))
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
