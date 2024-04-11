@@ -1,6 +1,8 @@
 package config
 
 import (
+	"strings"
+
 	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
@@ -22,6 +24,22 @@ type OpenIDConnect struct {
 	ClientID     string   `mapstructure:"clientId"`
 	ClientSecret string   `mapstructure:"clientSecret"`
 	Scopes       []string `mapstructure:"scopes"`
+}
+
+func (a OpenIDConnect) Callback() string {
+	if strings.HasSuffix(a.CallbackURL, "/callback") {
+		return a.CallbackURL
+	}
+
+	return strings.TrimSuffix(a.CallbackURL, "/") + "/callback"
+}
+
+func (a OpenIDConnect) Discovery() string {
+	if strings.HasSuffix(a.DiscoveryURL, "/.well-known/openid-configuration") {
+		return a.DiscoveryURL
+	}
+
+	return strings.TrimSuffix(a.DiscoveryURL, "/") + "/.well-known/openid-configuration"
 }
 
 func (a OpenIDConnect) FromValues(values secrets.Values) OpenIDConnect {

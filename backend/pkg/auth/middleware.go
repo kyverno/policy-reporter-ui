@@ -66,7 +66,9 @@ func Valid(ctx *gin.Context) {
 	}
 
 	session.Set("profile", NewProfile(user))
-	session.Save()
+	if err := session.Save(); err != nil {
+		zap.L().Error("failed to save profile session", zap.Error(err))
+	}
 
 	ctx.Next()
 }
@@ -75,7 +77,7 @@ func Auth(ctx *gin.Context) {
 	profile := ProfileFrom(ctx)
 
 	if profile == nil {
-		abort(ctx, "missing session key")
+		abort(ctx, "")
 		return
 	}
 
@@ -88,12 +90,15 @@ func Auth(ctx *gin.Context) {
 }
 
 func abort(ctx *gin.Context, err string) {
-	zap.L().Info("abort request", zap.String("path", ctx.Request.URL.Path), zap.String("err", err))
+	if err != "" {
+		zap.L().Info("abort request", zap.String("path", ctx.Request.URL.Path), zap.String("err", err))
+	}
 
 	logout(ctx)
 
 	if ctx.Request.URL.Path == "/" {
-		ctx.Redirect(http.StatusSeeOther, "/login")
+		zap.L().Debug("request URL", zap.Reflect("URL", ctx.Request.URL))
+		ctx.Redirect(http.StatusSeeOther, "login")
 	} else {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 	}
@@ -104,5 +109,10 @@ func logout(ctx *gin.Context) error {
 	session := sessions.Default(ctx)
 	session.Clear()
 
-	return session.Save()
+	err := session.Save()
+	if err != nil {
+		zap.L().Error("failed to save session", zap.Error(err))
+	}
+
+	return err
 }

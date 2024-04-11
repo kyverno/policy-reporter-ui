@@ -8,6 +8,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth/gothic"
+	"go.uber.org/zap"
 )
 
 type Handler struct {
@@ -28,6 +29,7 @@ func (h *Handler) Callback(ctx *gin.Context) {
 	session.Set("profile", NewProfile(user))
 
 	if err := session.Save(); err != nil {
+		zap.L().Error("failed to save session", zap.Error(err))
 		ctx.String(http.StatusInternalServerError, err.Error())
 		return
 	}
