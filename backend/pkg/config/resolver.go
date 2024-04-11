@@ -368,7 +368,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	if !r.config.UI.Disabled {
 		var uiMiddleware []gin.HandlerFunc
 		if r.config.AuthEnabled() {
-			uiMiddleware = append(uiMiddleware, auth.Valid)
+			uiMiddleware = append(uiMiddleware, auth.Valid(r.config.AuthBasePath()))
 		}
 
 		zap.L().Info("register UI", zap.String("path", r.config.UI.Path))

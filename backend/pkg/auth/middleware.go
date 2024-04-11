@@ -21,56 +21,58 @@ func Provider(provider string) gin.HandlerFunc {
 	}
 }
 
-func Valid(ctx *gin.Context) {
-	providerName, err := gothic.GetProviderName(ctx.Request)
-	if err != nil {
-		zap.L().Error("failed to get provider name", zap.Error(err))
-		ctx.AbortWithError(http.StatusPreconditionFailed, errors.New("provider name not avaialable in request"))
-		return
+func Valid(basePath string) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		providerName, err := gothic.GetProviderName(ctx.Request)
+		if err != nil {
+			zap.L().Error("failed to get provider name", zap.Error(err))
+			ctx.AbortWithError(http.StatusPreconditionFailed, errors.New("provider name not avaialable in request"))
+			return
+		}
+
+		provider, err := goth.GetProvider(providerName)
+		if err != nil {
+			zap.L().Error("failed to get requested provider", zap.Error(err))
+			ctx.AbortWithError(http.StatusPreconditionFailed, errors.New("provider not available"))
+			return
+		}
+
+		profile := ProfileFrom(ctx)
+		if profile == nil {
+			zap.L().Error("profile not found", zap.Error(err))
+
+			logout(ctx)
+			ctx.Redirect(http.StatusTemporaryRedirect, basePath+"login")
+			return
+		}
+
+		session := sessions.Default(ctx)
+
+		sess := ProviderSession(providerName, profile)
+		if sess == nil {
+			zap.L().Error("could not create session from profile", zap.Error(err))
+
+			logout(ctx)
+			ctx.Redirect(http.StatusTemporaryRedirect, basePath+"login")
+			return
+		}
+
+		user, err := provider.FetchUser(sess)
+		if err != nil {
+			zap.L().Error("failed to validate session", zap.Error(err))
+
+			logout(ctx)
+			ctx.Redirect(http.StatusTemporaryRedirect, basePath+"login")
+			return
+		}
+
+		session.Set("profile", NewProfile(user))
+		if err := session.Save(); err != nil {
+			zap.L().Error("failed to save profile session", zap.Error(err))
+		}
+
+		ctx.Next()
 	}
-
-	provider, err := goth.GetProvider(providerName)
-	if err != nil {
-		zap.L().Error("failed to get requested provider", zap.Error(err))
-		ctx.AbortWithError(http.StatusPreconditionFailed, errors.New("provider not available"))
-		return
-	}
-
-	profile := ProfileFrom(ctx)
-	if profile == nil {
-		zap.L().Error("profile not found", zap.Error(err))
-
-		logout(ctx)
-		ctx.Redirect(http.StatusTemporaryRedirect, "/login")
-		return
-	}
-
-	session := sessions.Default(ctx)
-
-	sess := ProviderSession(providerName, profile)
-	if sess == nil {
-		zap.L().Error("could not create session from profile", zap.Error(err))
-
-		logout(ctx)
-		ctx.Redirect(http.StatusTemporaryRedirect, "/login")
-		return
-	}
-
-	user, err := provider.FetchUser(sess)
-	if err != nil {
-		zap.L().Error("failed to validate session", zap.Error(err))
-
-		logout(ctx)
-		ctx.Redirect(http.StatusTemporaryRedirect, "/login")
-		return
-	}
-
-	session.Set("profile", NewProfile(user))
-	if err := session.Save(); err != nil {
-		zap.L().Error("failed to save profile session", zap.Error(err))
-	}
-
-	ctx.Next()
 }
 
 func Auth(basePath string) gin.HandlerFunc {
