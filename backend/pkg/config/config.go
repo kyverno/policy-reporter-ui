@@ -229,3 +229,11 @@ type Config struct {
 func (c *Config) AuthEnabled() bool {
 	return c.OAuth.Enabled || c.OpenIDConnect.Enabled
 }
+
+func (c *Config) AuthBasePath() string {
+	if c.OAuth.Enabled {
+		return c.OAuth.BasePath()
+	}
+
+	return c.OpenIDConnect.BasePath()
+}

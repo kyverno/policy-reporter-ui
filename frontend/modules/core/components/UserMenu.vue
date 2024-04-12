@@ -16,7 +16,7 @@
 const logout = () => {
   document.cookie.split(";").forEach((c) => { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
   // @ts-ignore
-  window.location = '/logout'
+  window.location = `${window.location.pathname || '/'}logout`
 }
 
 const { data: profile } = useAPI(api => api.profile())
