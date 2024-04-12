@@ -22,6 +22,8 @@ func Provider(provider string) gin.HandlerFunc {
 }
 
 func Valid(basePath string) gin.HandlerFunc {
+	zap.L().Debug("URL base path", zap.String("basePath", basePath))
+
 	return func(ctx *gin.Context) {
 		providerName, err := gothic.GetProviderName(ctx.Request)
 		if err != nil {
