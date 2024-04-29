@@ -51,11 +51,18 @@ watch(filter, onChange(refresh))
 
 provide(APIFilter, filter)
 
-useSourceContext(computed(() => {
+const source = computed(() => {
   if (data.value?.sources.length !== 1) return undefined
 
   return data.value?.sources[0]
-}))
+})
 
+watch(source, (s?: string) => {
+  if (!s) return
+  
+  store.load(s)
+})
+
+useSourceContext(source)
 useStatusProvider(data)
 </script>

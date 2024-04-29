@@ -5,11 +5,12 @@ type Store = {
     kinds: { namespaced: string[]; cluster: string[] },
     namespaces: string[]
     categories: string[]
+    key: string
 }
 
 const sources: { [source: string]: Store } = reactive({})
 
-export const useSourceStore = (key?: string) => {
+const getStore = (key?: string) => {
     if (!key) { key = 'global' }
 
     if (!sources[key]) {
@@ -17,10 +18,15 @@ export const useSourceStore = (key?: string) => {
             kinds: { namespaced: [], cluster: [] },
             namespaces: [],
             categories: [],
+            key,
         }
     }
 
-    const store = sources[key]
+    return sources[key]
+} 
+
+export const useSourceStore = (key?: string) => {
+    const store = getStore(key)
 
     const loading = ref(false)
     const error = ref<Error | null>(null)
@@ -29,7 +35,10 @@ export const useSourceStore = (key?: string) => {
         loading.value = true
         error.value = null
 
+        let loadStore = store
+
         if (typeof source === 'string') {
+            loadStore = getStore(source)
             source = [source]
         } else if (Array.isArray(source) && !source.length) {
             source = undefined
@@ -41,10 +50,10 @@ export const useSourceStore = (key?: string) => {
             callAPI(api => api.clusterKinds(source as string[])),
             callAPI(api => api.categoryTree(undefined, { sources: source as string[] })),
         ]).then(([namespaces, nsKinds, clusterKinds, categoryTrees]) => {
-            store.kinds.namespaced = nsKinds || []
-            store.kinds.cluster = clusterKinds || []
-            store.namespaces = namespaces || []
-            store.categories = (categoryTrees || []).reduce<string[]>((categories, source) => {
+            loadStore.kinds.namespaced = nsKinds || []
+            loadStore.kinds.cluster = clusterKinds || []
+            loadStore.namespaces = namespaces || []
+            loadStore.categories = (categoryTrees || []).reduce<string[]>((categories, source) => {
                 return [...categories, ...source.categories.map(c => c.name)]
             }, [])
         }).catch((err) => {
