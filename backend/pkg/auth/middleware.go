@@ -13,10 +13,14 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	ProviderKey = "provider"
+)
+
 func Provider(provider string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		ctx.Request = ctx.Request.WithContext(context.WithValue(ctx, "provider", provider))
-		ctx.Set("provider", provider)
+		ctx.Request = ctx.Request.WithContext(context.WithValue(ctx, ProviderKey, provider))
+		ctx.Set(ProviderKey, provider)
 		ctx.Next()
 	}
 }
@@ -101,7 +105,6 @@ func abort(ctx *gin.Context, basePath, err string) {
 	logout(ctx)
 
 	if ctx.Request.URL.Path == "/" {
-		zap.L().Debug("request URL", zap.Reflect("URL", ctx.Request.URL))
 		ctx.Redirect(http.StatusSeeOther, basePath+"login")
 	} else {
 		ctx.AbortWithStatus(http.StatusUnauthorized)

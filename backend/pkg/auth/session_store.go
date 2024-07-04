@@ -13,4 +13,4 @@ type store struct {
 	gsessions.Store
 }
 
-func (c *store) Options(options sessions.Options) {}
+func (c *store) Options(_ sessions.Options) {}

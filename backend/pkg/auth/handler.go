@@ -16,9 +16,7 @@ type Handler struct {
 }
 
 func NewHandler(basePath string) *Handler {
-	return &Handler{
-		basePath: basePath,
-	}
+	return &Handler{basePath: basePath}
 }
 
 func (h *Handler) Callback(ctx *gin.Context) {
