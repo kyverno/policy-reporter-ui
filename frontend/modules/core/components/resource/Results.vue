@@ -65,7 +65,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Status } from "~/modules/core/types";
+import { Status, type ResultList } from "~/modules/core/types";
 import { capilize } from "~/modules/core/layouthHelper";
 import { mapResults } from "~/modules/core/mapper";
 
@@ -110,7 +110,7 @@ watch(() => options.page, () => refresh())
 watch(() => options.itemsPerPage, () => refresh())
 watch(searchText, () => refresh())
 
-const results = computed(() => mapResults(data.value))
+const results = computed(() => mapResults(data.value as ResultList))
 
 const headers = computed(() => {
   if (props.exceptions) {

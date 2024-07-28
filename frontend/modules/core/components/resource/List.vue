@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card v-if="data">
     <v-toolbar color="transparent">
       <v-toolbar-title>{{ namespace }}</v-toolbar-title>
       <template #append>
@@ -9,7 +9,7 @@
     </v-toolbar>
     <template v-if="open">
       <v-list v-if="data?.items?.length" lines="two" class="pt-0">
-        <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" :exceptions="exceptions" />
+        <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" :exceptions="exceptions" :show-skipped="showSkipped" />
       </v-list>
       <template v-if="data.count > options.offset">
         <v-divider />
@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
 import CollapseBtn from "~/components/CollapseBtn.vue";
-import type { Filter, Pagination } from "~/modules/core/types";
+import { Status, type Filter, type Pagination } from "~/modules/core/types";
 import { NamespacedKinds, APIFilter } from "~/modules/core/provider/dashboard";
 import { onChange } from "~/helper/compare";
 
@@ -64,6 +64,9 @@ const { data, refresh, pending } = useAPI(
       default: () => ({ items: [], count: 0 }),
     }
 );
+
+const status = useStatusInjection()
+const showSkipped = computed(() => data.value?.items.some(item => status.value.includes(Status.SKIP) && !!item[Status.SKIP]))
 
 watch(combinedFilter, onChange(() => {
   if (options.page !== 1) {

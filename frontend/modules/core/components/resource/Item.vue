@@ -8,8 +8,8 @@
       {{ item.name }}
     </v-list-item-title>
     <v-list-item-subtitle>{{ item.apiVersion }} {{ item.kind }}</v-list-item-subtitle>
-    <ResultChip v-if="showSkipped" class="ml-2" :status="Status.SKIP" :count="item[Status.SKIP]" tooltip="skip results" />
     <template v-slot:append>
+      <ResultChip v-if="showSkipped" class="ml-2" :status="Status.SKIP" :count="item[Status.SKIP]" tooltip="skip results" />
       <ResultChip v-for="status in showed" :key="status" class="ml-2" :status="status" :count="item[status]" :tooltip="`${status} results`" />
 
       <resource-exception-dialog v-if="source && exceptions" :resource="item.id" :source="source" :category="category" :height="32" btn-class="ml-4" />
@@ -31,6 +31,7 @@ const props = defineProps({
   details: { type: Boolean, default: false },
   exceptions: { type: Boolean, default: false },
   filter: { type: Object as PropType<Filter>, required: false },
+  showSkipped: { type: Boolean, default: false },
 })
 
 const rsFilter = computed(() => {
@@ -45,7 +46,6 @@ const rsFilter = computed(() => {
 const status = useStatusInjection()
 const source = injectSourceContext()
 
-const showSkipped = computed(() => status.value.includes(Status.SKIP) && !!props.item?.[Status.SKIP])
 const showed = computed(() => status.value.filter((s) => s !== Status.SKIP))
 
 const category = computed(() => {

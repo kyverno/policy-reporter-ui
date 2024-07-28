@@ -3,14 +3,17 @@ import { join } from 'node:path'
 
 export default defineNuxtConfig({
   ssr: false,
+
   router: {
     options: {
       hashMode: true
     }
   },
+
   devtools: { enabled: true },
   css: ['vuetify/lib/styles/main.sass', '@mdi/font/css/materialdesignicons.min.css'],
   build: { transpile: ["vuetify"] },
+
   modules: [
     '@pinia/nuxt',
     '@vueuse/nuxt',
@@ -21,16 +24,19 @@ export default defineNuxtConfig({
       );
     },
   ],
+
   runtimeConfig: {
     public: {
       coreApi: '',
     }
   },
+
   nitro: {
     output: {
       publicDir: join(__dirname, 'dist')
     }
   },
+
   vite: {
     vue: {
       template: {
@@ -38,6 +44,7 @@ export default defineNuxtConfig({
       },
     },
   },
+
   app: {
     baseURL: process.env.NODE_ENV === 'production' ? '.' : '/',
     head: {
@@ -56,4 +63,6 @@ export default defineNuxtConfig({
       ]
     }
   },
+
+  compatibilityDate: '2024-07-28',
 })
