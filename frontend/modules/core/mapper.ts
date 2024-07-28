@@ -32,11 +32,21 @@ export const mapDarkStatus = (status: Status): string => statusToDarkColor[statu
 
 const maxChipLength = 75
 
+export const format = (date: Date) => date.toLocaleDateString(navigator.language || 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+
 export const mapResults = ({ items, count }: { items: ListResult[], count: number }): { results: MappedResult[], count: number } => {
   const results: MappedResult[] = items.map(({ properties, ...result }) => {
     const chips: Dictionary = {}
     const cards: Dictionary = {}
     let hasProps: boolean = false
+
+    if (!properties) {
+      properties = {}
+    }
+
+    if (![Status.PASS, Status.SKIP].includes(result.status)) {
+      properties['created'] = format(new Date(result.timestamp * 1000))
+    }
 
     for (const prop in properties) {
       if (prop == 'resultID') { continue }

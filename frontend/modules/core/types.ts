@@ -262,6 +262,7 @@ export type ListResult = {
     policy: string;
     rule: string;
     status: Status;
+    timestamp: number
     properties: { [key: string]: string };
 }
 
