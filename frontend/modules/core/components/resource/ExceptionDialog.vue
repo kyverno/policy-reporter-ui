@@ -6,7 +6,7 @@
              rounded="0"
              :class="btnClass"
              variant="flat"
-             color="secondary"
+             color="exception"
              size="small"
              :height="height as any">
         Exception
@@ -73,7 +73,6 @@
 <script setup lang="ts">
 import { callAPI } from "~/modules/core/composables/api";
 import { useClipboard } from '@vueuse/core'
-import { FetchError } from "ofetch";
 import { parse } from "yaml";
 import { type ExceptionPolicy } from "~/modules/core/types";
 import {capilize} from "../../layouthHelper";
@@ -93,7 +92,7 @@ const open = ref(false)
 const loading = ref(false)
 const err = ref<string>()
 
-const {text, copy, copied} = useClipboard({source: content})
+const {copy, copied} = useClipboard({source: content})
 
 const close = () => {
   open.value = false
@@ -108,7 +107,7 @@ const request = async () => {
     minVersion.value = response.minVersion
     err.value = undefined
 
-  } catch (error: FetchError) {
+  } catch (error: any) {
     err.value = `[${error.statusCode}] ${error.statusMessage}`
     return
   } finally {
