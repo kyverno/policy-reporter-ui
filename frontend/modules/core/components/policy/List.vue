@@ -13,7 +13,7 @@
   </v-list>
   <template v-else>
     <v-list v-if="list.length && open" lines="two" class="mt-0 pt-0 pb-0 mb-0">
-      <policy-list-scroller :list="list" :default-loadings="3" key-prop="name">
+      <policy-list-scroller :list="list" :default-loadings="20" key-prop="name">
         <template #default="{ item }">
           <PolicyItem :item="item" :details="false" />
         </template>
