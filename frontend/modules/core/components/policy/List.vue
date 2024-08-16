@@ -13,7 +13,11 @@
   </v-list>
   <template v-else>
     <v-list v-if="list.length && open" lines="two" class="mt-0 pt-0 pb-0 mb-0">
-      <PolicyItem v-for="item in list" :key="item.name" :item="item" :details="false" />
+      <policy-list-scroller :list="list" :default-loadings="3" key-prop="name">
+        <template #default="{ item }">
+          <PolicyItem :item="item" :details="false" />
+        </template>
+      </policy-list-scroller>
     </v-list>
     <template v-if="!list.length">
       <v-divider />

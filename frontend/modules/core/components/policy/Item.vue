@@ -41,6 +41,6 @@ const props = defineProps({
 
 const status = useStatusInjection()
 
-const showSkipped = computed(() => console.log(status.value.includes(Status.SKIP) && !!props.item?.results[Status.SKIP]) || status.value.includes(Status.SKIP) && !!props.item?.results[Status.SKIP])
+const showSkipped = computed(() => status.value.includes(Status.SKIP) && !!props.item?.results[Status.SKIP])
 const showed = computed(() => status.value.filter((s) => s !== Status.SKIP))
 </script>
