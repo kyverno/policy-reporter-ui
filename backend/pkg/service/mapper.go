@@ -7,11 +7,13 @@ import (
 	plugin "github.com/kyverno/policy-reporter-plugins/sdk/api"
 	pluginAPI "github.com/kyverno/policy-reporter-plugins/sdk/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
+	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 	"golang.org/x/exp/maps"
 )
 
 var allStatus = []string{StatusPass, StatusWarn, StatusFail, StatusError, StatusSkip}
+var allSeverities = []string{SeverityUnknown, SeverityInfo, SeverityLow, SeverityMedium, SeverityHigh, SeverityCritical}
 
 func MapFindingSourcesToSourceItem(findings *core.Findings) []SourceItem {
 	findingSources := make(map[string]bool, 0)
@@ -308,7 +310,66 @@ func MapResourceSourceChart(results []core.ResourceStatusCount, status []string)
 	}
 }
 
-func MapCategoriesToChart(title string, categories []core.Category, status []string) *Chart {
+func MapCategorySeveritiesToChart(title string, categories []core.Category, severities []string) *Chart {
+	var sets = make(map[string]*Dataset)
+	if len(severities) == 0 {
+		severities = allSeverities
+	}
+
+	for _, s := range severities {
+		sets[s] = &Dataset{Label: utils.Title(s), Data: make([]int, 0)}
+	}
+
+	labels := make([]string, 0, len(categories))
+	sorting := make(map[string]int, len(categories))
+
+	for index, category := range categories {
+		sorting[category.Name] = index
+		labels = append(labels, category.Name)
+
+		mapping := map[string]int{
+			SeverityLow:      category.Severities.Low,
+			SeverityInfo:     category.Severities.Info,
+			SeverityMedium:   category.Severities.Medium,
+			SeverityHigh:     category.Severities.High,
+			SeverityCritical: category.Severities.Critical,
+		}
+
+		for _, s := range severities {
+			sets[s].Data = append(sets[s].Data, mapping[s])
+		}
+	}
+
+	sort.Slice(labels, func(i, j int) bool {
+		return labels[i] < labels[j]
+	})
+
+	// sorting Data to the same order as related labels
+	for _, set := range sets {
+		data := make([]int, 0, len(set.Data))
+		for _, label := range labels {
+			data = append(data, set.Data[sorting[label]])
+		}
+
+		set.Data = data
+	}
+
+	datasets := make([]*Dataset, 0, len(sets))
+	for _, s := range allSeverities {
+		if set, ok := sets[s]; ok {
+			datasets = append(datasets, set)
+		}
+	}
+
+	return &Chart{
+		Name:     title,
+		Labels:   labels,
+		Datasets: datasets,
+		Type:     model.Severity,
+	}
+}
+
+func MapCategoryStatusToChart(title string, categories []core.Category, status []string) *Chart {
 	var sets = make(map[string]*Dataset)
 	if len(status) == 0 {
 		status = allStatus
@@ -326,11 +387,11 @@ func MapCategoriesToChart(title string, categories []core.Category, status []str
 		labels = append(labels, category.Name)
 
 		mapping := map[string]int{
-			StatusPass:  category.Pass,
-			StatusWarn:  category.Warn,
-			StatusFail:  category.Fail,
-			StatusError: category.Error,
-			StatusSkip:  category.Skip,
+			StatusPass:  category.Status.Pass,
+			StatusWarn:  category.Status.Warn,
+			StatusFail:  category.Status.Fail,
+			StatusError: category.Status.Error,
+			StatusSkip:  category.Status.Skip,
 		}
 
 		for _, s := range status {
@@ -363,6 +424,7 @@ func MapCategoriesToChart(title string, categories []core.Category, status []str
 		Name:     title,
 		Labels:   labels,
 		Datasets: datasets,
+		Type:     model.Status,
 	}
 }
 

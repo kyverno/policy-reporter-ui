@@ -351,7 +351,7 @@ func (h *Handler) NamespaceReport(ctx *gin.Context) {
 func NewHandler(config *Config, apis map[string]*model.Endpoints, customBoards map[string]CustomBoard) *Handler {
 	sources := make(map[string]model.SourceConfig, len(config.Sources))
 	for _, s := range config.Sources {
-		sources[s.Name] = model.SourceConfig{Results: s.Excludes.Results, Exceptions: s.Exceptions}
+		sources[s.Name] = model.SourceConfig{Results: s.Excludes.Results, Exceptions: s.Exceptions, ChartType: s.ChartType}
 	}
 
 	return &Handler{config, apis, customBoards, service.New(apis, sources), reports.New(apis)}

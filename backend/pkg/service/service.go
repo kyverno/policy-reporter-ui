@@ -151,12 +151,20 @@ func (s *Service) PolicySources(ctx context.Context, cluster string, query url.V
 
 		status := s.configs[source.Name].EnabledResults()
 
+		var chart *Chart
+		if s.configs[source.Name].ChartType == model.Severity {
+			chart = MapCategorySeveritiesToChart(title, source.Categories, []string{})
+			status = []string{"summary"}
+		} else {
+			chart = MapCategoryStatusToChart(title, source.Categories, status)
+		}
+
 		list = append(list, Source{
 			Name:       source.Name,
 			Title:      title,
 			Status:     status,
 			Categories: categories,
-			Chart:      MapCategoriesToChart(title, source.Categories, status),
+			Chart:      chart,
 		})
 	}
 
@@ -308,7 +316,7 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster, id string, query
 			Categories: categories,
 			Status:     status,
 			Exceptions: config.Exceptions,
-			Chart:      MapCategoriesToChart(title, source.Categories, config.EnabledResults()),
+			Chart:      MapCategoryStatusToChart(title, source.Categories, config.EnabledResults()),
 		})
 	}
 

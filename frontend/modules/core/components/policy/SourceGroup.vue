@@ -10,7 +10,7 @@
       <div v-show="open">
         <v-divider/>
         <v-card-text>
-          <GraphStatusPerCategory :source="source.chart"/>
+          <GraphBarPerCategory :source="source.chart" />
         </v-card-text>
         <policy-list v-for="item in source.categories"
                      :key="item"

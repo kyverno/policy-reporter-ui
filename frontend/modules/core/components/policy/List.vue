@@ -15,7 +15,7 @@
     <v-list v-if="list.length && open" lines="two" class="mt-0 pt-0 pb-0 mb-0">
       <policy-list-scroller :list="list" :default-loadings="20" key-prop="name">
         <template #default="{ item }">
-          <PolicyItem :item="item" :details="false" />
+          <PolicyItem :item="item" :details="false" :show-status="showed" :summary="summary" />
         </template>
       </policy-list-scroller>
     </v-list>
@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import CollapseBtn from "~/components/CollapseBtn.vue";
-import type { PolicyResult } from "~/modules/core/types";
+import {type PolicyResult, Status} from "~/modules/core/types";
 
 const props = defineProps<{ category: string; policies: PolicyResult[]; pending: boolean; }>()
 
@@ -43,4 +43,9 @@ const list = computed(() => {
   return props.policies.filter((p) => p.title.toLowerCase().includes(search.value.toLowerCase()))
 })
 
+
+const status = useStatusInjection()
+
+const showed = computed(() => status.value.filter((s) => s !== Status.SKIP))
+const summary = computed(() => status.value.includes(Status.SUMMARY))
 </script>

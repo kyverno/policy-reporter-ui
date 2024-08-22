@@ -5,12 +5,28 @@
 <script setup lang="ts">
 import { Bar } from 'vue-chartjs'
 import { type Chart } from '../../types'
-import { useStatusColors } from "~/modules/core/composables/theme";
+import {useSeverityColors, useStatusColors} from "~/modules/core/composables/theme";
 
 const props = defineProps<{ source: Chart }>()
 
 const colors = useChartColors()
+
+const severityColors = useSeverityColors()
 const statusColors = useStatusColors()
+
+const config = computed(() => {
+  if (props.source.type === 'severity') {
+    return {
+      colors: severityColors.value,
+      title: `Severities per Category`
+    }
+  }
+
+  return {
+    colors: statusColors.value,
+    title: `Results per Category`
+  }
+})
 
 const chart = computed(() => {
   return {
@@ -19,7 +35,7 @@ const chart = computed(() => {
     },
     data: {
       labels: props.source.labels,
-      datasets: props.source.datasets.map((d) => ({ ...d, backgroundColor: statusColors.value[d.label?.toLowerCase()] }))
+      datasets: props.source.datasets.map((d) => ({ ...d, backgroundColor: config.value.colors[d.label?.toLowerCase()] }))
     },
     options: {
       color: colors.value.color,
@@ -32,7 +48,7 @@ const chart = computed(() => {
       plugins: {
         title: {
           display: true,
-          text: `Results per Category`
+          text: config.value.title
         },
         legend: {
           display: true,

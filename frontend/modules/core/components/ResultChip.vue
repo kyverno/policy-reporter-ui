@@ -8,7 +8,7 @@
 <script setup lang="ts">
 import { Status } from '../types'
 
-const props = defineProps<{
+defineProps<{
   status: Status;
   count?: number;
   tooltip: string;
@@ -20,5 +20,6 @@ const icons = {
     [Status.FAIL]: 'alert-circle',
     [Status.ERROR]: 'close',
     [Status.SKIP]: 'slash-forward',
+    [Status.SUMMARY]: 'alert',
 }
 </script>

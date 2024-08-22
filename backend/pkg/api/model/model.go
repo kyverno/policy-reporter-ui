@@ -14,6 +14,11 @@ const (
 	Skip  string = "skip"
 )
 
+const (
+	Severity string = "severity"
+	Status   string = "status"
+)
+
 type Endpoints struct {
 	Core    *core.Client
 	Plugins map[string]*plugin.Client
@@ -22,6 +27,7 @@ type Endpoints struct {
 type SourceConfig struct {
 	Results    []string
 	Exceptions bool
+	ChartType  string
 }
 
 func (s SourceConfig) EnabledResults() []string {

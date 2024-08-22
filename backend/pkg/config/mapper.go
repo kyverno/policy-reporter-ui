@@ -38,6 +38,7 @@ func MapConfig(c *Config) *api.Config {
 		Sources: utils.Map(c.Sources, func(s Source) api.Source {
 			return api.Source{
 				Name:       s.Name,
+				ChartType:  s.ChartType,
 				Exceptions: s.Exceptions,
 				Excludes: api.Excludes{
 					NamespaceKinds: s.Excludes.NamespaceKinds,

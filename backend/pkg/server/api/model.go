@@ -24,6 +24,7 @@ type Excludes struct {
 
 type Source struct {
 	Name       string   `json:"name"`
+	ChartType  string   `mapstructure:"chartType"`
 	Exceptions bool     `mapstructure:"exceptions"`
 	Excludes   Excludes `json:"excludes"`
 }

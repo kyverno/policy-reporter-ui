@@ -10,6 +10,15 @@ const (
 	StatusSkip  = "skip"
 )
 
+const (
+	SeverityUnknown  = "unknown"
+	SeverityLow      = "low"
+	SeverityInfo     = "info"
+	SeverityMedium   = "medium"
+	SeverityHigh     = "high"
+	SeverityCritical = "critical"
+)
+
 type SourceItem struct {
 	Title string `json:"title"`
 	Name  string `json:"name"`
@@ -25,6 +34,7 @@ type Chart struct {
 	Labels   []string   `json:"labels"`
 	Datasets []*Dataset `json:"datasets"`
 	Name     string     `json:"name"`
+	Type     string     `json:"type"`
 }
 
 type ChartVariants struct {

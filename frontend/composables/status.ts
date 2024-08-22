@@ -6,7 +6,7 @@ export const useStatusProvider = (data?: Ref<{ status: Status[] } | null>) => {
     provide(ShowedStatus, computed(() => {
         const status = data?.value?.status
         if (status && status.length) {
-            return [Status.SKIP, Status.PASS, Status.WARN, Status.FAIL, Status.ERROR].reduce<Status[]>((acc, s) => {
+            return [Status.SKIP, Status.PASS, Status.WARN, Status.FAIL, Status.ERROR, Status.SUMMARY].reduce<Status[]>((acc, s) => {
                 if (status.includes(s)) { return [...acc, s] }
 
                 return acc

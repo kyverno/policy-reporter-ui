@@ -8,9 +8,13 @@
     <v-list-item-title>
       {{ item.title }}
     </v-list-item-title>
-    <template v-slot:append>
+    <template v-slot:append v-if="summary">
+      <ResultChip :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.name }, query: { kinds: route.query?.kinds, 'cluster-kinds': route.query['cluster-kinds'] }}" class="ml-2" :status="Status.SUMMARY" :count="count" tooltip="results" />
+    </template>
+
+    <template v-slot:append v-else>
       <ResultChip v-if="showSkipped" :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.name }, query: { status: Status.SKIP, kinds: route.query?.kinds, 'cluster-kinds': route.query['cluster-kinds'] }}" class="ml-2" :status="Status.SKIP" :count="item.results[Status.SKIP]" tooltip="skip results" />
-      <template v-for="status in showed" :key="status">
+      <template v-for="status in showStatus" :key="status">
         <ResultChip :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.name }, query: { status, kinds: route.query?.kinds, 'cluster-kinds': route.query['cluster-kinds'] }}" class="ml-2" :status="status" :count="item.results[status]" :tooltip="`${status} results`" />
       </template>
     </template>
@@ -37,10 +41,13 @@ const props = defineProps({
   item: { type: Object as PropType<PolicyResult>, required: true },
   details: { type: Boolean, default: false },
   filter: { type: Object as PropType<Filter>, required: false },
+  showStatus: { type: Array as PropType<Status[]>, required: true },
+  summary: { type: Boolean, default: false },
 })
 
 const status = useStatusInjection()
 
 const showSkipped = computed(() => status.value.includes(Status.SKIP) && !!props.item?.results[Status.SKIP])
-const showed = computed(() => status.value.filter((s) => s !== Status.SKIP))
+
+const count = computed(() => Object.values(props.item?.results || {}).reduce((sum, v) => sum + v, 0))
 </script>

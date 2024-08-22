@@ -1,4 +1,5 @@
 export enum Severity {
+    UNKNOWN = 'unknown',
     INFO = 'info',
     LOW = 'low',
     MEDIUM = 'medium',
@@ -20,7 +21,8 @@ export enum Status {
     PASS = 'pass',
     WARN = 'warn',
     FAIL = 'fail',
-    ERROR = 'error'
+    ERROR = 'error',
+    SUMMARY = 'summary'
 }
 
 export enum DisplayMode {
@@ -142,6 +144,7 @@ export type Chart = {
     labels: string[];
     datasets: Dataset[];
     name: string;
+    type?: string;
 }
 
 export type ClusterScope = {
@@ -383,8 +386,8 @@ export type ResourceResultList = { items: ResourceResult[], count: number }
 
 export type MappedResult = ListResult & { chips: Dictionary, cards: Dictionary, hasProps: boolean }
 
-export type NamespaceCounters = { [status in Status]: { namespaces: string[]; counts: number[] } }
-export type Counters = { [status in Status]: number }
+export type NamespaceCounters = Omit<{ [status in Status]: { namespaces: string[]; counts: number[] } }, Status.SUMMARY>
+export type Counters = Omit<{ [status in Status]: number }, Status.SUMMARY>
 
 export const createNamespaceCounters = (): NamespaceCounters => ({
     [Status.SKIP]: { namespaces: [], counts: [] },

@@ -1,5 +1,5 @@
 import { useTheme } from "vuetify";
-import { Status } from "../types";
+import {Severity, Status} from "../types";
 import { computed } from "vue";
 
 export const useStatusColors = () => {
@@ -17,6 +17,26 @@ export const useStatusColors = () => {
     warn: warn.value,
     error: error.value,
     skip: skip.value,
+  }))
+}
+
+export const useSeverityColors = () => {
+  const theme = useTheme()
+
+  const unknown = computed(() => theme.current.value.colors[`severity-${Severity.UNKNOWN}`])
+  const low = computed(() => theme.current.value.colors[`severity-${Severity.LOW}`])
+  const info = computed(() => theme.current.value.colors[`severity-${Severity.INFO}`])
+  const medium = computed(() => theme.current.value.colors[`severity-${Severity.MEDIUM}`])
+  const high = computed(() => theme.current.value.colors[`severity-${Severity.HIGH}`])
+  const critical = computed(() => theme.current.value.colors[`severity-${Severity.CRITICAL}`])
+
+  return computed(() => ({
+    unknown: unknown.value,
+    low: low.value,
+    info: info.value,
+    medium: medium.value,
+    high: high.value,
+    critical: critical.value,
   }))
 }
 export const  useChartColors = () => {

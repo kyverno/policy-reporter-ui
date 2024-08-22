@@ -1,12 +1,25 @@
 package core
 
+type Status struct {
+	Pass  int `json:"pass"`
+	Skip  int `json:"skip"`
+	Warn  int `json:"warn"`
+	Error int `json:"error"`
+	Fail  int `json:"fail"`
+}
+
+type Severities struct {
+	Low      int `json:"low"`
+	Info     int `json:"info"`
+	Medium   int `json:"medium"`
+	High     int `json:"high"`
+	Critical int `json:"critical"`
+}
+
 type Category struct {
-	Name  string `json:"name"`
-	Pass  int    `json:"pass"`
-	Skip  int    `json:"skip"`
-	Warn  int    `json:"warn"`
-	Error int    `json:"error"`
-	Fail  int    `json:"fail"`
+	Name       string     `json:"name"`
+	Status     Status     `json:"status"`
+	Severities Severities `json:"severities"`
 }
 
 type Policy struct {
