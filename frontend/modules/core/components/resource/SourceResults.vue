@@ -4,10 +4,8 @@
     <v-list-item :class="bg">
       <v-list-item-title>{{ capilize(item.source) }}</v-list-item-title>
       <template v-slot:append>
-        <ResultChip :status="Status.PASS" :count="item.pass" tooltip="pass results" />
-        <ResultChip class="ml-2" :status="Status.WARN" :count="item.warn" tooltip="warning results" />
-        <ResultChip class="ml-2" :status="Status.FAIL" :count="item.fail" tooltip="fail results" />
-        <ResultChip class="ml-2" :status="Status.ERROR" :count="item.error" tooltip="error results" />
+        <ResultChip v-if="showSkipped" class="ml-2" :status="Status.SKIP" :count="item[Status.SKIP]" tooltip="skip results" />
+        <ResultChip v-for="status in showed" :key="status" class="ml-2" :status="status" :count="item[status]" :tooltip="`${status} results`" />
       </template>
     </v-list-item>
   </template>
@@ -17,7 +15,7 @@
 import { type Filter, Status } from '~/modules/core/types'
 import { capilize } from "~/modules/core/layouthHelper";
 
-const props = defineProps<{ id: string; filter?: Filter; }>()
+const props = defineProps<{ id: string; filter?: Filter; showSkipped: boolean; showed: Status[]; }>()
 
 const bg = useBGColor()
 

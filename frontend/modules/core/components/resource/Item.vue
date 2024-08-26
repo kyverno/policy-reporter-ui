@@ -15,7 +15,7 @@
       <resource-exception-dialog v-if="source && exceptions" :resource="item.id" :source="source" :category="category" :height="32" btn-class="ml-4" />
     </template>
   </v-list-item>
-  <resource-source-results v-if="open" :id="item.id" :filter="filter" />
+  <resource-source-results v-if="open" :id="item.id" :filter="filter" :show-skipped="showSkipped" :showed="showed" />
 </template>
 
 <script setup lang="ts">
