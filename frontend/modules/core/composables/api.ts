@@ -1,7 +1,5 @@
 import { CoreAPI } from "../api";
 
-type CancelFunc = (reason?: string) => void
-
 type Callback<T> = (api: CoreAPI) => Promise<T>
 
 export type APIResult<T> = {

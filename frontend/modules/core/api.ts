@@ -93,7 +93,7 @@ export class CoreAPI {
   }
 
   namespaces (filter?: Filter) {
-    return exec<string[]>(`/proxy/${this.cluster}/core/v1/namespaces`, { baseURL: this.baseURL, params: { ...filter } })
+    return exec<string[]>(`/api/config/${this.cluster}/namespaces`, { baseURL: this.baseURL, params: { ...filter } })
   }
 
   namespacedKinds (sources?: string[]) {

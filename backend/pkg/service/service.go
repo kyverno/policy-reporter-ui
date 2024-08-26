@@ -47,6 +47,21 @@ func (s *Service) plugin(cluster, p string) (*plugin.Client, bool) {
 	return c, ok
 }
 
+func (s *Service) Namespaces(ctx context.Context, cluster string, query url.Values) ([]string, error) {
+	client, err := s.core(cluster)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(query["sources"]) == 1 {
+		config := s.configs[query["sources"][0]]
+
+		query["status"] = config.EnabledResults()
+	}
+
+	return client.ListNamespaces(ctx, query)
+}
+
 func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy string, query url.Values) (any, error) {
 	client, err := s.core(cluster)
 	if err != nil {
@@ -56,7 +71,10 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 	query.Set("sources", source)
 	query.Set("policies", policy)
 
-	config := s.configs[source]
+	config, ok := s.configs[source]
+	if ok {
+		query["status"] = config.EnabledResults()
+	}
 
 	g := &errgroup.Group{}
 
@@ -354,6 +372,15 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 
 	combinedFilter, namespaceFilter, clusterFilter := BuildFilters(query)
 	combinedFilter.Set("namespaced", strconv.FormatBool(!clusterScope))
+
+	if len(sources) == 1 {
+		config, ok := s.configs[sources[0]]
+		if ok {
+			combinedFilter["status"] = config.EnabledResults()
+			namespaceFilter["status"] = config.EnabledResults()
+			clusterFilter["status"] = config.EnabledResults()
+		}
+	}
 
 	namespaceResults := make(map[string]core.NamespaceStatusCounts, len(sources))
 	clusterResults := make(map[string]map[string]int, len(sources))

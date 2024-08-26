@@ -51,6 +51,18 @@ func (h *Handler) ListPolicySources(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, details)
 }
 
+func (h *Handler) ListNamespaces(ctx *gin.Context) {
+	namespaces, err := h.service.Namespaces(ctx, ctx.Param("cluster"), ctx.Request.URL.Query())
+	if err != nil {
+		zap.L().Error("failed to list namespaces", zap.String("cluster", ctx.Param("cluster")), zap.Error(err))
+
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, namespaces)
+}
+
 func (h *Handler) CreateException(ctx *gin.Context) {
 	req := service.ExceptionRequest{
 		Cluster:  ctx.Param("cluster"),
@@ -224,7 +236,7 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 	var namespaces []string
 	g.Go(func() error {
 		var err error
-		namespaces, err = endpoints.Core.ListNamespaces(ctx, url.Values{
+		namespaces, err = h.service.Namespaces(ctx, ctx.Param("cluster"), url.Values{
 			"sources":    query["sources"],
 			"kinds":      query["kinds"],
 			"categories": query["categories"],
