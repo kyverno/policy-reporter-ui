@@ -1,0 +1,11 @@
+clusters:
+- name: Default
+  host: http://localhost:8080
+- name: K3s
+  host: https://polr.webdev-jogeleit.de/core/
+
+server:
+  cors: true
+  overwriteHost: true
+
+tempDir: /private/tmp
