@@ -50,8 +50,26 @@ func NewProfile(user goth.User) Profile {
 	}
 }
 
+func Session(ctx *gin.Context) (sessions.Session, bool) {
+	val, ok := ctx.Get(sessions.DefaultKey)
+	if !ok {
+		return nil, false
+	}
+
+	session, ok := val.(sessions.Session)
+	if !ok {
+		return nil, false
+	}
+
+	return session, true
+}
+
 func ProfileFrom(ctx *gin.Context) *Profile {
-	session := sessions.Default(ctx)
+	session, ok := Session(ctx)
+	if !ok {
+		return nil
+	}
+
 	profile := session.Get("profile")
 
 	if profile == nil {
