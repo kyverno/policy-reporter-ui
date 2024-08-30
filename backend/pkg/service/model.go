@@ -55,6 +55,7 @@ type Total struct {
 
 type Dashboard struct {
 	Title          string       `json:"title"`
+	Type           string       `json:"type"`
 	FilterSources  []string     `json:"filterSources,omitempty"`
 	ClusterScope   bool         `json:"clusterScope"`
 	Sources        []string     `json:"sources"`
@@ -67,14 +68,17 @@ type Dashboard struct {
 	Total          Total        `json:"total"`
 	ShowResults    []string     `json:"showResults"`
 	Status         []string     `json:"status"`
+	Severities     []string     `json:"severities"`
 }
 
 type ResourceDetails struct {
-	Resource *core.Resource `json:"resource"`
-	Results  map[string]int `json:"results"`
-	Chart    *Chart         `json:"chart"`
-	Sources  []Source       `json:"sources"`
-	Status   []string       `json:"status"`
+	Resource        *core.Resource `json:"resource"`
+	Results         map[string]int `json:"results"`
+	Chart           *Chart         `json:"chart"`
+	Sources         []Source       `json:"sources"`
+	Status          []string       `json:"status"`
+	Severities      []string       `json:"severities"`
+	SeverityResults map[string]int `json:"severityResults"`
 }
 
 type Source struct {

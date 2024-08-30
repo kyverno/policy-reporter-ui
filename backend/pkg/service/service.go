@@ -139,7 +139,7 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 		Exceptions: s.configs[source].Exceptions,
 		Chart: PolicyCharts{
 			Findings:       MapFindingsToSourceStatusChart(title, findings),
-			NamespaceScope: MapNamespaceScopeChartVariant(title, result, config.EnabledResults()),
+			NamespaceScope: MapNamespaceScopeChartVariant(title, result, "", config.EnabledResults(), allStatus),
 			ClusterScope:   clusterResult,
 		},
 	}
@@ -170,7 +170,7 @@ func (s *Service) PolicySources(ctx context.Context, cluster string, query url.V
 		status := s.configs[source.Name].EnabledResults()
 
 		var chart *Chart
-		if s.configs[source.Name].ChartType == model.Severity {
+		if s.configs[source.Name].ViewType == model.Severity {
 			chart = MapCategorySeveritiesToChart(title, source.Categories, []string{})
 			status = []string{"summary"}
 		} else {
@@ -300,6 +300,14 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster, id string, query
 		return err
 	})
 
+	var severityCounts []core.ResourceSeverityCount
+	g.Go(func() error {
+		var err error
+		severityCounts, err = client.GetResourceSeverityCounts(ctx, id, query)
+
+		return err
+	})
+
 	var sourcesTree []core.SourceCategoryTree
 	g.Go(func() error {
 		var err error
@@ -314,6 +322,9 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster, id string, query
 	statusMap := map[string]bool{}
 	status := make([]string, 0, 5)
 
+	severityMap := map[string]bool{}
+	severities := make([]string, 0, 6)
+
 	list := make([]Source, 0, len(sourcesTree))
 	for _, source := range sourcesTree {
 		categories := make([]string, 0, len(source.Categories))
@@ -326,6 +337,9 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster, id string, query
 		config := s.configs[source.Name]
 		for _, r := range config.EnabledResults() {
 			statusMap[r] = true
+		}
+		for _, r := range config.EnabledSeverities() {
+			severityMap[r] = true
 		}
 
 		list = append(list, Source{
@@ -343,6 +357,11 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster, id string, query
 			status = append(status, r)
 		}
 	}
+	for r, ok := range severityMap {
+		if ok {
+			severities = append(severities, r)
+		}
+	}
 
 	sort.Slice(list, func(i, j int) bool {
 		return list[i].Title < list[j].Title
@@ -354,15 +373,24 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster, id string, query
 	}
 
 	return &ResourceDetails{
-		Resource: resource,
-		Sources:  list,
-		Chart:    chart,
-		Status:   status,
-		Results:  SumResourceCounts(statusCounts),
+		Resource:        resource,
+		Sources:         list,
+		Chart:           chart,
+		Status:          status,
+		Results:         SumResourceCounts(statusCounts),
+		SeverityResults: SumResourceSeverityCounts(severityCounts),
+		Severities:      severities,
 	}, nil
 }
 
 func (s *Service) Dashboard(ctx context.Context, cluster string, sources []string, namespaces []string, clusterScope bool, query url.Values) (*Dashboard, error) {
+	if s.viewType(sources) == model.Severity {
+		config, ok := s.configs[sources[0]]
+		if ok && config.ViewType == model.Severity {
+			return s.SeverityDashboard(ctx, cluster, sources, namespaces, clusterScope, query)
+		}
+	}
+
 	client, err := s.core(cluster)
 	if err != nil {
 		return nil, err
@@ -373,15 +401,6 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 	combinedFilter, namespaceFilter, clusterFilter := BuildFilters(query)
 	combinedFilter.Set("namespaced", strconv.FormatBool(!clusterScope))
 
-	if len(sources) == 1 {
-		config, ok := s.configs[sources[0]]
-		if ok {
-			combinedFilter["status"] = config.EnabledResults()
-			namespaceFilter["status"] = config.EnabledResults()
-			clusterFilter["status"] = config.EnabledResults()
-		}
-	}
-
 	namespaceResults := make(map[string]core.NamespaceStatusCounts, len(sources))
 	clusterResults := make(map[string]map[string]int, len(sources))
 	showResults := make([]string, 0, len(sources))
@@ -389,8 +408,17 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 	mx := &sync.Mutex{}
 	cmx := &sync.Mutex{}
 
-	statusMap := map[string]bool{}
-	status := make([]string, 0, 5)
+	status := s.filterEnabled(sources, func(c model.SourceConfig) []string {
+		return c.EnabledResults()
+	})
+
+	severities := s.filterEnabled(sources, func(c model.SourceConfig) []string {
+		return c.EnabledSeverities()
+	})
+
+	combinedFilter["status"] = status
+	namespaceFilter["status"] = status
+	clusterFilter["status"] = status
 
 	var findings *core.Findings
 	g.Go(func() error {
@@ -401,11 +429,6 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 	})
 
 	for _, source := range sources {
-		c := s.configs[source]
-		for _, r := range c.EnabledResults() {
-			statusMap[r] = true
-		}
-
 		g.Go(func() error {
 			result, err := client.GetNamespaceStatusCounts(ctx, source, namespaceFilter)
 			if err != nil {
@@ -443,21 +466,8 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 		}
 	}
 
-	for r, ok := range statusMap {
-		if ok {
-			status = append(status, r)
-		}
-	}
-
 	if err := g.Wait(); err != nil {
 		return nil, err
-	}
-
-	var findingChart any
-	if len(sources) > 1 {
-		findingChart = MapFindingSourcesToFindingCharts(findings)
-	} else if len(sources) == 1 {
-		findingChart = MapFindingsToSourceStatusChart(sources[0], findings)
 	}
 
 	if namespaces == nil {
@@ -471,7 +481,15 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 		exceptions = s.configs[sources[0]].Exceptions
 	}
 
+	var findingChart any
+	if len(sources) > 1 {
+		findingChart = MapFindingSourcesToFindingCharts(findings)
+	} else if len(sources) == 1 {
+		findingChart = MapFindingsToSourceStatusChart(sources[0], findings)
+	}
+
 	return &Dashboard{
+		Type:           model.Status,
 		FilterSources:  make([]string, 0),
 		ClusterScope:   clusterScope,
 		MultipleSource: len(sources) > 1,
@@ -482,10 +500,134 @@ func (s *Service) Dashboard(ctx context.Context, cluster string, sources []strin
 		ShowResults:    showResults,
 		SourcesNavi:    MapFindingSourcesToSourceItem(findings),
 		Status:         status,
+		Severities:     severities,
 		Charts: Charts{
 			ClusterScope:   clusterResults,
 			Findings:       findingChart,
-			NamespaceScope: MapNamespaceStatusCountsToCharts(namespaceResults, status),
+			NamespaceScope: MapNamespaceStatusCountsToCharts(namespaceResults, model.Status, status, allStatus),
+		},
+		Total: Total{
+			Count:     findings.Total,
+			PerResult: findings.PerResult,
+		},
+	}, nil
+}
+
+func (s *Service) SeverityDashboard(ctx context.Context, cluster string, sources []string, namespaces []string, clusterScope bool, query url.Values) (*Dashboard, error) {
+	client, err := s.core(cluster)
+	if err != nil {
+		return nil, err
+	}
+
+	g := &errgroup.Group{}
+
+	combinedFilter, namespaceFilter, clusterFilter := BuildFilters(query)
+	combinedFilter.Set("namespaced", strconv.FormatBool(!clusterScope))
+
+	namespaceResults := make(map[string]core.NamespaceStatusCounts, len(sources))
+	clusterResults := make(map[string]map[string]int, len(sources))
+	showResults := make([]string, 0, len(sources))
+
+	mx := &sync.Mutex{}
+	cmx := &sync.Mutex{}
+
+	status := s.filterEnabled(sources, func(c model.SourceConfig) []string {
+		return c.EnabledResults()
+	})
+
+	severities := s.filterEnabled(sources, func(c model.SourceConfig) []string {
+		return c.EnabledSeverities()
+	})
+
+	combinedFilter["severity"] = severities
+	namespaceFilter["severiy"] = severities
+	clusterFilter["severity"] = severities
+
+	var findings *core.Findings
+	g.Go(func() error {
+		var err error
+		findings, err = client.GetSeverityFindings(ctx, combinedFilter)
+
+		return err
+	})
+
+	for _, source := range sources {
+		g.Go(func() error {
+			result, err := client.GetNamespaceSeverityCounts(ctx, source, namespaceFilter)
+			if err != nil {
+				return err
+			}
+
+			resources, err := client.UseResources(ctx, source, namespaceFilter)
+			if err != nil {
+				return err
+			}
+
+			mx.Lock()
+			namespaceResults[source] = result
+			if !resources {
+				showResults = append(showResults, source)
+			}
+			mx.Unlock()
+
+			return nil
+		})
+
+		if clusterScope {
+			g.Go(func() error {
+				result, err := client.GetClusterSeverityCounts(ctx, source, clusterFilter)
+				if err != nil {
+					return err
+				}
+
+				cmx.Lock()
+				clusterResults[source] = result
+				cmx.Unlock()
+
+				return nil
+			})
+		}
+	}
+
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+
+	if namespaces == nil {
+		namespaces = make([]string, 0)
+	}
+
+	singleSource := len(sources) == 1
+
+	var exceptions bool
+	if singleSource {
+		exceptions = s.configs[sources[0]].Exceptions
+	}
+
+	var findingChart any
+	if len(sources) > 1 {
+		findingChart = MapFindingSourcesToFindingCharts(findings)
+	} else if len(sources) == 1 {
+		findingChart = MapSeverityFindingsToSourceStatusChart(sources[0], findings)
+	}
+
+	return &Dashboard{
+		Type:           model.Severity,
+		FilterSources:  make([]string, 0),
+		ClusterScope:   clusterScope,
+		MultipleSource: len(sources) > 1,
+		SingleSource:   singleSource,
+		Exceptions:     exceptions,
+		Sources:        sources,
+		Namespaces:     namespaces,
+		ShowResults:    showResults,
+		SourcesNavi:    MapFindingSourcesToSourceItem(findings),
+		Status:         status,
+		Severities:     severities,
+		Charts: Charts{
+			ClusterScope:   clusterResults,
+			Findings:       findingChart,
+			NamespaceScope: MapNamespaceStatusCountsToCharts(namespaceResults, model.Severity, severities, allSeverities),
 		},
 		Total: Total{
 			Count:     findings.Total,
@@ -519,6 +661,36 @@ func BuildFilters(baseFilter url.Values) (url.Values, url.Values, url.Values) {
 	}
 
 	return combinedFilter, namespaceFilter, clusterFilter
+}
+
+func (s *Service) filterEnabled(sources []string, call func(c model.SourceConfig) []string) []string {
+	mapping := map[string]bool{}
+	list := make([]string, 0)
+
+	for _, source := range sources {
+		config := s.configs[source]
+		for _, r := range call(config) {
+			mapping[r] = true
+		}
+	}
+	for r, ok := range mapping {
+		if ok {
+			list = append(list, r)
+		}
+	}
+
+	return list
+}
+
+func (s *Service) viewType(sources []string) string {
+	for _, source := range sources {
+		config := s.configs[source]
+		if config.ViewType != model.Severity {
+			return model.Status
+		}
+	}
+
+	return model.Severity
 }
 
 func New(clients map[string]*model.Endpoints, configs map[string]model.SourceConfig) *Service {

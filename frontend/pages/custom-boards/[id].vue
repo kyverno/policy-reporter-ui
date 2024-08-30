@@ -5,11 +5,10 @@
                v-if="data"
                :source="data.singleSource ? data.sources[0] : undefined"
                :ns-scoped="!data.clusterScope"
-               :store="route.params.id"
+               :store="id"
   >
     <template v-if="data.namespaces.length">
-      <GraphSourceStatus v-if="data.singleSource" :data="data" :source="data.sources[0]" />
-      <GraphSourcesStatus v-else :data="data" :hide-cluster="!data.clusterScope" />
+      <GraphSourceCharts :data="data" :hide-cluster="!data.clusterScope" />
       <v-row v-if="data.clusterScope">
         <v-col>
           <resource-cluster-list :details="data.multiSource" />
@@ -50,9 +49,11 @@ const filter = computed(() => ({
   clusterKinds: clusterKinds.value
 }))
 
-const { data, refresh } = useAPI((api) => api.customBoard(route.params.id, filter.value))
+const id = computed(() => route.params.id as string)
 
-const store = useSourceStore(route.params.id)
+const { data, refresh } = useAPI((api) => api.customBoard(id.value, filter.value))
+
+const store = useSourceStore(id.value)
 
 watchEffect(() => {
   if (!data.value) return;
@@ -68,4 +69,6 @@ provide(APIFilter, computed(() => ({
 })))
 
 useStatusProvider(data)
+useSeveritiesProvider(data)
+useDashboardType(data)
 </script>

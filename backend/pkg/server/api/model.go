@@ -20,11 +20,12 @@ type Excludes struct {
 	NamespaceKinds []string `json:"namespaceKinds"`
 	ClusterKinds   []string `json:"clusterKinds"`
 	Results        []string `json:"results"`
+	Severities     []string `json:"severities"`
 }
 
 type Source struct {
 	Name       string   `json:"name"`
-	ChartType  string   `mapstructure:"chartType"`
+	ViewType   string   `mapstructure:"type"`
 	Exceptions bool     `mapstructure:"exceptions"`
 	Excludes   Excludes `json:"excludes"`
 }

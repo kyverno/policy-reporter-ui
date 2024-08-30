@@ -37,7 +37,7 @@ import type { Ref } from "vue";
 import { ClusterKinds, APIFilter } from "~/modules/core/provider/dashboard";
 import { onChange } from "~/helper/compare";
 
-const props = defineProps<{ details: boolean; exceptions?: boolean; }>()
+defineProps<{ details: boolean; exceptions?: boolean; }>()
 
 const search = ref('')
 const open = ref(true)

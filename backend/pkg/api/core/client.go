@@ -32,6 +32,16 @@ func (c *Client) GetResourceStatusCounts(ctx context.Context, id string, query u
 	return api.DecodeList[ResourceStatusCount](resp.Body)
 }
 
+func (c *Client) GetResourceSeverityCounts(ctx context.Context, id string, query url.Values) ([]ResourceSeverityCount, error) {
+	resp, err := c.Get(ctx, fmt.Sprintf("/v2/resource/%s/severity-counts", id), query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.DecodeList[ResourceSeverityCount](resp.Body)
+}
+
 func (c *Client) ListSourceCategoryTree(ctx context.Context, query url.Values) ([]SourceCategoryTree, error) {
 	resp, err := c.Get(ctx, "/v2/sources/categories", query)
 	if err != nil {
@@ -62,6 +72,16 @@ func (c *Client) GetFindings(ctx context.Context, query url.Values) (*Findings, 
 	return api.Decode[Findings](resp.Body)
 }
 
+func (c *Client) GetSeverityFindings(ctx context.Context, query url.Values) (*Findings, error) {
+	resp, err := c.Get(ctx, "/v2/severity-findings", query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.Decode[Findings](resp.Body)
+}
+
 func (c *Client) GetNamespaceStatusCounts(ctx context.Context, source string, query url.Values) (NamespaceStatusCounts, error) {
 	resp, err := c.Get(ctx, fmt.Sprintf("/v2/namespace-scoped/%s/status-counts", source), query)
 	if err != nil {
@@ -72,8 +92,28 @@ func (c *Client) GetNamespaceStatusCounts(ctx context.Context, source string, qu
 	return api.DecodeMap[string, map[string]int](resp.Body)
 }
 
+func (c *Client) GetNamespaceSeverityCounts(ctx context.Context, source string, query url.Values) (NamespaceStatusCounts, error) {
+	resp, err := c.Get(ctx, fmt.Sprintf("/v2/namespace-scoped/%s/severity-counts", source), query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.DecodeMap[string, map[string]int](resp.Body)
+}
+
 func (c *Client) GetClusterStatusCounts(ctx context.Context, source string, query url.Values) (map[string]int, error) {
 	resp, err := c.Get(ctx, fmt.Sprintf("/v2/cluster-scoped/%s/status-counts", source), query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.DecodeMap[string, int](resp.Body)
+}
+
+func (c *Client) GetClusterSeverityCounts(ctx context.Context, source string, query url.Values) (map[string]int, error) {
+	resp, err := c.Get(ctx, fmt.Sprintf("/v2/cluster-scoped/%s/severity-counts", source), query)
 	if err != nil {
 		return nil, err
 	}

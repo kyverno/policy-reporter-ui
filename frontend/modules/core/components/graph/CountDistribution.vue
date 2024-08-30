@@ -6,7 +6,7 @@
 import type { PropType } from "vue";
 import { Pie } from 'vue-chartjs';
 import { capilize } from "../../layouthHelper";
-import { useStatusColors } from "~/modules/core/composables/theme";
+import {useSeverityColors, useStatusColors} from "~/modules/core/composables/theme";
 import type { Chart } from "~/modules/core/types";
 
 const props = defineProps({
@@ -16,9 +16,24 @@ const props = defineProps({
 
 const chartColors = useChartColors()
 const statusColors = useStatusColors()
+const severityColors = useSeverityColors()
+
+const config = computed(() => {
+  if (props.data.type === 'severity') {
+    return {
+      colors: severityColors.value,
+      title: `Severities`
+    }
+  }
+
+  return {
+    colors: statusColors.value,
+    title: `Results`
+  }
+})
 
 const chart = computed(() => {
-  const colors = props.data!.labels.map(s => statusColors.value[s.toLowerCase()])
+  const colors = props.data!.labels.map(s => config.value.colors[s.toLowerCase()])
   const total: number = props.data!.datasets[0].data.reduce((sum: number, i: number) => sum + i, 0)
 
   return {
@@ -37,7 +52,7 @@ const chart = computed(() => {
       plugins: {
         title: {
           display: true,
-          text: `${total} ${props.title ?? capilize(props.data!.name || '')} Results`
+          text: `${total} ${props.title ?? capilize(props.data!.name || '')} ${config.value.title}`
         },
         legend: {
           position: 'bottom'

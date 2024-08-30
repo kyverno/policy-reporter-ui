@@ -149,7 +149,7 @@ export type Chart = {
 
 export type ClusterScope = {
     [source: string]: {
-        [key in Status]: number;
+        [key in Status | Severity]: number;
     }
 }
 
@@ -159,6 +159,8 @@ export type NamespaceScope = {
 
 export type Findings = Chart
 
+export type ViewType = 'severity' | 'status' | ''
+
 export type Dashboard = {
     title?: string;
     clusterScope: boolean;
@@ -166,13 +168,17 @@ export type Dashboard = {
     multiSource: boolean;
     showResults: string[];
     status: Status[];
+    severities: Severity[];
     singleSource: boolean;
     exceptions: boolean;
+    type: ViewType;
     charts: {
         clusterScope: ClusterScope;
         namespaceScope: {
-            preview?: NamespaceScope
-            complete: NamespaceScope
+            [source: string]: {
+                preview?: Chart
+                complete: Chart
+            }
         };
         findings: { [key in Status]: Findings } | Findings
     };
@@ -182,7 +188,7 @@ export type Dashboard = {
     total: {
         count: number;
         perResult: {
-            [key in Partial<Status>]: number;
+            [key in Partial<Status | Severity>]: number;
         }
     }
 }
@@ -199,9 +205,11 @@ export type SourceDetails = {
 export type ResourceDetails = {
     resource: Resource;
     results: { [key in Status]: number; }
+    severityResults: { [key in Severity]: number; }
     chart?: Chart
     sources: SourceDetails[]
     status: Status[];
+    severities: Severity[];
 }
 
 export type PolicyDetails = {
@@ -367,11 +375,21 @@ export type ResourceResult = {
     source: string;
     kind: string;
     name: string;
-    pass: number;
-    warn: number;
-    fail: number;
-    error: number;
-    skip: number;
+    status: {
+        pass: number;
+        warn: number;
+        fail: number;
+        error: number;
+        skip: number;
+    }
+    severities: {
+        unknown: number;
+        info: number;
+        low: number;
+        medium: number;
+        high: number;
+        critical: number;
+    }
 }
 
 export type ExceptionRule = { name: string, props: { [key: string]: string } }

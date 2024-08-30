@@ -4,7 +4,7 @@
       <v-toolbar color="header">
         <v-toolbar-title>Namespace Scoped Resources</v-toolbar-title>
         <template #append>
-          <form-namespace-autocomplete v-model="internal" :items="props.namespaces" />
+          <form-namespace-autocomplete v-model="internal" :items="props.namespaces" class="mr-2" />
         </template>
       </v-toolbar>
     </v-card>

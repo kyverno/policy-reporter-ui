@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { Status } from "../../types";
 
-const props = defineProps<{ data: { [key in Status]: number; }; }>()
+defineProps<{ data: { [key in Status]: number; }; }>()
 
 const status = useStatusInjection()
 

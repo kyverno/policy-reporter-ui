@@ -186,11 +186,12 @@ type Server struct {
 type Source struct {
 	Name       string `mapstructure:"name"`
 	Exceptions bool   `mapstructure:"exceptions"`
-	ChartType  string `mapstructure:"chartType"`
+	ViewType   string `mapstructure:"type"`
 	Excludes   struct {
 		NamespaceKinds []string `mapstructure:"namespaceKinds"`
 		ClusterKinds   []string `mapstructure:"clusterKinds"`
 		Results        []string `mapstructure:"results"`
+		Severities     []string `mapstructure:"severities"`
 	} `mapstructure:"excludes"`
 }
 

@@ -1,6 +1,6 @@
 <template>
   <v-divider />
-  <v-list-item :to="{ name: 'resource-id', query: rsFilter, params: { id: item.id }}">
+  <v-list-item :to="{ name: 'resource-id-type', query: rsFilter, params: { id: item.id, type: viewType }}">
     <template v-if="details" v-slot:prepend>
       <v-btn class="mr-2" variant="text" :icon="!open ? `mdi-chevron-up` : `mdi-chevron-down`" @click.stop.prevent="open = !open"></v-btn>
     </template>
@@ -8,11 +8,11 @@
       {{ item.name }}
     </v-list-item-title>
     <v-list-item-subtitle>{{ item.apiVersion }} {{ item.kind }}</v-list-item-subtitle>
-    <template v-slot:append>
-      <ResultChip v-if="showSkipped" class="ml-2" :status="Status.SKIP" :count="item[Status.SKIP]" tooltip="skip results" />
-      <ResultChip v-for="status in showed" :key="status" class="ml-2" :status="status" :count="item[status]" :tooltip="`${status} results`" />
-
-      <resource-exception-dialog v-if="source && exceptions" :resource="item.id" :source="source" :category="category" :height="32" btn-class="ml-4" />
+    <template v-if="viewType === 'severity'" v-slot:append>
+      <resource-severities-chips :items="item.severities as any" :id="item.id" :category="category" :exceptions="exceptions" />
+    </template>
+    <template v-else v-slot:append>
+      <resource-status-chips :items="item.status as any" :id="item.id" :category="category" :exceptions="exceptions" :show-skipped="showSkipped" :showed="showed" />
     </template>
   </v-list-item>
   <resource-source-results v-if="open" :id="item.id" :filter="filter" :show-skipped="showSkipped" :showed="showed" />
@@ -22,7 +22,7 @@
 import { type Filter, type ResourceResult, Status } from '~/modules/core/types'
 import { type PropType } from "vue";
 import { useStatusInjection } from "~/composables/status";
-import {injectSourceContext} from "~/composables/source";
+import {injectDashboardType} from "~/composables/dashboard";
 
 const open = ref(false)
 
@@ -44,7 +44,7 @@ const rsFilter = computed(() => {
 })
 
 const status = useStatusInjection()
-const source = injectSourceContext()
+const viewType = injectDashboardType()
 
 const showed = computed(() => status.value.filter((s) => s !== Status.SKIP))
 

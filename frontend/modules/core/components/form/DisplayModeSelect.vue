@@ -7,6 +7,7 @@
     density="compact"
     prepend-inner-icon="mdi-brightness-6"
     style="width: 220px;"
+    class="mr-2"
     @update:model-value="input"
   />
 </template>

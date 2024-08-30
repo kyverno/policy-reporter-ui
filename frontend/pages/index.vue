@@ -5,8 +5,7 @@
                :source="data.singleSource ? data.sources[0] : undefined"
                v-if="data"
   >
-    <GraphSourceStatus v-if="data.singleSource" :data="data" :source="data.sources[0]" />
-    <GraphSourcesStatus v-else :data="data" />
+    <GraphSourceCharts :data="data" />
     <template v-for="source in data.showResults" :key="source">
       <app-row>
         <results :source="source" :title="`${capilize(source)}: Results without resource information`" />
@@ -32,7 +31,6 @@ import { useAPI } from '~/modules/core/composables/api'
 import { onChange } from "~/helper/compare";
 import { APIFilter } from "~/modules/core/provider/dashboard";
 import { capilize } from "~/modules/core/layouthHelper";
-import { useSourceContext } from "~/composables/source";
 
 const store = useSourceStore()
 await store.load()
@@ -65,4 +63,5 @@ watch(source, (s?: string) => {
 
 useSourceContext(source)
 useStatusProvider(data)
+useSeveritiesProvider(data)
 </script>

@@ -113,9 +113,50 @@ func MapFindingsToSourceStatusChart(title string, findings *core.Findings) *Char
 	}
 }
 
-func MapNamespaceScopeChartVariant(title string, namespaces core.NamespaceStatusCounts, status []string) *ChartVariants {
+func MapSeverityFindingsToSourceStatusChart(title string, findings *core.Findings) *Chart {
+	if len(findings.Counts) == 0 {
+		return &Chart{
+			Name:     title,
+			Labels:   make([]string, 0),
+			Datasets: []*Dataset{{Data: make([]int, 0, 0)}},
+			Type:     model.Severity,
+		}
+	}
+
+	counts := findings.Counts[0]
+
+	values := map[string]int{
+		SeverityUnknown:  counts.Counts[SeverityUnknown],
+		SeverityInfo:     counts.Counts[SeverityInfo],
+		SeverityLow:      counts.Counts[SeverityLow],
+		SeverityMedium:   counts.Counts[SeverityMedium],
+		SeverityHigh:     counts.Counts[SeverityHigh],
+		SeverityCritical: counts.Counts[SeverityCritical],
+	}
+
+	labels := make([]string, 0, 5)
+	dataset := &Dataset{Data: make([]int, 0, 6)}
+
+	for s, c := range values {
+		if c == 0 {
+			continue
+		}
+
+		labels = append(labels, utils.Title(s))
+		dataset.Data = append(dataset.Data, c)
+	}
+
+	return &Chart{
+		Name:     utils.Title(counts.Source),
+		Labels:   labels,
+		Datasets: []*Dataset{dataset},
+		Type:     model.Severity,
+	}
+}
+
+func MapNamespaceScopeChartVariant(title string, namespaces core.NamespaceStatusCounts, chartType string, status []string, defaults []string) *ChartVariants {
 	chart := &ChartVariants{
-		Complete: MapNamespaceStatusCountsToChart(title, namespaces, status),
+		Complete: MapNamespaceStatusCountsToChart(title, namespaces, chartType, status, defaults),
 	}
 
 	if len(namespaces) > 8 {
@@ -148,16 +189,16 @@ func MapNamespaceScopeChartVariant(title string, namespaces core.NamespaceStatus
 			}
 		}
 
-		chart.Preview = MapNamespaceStatusCountsToChart(title, prev, status)
+		chart.Preview = MapNamespaceStatusCountsToChart(title, prev, chartType, status, defaults)
 	}
 
 	return chart
 }
 
-func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStatusCounts, status []string) *Chart {
+func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStatusCounts, chartTyp string, status []string, defaults []string) *Chart {
 	var sets = make(map[string]*Dataset)
 	if len(status) == 0 {
-		status = allStatus
+		status = defaults
 	}
 
 	for _, s := range status {
@@ -195,7 +236,7 @@ func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStat
 	}
 
 	datasets := make([]*Dataset, 0, len(sets))
-	for _, s := range allStatus {
+	for _, s := range defaults {
 		if set, ok := sets[s]; ok {
 			datasets = append(datasets, set)
 		}
@@ -205,14 +246,15 @@ func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStat
 		Name:     title,
 		Labels:   labels,
 		Datasets: datasets,
+		Type:     chartTyp,
 	}
 }
 
-func MapNamespaceStatusCountsToCharts(findings map[string]core.NamespaceStatusCounts, status []string) map[string]*ChartVariants {
+func MapNamespaceStatusCountsToCharts(findings map[string]core.NamespaceStatusCounts, chartType string, status []string, defaults []string) map[string]*ChartVariants {
 	charts := make(map[string]*ChartVariants, len(findings))
 
 	for source, namespaces := range findings {
-		charts[source] = MapNamespaceScopeChartVariant(utils.Title(source), namespaces, status)
+		charts[source] = MapNamespaceScopeChartVariant(utils.Title(source), namespaces, chartType, status, defaults)
 	}
 
 	return charts
@@ -248,6 +290,28 @@ func SumResourceCounts(results []core.ResourceStatusCount) map[string]int {
 		values[StatusFail] += result.Fail
 		values[StatusError] += result.Error
 		values[StatusSkip] += result.Skip
+	}
+
+	return values
+}
+
+func SumResourceSeverityCounts(results []core.ResourceSeverityCount) map[string]int {
+	values := map[string]int{
+		SeverityUnknown:  0,
+		SeverityInfo:     0,
+		SeverityLow:      0,
+		SeverityMedium:   0,
+		SeverityHigh:     0,
+		SeverityCritical: 0,
+	}
+
+	for _, result := range results {
+		values[SeverityUnknown] += result.Unknown
+		values[SeverityInfo] += result.Info
+		values[SeverityLow] += result.Low
+		values[SeverityMedium] += result.Medium
+		values[SeverityHigh] += result.High
+		values[SeverityCritical] += result.Critical
 	}
 
 	return values

@@ -3,19 +3,20 @@
     <v-col cols="12" md="6">
       <v-card>
         <v-card-text class="mb-0 pb-0">
-          <GraphFindings :data="(data.charts.findings[status1] as Findings)" :status="status1" :key="status1" />
+          <GraphSeverityFindings :data="(data.charts.findings[severity1] as Findings)" :severity="severity1" :key="severity1" />
         </v-card-text>
         <v-card-actions style="margin-top: -40px">
           <v-btn-toggle
-              v-model="status1"
+              v-model="severity1"
               rounded="0"
               mandatory
               style="height: 40px"
               divided
               variant="outlined"
           >
-            <status-btn v-if="data.total.perResult[Status.PASS]" :status="Status.PASS" />
-            <status-btn v-if="data.total.perResult[Status.SKIP]" :status="Status.SKIP" />
+            <severity-btn v-if="data.total.perResult[Severity.MEDIUM]" :severity="Severity.MEDIUM" />
+            <severity-btn v-if="data.total.perResult[Severity.LOW]" :severity="Severity.LOW" />
+            <severity-btn v-if="data.total.perResult[Severity.INFO]" :severity="Severity.INFO" />
           </v-btn-toggle>
         </v-card-actions>
       </v-card>
@@ -23,20 +24,20 @@
     <v-col cols="12" md="6">
       <v-card>
         <v-card-text class="mb-0 pb-0">
-          <GraphFindings :data="(data.charts.findings[status2] as Findings)" :status="status2" :key="status2" :time="1200" />
+          <GraphSeverityFindings :data="(data.charts.findings[severity2] as Findings)" :severity="severity2" :key="severity2" :time="1200" />
         </v-card-text>
         <v-card-actions style="margin-top: -40px">
           <v-btn-toggle
-              v-model="status2"
+              v-model="severity2"
               rounded="0"
               mandatory
               style="height: 40px"
               divided
               variant="outlined"
           >
-            <status-btn v-if="data.total.perResult[Status.FAIL]" :status="Status.FAIL" />
-            <status-btn v-if="data.total.perResult[Status.WARN]" :status="Status.WARN" />
-            <status-btn v-if="data.total.perResult[Status.ERROR]" :status="Status.ERROR" />
+            <severity-btn v-if="data.total.perResult[Severity.HIGH]" :severity="Severity.HIGH" />
+            <severity-btn v-if="data.total.perResult[Severity.CRITICAL]" :severity="Severity.CRITICAL" />
+            <severity-btn v-if="data.total.perResult[Severity.UNKNOWN]" :severity="Severity.UNKNOWN" />
           </v-btn-toggle>
         </v-card-actions>
       </v-card>
@@ -66,7 +67,7 @@
             Cluster Scoped Results
           </v-card-title>
           <v-card-text>
-            <GraphClusterResultCounts :data="data.charts.clusterScope[source]" class="px-0 pb-0" />
+            <GraphClusterSeverityCounts :data="data.charts.clusterScope[source]" class="px-0 pb-0" />
           </v-card-text>
         </template>
       </template>
@@ -75,13 +76,12 @@
 </template>
 
 <script setup lang="ts">
-import StatusBtn from "~/components/StatusBtn.vue";
-import { type Dashboard, Status, type Findings } from "~/modules/core/types";
+import { type Dashboard, type Findings, Severity } from "~/modules/core/types";
 
 const props = defineProps<{ data: Dashboard; hideCluster?: boolean }>();
 
-const status1 = ref(Status.PASS);
-const status2 = ref(Status.FAIL);
+const severity1 = ref(Severity.MEDIUM);
+const severity2 = ref(Severity.HIGH);
 
 const source = ref('');
 

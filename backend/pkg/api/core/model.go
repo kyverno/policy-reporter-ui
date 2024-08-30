@@ -9,6 +9,7 @@ type Status struct {
 }
 
 type Severities struct {
+	Unknown  int `json:"unknown"`
 	Low      int `json:"low"`
 	Info     int `json:"info"`
 	Medium   int `json:"medium"`
@@ -46,6 +47,16 @@ type ResourceStatusCount struct {
 	Fail   int    `json:"fail"`
 	Error  int    `json:"error"`
 	Skip   int    `json:"skip"`
+}
+
+type ResourceSeverityCount struct {
+	Source   string `json:"source,omitempty"`
+	Info     int    `json:"info"`
+	Low      int    `json:"low"`
+	Medium   int    `json:"medium"`
+	High     int    `json:"high"`
+	Critical int    `json:"critical"`
+	Unknown  int    `json:"unknown"`
 }
 
 type SourceCategoryTree struct {

@@ -12,6 +12,13 @@ const (
 	Warn  string = "warn"
 	Error string = "error"
 	Skip  string = "skip"
+
+	Unknown  string = "unknown"
+	Info     string = "info"
+	Low      string = "low"
+	Medium   string = "medium"
+	High     string = "high"
+	Critical string = "critical"
 )
 
 const (
@@ -26,8 +33,9 @@ type Endpoints struct {
 
 type SourceConfig struct {
 	Results    []string
+	Severities []string
 	Exceptions bool
-	ChartType  string
+	ViewType   string
 }
 
 func (s SourceConfig) EnabledResults() []string {
@@ -38,5 +46,16 @@ func (s SourceConfig) EnabledResults() []string {
 
 	return utils.Filter(list, func(result string) bool {
 		return !utils.Contains(s.Results, result)
+	})
+}
+
+func (s SourceConfig) EnabledSeverities() []string {
+	list := []string{Unknown, Info, Low, Medium, High, Critical}
+	if len(s.Severities) == 0 {
+		return list
+	}
+
+	return utils.Filter(list, func(result string) bool {
+		return !utils.Contains(s.Severities, result)
 	})
 }
