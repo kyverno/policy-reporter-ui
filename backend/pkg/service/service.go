@@ -82,13 +82,15 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 	if plugin, ok := s.plugin(cluster, source); ok {
 		g.Go(func() error {
 			details, err = plugin.GetPolicy(ctx, policy)
-			zap.L().Error(
-				"failed to load policy details from plugin",
-				zap.String("cluster", cluster),
-				zap.String("source", source),
-				zap.String("policy", policy),
-				zap.Error(err),
-			)
+			if err != nil {
+				zap.L().Error(
+					"failed to load policy details from plugin",
+					zap.String("cluster", cluster),
+					zap.String("source", source),
+					zap.String("policy", policy),
+					zap.Error(err),
+				)
+			}
 
 			return nil
 		})

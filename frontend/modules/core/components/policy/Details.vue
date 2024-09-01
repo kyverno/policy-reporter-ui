@@ -59,11 +59,11 @@
       <template v-if="policy.additional && policy.additional.length">
         <v-col v-for="details in policy.additional" :cols="detailsCols">
           <v-card :title="details.title">
-            <v-container>
+            <v-container fluid>
               <template v-for="item in details.items" :key="item.value">
                 <v-row class="top-border" v-if="item.value">
-                  <v-col cols="6" class="font-weight-bold" v-if="item.title">{{ item.title }}</v-col>
-                  <v-col cols="6">{{ item.value }}</v-col>
+                  <v-col :cols="detailsLabelCols.label" class="font-weight-bold" v-if="item.title">{{ item.title }}</v-col>
+                  <v-col :cols="detailsLabelCols.value">{{ item.value }}</v-col>
                 </v-row>
               </template>
             </v-container>
@@ -134,12 +134,13 @@ const expand = ref(false)
 const descriptionHeight = computed(() => expand.value ? undefined : '200px')
 
 const detailsCols = computed(() => {
-  const cols = Math.ceil(12 / props.policy.additional.length)
-  if (cols === 12) {
-    return 5
-  }
+  return Math.ceil(12 / props.policy.additional.length)
+})
 
-  return cols
+const detailsLabelCols = computed(() => {
+  if (detailsCols.value === 12) return ({ label: 2, value: 10 })
+
+  return { label: 6, value: 6 }
 })
 </script>
 

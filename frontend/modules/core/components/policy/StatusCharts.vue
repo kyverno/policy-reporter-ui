@@ -3,15 +3,15 @@
     <v-col cols="12" md="4">
       <v-card>
         <v-card-text>
-          <GraphStatusDistribution :data="data.charts.findings" />
+          <GraphCountDistribution :data="data.charts.findings" />
         </v-card-text>
       </v-card>
     </v-col>
     <v-col cols="12" md="8">
       <v-card style="height: 100%">
         <v-card-text style="height: 100%; position: relative;">
-          <GraphStatusPerNamespace v-if="showExpanded" :data="data.charts.namespaceScope.complete" />
-          <GraphStatusPerNamespace v-else :data="data.charts.namespaceScope.preview" />
+          <GraphCountPerNamespace v-if="showExpanded" :data="data.charts.namespaceScope.complete" />
+          <GraphCountPerNamespace v-else :data="data.charts.namespaceScope.preview" />
           <v-btn v-if="hasPreview" variant="outlined" size="small" @click="expand = !expand" style="position: absolute; bottom: 10px; right: 10px;" rounded="0">
             <span v-if="showExpanded">Show preview</span>
             <span v-else>Show Complete List</span>
