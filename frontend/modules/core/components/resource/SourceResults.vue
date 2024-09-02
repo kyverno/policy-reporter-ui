@@ -4,8 +4,8 @@
     <v-list-item :class="bg">
       <v-list-item-title>{{ capilize(item.source) }}</v-list-item-title>
       <template v-slot:append>
-        <ResultChip v-if="showSkipped" class="ml-2" :status="Status.SKIP" :count="item[Status.SKIP]" tooltip="skip results" />
-        <ResultChip v-for="status in showed" :key="status" class="ml-2" :status="status" :count="item[status]" :tooltip="`${status} results`" />
+        <ResultChip v-if="showSkipped" class="ml-2" :status="Status.SKIP" :count="item.status[Status.SKIP]" tooltip="skip results" />
+        <ResultChip v-for="status in showed" :key="status" class="ml-2" :status="status" :count="item.status[status]" :tooltip="`${status} results`" />
       </template>
     </v-list-item>
   </template>
