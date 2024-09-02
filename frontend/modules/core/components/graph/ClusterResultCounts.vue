@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-row>
       <v-col cols="12" :sm="Math.ceil(24 / showed.length)" :md="Math.ceil(12 / showed.length)" v-for="status in showed" :key="status">
-        <v-card flat :title="`${status} results`" :class="['text-white', 'text-center', `bg-status-${status}`]">
+        <v-card flat :title="status" :class="['text-white', 'text-center', `bg-status-${status}`]">
           <v-card-text class="text-h3 my-4">
             {{ data[status] }}
           </v-card-text>

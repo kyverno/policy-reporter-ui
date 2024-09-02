@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-row>
       <v-col cols="12" :sm="Math.ceil(24 / showed.length)" :md="Math.ceil(12 / showed.length)" v-for="severity in showed" :key="severity">
-        <v-card flat :title="`${severity} results`" :class="['text-white', 'text-center', `bg-severity-${severity}`]">
+        <v-card flat :title="severity" :class="['text-white', 'text-center', `bg-severity-${severity}`]">
           <v-card-text class="text-h3 my-4">
             {{ data[severity] }}
           </v-card-text>
