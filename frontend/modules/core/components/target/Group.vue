@@ -11,7 +11,7 @@
       <v-toolbar color="secondary">
         <v-toolbar-title>{{ target.name }}</v-toolbar-title>
         <template #append>
-          <chip-priority :priority="target.minimumPriority" variant="flat" />
+          <chip-priority :priority="target.minimumPriority" variant="flat" class="mr-2" />
         </template>
       </v-toolbar>
       <v-divider />
