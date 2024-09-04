@@ -88,6 +88,7 @@ type Source struct {
 	Status     []string `json:"status"`
 	Chart      *Chart   `json:"chart"`
 	Exceptions bool     `json:"exceptions"`
+	Plugin     bool     `json:"plugin"`
 }
 
 type PolicyCharts struct {

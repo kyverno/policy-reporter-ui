@@ -344,12 +344,18 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster, id string, query
 			severityMap[r] = true
 		}
 
+		var plugin bool
+		if _, ok := s.plugin(cluster, source.Name); ok {
+			plugin = true
+		}
+
 		list = append(list, Source{
 			Name:       source.Name,
 			Title:      title,
 			Categories: categories,
 			Status:     status,
 			Exceptions: config.Exceptions,
+			Plugin:     plugin,
 			Chart:      MapCategoryStatusToChart(title, source.Categories, config.EnabledResults()),
 		})
 	}

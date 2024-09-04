@@ -10,11 +10,11 @@
       <div v-show="open">
         <v-divider />
         <v-card-text>
-          <GraphStatusPerCategory :source="source.chart" />
+          <GraphBarPerCategory :source="source.chart" />
         </v-card-text>
         <scroller :list="source.categories">
           <template #default="{ item }">
-            <resource-results :source="source.name" :resource="resource.id" :category="item" :exceptions="source.exceptions" />
+            <resource-results :source="source.name" :resource="resource.id" :category="item" :exceptions="source.exceptions" :plugin="source.plugin" />
           </template>
         </scroller>
       </div>
@@ -28,7 +28,7 @@ import CollapseBtn from "../../../../components/CollapseBtn.vue";
 
 const open = ref(true)
 
-const props = defineProps<{
+defineProps<{
   source: SourceDetails;
   resource: Resource;
 }>();

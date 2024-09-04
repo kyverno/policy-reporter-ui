@@ -8,6 +8,7 @@
       variant="outlined"
       density="compact"
       v-bind="$attrs"
+      clearable
   />
 </template>
 

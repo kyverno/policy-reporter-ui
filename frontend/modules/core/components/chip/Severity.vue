@@ -7,5 +7,5 @@
 <script lang="ts" setup>
 import type { Severity } from "~/modules/core/types";
 
-const props = defineProps<{ severity: Severity }>()
+defineProps<{ severity: Severity }>()
 </script>

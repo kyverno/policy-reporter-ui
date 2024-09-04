@@ -200,6 +200,7 @@ export type SourceDetails = {
     categories: string[];
     chart: Chart;
     exceptions: boolean;
+    plugin: boolean;
 }
 
 export type ResourceDetails = {
@@ -273,7 +274,8 @@ export type ListResult = {
     policy: string;
     rule: string;
     status: Status;
-    timestamp: number
+    severity: Severity;
+    timestamp: number;
     properties: { [key: string]: string };
 }
 

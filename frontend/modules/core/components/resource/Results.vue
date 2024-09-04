@@ -21,18 +21,25 @@
           show-expand
           v-model:items-per-page="options.itemsPerPage"
           v-model:page="options.page"
+          hover
         >
-          <template #item.policy="{ value }">
-            <nuxt-link :to="{ name: 'policies-source-info-policy', params: { source, policy: value }}" class="text-decoration-none text-primary" target="_blank">{{ value }}</nuxt-link>
-          </template>
-          <template #item.status="{ value }">
-            <chip-status @click="searchText = value" :status="value" />
-          </template>
-          <template #item.severity="{ value }">
-            <chip-severity v-if="value" @click="searchText = value" :severity="value" />
-          </template>
-          <template #item.exception="{ item }" v-if="props.exceptions">
-            <resource-exception-dialog :resource="props.resource" :source="props.source" :policies="[{ name: item.policy, rules: [{ name: item.rule, props: item.properties }]}]" />
+          <template #item="{ item, ...props }">
+            <tr @click="() => props.toggleExpand(props.internalItem)" class="cursor-pointer">
+              <td>
+                <nuxt-link v-if="plugin" :to="{ name: 'policies-source-info-policy', params: { source, policy: item.policy }}" class="text-decoration-none text-primary" target="_blank">{{ item.policy }}</nuxt-link>
+                <template v-else>{{ item.policy }}</template>
+              </td>
+              <td>{{ item.rule }}</td>
+              <td>
+                <chip-severity v-if="item.severity" @click.prevent.stop="searchText = item.severity" :severity="item.severity" />
+              </td>
+              <td>
+                <chip-status @click.prevent.stop="searchText = item.status" :status="item.status" />
+              </td>
+              <td>
+                <resource-exception-dialog v-if="exceptions" :resource="resource" :source="source" :policies="[{ name: item.policy, rules: [{ name: item.rule, props: item.properties }]}]" />
+              </td>
+            </tr>
           </template>
           <template #expanded-row="{ columns, item }">
             <tr :class="bg">
@@ -70,6 +77,7 @@ import { capilize } from "~/modules/core/layouthHelper";
 import { mapResults } from "~/modules/core/mapper";
 
 const props = defineProps<{
+  plugin?: boolean;
   source: string;
   category?: string;
   exceptions?: boolean;
