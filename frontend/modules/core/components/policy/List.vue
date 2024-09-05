@@ -3,7 +3,7 @@
     <v-toolbar-title class="text-subtitle-1 font-weight-bold">{{ category }}</v-toolbar-title>
     <template #append>
       <Search class="mr-2" v-model="search" style="min-width: 300px;" />
-      <CollapseBtn v-model="open" :disabled="!policies.length" />
+      <CollapseBtn v-model="open" :disabled="!(policies?.length)" />
     </template>
   </v-toolbar>
   <v-list v-if="pending" lines="two" class="mt-0 pt-0 pb-0 mb-0">

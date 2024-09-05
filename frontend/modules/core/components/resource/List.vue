@@ -4,7 +4,7 @@
       <v-toolbar-title>{{ namespace }}</v-toolbar-title>
       <template #append>
         <Search class="mr-2" v-model="search" style="min-width: 300px;" />
-        <CollapseBtn v-model="open" :disabled="!data.items.length" />
+        <CollapseBtn v-model="open" :disabled="!(data?.items?.length)" />
       </template>
     </v-toolbar>
     <template v-if="open">
