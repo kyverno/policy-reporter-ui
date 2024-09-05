@@ -32,7 +32,7 @@ const { store } = useSourceStore(props.source)
 
 const input = defineRouteQuery('kinds', selected);
 
-watch(store.kinds.namespaced, (current) => {
+watch(() => store.kinds.namespaced, (current) => {
   input(selected.value.filter((s) => current.includes(s)));
 });
 

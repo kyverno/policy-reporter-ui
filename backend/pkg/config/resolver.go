@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
-	"github.com/gin-contrib/gzip"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth"
@@ -292,9 +291,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 		engine.Use(cors.Default())
 	}
 
-	middleware := []gin.HandlerFunc{
-		gzip.Gzip(gzip.DefaultCompression),
-	}
+	middleware := []gin.HandlerFunc{}
 
 	if r.config.OpenIDConnect.Enabled {
 		handler, err := r.SetupOIDC(ctx, engine)

@@ -33,7 +33,7 @@ const { store } = useSourceStore(props.source)
 
 const input = defineRouteQuery('cluster-kinds', selected);
 
-watch(store.kinds.cluster, (current) => {
+watch(() => store.kinds.cluster, (current) => {
   input(selected.value.filter((s) => current.includes(s)));
 });
 

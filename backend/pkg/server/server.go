@@ -6,6 +6,7 @@ import (
 	"net/http/httputil"
 	"strings"
 
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/gosimple/slug"
 	"go.uber.org/zap"
@@ -84,7 +85,7 @@ func NewServer(engine *gin.Engine, port int, middleware []gin.HandlerFunc) *Serv
 		middelware: middleware,
 		apis:       make(map[string]*model.Endpoints),
 		engine:     engine,
-		api:        engine.Group("/api", middleware...),
+		api:        engine.Group("/api", append(middleware, gzip.Gzip(gzip.DefaultCompression))...),
 		proxies:    engine.Group("/proxy", middleware...),
 		port:       port,
 	}

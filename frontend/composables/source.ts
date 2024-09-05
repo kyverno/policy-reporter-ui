@@ -50,6 +50,7 @@ export const useSourceStore = (key?: string) => {
             callAPI(api => api.clusterKinds(source as string[])),
             callAPI(api => api.categoryTree(undefined, { sources: source as string[] })),
         ]).then(([namespaces, nsKinds, clusterKinds, categoryTrees]) => {
+            console.log(nsKinds, clusterKinds)
             loadStore.kinds.namespaced = nsKinds || []
             loadStore.kinds.cluster = clusterKinds || []
             loadStore.namespaces = namespaces || []
