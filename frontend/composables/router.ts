@@ -23,10 +23,18 @@ export const defineRouteQuery = (key: string, selected: Ref<string[]>) => {
     const debounced = useDebounce()
 
     return (inp: string[]) => {
+        if (equal(selected.value, inp)) return;
+
         selected.value = inp
 
         debounced(() => {
             router.push({ name: route.name as string, query: { ...route.query, [key]: inp }, params: route.params })
         })
     }
+}
+
+const equal = <T>(a: T[], b: T[]): boolean => {
+    if (a.length !== b.length) return false
+
+    return a.every(item => b.includes(item))
 }
