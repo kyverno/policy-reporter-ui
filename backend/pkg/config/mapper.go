@@ -31,6 +31,7 @@ func MapConfig(c *Config) *api.Config {
 		Clusters: clusters,
 		Default:  current,
 		OAuth:    c.OpenIDConnect.Enabled,
+		Banner:   c.UI.Banner,
 		DefaultFilter: api.DefaultFilter{
 			Resources:        c.UI.DefaultFilter.Resources,
 			ClusterResources: c.UI.DefaultFilter.ClusterResources,

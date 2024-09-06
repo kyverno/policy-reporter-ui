@@ -7,7 +7,6 @@
 <script setup lang="ts">
 import { Status } from '~/modules/core/types'
 import { type PropType } from "vue";
-import { useStatusInjection } from "~/composables/status";
 import {injectSourceContext} from "~/composables/source";
 
 defineProps({
@@ -16,7 +15,7 @@ defineProps({
   exceptions: { type: Boolean, default: false },
   showSkipped: { type: Boolean, default: false },
   showed: { type: Array as PropType<Status[]>, default: false },
-  category: { type: String, default: false },
+  category: { type: String, default: undefined },
 })
 
 const source = injectSourceContext()

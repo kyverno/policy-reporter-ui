@@ -3,7 +3,7 @@
     <v-app-bar elevation="1" prominent>
       <v-app-bar-nav-icon icon="mdi-menu" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-avatar image="/logo.png" rounded="0" class="ml-4" />
-      <v-toolbar-title>Policy Reporter</v-toolbar-title>
+      <v-toolbar-title>Policy Reporter{{ config.banner ? ` - ${config.banner}` : ''}}</v-toolbar-title>
       <template #append>
         <form-cluster-select />
         <form-display-mode-select />

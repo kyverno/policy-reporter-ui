@@ -9,6 +9,7 @@ type State = {
     plugins: string[];
     clusters: Cluster[];
     oauth: boolean;
+    banner: string;
     error?: Error;
 }
 
@@ -18,6 +19,7 @@ export const useConfigStore = defineStore('config', {
     plugins: [],
     clusters: [],
     oauth: false,
+    banner: '',
   }),
   getters: {
     multiCluster: (state: State) => state.clusters.length > 0,
@@ -36,6 +38,7 @@ export const useConfigStore = defineStore('config', {
       this.error = config.error
       this.clusters = config.clusters
       this.oauth = config.oauth
+      this.banner = config.banner
     },
     setDisplayMode(mode: DisplayMode) {
       if (!mode || mode === this.displayMode) return;

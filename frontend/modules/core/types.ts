@@ -251,6 +251,7 @@ export type Config = {
     sources: SourceConfig[];
     oauth: boolean;
     default: string;
+    banner: string;
     defaultFilter: {
         resources: string[];
         clusterResources: string[];

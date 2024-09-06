@@ -169,6 +169,7 @@ type DefaultFilter struct {
 
 type UI struct {
 	Path          string        `mapstructure:"path"`
+	Banner        string        `mapstructure:"banner"`
 	Disabled      bool          `mapstructure:"enabled"`
 	DisplayMode   string        `mapstructure:"displayMode"`
 	LabelFilter   []string      `mapstructure:"labelFilter"`
