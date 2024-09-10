@@ -691,6 +691,10 @@ func (s *Service) filterEnabled(sources []string, call func(c model.SourceConfig
 }
 
 func (s *Service) viewType(sources []string) string {
+	if len(sources) == 0 {
+		return model.Status
+	}
+
 	for _, source := range sources {
 		config := s.configs[source]
 		if config.ViewType != model.Severity {
