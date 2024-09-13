@@ -25,7 +25,7 @@ export const defineRouteQuery = (key: string, selected: Ref<string[]>) => {
 
         selected.value = inp
 
-        router.push({ name: route.name as string, query: { ...route.query, [key]: inp }, params: route.params })
+        return router.push({ name: route.name as string, query: { ...route.query, [key]: inp }, params: route.params })
     }
 }
 

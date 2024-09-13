@@ -26,9 +26,9 @@
 <script lang="ts" setup>
 import {Status} from "../../types";
 
-const props = defineProps<{ source?: string; modelValue?: string[] }>();
+const props = defineProps<{ source?: string; modelValue?: Status[] }>();
 
-const selected = ref<string[]>(props.modelValue || []);
+const selected = ref<Status[]>(props.modelValue || []);
 
 const items: Status[] = [
   Status.PASS,
