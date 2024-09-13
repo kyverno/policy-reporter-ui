@@ -20,16 +20,12 @@ export const defineRouteQuery = (key: string, selected: Ref<string[]>) => {
         selected.value = values
     }
 
-    const debounced = useDebounce()
-
     return (inp: string[]) => {
         if (equal(selected.value, inp)) return;
 
         selected.value = inp
 
-        debounced(() => {
-            router.push({ name: route.name as string, query: { ...route.query, [key]: inp }, params: route.params })
-        })
+        router.push({ name: route.name as string, query: { ...route.query, [key]: inp }, params: route.params })
     }
 }
 
