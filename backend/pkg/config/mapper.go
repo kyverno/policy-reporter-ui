@@ -32,10 +32,6 @@ func MapConfig(c *Config) *api.Config {
 		Default:  current,
 		OAuth:    c.OpenIDConnect.Enabled,
 		Banner:   c.UI.Banner,
-		DefaultFilter: api.DefaultFilter{
-			Resources:        c.UI.DefaultFilter.Resources,
-			ClusterResources: c.UI.DefaultFilter.ClusterResources,
-		},
 		Sources: utils.Map(c.Sources, func(s Source) api.Source {
 			return api.Source{
 				Name:       s.Name,

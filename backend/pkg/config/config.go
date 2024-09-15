@@ -162,18 +162,11 @@ func (a Cluster) FromValues(values secrets.Values) Cluster {
 	return a
 }
 
-type DefaultFilter struct {
-	Resources        []string `mapstructure:"resources"`
-	ClusterResources []string `mapstructure:"clusterResources"`
-}
-
 type UI struct {
-	Path          string        `mapstructure:"path"`
-	Banner        string        `mapstructure:"banner"`
-	Disabled      bool          `mapstructure:"enabled"`
-	DisplayMode   string        `mapstructure:"displayMode"`
-	LabelFilter   []string      `mapstructure:"labelFilter"`
-	DefaultFilter DefaultFilter `mapstructure:"defaultFilter"`
+	Path        string `mapstructure:"path"`
+	Banner      string `mapstructure:"banner"`
+	Disabled    bool   `mapstructure:"enabled"`
+	DisplayMode string `mapstructure:"displayMode"`
 }
 
 type Server struct {

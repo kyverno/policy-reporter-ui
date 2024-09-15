@@ -37,13 +37,12 @@ type Cluster struct {
 }
 
 type Config struct {
-	User          any           `json:"user"`
-	Clusters      []Cluster     `json:"clusters"`
-	Sources       []Source      `json:"sources"`
-	Default       string        `json:"default"`
-	Banner        string        `json:"banner"`
-	DefaultFilter DefaultFilter `json:"defaultFilter"`
-	OAuth         bool          `json:"oauth"`
+	User     any       `json:"user"`
+	Clusters []Cluster `json:"clusters"`
+	Sources  []Source  `json:"sources"`
+	Default  string    `json:"default"`
+	Banner   string    `json:"banner"`
+	OAuth    bool      `json:"oauth"`
 }
 
 type PolicyReports struct {

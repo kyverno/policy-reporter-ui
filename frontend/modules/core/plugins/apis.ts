@@ -18,7 +18,6 @@ export default defineNuxtPlugin(async () => {
       default: 'default',
       sources: [],
       plugins: [],
-      defaultFilter: { resources: [], clusterResources: [] },
       clusters: [{ name: 'Default', slug: 'default', plugins: [] }],
       oauth: false,
       banner: '',
