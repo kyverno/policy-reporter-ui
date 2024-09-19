@@ -284,7 +284,7 @@ export type Target = {
     auth?: boolean;
     mountedSecret?: boolean;
     secretRef?: boolean;
-    minimumPriority: Priority;
+    minimumSeverity: Severity;
     filter: {
         namespaces?: { include: string[]; exclude: string[]; }
         priorities?: { include: string[]; exclude: string[]; }

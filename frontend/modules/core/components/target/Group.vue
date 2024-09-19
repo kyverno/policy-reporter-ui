@@ -11,7 +11,7 @@
       <v-toolbar color="secondary">
         <v-toolbar-title>{{ target.name }}</v-toolbar-title>
         <template #append>
-          <chip-priority :priority="target.minimumPriority" variant="flat" class="mr-2" />
+          <chip-severity :severity="target.minimumSeverity || Severity.INFO" variant="flat" class="mr-2" />
         </template>
       </v-toolbar>
       <v-divider />
@@ -66,8 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import { capilize } from "~/modules/core/layouthHelper";
-import { type Target } from "~/modules/core/types";
+import {capilize} from "~/modules/core/layouthHelper";
+import {Severity, type Target} from "~/modules/core/types";
 import CollapseBtn from "~/components/CollapseBtn.vue";
 
 defineProps<{ type: string; targets: Target[]; }>()
