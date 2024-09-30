@@ -12,9 +12,8 @@
   "devDependencies": {
     "@mdi/font": "^7.3.67",
     "@nuxt/devtools": "latest",
-    "@types/chroma-js": "^2.4.3",
     "@types/lodash.debounce": "^4.0.9",
-    "nuxt": "^3.13.1",
+    "nuxt": "^3.13.2",
     "sass": "^1.69.5",
     "vite-plugin-vuetify": "^2.0.1",
     "vue": "^3.3.8",
@@ -23,10 +22,10 @@
   "dependencies": {
     "@highlightjs/vue-plugin": "^2.1.0",
     "@pinia/nuxt": "^0.5.1",
-    "@vueuse/nuxt": "^10.6.1",
+    "@vueuse/nuxt": "^11.1.0",
     "axios": "^1.6.2",
     "chart.js": "^4.4.0",
-    "chroma-js": "^2.4.2",
+    "chroma-js": "^3.1.1",
     "highlight.js": "^11.9.0",
     "lodash.debounce": "^4.0.8",
     "pinia": "^2.1.7",

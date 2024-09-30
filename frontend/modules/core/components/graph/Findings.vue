@@ -18,7 +18,6 @@ import { type PropType } from "vue";
 import { Pie } from 'vue-chartjs';
 import { type Findings, Status } from '../../types'
 import chroma from 'chroma-js'
-import { mapStatus } from "../../mapper";
 import { capilize } from "../../layouthHelper";
 import {useTheme} from "vuetify";
 
