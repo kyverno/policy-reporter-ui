@@ -11,6 +11,7 @@
       </template>
     </resource-scroller>
   </page-layout>
+  <unauthorized v-if="error?.status === 401" />
 </template>
 
 <script setup lang="ts">
@@ -19,15 +20,15 @@ import { capilize } from "~/modules/core/layouthHelper";
 
 const route = useRoute()
 
-const { load } = useSourceStore(route.params.source)
+const { load } = useSourceStore(route.params.source as string)
 await load(route.params.source)
 
 const kinds = ref<string[]>([])
 const clusterKinds = ref<string[]>([])
 
-const filter = computed(() => ({ sources: [route.params.source], kinds: [...kinds.value, ...clusterKinds.value] }))
+const filter = computed(() => ({ sources: [route.params.source as string], kinds: [...kinds.value, ...clusterKinds.value] }))
 
-const { data: sources, refresh } = useAPI((api) => api.policySources(filter.value))
+const { data: sources, refresh, error } = useAPI((api) => api.policySources(filter.value))
 
 watch(filter, onChange(refresh))
 </script>

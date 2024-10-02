@@ -93,6 +93,8 @@ verify-helm-docs: codegen-helm-docs ## Check Helm charts are up to date
 build-frontend:
 	@echo Build frontend with bun... >&2
 	@cd frontend && bun install && bun run generate
+	@rm -rf ../backend/kodata && mkdir ../backend/kodata
+	@cp -r dist ../backend/kodata/ui
 
 .PHONY: ko-build
 ko-build: $(KO)

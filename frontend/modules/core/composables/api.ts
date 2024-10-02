@@ -1,10 +1,11 @@
 import { CoreAPI } from "../api";
+import { FetchError } from 'ofetch'
 
 type Callback<T> = (api: CoreAPI) => Promise<T>
 
 export type APIResult<T> = {
     data: Ref<T | null>,
-    error: Ref<Error | null>
+    error: Ref<FetchError | null>
     pending: Ref<boolean>
     refresh: () => Promise<void>
 }
@@ -13,7 +14,7 @@ export const useAPI = <T>(callback: Callback<T>, options?: { default?: () => T, 
     const { $coreAPI } = useNuxtApp()
 
     const pending = ref<boolean>(false)
-    const error = ref<Error | null>(null)
+    const error = ref<FetchError | null>(null)
     const data = ref<T | null>(null) as Ref<T | null>
 
     if (options?.default) {
@@ -29,7 +30,7 @@ export const useAPI = <T>(callback: Callback<T>, options?: { default?: () => T, 
                 data.value = content
             })
         } catch (err) {
-            error.value = err as Error
+            error.value = err as FetchError
 
             if (options?.default) {
                 data.value = options.default()

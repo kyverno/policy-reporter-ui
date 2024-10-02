@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia'
+import {defineStore} from 'pinia'
 
-import { type Cluster, type Config, DisplayMode } from '~/modules/core/types'
+import {type Cluster, type Config, DisplayMode, type Navigation} from '~/modules/core/types'
 
 const DisplayModeKey = 'dm'
 
@@ -14,48 +14,48 @@ type State = {
 }
 
 export const useConfigStore = defineStore('config', {
-  state: (): State => ({
-    displayMode: sessionStorage.getItem(DisplayModeKey) as DisplayMode,
-    plugins: [],
-    clusters: [],
-    oauth: false,
-    banner: '',
-  }),
-  getters: {
-    multiCluster: (state: State) => state.clusters.length > 0,
-    theme: (state: State) => {
-      let mode = state.displayMode
+    state: (): State => ({
+        displayMode: sessionStorage.getItem(DisplayModeKey) as DisplayMode,
+        plugins: [],
+        clusters: [],
+        oauth: false,
+        banner: '',
+    }),
+    getters: {
+        multiCluster: (state: State) => state.clusters.length > 0,
+        theme: (state: State) => {
+            let mode = state.displayMode
 
-      if (!Object.values(DisplayMode).includes(mode)) {
-        return preferredDisplayMode()
-      }
+            if (!Object.values(DisplayMode).includes(mode)) {
+                return preferredDisplayMode()
+            }
 
-      return mode
-    }
-  },
-  actions: {
-    setConfig(config: Config) {
-      this.error = config.error
-      this.clusters = config.clusters
-      this.oauth = config.oauth
-      this.banner = config.banner
+            return mode
+        }
     },
-    setDisplayMode(mode: DisplayMode) {
-      if (!mode || mode === this.displayMode) return;
+    actions: {
+        setConfig(config: Config) {
+            this.error = config.error
+            this.clusters = config.clusters
+            this.oauth = config.oauth
+            this.banner = config.banner
+        },
+        setDisplayMode(mode: DisplayMode) {
+            if (!mode || mode === this.displayMode) return;
 
-      if (!Object.values(DisplayMode).includes(mode)) {
-        mode = preferredDisplayMode()
-      }
+            if (!Object.values(DisplayMode).includes(mode)) {
+                mode = preferredDisplayMode()
+            }
 
-      sessionStorage.setItem(DisplayModeKey, mode)
-      this.displayMode = mode
+            sessionStorage.setItem(DisplayModeKey, mode)
+            this.displayMode = mode
+        }
     }
-  }
 });
 
 const preferredDisplayMode = () => {
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return DisplayMode.DARK
+        return DisplayMode.DARK
     }
 
     return DisplayMode.LIGHT

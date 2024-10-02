@@ -31,6 +31,10 @@ import { useAPI } from '~/modules/core/composables/api'
 import { onChange } from "~/helper/compare";
 import { APIFilter } from "~/modules/core/provider/dashboard";
 import { capilize } from "~/modules/core/layouthHelper";
+import { useConfigStore } from "~/store/config";
+
+const router = useRouter()
+const config = useConfigStore()
 
 const store = useSourceStore()
 await store.load()
@@ -43,7 +47,19 @@ const filter = computed(() => ({
   clusterKinds: clusterKinds.value
 }))
 
-const { data, refresh } = useAPI(api => api.dashboard(filter.value))
+const { data, refresh, error } = useAPI(api => api.dashboard(filter.value))
+
+watch(error, (err) => {
+  if (err && err.status !== 401) {
+    return;
+  }
+
+  callAPI((api) => api.layout()).then(layout => {
+    if (!layout.customBoards.length) return;
+
+    router.push(layout.customBoards[0].path)
+  })
+})
 
 watch(filter, onChange(refresh))
 

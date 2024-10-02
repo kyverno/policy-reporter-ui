@@ -7,52 +7,53 @@
       <template #append>
         <form-cluster-select />
         <form-display-mode-select />
-        <user-menu />
+        <user-menu v-if="config.oauth" />
       </template>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer">
       <v-list density="compact" nav color="header" variant="flat">
-        <v-list-item title="Dashboard" to="/" base-color="header" exact />
+        <template v-if="layout.sources.length">
+          <v-list-item title="Dashboard" to="/" base-color="header" exact />
 
-        <template v-for="item in layout.sources" :key="item.path">
-          <template v-if="item.children">
-            <v-list-item
-                base-color="header-item"
-                :key="item.path"
-                :title="item.title"
-                :to="item.path"
-                exact
-            />
-            <v-divider class="mb-1" />
-            <v-list-item
-                base-color="sub-item"
-                v-for="child in item.children"
-                :key="child.path"
-                :title="child.title"
-                :to="child.path"
-                class="pl-4"
-                exact
-            />
-            <v-divider class="mb-1" />
+          <template v-for="item in layout.sources" :key="item.path">
+            <template v-if="item.children">
+              <v-list-item
+                  base-color="header-item"
+                  :key="item.path"
+                  :title="item.title"
+                  :to="item.path"
+                  exact
+              />
+              <v-divider class="mb-1" />
+              <v-list-item
+                  base-color="sub-item"
+                  v-for="child in item.children"
+                  :key="child.path"
+                  :title="child.title"
+                  :to="child.path"
+                  class="pl-4"
+                  exact
+              />
+              <v-divider class="mb-1" />
+            </template>
+
+            <v-list-item :to="item.path" exact lines="one" base-color="header-item" v-else>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item>
           </template>
 
-          <v-list-item :to="item.path" exact lines="one" base-color="header-item" v-else>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item>
-        </template>
+          <div class="mb-1 mt-8" />
 
-        <div class="mb-1 mt-8" />
-
-          <v-list-item base-color="header" title="Policy Dashboard" to="/policies" exact />
+          <v-list-item v-if="layout.policies.length" base-color="header" title="Policy Dashboard" to="/policies" exact />
           <template v-for="item in layout.policies" :key="item.path">
             <v-list-item :to="item.path" exact lines="one" base-color="header-item">
               <v-list-item-title>{{ item.title }}</v-list-item-title>
             </v-list-item>
           </template>
 
-        <div class="mb-1 mt-8" />
-
+          <div class="mb-1 mt-8" />
+        </template>
         <v-list-item base-color="header" v-if="layout.customBoards.length" title="Custom Boards" />
         <template v-for="item in layout.customBoards" :key="item.path">
           <v-list-item base-color="header-item" :title="item.title" :to="item.path" :exact="item.exact"></v-list-item>
@@ -88,7 +89,6 @@ const drawer = ref(true)
 const { data: layout } = useAPI((api) => api.layout(), { default: (): LayoutConfig => ({ sources: [], customBoards: [], policies: [], targets: false }) })
 
 const theme = useTheme()
-
 const config = useConfigStore()
 
 const bg = computed(() => {

@@ -10,6 +10,7 @@
       </template>
     </resource-scroller>
   </page-layout>
+  <unauthorized v-if="error?.status === 401" />
 </template>
 
 <script setup lang="ts">
@@ -23,7 +24,7 @@ const clusterKinds = ref<string[]>([])
 
 const filter = computed(() => ({ kinds: [...kinds.value, ...clusterKinds.value] }))
 
-const { data: sources, refresh } = useAPI((api) => api.policySources(filter.value))
+const { data: sources, refresh, error } = useAPI((api) => api.policySources(filter.value))
 
 watch(filter, onChange(refresh))
 </script>

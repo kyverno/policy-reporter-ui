@@ -5,11 +5,11 @@ import { computed } from "vue";
 export const useStatusColors = () => {
   const theme = useTheme()
 
-  const pass = computed(() => theme.current.value.colors[`status-${Status.PASS}`])
-  const fail = computed(() => theme.current.value.colors[`status-${Status.FAIL}`])
-  const warn = computed(() => theme.current.value.colors[`status-${Status.WARN}`])
-  const error = computed(() => theme.current.value.colors[`status-${Status.ERROR}`])
-  const skip = computed(() => theme.current.value.colors[`status-${Status.SKIP}`])
+  const pass = computed(() => theme.current.value?.colors[`status-${Status.PASS}`])
+  const fail = computed(() => theme.current.value?.colors[`status-${Status.FAIL}`])
+  const warn = computed(() => theme.current.value?.colors[`status-${Status.WARN}`])
+  const error = computed(() => theme.current.value?.colors[`status-${Status.ERROR}`])
+  const skip = computed(() => theme.current.value?.colors[`status-${Status.SKIP}`])
 
   return computed(() => ({
     pass: pass.value,
@@ -23,12 +23,12 @@ export const useStatusColors = () => {
 export const useSeverityColors = () => {
   const theme = useTheme()
 
-  const unknown = computed(() => theme.current.value.colors[`severity-${Severity.UNKNOWN}`])
-  const low = computed(() => theme.current.value.colors[`severity-${Severity.LOW}`])
-  const info = computed(() => theme.current.value.colors[`severity-${Severity.INFO}`])
-  const medium = computed(() => theme.current.value.colors[`severity-${Severity.MEDIUM}`])
-  const high = computed(() => theme.current.value.colors[`severity-${Severity.HIGH}`])
-  const critical = computed(() => theme.current.value.colors[`severity-${Severity.CRITICAL}`])
+  const unknown = computed(() => theme.current.value?.colors[`severity-${Severity.UNKNOWN}`])
+  const low = computed(() => theme.current.value?.colors[`severity-${Severity.LOW}`])
+  const info = computed(() => theme.current.value?.colors[`severity-${Severity.INFO}`])
+  const medium = computed(() => theme.current.value?.colors[`severity-${Severity.MEDIUM}`])
+  const high = computed(() => theme.current.value?.colors[`severity-${Severity.HIGH}`])
+  const critical = computed(() => theme.current.value?.colors[`severity-${Severity.CRITICAL}`])
 
   return computed(() => ({
     unknown: unknown.value,
@@ -42,7 +42,7 @@ export const useSeverityColors = () => {
 export const  useChartColors = () => {
   const theme = useTheme()
   return computed(() => {
-    if (theme.current.value.dark) {
+    if (theme.current.value?.dark) {
       return {
         color: '#CCCCCC',
         borderColor: "rgba(255,255,255,0.1)",
@@ -64,7 +64,7 @@ export const useBGColor = () => {
   const theme = useTheme()
 
   return computed(() => {
-    if (theme.current.value.dark) {
+    if (theme.current.value?.dark) {
       return 'bg-black'
     }
 

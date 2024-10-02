@@ -32,6 +32,7 @@
       </v-card-text>
     </v-card>
   </page-layout>
+  <unauthorized v-if="error?.status === 401" />
 </template>
 
 <script setup lang="ts">
@@ -51,7 +52,7 @@ const filter = computed(() => ({
 
 const id = computed(() => route.params.id as string)
 
-const { data, refresh } = useAPI((api) => api.customBoard(id.value, filter.value))
+const { data, refresh, error } = useAPI((api) => api.customBoard(id.value, filter.value))
 
 const store = useSourceStore(id.value)
 

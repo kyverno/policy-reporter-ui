@@ -27,11 +27,23 @@ func MapConfig(c *Config) *api.Config {
 		current = clusters[0].Slug
 	}
 
+	oauth := c.OpenIDConnect.Enabled
+	if !oauth {
+		oauth = c.OAuth.Enabled
+	}
+
 	return &api.Config{
 		Clusters: clusters,
 		Default:  current,
-		OAuth:    c.OpenIDConnect.Enabled,
+		OAuth:    oauth,
 		Banner:   c.UI.Banner,
+		Boards: api.Boards{
+			Permissions: api.Permissions{
+				AccessControl: api.AccessControl{
+					Emails: c.Boards.AccessControl.Emails,
+				},
+			},
+		},
 		Sources: utils.Map(c.Sources, func(s Source) api.Source {
 			return api.Source{
 				Name:       s.Name,
@@ -64,8 +76,10 @@ func MapCustomBoards(customBoards []CustomBoard) map[string]api.CustomBoard {
 			Sources: api.Sources{
 				List: c.Sources.List,
 			},
-			Users: api.Users{
-				List: c.Users.List,
+			Permissions: api.Permissions{
+				AccessControl: api.AccessControl{
+					Emails: c.AccessControl.Emails,
+				},
 			},
 			PolicyReports: api.PolicyReports{
 				Selector: c.PolicyReports.Selector,

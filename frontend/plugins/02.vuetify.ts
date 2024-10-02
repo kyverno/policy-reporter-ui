@@ -137,7 +137,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
   })
   config.$subscribe((mutation, state) => {
-    if (vuetify.theme.global.name.value === state.displayMode) return;
+    if (vuetify.theme.global.name.value === state.displayMode || !state.displayMode) return;
 
     vuetify.theme.global.name.value = state.displayMode
   })

@@ -1,5 +1,7 @@
 package api
 
+import "slices"
+
 type Policy struct {
 	Source      string         `json:"source,omitempty"`
 	Category    string         `json:"category,omitempty"`
@@ -36,15 +38,6 @@ type Cluster struct {
 	Plugins []string `json:"plugins"`
 }
 
-type Config struct {
-	User     any       `json:"user"`
-	Clusters []Cluster `json:"clusters"`
-	Sources  []Source  `json:"sources"`
-	Default  string    `json:"default"`
-	Banner   string    `json:"banner"`
-	OAuth    bool      `json:"oauth"`
-}
-
 type PolicyReports struct {
 	Selector map[string]string
 }
@@ -58,18 +51,44 @@ type Sources struct {
 	List []string
 }
 
-type Users struct {
-	List []string
+type AccessControl struct {
+	Emails []string
+}
+
+type Permissions struct {
+	AccessControl AccessControl `json:"-"`
+}
+
+func (p Permissions) AllowedEmail(email string) bool {
+	if len(p.AccessControl.Emails) == 0 {
+		return true
+	}
+
+	return slices.Contains(p.AccessControl.Emails, email)
 }
 
 type CustomBoard struct {
+	Permissions
 	Name          string        `json:"name"`
 	ID            string        `json:"id"`
 	ClusterScope  bool          `json:"-"`
 	Namespaces    Namespaces    `json:"-"`
 	Sources       Sources       `json:"-"`
 	PolicyReports PolicyReports `json:"-"`
-	Users         Users         `json:"-"`
+}
+
+type Boards struct {
+	Permissions
+}
+
+type Config struct {
+	User     any       `json:"user"`
+	Clusters []Cluster `json:"clusters"`
+	Sources  []Source  `json:"sources"`
+	Default  string    `json:"default"`
+	Boards   Boards    `json:"-"`
+	Banner   string    `json:"banner"`
+	OAuth    bool      `json:"oauth"`
 }
 
 type NavigationItem struct {

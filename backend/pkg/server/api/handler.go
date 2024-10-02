@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"slices"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -20,11 +19,11 @@ import (
 )
 
 type Handler struct {
-	config   *Config
-	clients  map[string]*model.Endpoints
-	boards   map[string]CustomBoard
-	service  *service.Service
-	reporter *reports.ReportGenerator
+	config       *Config
+	clients      map[string]*model.Endpoints
+	customBoards map[string]CustomBoard
+	service      *service.Service
+	reporter     *reports.ReportGenerator
 }
 
 func (h *Handler) Healthz(ctx *gin.Context) {
@@ -36,10 +35,17 @@ func (h *Handler) Config(ctx *gin.Context) {
 }
 
 func (h *Handler) ListCustomBoards(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, utils.ToList(h.boards))
+	ctx.JSON(http.StatusOK, utils.ToList(h.customBoards))
 }
 
 func (h *Handler) ListPolicySources(ctx *gin.Context) {
+	if profile := auth.ProfileFrom(ctx); profile != nil {
+		if !h.config.Boards.AllowedEmail(profile.Email) {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+	}
+
 	details, err := h.service.PolicySources(ctx, ctx.Param("cluster"), ctx.Request.URL.Query())
 	if err != nil {
 		zap.L().Error(
@@ -111,20 +117,19 @@ func (h *Handler) GetResourceDetails(ctx *gin.Context) {
 func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	var err error
 
-	// Get the profile from the session
-	profile := auth.ProfileFrom(ctx)
+	config, ok := h.customBoards[ctx.Param("id")]
+	if !ok {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
 
-	if profile == nil {
-		ctx.JSON(500, gin.H{"error": "invalid profile data"})
-		return
+	if profile := auth.ProfileFrom(ctx); profile != nil {
+		if !config.AllowedEmail(profile.Email) {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
 	}
-	email := profile.Email
-	config, ok := h.boards[ctx.Param("id")]
-	users := config.Users.List
-	if len(users) > 0 && !slices.Contains(users, email) {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
+
 	endpoints, ok := h.clients[ctx.Param("cluster")]
 	if !ok {
 		ctx.AbortWithStatus(http.StatusNotFound)
@@ -212,16 +217,43 @@ func (h *Handler) Layout(ctx *gin.Context) {
 		return
 	}
 
+	var boards map[string]CustomBoard
+
+	if profile := auth.ProfileFrom(ctx); profile != nil {
+		boards = make(map[string]CustomBoard, len(h.customBoards))
+
+		for key, board := range h.customBoards {
+			if !board.AllowedEmail(profile.Email) {
+				continue
+			}
+
+			boards[key] = board
+		}
+
+		if !h.config.Boards.AllowedEmail(profile.Email) {
+			sources = nil
+		}
+	} else {
+		boards = h.customBoards
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"targets":      len(targets) > 0,
 		"sources":      MapSourceCategoryTreeToNavi(sources),
 		"policies":     MapSourcesToPolicyNavi(sources),
-		"customBoards": MapCustomBoardsToNavi(h.boards),
+		"customBoards": MapCustomBoardsToNavi(boards),
 		"profile":      profile,
 	})
 }
 
 func (h *Handler) Dashboard(ctx *gin.Context) {
+	if profile := auth.ProfileFrom(ctx); profile != nil {
+		if !h.config.Boards.AllowedEmail(profile.Email) {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+	}
+
 	endpoints, ok := h.clients[ctx.Param("cluster")]
 	if !ok {
 		ctx.AbortWithStatus(http.StatusNotFound)
@@ -272,6 +304,13 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 }
 
 func (h *Handler) Policies(ctx *gin.Context) {
+	if profile := auth.ProfileFrom(ctx); profile != nil {
+		if !h.config.Boards.AllowedEmail(profile.Email) {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+	}
+
 	endpoints, ok := h.clients[ctx.Param("cluster")]
 	if !ok {
 		ctx.AbortWithStatus(http.StatusNotFound)

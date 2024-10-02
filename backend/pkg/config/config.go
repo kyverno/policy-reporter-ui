@@ -189,18 +189,24 @@ type Source struct {
 	} `mapstructure:"excludes"`
 }
 
+type AccessControl struct {
+	Emails []string `mapstructure:"emails"`
+}
+
+type Boards struct {
+	AccessControl AccessControl `mapstructure:"accessControl"`
+}
+
 type CustomBoard struct {
-	Name       string `mapstructure:"name"`
-	Namespaces struct {
+	Name          string        `mapstructure:"name"`
+	AccessControl AccessControl `mapstructure:"accessControl"`
+	Namespaces    struct {
 		Selector map[string]string `mapstructure:"selector"`
 		List     []string          `mapstructure:"list"`
 	} `mapstructure:"namespaces"`
 	Sources struct {
 		List []string `mapstructure:"list"`
 	} `mapstructure:"sources"`
-	Users struct {
-		List []string `mapstructure:"list"`
-	} `mapstructure:"users"`
 	PolicyReports struct {
 		Selector map[string]string `mapstructure:"selector"`
 	} `mapstructure:"policyReports"`
@@ -221,9 +227,9 @@ type Config struct {
 	Logging       logging.Config `mapstructure:"logging"`
 	OpenIDConnect OpenIDConnect  `mapstructure:"openIDConnect"`
 	OAuth         OAuth          `mapstructure:"oauth"`
+	Boards        Boards         `mastructure:"boards"`
 	CustomBoards  []CustomBoard  `mapstructure:"customBoards"`
 	Local         bool           `mapstructure:"local"`
-	// Users         string         `mastructure:"users"`
 }
 
 func (c *Config) AuthEnabled() bool {

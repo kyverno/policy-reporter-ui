@@ -1,7 +1,7 @@
 <template>
   <v-menu v-if="profile?.id">
     <template #activator="{ props }">
-      <v-btn variant="outlined" class="text-primary ml-3" rounded="4" height="40" v-bind="props">{{ profile.name }}</v-btn>
+      <v-btn variant="outlined" class="text-primary ml-2 mr-2" rounded="4" height="40" v-bind="props" >{{ profile.name }}</v-btn>
     </template>
     <v-list class="pb-0">
       <v-list-item @click="logout">

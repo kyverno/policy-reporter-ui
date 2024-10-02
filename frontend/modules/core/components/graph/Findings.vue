@@ -19,7 +19,7 @@ import { Pie } from 'vue-chartjs';
 import { type Findings, Status } from '../../types'
 import chroma from 'chroma-js'
 import { capilize } from "../../layouthHelper";
-import {useTheme} from "vuetify";
+import { useTheme } from "vuetify";
 
 const props = defineProps({
   status: { type: String as PropType<Status>, default: Status.FAIL, required: true },
