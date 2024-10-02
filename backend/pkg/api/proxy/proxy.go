@@ -8,8 +8,9 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/api"
 	"go.uber.org/zap"
+
+	"github.com/kyverno/policy-reporter-ui/pkg/api"
 )
 
 type (

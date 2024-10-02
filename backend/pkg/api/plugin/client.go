@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	plugin "github.com/kyverno/policy-reporter-plugins/sdk/api"
+
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
 )
 

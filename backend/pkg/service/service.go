@@ -10,17 +10,16 @@ import (
 	"sync"
 
 	pluginAPI "github.com/kyverno/policy-reporter-plugins/sdk/api"
+	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
-	"go.uber.org/zap"
-	"golang.org/x/sync/errgroup"
 )
 
-var (
-	ErrNoClient = errors.New("client for cluster not found")
-)
+var ErrNoClient = errors.New("client for cluster not found")
 
 type Service struct {
 	endpoints map[string]*model.Endpoints
@@ -276,6 +275,7 @@ func (s *Service) CreateException(ctx context.Context, req ExceptionRequest) (*p
 
 	return plugin.CreateException(ctx, request)
 }
+
 func (s *Service) ResourceDetails(ctx context.Context, cluster, id string, query url.Values) (*ResourceDetails, error) {
 	client, err := s.core(cluster)
 	if err != nil {

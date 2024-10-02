@@ -6,14 +6,17 @@ import (
 
 	plugin "github.com/kyverno/policy-reporter-plugins/sdk/api"
 	pluginAPI "github.com/kyverno/policy-reporter-plugins/sdk/api"
+	"golang.org/x/exp/maps"
+
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
-	"golang.org/x/exp/maps"
 )
 
-var allStatus = []string{StatusPass, StatusWarn, StatusFail, StatusError, StatusSkip}
-var allSeverities = []string{SeverityUnknown, SeverityInfo, SeverityLow, SeverityMedium, SeverityHigh, SeverityCritical}
+var (
+	allStatus     = []string{StatusPass, StatusWarn, StatusFail, StatusError, StatusSkip}
+	allSeverities = []string{SeverityUnknown, SeverityInfo, SeverityLow, SeverityMedium, SeverityHigh, SeverityCritical}
+)
 
 func MapFindingSourcesToSourceItem(findings *core.Findings) []SourceItem {
 	findingSources := make(map[string]bool, 0)
@@ -196,7 +199,7 @@ func MapNamespaceScopeChartVariant(title string, namespaces core.NamespaceStatus
 }
 
 func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStatusCounts, chartTyp string, status []string, defaults []string) *Chart {
-	var sets = make(map[string]*Dataset)
+	sets := make(map[string]*Dataset)
 	if len(status) == 0 {
 		status = defaults
 	}
@@ -318,7 +321,7 @@ func SumResourceSeverityCounts(results []core.ResourceSeverityCount) map[string]
 }
 
 func MapResourceSourceChart(results []core.ResourceStatusCount, status []string) *Chart {
-	var sets = make(map[string]*Dataset)
+	sets := make(map[string]*Dataset)
 	if len(status) == 0 {
 		status = allStatus
 	}
@@ -375,7 +378,7 @@ func MapResourceSourceChart(results []core.ResourceStatusCount, status []string)
 }
 
 func MapCategorySeveritiesToChart(title string, categories []core.Category, severities []string) *Chart {
-	var sets = make(map[string]*Dataset)
+	sets := make(map[string]*Dataset)
 	if len(severities) == 0 {
 		severities = allSeverities
 	}
@@ -434,7 +437,7 @@ func MapCategorySeveritiesToChart(title string, categories []core.Category, seve
 }
 
 func MapCategoryStatusToChart(title string, categories []core.Category, status []string) *Chart {
-	var sets = make(map[string]*Dataset)
+	sets := make(map[string]*Dataset)
 	if len(status) == 0 {
 		status = allStatus
 	}

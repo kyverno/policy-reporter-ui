@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	plugin "github.com/kyverno/policy-reporter-plugins/sdk/api"
+
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
@@ -63,7 +64,6 @@ func MapSourceCategoryTreeToNavi(sources []core.SourceCategoryTree) []Navigation
 func MapSourcesToPolicyNavi(sources []core.SourceCategoryTree) []NavigationItem {
 	sourceBoards := make([]NavigationItem, 0)
 	for _, source := range sources {
-
 		sourceBoards = append(sourceBoards, NavigationItem{
 			Title: utils.Title(source.Name),
 			Path:  fmt.Sprintf("/policies/%s", source.Name),

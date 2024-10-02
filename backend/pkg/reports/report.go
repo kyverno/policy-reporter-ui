@@ -8,11 +8,12 @@ import (
 	"strings"
 
 	"github.com/kyverno/policy-reporter-plugins/sdk/api"
+	"go.uber.org/zap"
+
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
-	"go.uber.org/zap"
 )
 
 type ReportGenerator struct {
@@ -403,6 +404,7 @@ func (g *ReportGenerator) getPolicies(ctx context.Context, cluster, source strin
 		}
 	}), nil
 }
+
 func New(endpoints map[string]*model.Endpoints) *ReportGenerator {
 	return &ReportGenerator{endpoints: endpoints}
 }
