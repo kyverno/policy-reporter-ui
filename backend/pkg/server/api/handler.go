@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"fmt"
 	"slices"
 	"github.com/gin-gonic/gin"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
@@ -14,7 +13,6 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/service"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 	"github.com/kyverno/policy-reporter-ui/pkg/auth"
-	"github.com/gin-contrib/sessions"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -111,96 +109,83 @@ func (h *Handler) GetResourceDetails(ctx *gin.Context) {
 func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	var err error
 
-	session := sessions.Default(ctx)
-
     // Get the profile from the session
-    profile := session.Get("profile")
+	profile := auth.ProfileFrom(ctx)
 
-	userProfile, ok := profile.(auth.Profile)
-    if !ok {
+    if profile == nil {
         ctx.JSON(500, gin.H{"error": "invalid profile data"})
         return
     }
-
-    // Now you can access individual fields of the profile
-    email := userProfile.Email
+    email := profile.Email
 	config, ok := h.boards[ctx.Param("id")]
 	users := config.Users.List
-
-    if slices.Contains(users, email) {
-		endpoints, ok := h.clients[ctx.Param("cluster")]
-		if !ok {
-			ctx.AbortWithStatus(http.StatusNotFound)
-			return
-		}
-	
-		query := ctx.Request.URL.Query()
-	
-		sources := config.Sources.List
-		if len(sources) > 0 {
-			query["sources"] = sources
-		}
-	
-		if len(sources) == 0 {
-			sources, err = endpoints.Core.ListSources(ctx, url.Values{})
-			if err != nil {
-				ctx.AbortWithError(http.StatusInternalServerError, err)
-				return
-			}
-		}
-		var namespaces []string
-		if len(config.Namespaces.Selector) > 0 {
-			ns, err := endpoints.Core.ResolveNamespaceSelector(ctx, config.Namespaces.Selector)
-			if err != nil {
-				ctx.AbortWithError(http.StatusInternalServerError, err)
-				return
-			}
-	
-			namespaces = append(config.Namespaces.List, ns...)
-		} else if len(config.Namespaces.List) > 0 {
-			namespaces = config.Namespaces.List
-		}
-	
-		if len(namespaces) == 0 {
-			ctx.JSON(http.StatusOK, service.Dashboard{
-				Title:          config.Name,
-				ClusterScope:   config.ClusterScope,
-				Sources:        sources,
-				SingleSource:   len(sources) == 1,
-				MultipleSource: len(sources) > 1,
-				Namespaces:     make([]string, 0),
-				Charts: service.Charts{
-					ClusterScope:   make(map[string]map[string]int),
-					NamespaceScope: make(map[string]*service.ChartVariants),
-					Findings:       &service.Chart{},
-				},
-			})
-			return
-		}
-	
-		query["namespaces"] = namespaces
-	
-		dashboard, err := h.service.Dashboard(ctx, ctx.Param("cluster"), sources, namespaces, config.ClusterScope, query)
-		if err != nil {
-			zap.L().Error("failed to generate dashboard", zap.Error(err))
-			ctx.AbortWithStatus(http.StatusInternalServerError)
-			return
-		}
-	
-		dashboard.FilterSources = query["sources"]
-		dashboard.Title = config.Name
-	
-		ctx.JSON(http.StatusOK, dashboard)
-    } else {
-        fmt.Println("Error: ", email, " is not authorized.")
+	if len(users) > 0 && !slices.Contains(users, email) {
+        ctx.AbortWithStatus(http.StatusUnauthorized)
+        return
     }
+	endpoints, ok := h.clients[ctx.Param("cluster")]
 	if !ok {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
 	}
+	query := ctx.Request.URL.Query()
 
+	sources := config.Sources.List
+	if len(sources) > 0 {
+		query["sources"] = sources
+	}
 
-}
+	if len(sources) == 0 {
+		sources, err = endpoints.Core.ListSources(ctx, url.Values{})
+		if err != nil {
+			ctx.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+	}
+	var namespaces []string
+	if len(config.Namespaces.Selector) > 0 {
+		ns, err := endpoints.Core.ResolveNamespaceSelector(ctx, config.Namespaces.Selector)
+		if err != nil {
+			ctx.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		namespaces = append(config.Namespaces.List, ns...)
+	} else if len(config.Namespaces.List) > 0 {
+		namespaces = config.Namespaces.List
+	}
+
+	if len(namespaces) == 0 {
+		ctx.JSON(http.StatusOK, service.Dashboard{
+			Title:          config.Name,
+			ClusterScope:   config.ClusterScope,
+			Sources:        sources,
+			SingleSource:   len(sources) == 1,
+			MultipleSource: len(sources) > 1,
+			Namespaces:     make([]string, 0),
+			Charts: service.Charts{
+				ClusterScope:   make(map[string]map[string]int),
+				NamespaceScope: make(map[string]*service.ChartVariants),
+				Findings:       &service.Chart{},
+			},
+		})
+		return
+	}
+
+	query["namespaces"] = namespaces
+
+	dashboard, err := h.service.Dashboard(ctx, ctx.Param("cluster"), sources, namespaces, config.ClusterScope, query)
+	if err != nil {
+		zap.L().Error("failed to generate dashboard", zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	dashboard.FilterSources = query["sources"]
+	dashboard.Title = config.Name
+
+	ctx.JSON(http.StatusOK, dashboard)
+} 
 
 func (h *Handler) Layout(ctx *gin.Context) {
 	endpoints, ok := h.clients[ctx.Param("cluster")]
