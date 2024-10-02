@@ -37,12 +37,12 @@ type Cluster struct {
 }
 
 type Config struct {
-	User     any       `json:"user"`
-	Clusters []Cluster `json:"clusters"`
-	Sources  []Source  `json:"sources"`
-	Default  string    `json:"default"`
-	Banner   string    `json:"banner"`
-	OAuth    bool      `json:"oauth"`
+	User          any           `json:"user"`
+	Clusters      []Cluster     `json:"clusters"`
+	Sources       []Source      `json:"sources"`
+	Default       string        `json:"default"`
+	Banner        string        `json:"banner"`
+	OAuth         bool          `json:"oauth"`
 }
 
 type PolicyReports struct {
@@ -58,6 +58,10 @@ type Sources struct {
 	List []string
 }
 
+type Users struct {
+	List []string
+}
+
 type CustomBoard struct {
 	Name          string        `json:"name"`
 	ID            string        `json:"id"`
@@ -65,6 +69,7 @@ type CustomBoard struct {
 	Namespaces    Namespaces    `json:"-"`
 	Sources       Sources       `json:"-"`
 	PolicyReports PolicyReports `json:"-"`
+	Users		  Users         `json:"-"` 
 }
 
 type NavigationItem struct {

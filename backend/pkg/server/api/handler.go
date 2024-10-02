@@ -6,12 +6,13 @@ import (
 	"net/url"
 	"os"
 	"path"
-
+	"slices"
 	"github.com/gin-gonic/gin"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
 	"github.com/kyverno/policy-reporter-ui/pkg/reports"
 	"github.com/kyverno/policy-reporter-ui/pkg/service"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
+	"github.com/kyverno/policy-reporter-ui/pkg/auth"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -108,18 +109,25 @@ func (h *Handler) GetResourceDetails(ctx *gin.Context) {
 func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	var err error
 
-	config, ok := h.boards[ctx.Param("id")]
-	if !ok {
-		ctx.AbortWithStatus(http.StatusNotFound)
-		return
-	}
+    // Get the profile from the session
+	profile := auth.ProfileFrom(ctx)
 
+    if profile == nil {
+        ctx.JSON(500, gin.H{"error": "invalid profile data"})
+        return
+    }
+    email := profile.Email
+	config, ok := h.boards[ctx.Param("id")]
+	users := config.Users.List
+	if len(users) > 0 && !slices.Contains(users, email) {
+        ctx.AbortWithStatus(http.StatusUnauthorized)
+        return
+    }
 	endpoints, ok := h.clients[ctx.Param("cluster")]
 	if !ok {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-
 	query := ctx.Request.URL.Query()
 
 	sources := config.Sources.List
@@ -134,7 +142,6 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 			return
 		}
 	}
-
 	var namespaces []string
 	if len(config.Namespaces.Selector) > 0 {
 		ns, err := endpoints.Core.ResolveNamespaceSelector(ctx, config.Namespaces.Selector)
@@ -178,7 +185,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	dashboard.Title = config.Name
 
 	ctx.JSON(http.StatusOK, dashboard)
-}
+} 
 
 func (h *Handler) Layout(ctx *gin.Context) {
 	endpoints, ok := h.clients[ctx.Param("cluster")]

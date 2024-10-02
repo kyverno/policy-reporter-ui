@@ -64,6 +64,9 @@ func MapCustomBoards(customBoards []CustomBoard) map[string]api.CustomBoard {
 			Sources: api.Sources{
 				List: c.Sources.List,
 			},
+			Users: api.Users{
+				List: c.Users.List,
+			},
 			PolicyReports: api.PolicyReports{
 				Selector: c.PolicyReports.Selector,
 			},

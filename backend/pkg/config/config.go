@@ -198,6 +198,9 @@ type CustomBoard struct {
 	Sources struct {
 		List []string `mapstructure:"list"`
 	} `mapstructure:"sources"`
+	Users struct {
+		List []string `mapstructure:"list"`
+	} `mapstructure:"users"`
 	PolicyReports struct {
 		Selector map[string]string `mapstructure:"selector"`
 	} `mapstructure:"policyReports"`
@@ -220,6 +223,7 @@ type Config struct {
 	OAuth         OAuth          `mapstructure:"oauth"`
 	CustomBoards  []CustomBoard  `mapstructure:"customBoards"`
 	Local         bool           `mapstructure:"local"`
+	// Users         string         `mastructure:"users"`
 }
 
 func (c *Config) AuthEnabled() bool {
