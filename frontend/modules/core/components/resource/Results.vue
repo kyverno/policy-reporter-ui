@@ -1,5 +1,5 @@
 <template>
-  <div v-if="data.count > 0 || !!searchText">
+  <div v-if="(data && data.count > 0) || !!searchText">
     <v-toolbar color="secondary">
       <template #title>
         <span v-if="category">{{ category }}</span>
@@ -26,8 +26,8 @@
           <template #item="{ item, ...props }">
             <tr @click="() => props.toggleExpand(props.internalItem)" class="cursor-pointer">
               <td>
-                <nuxt-link v-if="plugin" :to="{ name: 'policies-source-info-policy', params: { source, policy: item.policy }}" class="text-decoration-none text-primary" target="_blank">{{ item.policy }}</nuxt-link>
-                <template v-else>{{ item.policy }}</template>
+                <v-btn v-if="plugin" @click.stop="openPolicy(item.policy)" class="mr-1" target="_blank" icon="mdi-open-in-new" variant="text" size="small" />
+                {{ item.policy }}
               </td>
               <td>{{ item.rule }}</td>
               <td>
@@ -86,6 +86,13 @@ const props = defineProps<{
 }>()
 
 const bg = useBGColor()
+
+const router = useRouter()
+const openPolicy = (policy: string) => {
+  const { href } = router.resolve({ name: 'policies-source-info-policy', params: { source: props.source, policy }})
+  window.open(href, '_blank')
+}
+
 
 const options = reactive({
   itemsPerPage: 10,

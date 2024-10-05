@@ -8,7 +8,7 @@
             <slot name="prepend" />
             <policy-report-dialog :source="source" :category="category" v-if="source && !hideReport" />
             <FormKindAutocomplete style="min-width: 300px; max-width: 100%; margin-right: 15px;" v-model="kinds" :source="store || source" />
-            <FormClusterKindAutocomplete v-if="!nsScoped" style="min-width: 300px;" v-model="clusterKinds" :source="store || source" />
+            <FormClusterKindAutocomplete v-if="!nsScoped" style="min-width: 300px; margin-right: 15px;" v-model="clusterKinds" :source="store || source" />
             <slot name="append" />
           </template>
         </v-toolbar>

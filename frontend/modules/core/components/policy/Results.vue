@@ -145,12 +145,12 @@ const headers = computed(() => {
 
   if (props.exceptions && props.policy) {
     return [
-      { title: 'APIVersion', key: 'apiVersion', width: '10%' },
-      { title: 'Kind', key: 'kind', width: '16%' },
-      { title: 'Name', key: 'name', width: '19%' },
-      { title: 'Rule', key: 'rule', width: '19%' },
-      { title: 'Severity', key: 'severity', width: '12%' },
-      { title: 'Status', key: 'status', width: '12%' },
+      { title: 'APIVersion', key: 'apiVersion', width: '12%' },
+      { title: 'Kind', key: 'kind', width: '14%' },
+      { title: 'Name', key: 'name', width: '22%' },
+      { title: 'Rule', key: 'rule', width: '22%' },
+      { title: 'Severity', key: 'severity', width: '9%' },
+      { title: 'Status', key: 'status', width: '9%' },
       { title: 'Actions', key: 'exception', width: '12%' },
     ]
   }

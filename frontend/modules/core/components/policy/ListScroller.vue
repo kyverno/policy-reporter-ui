@@ -1,5 +1,5 @@
 <template>
-  <v-infinite-scroll :onLoad="load" class="no-scrollbar pb-0 mb-0" v-if="loaded.length">
+  <v-infinite-scroll :onLoad="load" class="no-scrollbar py-0 my-0 policy-scroller" v-if="loaded.length">
     <template v-for="item in loaded" :key="keyProp ? item[keyProp] : item">
       <slot :item="item" />
     </template>
@@ -27,3 +27,13 @@ const load = ({ done }: any) => {
 }
 
 </script>
+
+<style>
+.policy-scroller .v-infinite-scroll__side {
+  padding-top: 0;
+  margin-top: 0;
+
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+</style>
