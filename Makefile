@@ -2,12 +2,9 @@
 # DEFAULTS #
 ############
 
-USE_CONFIG           ?= standard,no-ingress,in-cluster,all-read-rbac
-KUBECONFIG           ?= ""
-PIP                  ?= "pip3"
 GO 					 ?= go
 BUILD 				 ?= build
-IMAGE_TAG 			 ?= 2.0.0-alpha.1
+IMAGE_TAG 			 ?= 2.0.0
 
 #############
 # VARIABLES #
@@ -58,7 +55,6 @@ $(GOFUMPT):
 	@echo Install gofumpt... >&2
 	@GOBIN=$(TOOLS_DIR) go install mvdan.cc/gofumpt@$(GOFUMPT_VERSION)
 
-
 .PHONY: gci
 gci: $(GCI)
 	@echo "Running gci"
@@ -76,25 +72,10 @@ fmt: gci gofumpt
 # CODEGEN #
 ###########
 
-.PHONY: codegen-helm-docs
-codegen-helm-docs: ## Generate helm docs
-	@echo Generate helm docs... >&2
-	@docker run -v ${PWD}/charts:/work -w /work jnorwood/helm-docs:v1.11.0 -s file
-
-.PHONY: verify-helm-docs
-verify-helm-docs: codegen-helm-docs ## Check Helm charts are up to date
-	@echo Checking helm charts are up to date... >&2
-	@git --no-pager diff -- charts
-	@echo 'If this test fails, it is because the git diff is non-empty after running "make codegen-helm-docs".' >&2
-	@echo 'To correct this, locally run "make codegen-helm-docs", commit the changes, and re-run tests.' >&2
-	@git diff --quiet --exit-code -- charts
-
 .PHONY: build-frontend
 build-frontend:
 	@echo Build frontend with bun... >&2
 	@cd frontend && bun install && bun run generate
-	@rm -rf ../backend/kodata && mkdir ../backend/kodata
-	@cp -r dist ../backend/kodata/ui
 
 .PHONY: ko-build
 ko-build: $(KO)

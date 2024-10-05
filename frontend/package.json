@@ -1,7 +1,8 @@
 {
-  "name": "nuxt-app",
-  "private": true,
+  "name": "policy-reporter-ui",
+  "private": false,
   "type": "module",
+  "version": "2.0.0",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
