@@ -20,9 +20,9 @@ func New(config Config) *zap.Logger {
 		encoder.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05")
 	}
 
-	ouput := "json"
+	output := "json"
 	if config.Encoding != "json" {
-		ouput = "console"
+		output = "console"
 	}
 
 	var sampling *zap.SamplingConfig
@@ -37,7 +37,7 @@ func New(config Config) *zap.Logger {
 		Level:             zap.NewAtomicLevelAt(zapcore.Level(config.LogLevel)),
 		Development:       config.Development,
 		Sampling:          sampling,
-		Encoding:          ouput,
+		Encoding:          output,
 		EncoderConfig:     encoder,
 		DisableStacktrace: !config.Development,
 		OutputPaths:       []string{"stderr"},

@@ -121,13 +121,12 @@ func MapPoliciesFromCore(policies []core.Policy) map[string][]Policy {
 func MapPluginPolicies(policies []plugin.PolicyListItem, coreList []core.Policy) map[string][]Policy {
 	results := make(map[string][]Policy)
 
-	if coreList == nil || len(coreList) == 0 {
+	if len(coreList) == 0 {
 		return results
 	}
 
 	cache := make(map[string]map[string]*core.Policy, len(coreList))
 	for _, p := range coreList {
-		p := p
 		if _, ok := cache[p.Category]; !ok {
 			cache[p.Category] = make(map[string]*core.Policy)
 		}

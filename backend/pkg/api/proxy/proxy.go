@@ -94,7 +94,7 @@ func New(target *url.URL, options []DirectorOption, proxyOptions []ProxyOption) 
 			Timeout:   30 * time.Second,
 			KeepAlive: 30 * time.Second,
 		}).DialContext,
-		TLSClientConfig: &tls.Config{},
+		TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS12},
 	}
 
 	proxy.Transport = transport

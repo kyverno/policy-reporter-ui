@@ -1,5 +1,7 @@
 # Policy Reporter UI
 
+[![Checks](https://github.com/kyverno/policy-reporter-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/kyverno/policy-reporter-ui/actions/workflows/ci.yml)
+
 Policy Reporter UI is an optional, standalone UI to visualize the processed information of Policy Reporter. It groups related information and adds additional functionality like different graphs, authentication and customizable dashboards on top of it.
 
 <img src="https://kyverno.github.io/policy-reporter-docs/assets/policy-reporter-ui-dark.w6i6-MIf.png" style="border: 1px solid #555" alt="Policy Reporter UI" />

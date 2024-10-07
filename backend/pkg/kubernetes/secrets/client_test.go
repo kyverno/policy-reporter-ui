@@ -33,9 +33,13 @@ func newFakeClient() v1.SecretInterface {
 }
 
 func Test_Client(t *testing.T) {
+	t.Parallel()
+
 	client := secrets.NewClient(newFakeClient())
 
 	t.Run("Get values from existing secret", func(t *testing.T) {
+		t.Parallel()
+
 		values, err := client.Get(context.Background(), secretName)
 		if err != nil {
 			t.Errorf("Unexpected error while fetching secret: %s", err)
@@ -67,6 +71,8 @@ func Test_Client(t *testing.T) {
 	})
 
 	t.Run("Get values from not existing secret", func(t *testing.T) {
+		t.Parallel()
+
 		_, err := client.Get(context.Background(), "not-exist")
 		if !errors.IsNotFound(err) {
 			t.Errorf("Expected not found error")

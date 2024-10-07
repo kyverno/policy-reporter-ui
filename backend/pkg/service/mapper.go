@@ -83,7 +83,7 @@ func MapFindingsToSourceStatusChart(title string, findings *core.Findings) *Char
 		return &Chart{
 			Name:     title,
 			Labels:   make([]string, 0),
-			Datasets: []*Dataset{{Data: make([]int, 0, 0)}},
+			Datasets: []*Dataset{{Data: make([]int, 0)}},
 		}
 	}
 
@@ -121,7 +121,7 @@ func MapSeverityFindingsToSourceStatusChart(title string, findings *core.Finding
 		return &Chart{
 			Name:     title,
 			Labels:   make([]string, 0),
-			Datasets: []*Dataset{{Data: make([]int, 0, 0)}},
+			Datasets: []*Dataset{{Data: make([]int, 0)}},
 			Type:     model.Severity,
 		}
 	}

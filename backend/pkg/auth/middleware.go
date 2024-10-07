@@ -19,6 +19,7 @@ const (
 
 func Provider(provider string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		//nolint:staticcheck
 		ctx.Request = ctx.Request.WithContext(context.WithValue(ctx, ProviderKey, provider))
 		ctx.Set(ProviderKey, provider)
 		ctx.Next()
@@ -30,14 +31,14 @@ func Valid(basePath string) gin.HandlerFunc {
 		providerName, err := gothic.GetProviderName(ctx.Request)
 		if err != nil {
 			zap.L().Error("failed to get provider name", zap.Error(err))
-			ctx.AbortWithError(http.StatusPreconditionFailed, errors.New("provider name not avaialable in request"))
+			_ = ctx.AbortWithError(http.StatusPreconditionFailed, errors.New("provider name not avaialable in request"))
 			return
 		}
 
 		provider, err := goth.GetProvider(providerName)
 		if err != nil {
 			zap.L().Error("failed to get requested provider", zap.Error(err))
-			ctx.AbortWithError(http.StatusPreconditionFailed, errors.New("provider not available"))
+			_ = ctx.AbortWithError(http.StatusPreconditionFailed, errors.New("provider not available"))
 			return
 		}
 
@@ -111,15 +112,15 @@ func abort(ctx *gin.Context, basePath, err string) {
 	}
 }
 
-func logout(ctx *gin.Context) error {
-	gothic.Logout(ctx.Writer, ctx.Request)
+func logout(ctx *gin.Context) {
+	if err := gothic.Logout(ctx.Writer, ctx.Request); err != nil {
+		zap.L().Error("failed to logout from provider", zap.Error(err))
+	}
+
 	session := sessions.Default(ctx)
 	session.Clear()
 
-	err := session.Save()
-	if err != nil {
+	if err := session.Save(); err != nil {
 		zap.L().Error("failed to save session", zap.Error(err))
 	}
-
-	return err
 }
