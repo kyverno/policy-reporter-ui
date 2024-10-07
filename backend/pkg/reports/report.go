@@ -113,9 +113,7 @@ func (g *ReportGenerator) GeneratePerPolicy(ctx context.Context, cluster, source
 			}
 
 			rule := result.Rule
-			if strings.HasPrefix(rule, "autogen-") {
-				rule = strings.TrimPrefix(rule, "autogen-")
-			}
+			rule = strings.TrimPrefix(rule, "autogen-")
 
 			_, ok = val.Groups[ns].Rules[rule]
 			if !ok {
@@ -164,9 +162,7 @@ func (g *ReportGenerator) GeneratePerPolicy(ctx context.Context, cluster, source
 			}
 
 			rule := result.Rule
-			if strings.HasPrefix(rule, "autogen-") {
-				rule = strings.TrimPrefix(rule, "autogen-")
-			}
+			rule = strings.TrimPrefix(rule, "autogen-")
 
 			_, ok = val.Groups[""].Rules[rule]
 			if !ok {
@@ -279,9 +275,7 @@ func (g *ReportGenerator) GeneratePerNamespace(ctx context.Context, cluster, sou
 			}
 
 			rule := result.Rule
-			if strings.HasPrefix(rule, "autogen-") {
-				rule = strings.TrimPrefix(rule, "autogen-")
-			}
+			rule = strings.TrimPrefix(rule, "autogen-")
 
 			_, ok = val.Groups[result.Policy].Rules[rule]
 			if !ok {
@@ -340,16 +334,12 @@ func increaseSummary(result string, sum *Summary) {
 	switch result {
 	case StatusPass:
 		sum.Pass++
-		break
 	case StatusWarn:
 		sum.Warning++
-		break
 	case StatusFail:
 		sum.Fail++
-		break
 	case StatusError:
 		sum.Error++
-		break
 	}
 }
 

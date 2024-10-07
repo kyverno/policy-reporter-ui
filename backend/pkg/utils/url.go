@@ -8,9 +8,7 @@ import (
 )
 
 func BasePath(callback string) string {
-	if strings.HasSuffix(callback, "/callback") {
-		callback = strings.TrimSuffix(callback, "/callback")
-	}
+	callback = strings.TrimSuffix(callback, "/callback")
 
 	r, err := url.Parse(callback)
 	if err != nil {

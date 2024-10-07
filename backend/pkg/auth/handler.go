@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -23,7 +21,7 @@ func (h *Handler) Callback(ctx *gin.Context) {
 	user, err := gothic.CompleteUserAuth(ctx.Writer, ctx.Request)
 	if err != nil {
 		zap.L().Error("failed to complete user", zap.Error(err))
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
@@ -53,10 +51,16 @@ func (h *Handler) Login(ctx *gin.Context) {
 }
 
 func (h *Handler) Logout(ctx *gin.Context) {
-	gothic.Logout(ctx.Writer, ctx.Request)
+	if err := gothic.Logout(ctx.Writer, ctx.Request); err != nil {
+		zap.L().Error("failed to logout from provider", zap.Error(err))
+	}
+
 	session := sessions.Default(ctx)
 	session.Clear()
-	session.Save()
+
+	if err := session.Save(); err != nil {
+		zap.L().Error("failed to save session", zap.Error(err))
+	}
 
 	ctx.Redirect(http.StatusTemporaryRedirect, h.basePath+"login")
 }
@@ -72,16 +76,4 @@ func (h *Handler) Profile(ctx *gin.Context) {
 		"id":   profile.ID,
 		"name": profile.GetName(),
 	})
-}
-
-func generateRandomState() (string, error) {
-	b := make([]byte, 32)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-
-	state := base64.StdEncoding.EncodeToString(b)
-
-	return state, nil
 }

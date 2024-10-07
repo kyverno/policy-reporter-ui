@@ -33,12 +33,8 @@ var (
 )
 
 type Resolver struct {
-	config     *Config
-	kubeConfig string
-	devMode    bool
-
-	secrets secrets.Client
-
+	config    *Config
+	secrets   secrets.Client
 	k8sConfig *rest.Config
 	clientset *k8s.Clientset
 }
@@ -335,6 +331,10 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 		}
 
 		client, err := r.CoreClient(cluster)
+		if err != nil {
+			zap.L().Error("failed to create core api client", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("host", cluster.Host))
+			continue
+		}
 
 		plugins := make(map[string]*plugin.Client, len(cluster.Plugins))
 		for _, p := range cluster.Plugins {

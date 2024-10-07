@@ -79,7 +79,7 @@ func (h *Handler) CreateException(ctx *gin.Context) {
 	}
 
 	if err := ctx.BindJSON(&req); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		_ = ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
@@ -145,7 +145,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	if len(sources) == 0 {
 		sources, err = endpoints.Core.ListSources(ctx, url.Values{})
 		if err != nil {
-			ctx.AbortWithError(http.StatusInternalServerError, err)
+			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 	}
@@ -153,7 +153,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	if len(config.Namespaces.Selector) > 0 {
 		ns, err := endpoints.Core.ResolveNamespaceSelector(ctx, config.Namespaces.Selector)
 		if err != nil {
-			ctx.AbortWithError(http.StatusInternalServerError, err)
+			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 
@@ -262,7 +262,7 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 
 	g := &errgroup.Group{}
 
-	sources, ok := ctx.GetQueryArray("sources")
+	sources, _ := ctx.GetQueryArray("sources")
 	if len(sources) == 0 {
 		g.Go(func() error {
 			var err error
