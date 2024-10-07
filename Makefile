@@ -37,11 +37,11 @@ endif
 #########
 TOOLS_DIR      					   := $(PWD)/.tools
 KO             					   := $(TOOLS_DIR)/ko
-KO_VERSION     					   := v0.15.1
+KO_VERSION     					   := v0.16.0
 GCI                                := $(TOOLS_DIR)/gci
-GCI_VERSION                        := v0.9.1
+GCI_VERSION                        := v0.13.5
 GOFUMPT                            := $(TOOLS_DIR)/gofumpt
-GOFUMPT_VERSION                    := v0.4.0
+GOFUMPT_VERSION                    := v0.7.0
 
 $(KO):
 	@echo Install ko... >&2
@@ -78,7 +78,7 @@ build-frontend:
 	@cd frontend && bun install && bun run generate
 
 .PHONY: ko-build
-ko-build: $(KO)
+ko-build: $(KO) build-frontend
 	@echo Build image with ko... >&2
 	@rm -rf backend/kodata && mkdir backend/kodata
 	@cp -r frontend/dist backend/kodata/ui
