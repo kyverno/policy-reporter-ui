@@ -3,7 +3,7 @@ name: Publish Policy Reporter UI
 on:
   push:
     tags:
-      - 'policy-reporter-ui-v*'
+      - 'v*'
 
 permissions: {}
 concurrency:
