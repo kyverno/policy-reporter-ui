@@ -6,7 +6,8 @@ import (
 )
 
 type Config struct {
-	Enabled     bool   `mapstructure:"enabled"`
+	API         bool   `mapstructure:"api"`
+	Server      bool   `mapstructure:"server"`
 	LogLevel    int8   `mapstructure:"logLevel"`
 	Encoding    string `mapstructure:"encoding"`
 	Development bool   `mapstructure:"development"`

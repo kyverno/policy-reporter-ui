@@ -173,7 +173,6 @@ type Server struct {
 	Port          int  `mapstructure:"port"`
 	CORS          bool `mapstructure:"cors"`
 	Debug         bool `mapstructure:"debug"`
-	Logging       bool `mapstructure:"logging"`
 	OverwriteHost bool `mapstructure:"overwriteHost"`
 }
 

@@ -61,7 +61,7 @@ func (r *Resolver) CoreClient(cluster Cluster) (*core.Client, error) {
 		}))
 	}
 
-	if r.config.Logging.Enabled {
+	if r.config.Logging.API {
 		options = append(options, api.WithLogging())
 	}
 
@@ -86,7 +86,7 @@ func (r *Resolver) PluginClient(p Plugin) (*plugin.Client, error) {
 		}))
 	}
 
-	if r.config.Logging.Enabled {
+	if r.config.Logging.API {
 		options = append(options, api.WithLogging())
 	}
 
@@ -133,7 +133,7 @@ func (r *Resolver) Proxy(cluster Cluster) (*httputil.ReverseProxy, error) {
 	proxyOptions := make([]proxy.ProxyOption, 0)
 	basicAuth := cluster.BasicAuth
 
-	if r.config.Logging.Enabled {
+	if r.config.Logging.API {
 		options = append(options, proxy.WithLogging())
 	}
 
@@ -309,7 +309,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 		middleware = append(middleware, handler...)
 	}
 
-	if r.config.Server.Logging {
+	if r.config.Logging.Server {
 		middleware = append(
 			middleware,
 			ginzap.Ginzap(r.Logger(), time.RFC3339, true),
