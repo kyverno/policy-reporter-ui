@@ -73,7 +73,7 @@ jobs:
         name: Generate SBOM
         run: cd ./backend && cyclonedx-gomod app -licenses -json -output ../policy-reporter-ui-bom.cdx.json -main .
 
-      - uses: actions/upload-artifact@84480863f228bb9747b473957fcc9e309aa96097 # v4.4.2
+      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: policy-reporter-ui-bom-cdx
           path: policy-reporter-ui-bom.cdx.json
