@@ -20,6 +20,9 @@ func MapConfig(c *Config) *api.Config {
 			Name:    cl.Name,
 			Slug:    slug.Make(cl.Name),
 			Plugins: plugins,
+			Permissions: auth.Permissions{
+				AccessControl: auth.AccessControl(cl.AccessControl),
+			},
 		})
 	}
 

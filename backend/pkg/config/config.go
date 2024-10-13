@@ -118,7 +118,7 @@ func (a Plugin) FromValues(values secrets.Values) Plugin {
 	return a
 }
 
-// APISetup configuration
+// Cluster configuration
 type Cluster struct {
 	Name          string        `mapstructure:"name"`
 	Host          string        `mapstructure:"host"`

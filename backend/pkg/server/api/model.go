@@ -33,9 +33,10 @@ type Source struct {
 }
 
 type Cluster struct {
-	Name    string   `json:"name"`
-	Slug    string   `json:"slug"`
-	Plugins []string `json:"plugins"`
+	auth.Permissions `json:"-"`
+	Name             string   `json:"name"`
+	Slug             string   `json:"slug"`
+	Plugins          []string `json:"plugins"`
 }
 
 type PolicyReports struct {
