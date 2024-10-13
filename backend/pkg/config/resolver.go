@@ -315,6 +315,10 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 		middleware = append(middleware, gin.Recovery())
 	}
 
+	if r.config.AuthEnabled() {
+		middleware = append(middleware, auth.ClusterPermissions(MapClusterPermissions(r.config)))
+	}
+
 	serv := server.NewServer(engine, r.config.Server.Port, middleware)
 
 	for _, cluster := range r.config.Clusters {
@@ -372,10 +376,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 		serv.RegisterUI(r.config.UI.Path, uiMiddleware)
 	}
 
-	serv.RegisterAPI(
-		MapConfig(r.config),
-		MapCustomBoards(r.config.CustomBoards),
-	)
+	serv.RegisterAPI(MapConfig(r.config), MapCustomBoards(r.config.CustomBoards))
 
 	return serv, nil
 }

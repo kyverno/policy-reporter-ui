@@ -1,6 +1,6 @@
 package api
 
-import "slices"
+import "github.com/kyverno/policy-reporter-ui/pkg/auth"
 
 type Policy struct {
 	Source      string         `json:"source,omitempty"`
@@ -51,34 +51,18 @@ type Sources struct {
 	List []string
 }
 
-type AccessControl struct {
-	Emails []string
-}
-
-type Permissions struct {
-	AccessControl AccessControl `json:"-"`
-}
-
-func (p Permissions) AllowedEmail(email string) bool {
-	if len(p.AccessControl.Emails) == 0 {
-		return true
-	}
-
-	return slices.Contains(p.AccessControl.Emails, email)
-}
-
 type CustomBoard struct {
-	Permissions
-	Name          string        `json:"name"`
-	ID            string        `json:"id"`
-	ClusterScope  bool          `json:"-"`
-	Namespaces    Namespaces    `json:"-"`
-	Sources       Sources       `json:"-"`
-	PolicyReports PolicyReports `json:"-"`
+	auth.Permissions `json:"-"`
+	Name             string        `json:"name"`
+	ID               string        `json:"id"`
+	ClusterScope     bool          `json:"-"`
+	Namespaces       Namespaces    `json:"-"`
+	Sources          Sources       `json:"-"`
+	PolicyReports    PolicyReports `json:"-"`
 }
 
 type Boards struct {
-	Permissions
+	auth.Permissions
 }
 
 type Config struct {

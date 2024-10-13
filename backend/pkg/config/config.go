@@ -120,13 +120,14 @@ func (a Plugin) FromValues(values secrets.Values) Plugin {
 
 // APISetup configuration
 type Cluster struct {
-	Name        string    `mapstructure:"name"`
-	Host        string    `mapstructure:"host"`
-	Plugins     []Plugin  `mapstructure:"plugins"`
-	SkipTLS     bool      `mapstructure:"skipTLS"`
-	Certificate string    `mapstructure:"certificate"`
-	SecretRef   string    `mapstructure:"secretRef"`
-	BasicAuth   BasicAuth `mapstructure:"basicAuth"`
+	Name          string        `mapstructure:"name"`
+	Host          string        `mapstructure:"host"`
+	Plugins       []Plugin      `mapstructure:"plugins"`
+	SkipTLS       bool          `mapstructure:"skipTLS"`
+	Certificate   string        `mapstructure:"certificate"`
+	SecretRef     string        `mapstructure:"secretRef"`
+	BasicAuth     BasicAuth     `mapstructure:"basicAuth"`
+	AccessControl AccessControl `mapstructure:"accessControl"`
 }
 
 func (a Cluster) FromValues(values secrets.Values) Cluster {
