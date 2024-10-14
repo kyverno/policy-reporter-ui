@@ -1,6 +1,8 @@
 package api
 
-import "github.com/kyverno/policy-reporter-ui/pkg/auth"
+import (
+	"github.com/kyverno/policy-reporter-ui/pkg/auth"
+)
 
 type Policy struct {
 	Source      string         `json:"source,omitempty"`

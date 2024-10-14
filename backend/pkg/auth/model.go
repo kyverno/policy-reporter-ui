@@ -16,6 +16,7 @@ type Profile struct {
 	Firstname    string    `json:"firstname"`
 	Name         string    `json:"name"`
 	Email        string    `json:"email"`
+	Groups       []string  `json:"groups"`
 	RefreshToken string    `json:"-"`
 	AccessToken  string    `json:"-"`
 	IDToken      string    `json:"-"`
@@ -32,6 +33,10 @@ func (p *Profile) GetName() string {
 	}
 
 	return p.Email
+}
+
+func (p *Profile) AssignGroups(groups []string) {
+	p.Groups = groups
 }
 
 func NewProfile(user goth.User) Profile {
