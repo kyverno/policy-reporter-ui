@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/gosimple/slug"
 
+	"github.com/kyverno/policy-reporter-ui/pkg/auth"
 	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
@@ -19,6 +20,9 @@ func MapConfig(c *Config) *api.Config {
 			Name:    cl.Name,
 			Slug:    slug.Make(cl.Name),
 			Plugins: plugins,
+			Permissions: auth.Permissions{
+				AccessControl: auth.AccessControl(cl.AccessControl),
+			},
 		})
 	}
 
@@ -38,8 +42,8 @@ func MapConfig(c *Config) *api.Config {
 		OAuth:    oauth,
 		Banner:   c.UI.Banner,
 		Boards: api.Boards{
-			Permissions: api.Permissions{
-				AccessControl: api.AccessControl{
+			Permissions: auth.Permissions{
+				AccessControl: auth.AccessControl{
 					Emails: c.Boards.AccessControl.Emails,
 				},
 			},
@@ -76,8 +80,8 @@ func MapCustomBoards(customBoards []CustomBoard) map[string]api.CustomBoard {
 			Sources: api.Sources{
 				List: c.Sources.List,
 			},
-			Permissions: api.Permissions{
-				AccessControl: api.AccessControl{
+			Permissions: auth.Permissions{
+				AccessControl: auth.AccessControl{
 					Emails: c.AccessControl.Emails,
 				},
 			},
@@ -89,4 +93,15 @@ func MapCustomBoards(customBoards []CustomBoard) map[string]api.CustomBoard {
 	}
 
 	return configs
+}
+
+func MapClusterPermissions(c *Config) map[string]auth.Permissions {
+	permissions := make(map[string]auth.Permissions, len(c.Clusters))
+	for _, cluster := range c.Clusters {
+		permissions[slug.Make(cluster.Name)] = auth.Permissions{
+			AccessControl: auth.AccessControl(cluster.AccessControl),
+		}
+	}
+
+	return permissions
 }

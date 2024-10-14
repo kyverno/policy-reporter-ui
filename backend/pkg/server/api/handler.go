@@ -31,6 +31,35 @@ func (h *Handler) Healthz(ctx *gin.Context) {
 }
 
 func (h *Handler) Config(ctx *gin.Context) {
+	if profile := auth.ProfileFrom(ctx); profile != nil {
+		cluster := h.config.Default
+
+		clusters := make([]Cluster, 0, len(h.config.Clusters))
+		for _, cl := range h.config.Clusters {
+			access := cl.AllowedEmail(profile.Email)
+			if access {
+				clusters = append(clusters, cl)
+			}
+			if cluster == cl.Slug && !access {
+				cluster = ""
+			}
+		}
+
+		if cluster == "" && len(clusters) > 0 {
+			cluster = clusters[0].Slug
+		}
+
+		ctx.JSON(http.StatusOK, Config{
+			Clusters: clusters,
+			Default:  cluster,
+			User:     h.config.User,
+			Sources:  h.config.Sources,
+			Banner:   h.config.Banner,
+			OAuth:    h.config.OAuth,
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, h.config)
 }
 
