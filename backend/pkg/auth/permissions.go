@@ -6,22 +6,33 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
 type AccessControl struct {
 	Emails []string
+	Groups []string
 }
 
 type Permissions struct {
 	AccessControl AccessControl `json:"-"`
 }
 
-func (p Permissions) AllowedEmail(email string) bool {
-	if len(p.AccessControl.Emails) == 0 {
+func (p Permissions) Allowed(profile *Profile) bool {
+	if len(p.AccessControl.Emails) == 0 && len(p.AccessControl.Groups) == 0 {
 		return true
 	}
 
-	return slices.Contains(p.AccessControl.Emails, email)
+	if len(p.AccessControl.Emails) > 0 && slices.Contains(p.AccessControl.Emails, profile.Email) {
+		return true
+	}
+
+	if len(p.AccessControl.Groups) > 0 && utils.Some(p.AccessControl.Groups, profile.Groups) {
+		return true
+	}
+
+	return false
 }
 
 func ClusterPermissions(permissions map[string]Permissions) gin.HandlerFunc {
@@ -38,7 +49,7 @@ func ClusterPermissions(permissions map[string]Permissions) gin.HandlerFunc {
 		}
 
 		if profile := ProfileFrom(ctx); profile != nil {
-			if !permissions[cluster].AllowedEmail(profile.Email) {
+			if !permissions[cluster].Allowed(profile) {
 				ctx.AbortWithStatus(http.StatusUnauthorized)
 				return
 			}

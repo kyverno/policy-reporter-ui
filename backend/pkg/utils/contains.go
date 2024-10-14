@@ -9,3 +9,15 @@ func Contains[T comparable](list []T, item T) bool {
 
 	return false
 }
+
+func Some[T comparable](list []T, items []T) bool {
+	for _, i := range list {
+		for _, j := range items {
+			if i == j {
+				return true
+			}
+		}
+	}
+
+	return false
+}

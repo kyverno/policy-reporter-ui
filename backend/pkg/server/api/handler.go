@@ -36,7 +36,7 @@ func (h *Handler) Config(ctx *gin.Context) {
 
 		clusters := make([]Cluster, 0, len(h.config.Clusters))
 		for _, cl := range h.config.Clusters {
-			access := cl.AllowedEmail(profile.Email)
+			access := cl.Allowed(profile)
 			if access {
 				clusters = append(clusters, cl)
 			}
@@ -69,7 +69,7 @@ func (h *Handler) ListCustomBoards(ctx *gin.Context) {
 
 func (h *Handler) ListPolicySources(ctx *gin.Context) {
 	if profile := auth.ProfileFrom(ctx); profile != nil {
-		if !h.config.Boards.AllowedEmail(profile.Email) {
+		if !h.config.Boards.Allowed(profile) {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
@@ -153,7 +153,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	}
 
 	if profile := auth.ProfileFrom(ctx); profile != nil {
-		if !config.AllowedEmail(profile.Email) {
+		if !config.Allowed(profile) {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
@@ -252,14 +252,14 @@ func (h *Handler) Layout(ctx *gin.Context) {
 		boards = make(map[string]CustomBoard, len(h.customBoards))
 
 		for key, board := range h.customBoards {
-			if !board.AllowedEmail(profile.Email) {
+			if !board.Allowed(profile) {
 				continue
 			}
 
 			boards[key] = board
 		}
 
-		if !h.config.Boards.AllowedEmail(profile.Email) {
+		if !h.config.Boards.Allowed(profile) {
 			sources = nil
 		}
 	} else {
@@ -277,7 +277,7 @@ func (h *Handler) Layout(ctx *gin.Context) {
 
 func (h *Handler) Dashboard(ctx *gin.Context) {
 	if profile := auth.ProfileFrom(ctx); profile != nil {
-		if !h.config.Boards.AllowedEmail(profile.Email) {
+		if !h.config.Boards.Allowed(profile) {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
@@ -334,7 +334,7 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 
 func (h *Handler) Policies(ctx *gin.Context) {
 	if profile := auth.ProfileFrom(ctx); profile != nil {
-		if !h.config.Boards.AllowedEmail(profile.Email) {
+		if !h.config.Boards.Allowed(profile) {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}

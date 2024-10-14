@@ -24,6 +24,7 @@ type OpenIDConnect struct {
 	CallbackURL  string   `mapstructure:"callbackUrl"`
 	ClientID     string   `mapstructure:"clientId"`
 	ClientSecret string   `mapstructure:"clientSecret"`
+	GroupClaim   string   `mapstructure:"groupClaim"`
 	Scopes       []string `mapstructure:"scopes"`
 }
 
@@ -191,6 +192,7 @@ type Source struct {
 
 type AccessControl struct {
 	Emails []string `mapstructure:"emails"`
+	Groups []string `mapstructure:"groups"`
 }
 
 type Boards struct {
@@ -242,4 +244,12 @@ func (c *Config) AuthBasePath() string {
 	}
 
 	return c.OpenIDConnect.BasePath()
+}
+
+func (c *Config) AuthGroupClaim() string {
+	if c.OAuth.Enabled {
+		return ""
+	}
+
+	return c.OpenIDConnect.GroupClaim
 }

@@ -12,7 +12,7 @@ import (
 
 const SessionKey = "auth-session"
 
-func Setup(engine *gin.Engine, basePath, provider, tempDir string) {
+func Setup(engine *gin.Engine, basePath, groupKey, provider, tempDir string) {
 	gob.Register(Profile{})
 	gob.Register(map[string]any{})
 
@@ -28,7 +28,7 @@ func Setup(engine *gin.Engine, basePath, provider, tempDir string) {
 
 	engine.Use(sessions.Sessions(SessionKey, NewStore(authStore)))
 
-	handler := NewHandler(basePath)
+	handler := NewHandler(basePath, groupKey)
 
 	engine.GET("/login", Provider(provider), handler.Login)
 	engine.GET("/logout", Provider(provider), handler.Logout)

@@ -26,7 +26,7 @@ func Provider(provider string) gin.HandlerFunc {
 	}
 }
 
-func Valid(basePath string) gin.HandlerFunc {
+func Valid(basePath, groupClaim string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		providerName, err := gothic.GetProviderName(ctx.Request)
 		if err != nil {
@@ -71,7 +71,10 @@ func Valid(basePath string) gin.HandlerFunc {
 			return
 		}
 
-		session.Set("profile", NewProfile(user))
+		newProfile := NewProfile(user)
+		newProfile.AssignGroups(mapGroups(user, groupClaim))
+
+		session.Set("profile", newProfile)
 		if err := session.Save(); err != nil {
 			zap.L().Error("failed to save profile session", zap.Error(err))
 		}

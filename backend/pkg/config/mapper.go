@@ -43,9 +43,7 @@ func MapConfig(c *Config) *api.Config {
 		Banner:   c.UI.Banner,
 		Boards: api.Boards{
 			Permissions: auth.Permissions{
-				AccessControl: auth.AccessControl{
-					Emails: c.Boards.AccessControl.Emails,
-				},
+				AccessControl: auth.AccessControl(c.Boards.AccessControl),
 			},
 		},
 		Sources: utils.Map(c.Sources, func(s Source) api.Source {
@@ -81,9 +79,7 @@ func MapCustomBoards(customBoards []CustomBoard) map[string]api.CustomBoard {
 				List: c.Sources.List,
 			},
 			Permissions: auth.Permissions{
-				AccessControl: auth.AccessControl{
-					Emails: c.AccessControl.Emails,
-				},
+				AccessControl: auth.AccessControl(c.AccessControl),
 			},
 			PolicyReports: api.PolicyReports{
 				Selector: c.PolicyReports.Selector,

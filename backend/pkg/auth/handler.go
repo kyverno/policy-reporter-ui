@@ -10,11 +10,12 @@ import (
 )
 
 type Handler struct {
-	basePath string
+	basePath   string
+	groupClaim string
 }
 
-func NewHandler(basePath string) *Handler {
-	return &Handler{basePath: basePath}
+func NewHandler(basePath, groupClaim string) *Handler {
+	return &Handler{basePath: basePath, groupClaim: groupClaim}
 }
 
 func (h *Handler) Callback(ctx *gin.Context) {
@@ -25,8 +26,11 @@ func (h *Handler) Callback(ctx *gin.Context) {
 		return
 	}
 
+	profile := NewProfile(user)
+	profile.AssignGroups(mapGroups(user, h.groupClaim))
+
 	session := sessions.Default(ctx)
-	session.Set("profile", NewProfile(user))
+	session.Set("profile", profile)
 
 	if err := session.Save(); err != nil {
 		zap.L().Error("failed to save session", zap.Error(err))
@@ -44,8 +48,11 @@ func (h *Handler) Login(ctx *gin.Context) {
 		return
 	}
 
+	profile := NewProfile(user)
+	profile.AssignGroups(mapGroups(user, h.groupClaim))
+
 	session := sessions.Default(ctx)
-	session.Set("profile", NewProfile(user))
+	session.Set("profile", profile)
 
 	ctx.Redirect(http.StatusTemporaryRedirect, h.basePath)
 }
