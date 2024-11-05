@@ -14,7 +14,7 @@
     "@mdi/font": "^7.3.67",
     "@nuxt/devtools": "latest",
     "@types/lodash.debounce": "^4.0.9",
-    "nuxt": "^3.13.2",
+    "nuxt": "^3.14.0",
     "sass": "^1.69.5",
     "vite-plugin-vuetify": "^2.0.1",
     "vue": "^3.3.8",
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@highlightjs/vue-plugin": "^2.1.0",
-    "@pinia/nuxt": "^0.5.1",
+    "@pinia/nuxt": "^0.7.0",
     "@vueuse/nuxt": "^11.1.0",
     "axios": "^1.6.2",
     "chart.js": "^4.4.0",
