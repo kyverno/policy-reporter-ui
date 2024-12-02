@@ -13,7 +13,7 @@ import (
 )
 
 func Load(c *Config, cfgFile string) error {
-	var k = koanf.New("!")
+	k := koanf.New("!")
 
 	if cfgFile == "" {
 		cfgFile = "./config.yaml"
@@ -23,12 +23,18 @@ func Load(c *Config, cfgFile string) error {
 		fmt.Printf("[ERROR] failed to load config file: %v\n", err)
 	}
 
-	k.Load(env.Provider("PR_", ".", func(s string) string {
+	err := k.Load(env.Provider("PR_", ".", func(s string) string {
 		return strings.Replace(strings.ToLower(
 			strings.TrimPrefix(s, "PR_")), "_", ".", -1)
 	}), nil)
+	if err != nil {
+		return err
+	}
 
-	err := k.Unmarshal("", c)
+	err = k.Unmarshal("", c)
+	if err != nil {
+		return err
+	}
 
 	if c.UI.Path == "" {
 		c.UI.Path = path.Join(os.Getenv("KO_DATA_PATH"), "ui")
