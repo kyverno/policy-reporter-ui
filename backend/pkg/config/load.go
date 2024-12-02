@@ -6,26 +6,29 @@ import (
 	"path"
 	"strings"
 
-	"github.com/spf13/viper"
+	"github.com/knadh/koanf/parsers/yaml"
+	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/providers/file"
+	"github.com/knadh/koanf/v2"
 )
 
 func Load(c *Config, cfgFile string) error {
-	v := viper.New()
+	var k = koanf.New("!")
 
-	if cfgFile != "" {
-		v.SetConfigFile(cfgFile)
-	} else {
-		v.AddConfigPath(".")
-		v.SetConfigName("config")
+	if cfgFile == "" {
+		cfgFile = "./config.yaml"
 	}
 
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	v.AutomaticEnv()
-
-	if err := v.ReadInConfig(); err != nil {
-		fmt.Printf("[INFO] No configuration file found: %v\n", err)
+	if err := k.Load(file.Provider(cfgFile), yaml.Parser()); err != nil {
+		fmt.Printf("[ERROR] failed to load config file: %v\n", err)
 	}
-	err := v.Unmarshal(c)
+
+	k.Load(env.Provider("PR_", ".", func(s string) string {
+		return strings.Replace(strings.ToLower(
+			strings.TrimPrefix(s, "PR_")), "_", ".", -1)
+	}), nil)
+
+	err := k.Unmarshal("", c)
 
 	if c.UI.Path == "" {
 		c.UI.Path = path.Join(os.Getenv("KO_DATA_PATH"), "ui")
