@@ -12,20 +12,20 @@ import (
 
 // BasicAuth configuration
 type BasicAuth struct {
-	Username  string `mapstructure:"username"`
-	Password  string `mapstructure:"password"`
-	SecretRef string `mapstructure:"secretRef"`
+	Username  string `koanf:"username"`
+	Password  string `koanf:"password"`
+	SecretRef string `koanf:"secretRef"`
 }
 
 type OpenIDConnect struct {
-	Enabled      bool     `mapstructure:"enabled"`
-	SecretRef    string   `mapstructure:"secretRef"`
-	DiscoveryURL string   `mapstructure:"discoveryUrl"`
-	CallbackURL  string   `mapstructure:"callbackUrl"`
-	ClientID     string   `mapstructure:"clientId"`
-	ClientSecret string   `mapstructure:"clientSecret"`
-	GroupClaim   string   `mapstructure:"groupClaim"`
-	Scopes       []string `mapstructure:"scopes"`
+	Enabled      bool     `koanf:"enabled"`
+	SecretRef    string   `koanf:"secretRef"`
+	DiscoveryURL string   `koanf:"discoveryUrl"`
+	CallbackURL  string   `koanf:"callbackUrl"`
+	ClientID     string   `koanf:"clientId"`
+	ClientSecret string   `koanf:"clientSecret"`
+	GroupClaim   string   `koanf:"groupClaim"`
+	Scopes       []string `koanf:"scopes"`
 }
 
 func (a OpenIDConnect) BasePath() string {
@@ -63,13 +63,13 @@ func (a OpenIDConnect) FromValues(values secrets.Values) OpenIDConnect {
 }
 
 type OAuth struct {
-	Enabled      bool     `mapstructure:"enabled"`
-	SecretRef    string   `mapstructure:"secretRef"`
-	Provider     string   `mapstructure:"provider"`
-	CallbackURL  string   `mapstructure:"callbackUrl"`
-	ClientID     string   `mapstructure:"clientId"`
-	ClientSecret string   `mapstructure:"clientSecret"`
-	Scopes       []string `mapstructure:"scopes"`
+	Enabled      bool     `koanf:"enabled"`
+	SecretRef    string   `koanf:"secretRef"`
+	Provider     string   `koanf:"provider"`
+	CallbackURL  string   `koanf:"callbackUrl"`
+	ClientID     string   `koanf:"clientId"`
+	ClientSecret string   `koanf:"clientSecret"`
+	Scopes       []string `koanf:"scopes"`
 }
 
 func (a OAuth) FromValues(values secrets.Values) OAuth {
@@ -91,12 +91,12 @@ func (a OAuth) BasePath() string {
 }
 
 type Plugin struct {
-	Name        string    `mapstructure:"name"`
-	Host        string    `mapstructure:"host"`
-	SkipTLS     bool      `mapstructure:"skipTLS"`
-	Certificate string    `mapstructure:"certificate"`
-	SecretRef   string    `mapstructure:"secretRef"`
-	BasicAuth   BasicAuth `mapstructure:"basicAuth"`
+	Name        string    `koanf:"name"`
+	Host        string    `koanf:"host"`
+	SkipTLS     bool      `koanf:"skipTLS"`
+	Certificate string    `koanf:"certificate"`
+	SecretRef   string    `koanf:"secretRef"`
+	BasicAuth   BasicAuth `koanf:"basicAuth"`
 }
 
 func (a Plugin) FromValues(values secrets.Values) Plugin {
@@ -121,14 +121,14 @@ func (a Plugin) FromValues(values secrets.Values) Plugin {
 
 // Cluster configuration
 type Cluster struct {
-	Name          string        `mapstructure:"name"`
-	Host          string        `mapstructure:"host"`
-	Plugins       []Plugin      `mapstructure:"plugins"`
-	SkipTLS       bool          `mapstructure:"skipTLS"`
-	Certificate   string        `mapstructure:"certificate"`
-	SecretRef     string        `mapstructure:"secretRef"`
-	BasicAuth     BasicAuth     `mapstructure:"basicAuth"`
-	AccessControl AccessControl `mapstructure:"accessControl"`
+	Name          string        `koanf:"name"`
+	Host          string        `koanf:"host"`
+	Plugins       []Plugin      `koanf:"plugins"`
+	SkipTLS       bool          `koanf:"skipTLS"`
+	Certificate   string        `koanf:"certificate"`
+	SecretRef     string        `koanf:"secretRef"`
+	BasicAuth     BasicAuth     `koanf:"basicAuth"`
+	AccessControl AccessControl `koanf:"accessControl"`
 }
 
 func (a Cluster) FromValues(values secrets.Values) Cluster {
@@ -165,73 +165,73 @@ func (a Cluster) FromValues(values secrets.Values) Cluster {
 }
 
 type UI struct {
-	Path        string `mapstructure:"path"`
-	Banner      string `mapstructure:"banner"`
-	Disabled    bool   `mapstructure:"enabled"`
-	DisplayMode string `mapstructure:"displayMode"`
+	Path        string `koanf:"path"`
+	Banner      string `koanf:"banner"`
+	Disabled    bool   `koanf:"enabled"`
+	DisplayMode string `koanf:"displayMode"`
 }
 
 type Server struct {
-	Port          int  `mapstructure:"port"`
-	CORS          bool `mapstructure:"cors"`
-	Debug         bool `mapstructure:"debug"`
-	OverwriteHost bool `mapstructure:"overwriteHost"`
+	Port          int  `koanf:"port"`
+	CORS          bool `koanf:"cors"`
+	Debug         bool `koanf:"debug"`
+	OverwriteHost bool `koanf:"overwriteHost"`
 }
 
 type Source struct {
-	Name       string `mapstructure:"name"`
-	Exceptions bool   `mapstructure:"exceptions"`
-	ViewType   string `mapstructure:"type"`
+	Name       string `koanf:"name"`
+	Exceptions bool   `koanf:"exceptions"`
+	ViewType   string `koanf:"type"`
 	Excludes   struct {
-		NamespaceKinds []string `mapstructure:"namespaceKinds"`
-		ClusterKinds   []string `mapstructure:"clusterKinds"`
-		Results        []string `mapstructure:"results"`
-		Severities     []string `mapstructure:"severities"`
-	} `mapstructure:"excludes"`
+		NamespaceKinds []string `koanf:"namespaceKinds"`
+		ClusterKinds   []string `koanf:"clusterKinds"`
+		Results        []string `koanf:"results"`
+		Severities     []string `koanf:"severities"`
+	} `koanf:"excludes"`
 }
 
 type AccessControl struct {
-	Emails []string `mapstructure:"emails"`
-	Groups []string `mapstructure:"groups"`
+	Emails []string `koanf:"emails"`
+	Groups []string `koanf:"groups"`
 }
 
 type Boards struct {
-	AccessControl AccessControl `mapstructure:"accessControl"`
+	AccessControl AccessControl `koanf:"accessControl"`
 }
 
 type CustomBoard struct {
-	Name          string        `mapstructure:"name"`
-	AccessControl AccessControl `mapstructure:"accessControl"`
+	Name          string        `koanf:"name"`
+	AccessControl AccessControl `koanf:"accessControl"`
 	Namespaces    struct {
-		Selector map[string]string `mapstructure:"selector"`
-		List     []string          `mapstructure:"list"`
-	} `mapstructure:"namespaces"`
+		Selector map[string]string `koanf:"selector"`
+		List     []string          `koanf:"list"`
+	} `koanf:"namespaces"`
 	Sources struct {
-		List []string `mapstructure:"list"`
-	} `mapstructure:"sources"`
+		List []string `koanf:"list"`
+	} `koanf:"sources"`
 	PolicyReports struct {
-		Selector map[string]string `mapstructure:"selector"`
-	} `mapstructure:"policyReports"`
+		Selector map[string]string `koanf:"selector"`
+	} `koanf:"policyReports"`
 	ClusterScope struct {
-		Enabled bool `mapstructure:"enabled"`
-	} `mapstructure:"clusterScope"`
+		Enabled bool `koanf:"enabled"`
+	} `koanf:"clusterScope"`
 }
 
 // Config structure
 type Config struct {
 	KubeConfig    clientcmd.ConfigOverrides
-	Namespace     string         `mapstructure:"namespace"`
-	TempDir       string         `mapstructure:"tempDir"`
-	Clusters      []Cluster      `mapstructure:"clusters"`
-	Sources       []Source       `mapstructure:"sources"`
-	Server        Server         `mapstructure:"server"`
-	UI            UI             `mapstructure:"ui"`
-	Logging       logging.Config `mapstructure:"logging"`
-	OpenIDConnect OpenIDConnect  `mapstructure:"openIDConnect"`
-	OAuth         OAuth          `mapstructure:"oauth"`
+	Namespace     string         `koanf:"namespace"`
+	TempDir       string         `koanf:"tempDir"`
+	Clusters      []Cluster      `koanf:"clusters"`
+	Sources       []Source       `koanf:"sources"`
+	Server        Server         `koanf:"server"`
+	UI            UI             `koanf:"ui"`
+	Logging       logging.Config `koanf:"logging"`
+	OpenIDConnect OpenIDConnect  `koanf:"openIDConnect"`
+	OAuth         OAuth          `koanf:"oauth"`
 	Boards        Boards         `mastructure:"boards"`
-	CustomBoards  []CustomBoard  `mapstructure:"customBoards"`
-	Local         bool           `mapstructure:"local"`
+	CustomBoards  []CustomBoard  `koanf:"customBoards"`
+	Local         bool           `koanf:"local"`
 }
 
 func (c *Config) AuthEnabled() bool {
