@@ -25,7 +25,6 @@ func newRunCMD() *cobra.Command {
 			}
 
 			resolver := config.NewResolver(c)
-
 			logger := resolver.Logger()
 
 			serv, err := resolver.Server(cmd.Context())
