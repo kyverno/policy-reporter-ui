@@ -259,14 +259,17 @@ func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) ([]gin.Han
 	if oid.SecretRef != "" {
 		values, err := r.LoadSecret(ctx, oid.SecretRef)
 		if err != nil {
+			zap.L().Error("failed to load openIDConnect secret", zap.String("secret", oid.SecretRef), zap.Error(err))
 			return nil, err
 		}
 
 		oid = oid.FromValues(values)
 	}
 
+	zap.L().Debug("setup openIDConnect", zap.String("callback", oid.Callback()), zap.String("discovery", oid.Discovery()))
 	provider, err := openidConnect.New(oid.ClientID, oid.ClientSecret, oid.Callback(), oid.Discovery(), oid.Scopes...)
 	if err != nil {
+		zap.L().Error("failed to create openIDConnect provider", zap.Error(err))
 		return nil, err
 	}
 
@@ -293,6 +296,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 		handler, err := r.SetupOIDC(ctx, engine)
 		if err != nil {
 			zap.L().Error("failed to setup oidc", zap.Error(err))
+			return nil, err
 		}
 
 		middleware = append(middleware, handler...)
@@ -300,6 +304,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 		handler, err := r.SetupOAuth(ctx, engine)
 		if err != nil {
 			zap.L().Error("failed to setup oauth", zap.Error(err))
+			return nil, err
 		}
 
 		middleware = append(middleware, handler...)
