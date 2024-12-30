@@ -3,7 +3,7 @@ module github.com/kyverno/policy-reporter-ui
 go 1.23.0
 
 require (
-	github.com/gin-contrib/cors v1.7.2
+	github.com/gin-contrib/cors v1.7.3
 	github.com/gin-contrib/gzip v1.1.0
 	github.com/gin-contrib/sessions v1.0.2
 	github.com/gin-contrib/zap v1.1.4
