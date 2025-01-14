@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/gin-contrib/cors v1.7.3
-	github.com/gin-contrib/gzip v1.1.0
+	github.com/gin-contrib/gzip v1.2.0
 	github.com/gin-contrib/sessions v1.0.2
 	github.com/gin-contrib/zap v1.1.4
 	github.com/gin-gonic/gin v1.10.0
@@ -44,7 +44,7 @@ require (
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.23.0 // indirect
+	github.com/go-playground/validator/v10 v10.24.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/goccy/go-json v0.10.4 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
