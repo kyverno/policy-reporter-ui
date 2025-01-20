@@ -58,7 +58,7 @@
 
       <template v-if="policy.additional && policy.additional.length">
         <v-col v-for="details in policy.additional" :cols="detailsCols">
-          <v-card :title="details.title">
+          <v-card :title="details.title" style="height: 100%;">
             <v-container fluid>
               <template v-for="item in details.items" :key="item.value">
                 <v-row class="top-border" v-if="item.value">
