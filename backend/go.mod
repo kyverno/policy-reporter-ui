@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/gin-contrib/cors v1.7.3
-	github.com/gin-contrib/gzip v1.2.1
+	github.com/gin-contrib/gzip v1.2.2
 	github.com/gin-contrib/sessions v1.0.2
 	github.com/gin-contrib/zap v1.1.4
 	github.com/gin-gonic/gin v1.10.0
