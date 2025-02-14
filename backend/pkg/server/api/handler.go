@@ -363,7 +363,7 @@ func (h *Handler) Policies(ctx *gin.Context) {
 		if err != nil {
 			zap.L().Error("failed to load policies from plugin", zap.String("cluster", ctx.Param("cluster")), zap.String("plugin", source), zap.Error(err))
 		} else {
-			ctx.JSON(http.StatusOK, MapPluginPolicies(policies, list))
+			ctx.JSON(http.StatusOK, MapPluginPolicies(source, policies, list))
 			return
 		}
 	}
