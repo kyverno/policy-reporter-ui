@@ -12,7 +12,7 @@
         <v-card-text>
           <GraphBarPerCategory :source="source.chart" />
         </v-card-text>
-        <policy-list v-for="item in source.categories"
+        <policy-list v-for="item in categories"
                      :key="item"
                      :category="item"
                      :pending="pending as boolean"
@@ -46,6 +46,8 @@ const { data, refresh, pending } = useAPI(
     (api) => api.policies(props.source.name, combinedFilter.value),
     { default: () => ({}) }
 );
+
+const categories = computed(() => Object.keys(data.value || {}))
 
 watch(combinedFilter, onChange(refresh))
 
