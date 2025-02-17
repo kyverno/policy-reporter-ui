@@ -7,6 +7,7 @@ import (
 	plugin "github.com/kyverno/policy-reporter-plugins/sdk/api"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
+	"github.com/kyverno/policy-reporter-ui/pkg/service"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
@@ -118,7 +119,7 @@ func MapPoliciesFromCore(policies []core.Policy) map[string][]Policy {
 	return results
 }
 
-func MapPluginPolicies(policies []plugin.PolicyListItem, coreList []core.Policy) map[string][]Policy {
+func MapPluginPolicies(source string, policies []plugin.PolicyListItem, coreList []core.Policy) map[string][]Policy {
 	results := make(map[string][]Policy)
 
 	if len(coreList) == 0 {
@@ -135,7 +136,7 @@ func MapPluginPolicies(policies []plugin.PolicyListItem, coreList []core.Policy)
 
 	for _, policy := range policies {
 		if _, ok := cache[policy.Category]; !ok {
-			continue
+			cache[policy.Category] = make(map[string]*core.Policy)
 		}
 
 		corePolicy := cache[policy.Category][policyID(policy)]
@@ -143,7 +144,17 @@ func MapPluginPolicies(policies []plugin.PolicyListItem, coreList []core.Policy)
 			corePolicy = cache[policy.Category][policy.Name]
 		}
 		if corePolicy == nil {
-			continue
+			corePolicy = &core.Policy{
+				Name:   policy.Name,
+				Source: source,
+				Results: map[string]int{
+					service.StatusPass:  0,
+					service.StatusFail:  0,
+					service.StatusError: 0,
+					service.StatusWarn:  0,
+					service.StatusSkip:  0,
+				},
+			}
 		}
 
 		category := policy.Category

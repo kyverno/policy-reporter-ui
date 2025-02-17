@@ -8,6 +8,9 @@
     <v-list-item-title>
       {{ item.title }}
     </v-list-item-title>
+    <v-list-item-subtitle v-if="item.namespace">
+      {{ item.namespace }}
+    </v-list-item-subtitle>
     <template v-slot:append v-if="summary">
       <ResultChip :to="{ name: 'policies-source-policy', params: { source: item.source, policy: item.name }, query: { kinds: route.query?.kinds, 'cluster-kinds': route.query['cluster-kinds'] }}" class="ml-2" :status="Status.SUMMARY" :count="count" tooltip="results" />
     </template>
