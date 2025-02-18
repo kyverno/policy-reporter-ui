@@ -252,6 +252,10 @@ export type Config = {
     oauth: boolean;
     default: string;
     banner: string;
+    logo: {
+        disabled: boolean;
+        path?: string;
+    }
 }
 
 export type SourceFindings = { source: string; counts: { [key in Partial<Status>]: number }, total: number; }

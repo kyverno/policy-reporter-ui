@@ -68,8 +68,14 @@ type Boards struct {
 	auth.Permissions
 }
 
+type Logo struct {
+	Path     string `json:"path,omitempty"`
+	Disabled bool   `json:"disabled"`
+}
+
 type Config struct {
 	User     any       `json:"user"`
+	Logo     Logo      `json:"logo"`
 	Clusters []Cluster `json:"clusters"`
 	Sources  []Source  `json:"sources"`
 	Default  string    `json:"default"`
