@@ -11,6 +11,10 @@ type State = {
     oauth: boolean;
     banner: string;
     error?: Error;
+    logo: {
+        disabled: boolean;
+        path?: string;
+    }
 }
 
 export const useConfigStore = defineStore('config', {
@@ -20,6 +24,10 @@ export const useConfigStore = defineStore('config', {
         clusters: [],
         oauth: false,
         banner: '',
+        logo: {
+            disabled: false,
+            path: undefined,
+        }
     }),
     getters: {
         multiCluster: (state: State) => state.clusters.length > 0,
@@ -39,6 +47,7 @@ export const useConfigStore = defineStore('config', {
             this.clusters = config.clusters
             this.oauth = config.oauth
             this.banner = config.banner
+            this.logo = config.logo
         },
         setDisplayMode(mode: DisplayMode) {
             if (!mode || mode === this.displayMode) return;

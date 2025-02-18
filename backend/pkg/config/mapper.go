@@ -46,6 +46,10 @@ func MapConfig(c *Config) *api.Config {
 				AccessControl: auth.AccessControl(c.Boards.AccessControl),
 			},
 		},
+		Logo: api.Logo{
+			Disabled: c.UI.Logo.Disabled,
+			Path:     c.UI.Logo.Path,
+		},
 		Sources: utils.Map(c.Sources, func(s Source) api.Source {
 			return api.Source{
 				Name:       s.Name,

@@ -164,11 +164,17 @@ func (a Cluster) FromValues(values secrets.Values) Cluster {
 	return a
 }
 
+type Logo struct {
+	Path     string `koanf:"path"`
+	Disabled bool   `koanf:"disabled"`
+}
+
 type UI struct {
 	Path        string `koanf:"path"`
 	Banner      string `koanf:"banner"`
 	Disabled    bool   `koanf:"enabled"`
 	DisplayMode string `koanf:"displayMode"`
+	Logo        Logo   `koanf:"logo"`
 }
 
 type Server struct {
