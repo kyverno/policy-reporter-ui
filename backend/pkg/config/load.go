@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"path"
 	"strings"
 
 	"github.com/knadh/koanf/parsers/yaml"
@@ -36,8 +35,8 @@ func Load(c *Config, cfgFile string) error {
 		return err
 	}
 
-	if c.UI.Path == "" {
-		c.UI.Path = path.Join(os.Getenv("KO_DATA_PATH"), "ui")
+	if c.Namespace == "" {
+		c.Namespace = os.Getenv("POD_NAMESPACE")
 	}
 
 	return err

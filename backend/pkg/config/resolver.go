@@ -176,6 +176,7 @@ func (r *Resolver) LoadSecret(ctx context.Context, secretRef string) (secrets.Va
 			return secrets.Values{}, err
 		}
 
+		zap.L().Debug("create secret client", zap.String("namespace", r.config.Namespace))
 		r.secrets = secrets.NewClient(clientset.CoreV1().Secrets(r.config.Namespace))
 	}
 
