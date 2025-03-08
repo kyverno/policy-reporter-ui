@@ -13,9 +13,8 @@
 
     <v-navigation-drawer v-model="drawer">
       <v-list density="compact" nav color="header" variant="flat">
+        <v-list-item title="Dashboard" to="/" base-color="header" exact />
         <template v-if="layout.sources.length">
-          <v-list-item title="Dashboard" to="/" base-color="header" exact />
-
           <template v-for="item in layout.sources" :key="item.path">
             <template v-if="item.children">
               <v-list-item

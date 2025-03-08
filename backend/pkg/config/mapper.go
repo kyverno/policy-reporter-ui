@@ -73,8 +73,10 @@ func MapCustomBoards(customBoards []CustomBoard) map[string]api.CustomBoard {
 		id := slug.Make(c.Name)
 
 		configs[id] = api.CustomBoard{
-			Name: c.Name,
-			ID:   id,
+			Name:    c.Name,
+			ID:      id,
+			Display: c.Display,
+			Filter:  MapFilter(c.Filter.Include),
 			Namespaces: api.Namespaces{
 				Selector: c.Namespaces.Selector,
 				List:     c.Namespaces.List,
@@ -104,4 +106,26 @@ func MapClusterPermissions(c *Config) map[string]auth.Permissions {
 	}
 
 	return permissions
+}
+
+func MapFilter(f Filter) api.Includes {
+	if f.NamespaceKinds == nil {
+		f.NamespaceKinds = make([]string, 0)
+	}
+	if f.ClusterKinds == nil {
+		f.ClusterKinds = make([]string, 0)
+	}
+	if f.Results == nil {
+		f.Results = make([]string, 0)
+	}
+	if f.Severities == nil {
+		f.Severities = make([]string, 0)
+	}
+
+	return api.Includes{
+		NamespaceKinds: f.NamespaceKinds,
+		ClusterKinds:   f.ClusterKinds,
+		Results:        f.Results,
+		Severities:     f.Severities,
+	}
 }

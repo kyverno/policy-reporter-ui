@@ -1,7 +1,7 @@
 import type { Ref, UnwrapRef } from "vue";
 import type { UnwrapRefSimple } from "@vue/reactivity";
 
-export const useInfinite = <T>(list: Ref<T[] | null>, defaultLoadings = 3) => {
+export const useInfinite = <T>(list: Ref<T[] | null>, total: number, defaultLoadings = 3) => {
   const loaded = ref<T[]>([])
   const index = ref(0)
 
@@ -20,9 +20,8 @@ export const useInfinite = <T>(list: Ref<T[] | null>, defaultLoadings = 3) => {
     }
 
     if (oldLength > 0 && oldLength < length) {
-      loaded.value = l.slice(0, oldLength + 1) as UnwrapRefSimple<T>[]
-      index.value = oldLength + 1
-
+      loaded.value = [...l]
+      index.value = length
       return
     }
 
@@ -59,7 +58,6 @@ export const useInfinite = <T>(list: Ref<T[] | null>, defaultLoadings = 3) => {
       done('ok')
     }
   }
-
 
   return { load, loaded }
 }

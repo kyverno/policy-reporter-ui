@@ -205,10 +205,21 @@ type Boards struct {
 	AccessControl AccessControl `koanf:"accessControl"`
 }
 
+type Filter struct {
+	NamespaceKinds []string `koanf:"namespaceKinds"`
+	ClusterKinds   []string `koanf:"clusterKinds"`
+	Results        []string `koanf:"results"`
+	Severities     []string `koanf:"severities"`
+}
+
 type CustomBoard struct {
 	Name          string        `koanf:"name"`
 	AccessControl AccessControl `koanf:"accessControl"`
-	Namespaces    struct {
+	Filter        struct {
+		Include Filter `koanf:"include"`
+	} `koanf:"filter"`
+	Display    string `json:"display"`
+	Namespaces struct {
 		Selector map[string]string `koanf:"selector"`
 		List     []string          `koanf:"list"`
 	} `koanf:"namespaces"`

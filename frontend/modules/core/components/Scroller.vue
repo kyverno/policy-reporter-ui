@@ -16,5 +16,5 @@ const list = ref<any[]>(props.list)
 
 watch(() => props.list, () => { list.value = props.list }, { immediate: true })
 
-const { load, loaded } = useInfinite(list)
+const { load, loaded } = useInfinite(list, props.list.length)
 </script>

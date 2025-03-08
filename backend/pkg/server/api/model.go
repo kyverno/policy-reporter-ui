@@ -27,6 +27,13 @@ type Excludes struct {
 	Severities     []string `json:"severities"`
 }
 
+type Includes struct {
+	NamespaceKinds []string `json:"namespaceKinds"`
+	ClusterKinds   []string `json:"clusterKinds"`
+	Results        []string `json:"results"`
+	Severities     []string `json:"severities"`
+}
+
 type Source struct {
 	Name       string   `json:"name"`
 	ViewType   string   `mapstructure:"type"`
@@ -58,6 +65,8 @@ type CustomBoard struct {
 	auth.Permissions `json:"-"`
 	Name             string        `json:"name"`
 	ID               string        `json:"id"`
+	Display          string        `json:"display"`
+	Filter           Includes      `json:"filter"`
 	ClusterScope     bool          `json:"-"`
 	Namespaces       Namespaces    `json:"-"`
 	Sources          Sources       `json:"-"`
