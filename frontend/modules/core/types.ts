@@ -167,8 +167,11 @@ export type Dashboard = {
     filterSources: string[];
     multiSource: boolean;
     showResults: string[];
+    display: string;
     status: Status[];
     severities: Severity[];
+    namespaceKinds: string[];
+    clusterKinds: string[];
     singleSource: boolean;
     exceptions: boolean;
     type: ViewType;
@@ -268,10 +271,12 @@ export type FindingCounts = {
 export type ListResult = {
     id: string;
     namespace: string;
+    apiVersion: string;
     kind: string;
     name: string;
     resourceId: string;
     message: string;
+    source: string;
     policy: string;
     rule: string;
     status: Status;

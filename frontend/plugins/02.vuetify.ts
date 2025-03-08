@@ -20,6 +20,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       themes: {
         [DisplayMode.LIGHT]: {
           colors: {
+            surface: '#FDFDFD',
             'header-item': '#E0E0E0',
             'sub-item': '#EEEEEE',
             header: '#1f6bad',
@@ -79,6 +80,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         [DisplayMode.COLOR_BLIND]: {
           dark: false,
           colors: {
+            surface: '#FDFDFD',
             'header-item': '#E0E0E0',
             'sub-item': '#EEEEEE',
             header: '#3483c7',

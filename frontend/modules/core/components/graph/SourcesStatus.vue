@@ -44,7 +44,13 @@
   </v-row>
   <app-row>
     <v-card title="Result Overview">
-      <v-tabs v-model="source" bg-color="transparent" fixed-tabs>
+      <template  v-if="data.sourcesNavi.length === 0">
+        <v-divider />
+        <v-card-text>
+          <v-alert type="error" variant="outlined">No results found</v-alert>
+        </v-card-text>
+      </template>
+      <v-tabs v-model="source" bg-color="transparent" fixed-tabs v-else>
         <v-tab v-for="item in data.sourcesNavi" :key="item.name" :value="item.name" rounded="0">
           {{ item.title }}
         </v-tab>

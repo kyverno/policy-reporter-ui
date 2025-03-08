@@ -199,6 +199,11 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 			SingleSource:   len(sources) == 1,
 			MultipleSource: len(sources) > 1,
 			Namespaces:     make([]string, 0),
+			Display:        config.Display,
+			Severities:     config.Filter.Severities,
+			Status:         config.Filter.Results,
+			NamespaceKinds: config.Filter.NamespaceKinds,
+			ClusterKinds:   config.Filter.ClusterKinds,
 			Charts: service.Charts{
 				ClusterScope:   make(map[string]map[string]int),
 				NamespaceScope: make(map[string]*service.ChartVariants),
@@ -210,7 +215,17 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 
 	query["namespaces"] = namespaces
 
-	dashboard, err := h.service.Dashboard(ctx, ctx.Param("cluster"), sources, namespaces, config.ClusterScope, query)
+	dashboard, err := h.service.Dashboard(ctx, service.DashboardOptions{
+		Cluster:        ctx.Param("cluster"),
+		Sources:        sources,
+		Namespaces:     namespaces,
+		Display:        config.Display,
+		ClusterScope:   config.ClusterScope,
+		Status:         config.Filter.Results,
+		Severities:     config.Filter.Severities,
+		NamespaceKinds: config.Filter.NamespaceKinds,
+		ClusterKinds:   config.Filter.ClusterKinds,
+	}, query)
 	if err != nil {
 		zap.L().Error("failed to generate dashboard", zap.Error(err))
 		ctx.AbortWithStatus(http.StatusInternalServerError)
@@ -322,7 +337,12 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 		return
 	}
 
-	dashboard, err := h.service.Dashboard(ctx, ctx.Param("cluster"), sources, namespaces, true, ctx.Request.URL.Query())
+	dashboard, err := h.service.Dashboard(ctx, service.DashboardOptions{
+		Cluster:      ctx.Param("cluster"),
+		Sources:      sources,
+		Namespaces:   namespaces,
+		ClusterScope: true,
+	}, ctx.Request.URL.Query())
 	if err != nil {
 		zap.L().Error("failed to generate dashboard", zap.Error(err))
 		ctx.AbortWithStatus(http.StatusInternalServerError)

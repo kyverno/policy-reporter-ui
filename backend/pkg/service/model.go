@@ -56,6 +56,7 @@ type Total struct {
 type Dashboard struct {
 	Title          string       `json:"title"`
 	Type           string       `json:"type"`
+	Display        string       `json:"display"`
 	FilterSources  []string     `json:"filterSources,omitempty"`
 	ClusterScope   bool         `json:"clusterScope"`
 	Sources        []string     `json:"sources"`
@@ -69,6 +70,8 @@ type Dashboard struct {
 	ShowResults    []string     `json:"showResults"`
 	Status         []string     `json:"status"`
 	Severities     []string     `json:"severities"`
+	NamespaceKinds []string     `json:"namespaceKinds"`
+	ClusterKinds   []string     `json:"clusterKinds"`
 }
 
 type ResourceDetails struct {
@@ -151,4 +154,16 @@ type ExceptionRequest struct {
 	Source   string            `json:"source"`
 	Category string            `json:"category"`
 	Policies []ExceptionPolicy `json:"policies"`
+}
+
+type DashboardOptions struct {
+	Status         []string
+	Severities     []string
+	Sources        []string
+	Namespaces     []string
+	NamespaceKinds []string
+	ClusterKinds   []string
+	Cluster        string
+	Display        string
+	ClusterScope   bool
 }

@@ -11,14 +11,16 @@
       <GraphSourceCharts :data="data" :hide-cluster="!data.clusterScope" />
       <v-row v-if="data.clusterScope">
         <v-col>
-          <resource-cluster-list :details="data.multiSource" />
+          <result-cluster-table v-if="data.display === 'results'" :sources="data.sources" />
+          <resource-cluster-list v-else :details="data.multiSource" />
         </v-col>
       </v-row>
       <resource-namespace-section v-if="data.namespaces.length" :namespaces="data.namespaces">
         <template #default="{ namespaces }">
           <resource-scroller :list="namespaces" :default-loadings="3">
             <template #default="{ item }">
-              <resource-list :namespace="item" :details="data.multiSource" />
+              <result-table v-if="data.display === 'results'" :namespace="item" :sources="data.sources" />
+              <resource-list v-else :namespace="item" :details="data.multiSource" />
             </template>
           </resource-scroller>
         </template>
@@ -60,6 +62,13 @@ watchEffect(() => {
   if (!data.value) return;
 
   store.load(data.value.sources)
+
+  if (data.value.clusterKinds.length > 0) {
+    clusterKinds.value = data.value.clusterKinds
+  }
+  if (data.value.namespaceKinds.length > 0) {
+    kinds.value = data.value.namespaceKinds
+  }
 })
 
 watch(filter, onChange(refresh))
