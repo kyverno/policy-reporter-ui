@@ -22,7 +22,7 @@ require (
 	golang.org/x/sync v0.12.0
 	golang.org/x/text v0.23.0
 	k8s.io/api v0.32.2
-	k8s.io/apimachinery v0.32.2
+	k8s.io/apimachinery v0.32.3
 	k8s.io/client-go v0.32.2
 )
 
