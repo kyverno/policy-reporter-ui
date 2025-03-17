@@ -1,70 +1,73 @@
 <template>
-  <v-card v-if="(data && data.count > 0) || !!searchText">
-    <v-toolbar color="secondary">
-      <template #title>{{ namespace }}</template>
-      <template #append>
-        <search v-model="searchText" class="mr-4" style="min-width: 400px; float: left;" />
-        <v-btn :icon="open ? 'mdi-chevron-up' : 'mdi-chevron-down'" @click="open = !open" variant="text" />
-      </template>
-    </v-toolbar>
-    <v-expand-transition>
-      <div v-show="open">
-        <v-divider />
-        <v-data-table-server
-          :items="results.results"
-          :items-length="results.count"
-          :headers="headers"
-          item-value="id"
-          v-model:items-per-page="options.itemsPerPage"
-          v-model:page="options.page"
-          hover
-        >
-          <template #item="{ item, ...props }">
-            <tr @click="() => props.toggleExpand(props.internalItem)" class="cursor-pointer">
-              <td>{{ item.apiVersion }}</td>
-              <td>{{ item.kind }}</td>
-              <td>{{ item.name }}</td>
-              <td>
-                <v-btn v-if="plugin" @click.stop="openPolicy(item.policy, item.source)" class="mr-1" target="_blank" icon="mdi-open-in-new" variant="text" size="small" />
-                {{ item.policy }}
-              </td>
-              <td>{{ item.rule }}</td>
-              <td>
-                <chip-severity v-if="item.severity" @click.prevent.stop="searchText = item.severity" :severity="item.severity" />
-              </td>
-              <td>
-                <chip-status @click.prevent.stop="searchText = item.status" :status="item.status" />
-              </td>
-            </tr>
-          </template>
-          <template #expanded-row="{ columns, item }">
-            <tr :class="bg">
-              <td :colspan="columns.length" class="py-3">
-                <div v-if="item.hasProps">
-                  <v-card v-if="item.message" variant="flat">
-                    <v-alert type="info" variant="flat" class="text-pre-line">
-                      {{ item.message }}
-                    </v-alert>
-                  </v-card>
-                  <div>
-                    <template v-for="(value, label) in item.chips"  :key="label">
-                      <property-chip :label="label as string" :value="value" class="mr-2 mt-2 rounded-lg" />
-                    </template>
-                    <template v-for="(value, label) in item.cards"  :key="label">
-                      <property-card :label="label as string" :value="value" class="mt-2" />
-                    </template>
+  <app-row v-if="(data && !pending) || !!searchText">
+    <v-card>
+      <v-toolbar color="secondary">
+        <template #title>{{ namespace }}</template>
+        <template #append>
+          <search v-model="searchText" class="mr-4" style="min-width: 400px; float: left;" />
+          <v-btn :icon="open ? 'mdi-chevron-up' : 'mdi-chevron-down'" @click="open = !open" variant="text" />
+        </template>
+      </v-toolbar>
+      <v-expand-transition>
+        <div v-show="open">
+          <v-divider />
+          <v-data-table-server
+            :items="results.results"
+            :items-length="results.count"
+            :headers="headers"
+            item-value="id"
+            v-model:items-per-page="options.itemsPerPage"
+            v-model:page="options.page"
+            no-data-text="No results found"
+            hover
+          >
+            <template #item="{ item, ...props }">
+              <tr @click="() => props.toggleExpand(props.internalItem)" class="cursor-pointer">
+                <td>{{ item.apiVersion }}</td>
+                <td>{{ item.kind }}</td>
+                <td>{{ item.name }}</td>
+                <td>
+                  <v-btn v-if="plugin" @click.stop="openPolicy(item.policy, item.source)" class="mr-1" target="_blank" icon="mdi-open-in-new" variant="text" size="small" />
+                  {{ item.policy }}
+                </td>
+                <td>{{ item.rule }}</td>
+                <td>
+                  <chip-severity v-if="item.severity" @click.prevent.stop="searchText = item.severity" :severity="item.severity" />
+                </td>
+                <td>
+                  <chip-status @click.prevent.stop="searchText = item.status" :status="item.status" />
+                </td>
+              </tr>
+            </template>
+            <template #expanded-row="{ columns, item }">
+              <tr :class="bg">
+                <td :colspan="columns.length" class="py-3">
+                  <div v-if="item.hasProps">
+                    <v-card v-if="item.message" variant="flat">
+                      <v-alert type="info" variant="flat" class="text-pre-line">
+                        {{ item.message }}
+                      </v-alert>
+                    </v-card>
+                    <div>
+                      <template v-for="(value, label) in item.chips"  :key="label">
+                        <property-chip :label="label as string" :value="value" class="mr-2 mt-2 rounded-lg" />
+                      </template>
+                      <template v-for="(value, label) in item.cards"  :key="label">
+                        <property-card :label="label as string" :value="value" class="mt-2" />
+                      </template>
+                    </div>
                   </div>
-                </div>
-                <div class="text-pre-line" v-else>
-                  {{ item.message }}
-                </div>
-              </td>
-            </tr>
-          </template>
-        </v-data-table-server>
-      </div>
-    </v-expand-transition>
-  </v-card>
+                  <div class="text-pre-line" v-else>
+                    {{ item.message }}
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </v-data-table-server>
+        </div>
+      </v-expand-transition>
+    </v-card>
+  </app-row>
 </template>
 
 <script lang="ts" setup>
@@ -106,7 +109,7 @@ const severities = useSeveritiesInjection()
 
 const open = ref(true)
 const searchText = ref('')
-const { data, refresh } = useAPI(
+const { data, refresh, pending } = useAPI(
     (api) => api.namespacedResults({
       namespaces: props.namespace ? [props.namespace] : undefined,
       kinds: kinds.value,
