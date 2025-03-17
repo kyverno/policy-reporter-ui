@@ -1,5 +1,5 @@
 <template>
-  <v-card v-if="(data && data.count > 0) || !!searchText">
+  <v-card v-if="(data && !pending) || !!searchText">
     <v-toolbar color="secondary">
       <template #append>
         <search v-model="searchText" class="mr-4" style="min-width: 400px; float: left;" />
@@ -103,7 +103,7 @@ const kinds = inject<Ref<string[]>>(ClusterKinds, ref<string[]>([]))
 
 const open = ref(true)
 const searchText = ref('')
-const { data, refresh } = useAPI(
+const { data, refresh, pending } = useAPI(
     (api) => api.clusterResults({
       sources: props.sources,
       kinds: kinds.value,

@@ -1,9 +1,7 @@
 <template>
   <v-infinite-scroll :onLoad="load" class="no-scrollbar pb-0 mb-0" v-if="loaded.length">
     <template v-for="item in loaded" :key="item">
-      <app-row>
-        <slot :item="item" />
-      </app-row>
+      <slot :item="item" />
     </template>
     <template #empty></template>
   </v-infinite-scroll>

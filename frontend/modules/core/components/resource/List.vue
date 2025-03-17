@@ -1,28 +1,30 @@
 <template>
-  <v-card v-if="data">
-    <v-toolbar color="transparent">
-      <v-toolbar-title>{{ namespace }}</v-toolbar-title>
-      <template #append>
-        <Search class="mr-2" v-model="search" style="min-width: 300px;" />
-        <CollapseBtn v-model="open" :disabled="!(data?.items?.length)" />
+  <app-row v-if="data">
+    <v-card>
+      <v-toolbar color="transparent">
+        <v-toolbar-title>{{ namespace }}</v-toolbar-title>
+        <template #append>
+          <Search class="mr-2" v-model="search" style="min-width: 300px;" />
+          <CollapseBtn v-model="open" :disabled="!(data?.items?.length)" />
+        </template>
+      </v-toolbar>
+      <template v-if="open">
+        <v-list v-if="data?.items?.length" lines="two" class="pt-0">
+          <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" :exceptions="exceptions" :show-skipped="showSkipped" />
+        </v-list>
+        <template v-if="data.count > options.offset">
+          <v-divider />
+          <v-pagination v-model="options.page" :length="length" class="my-4" />
+        </template>
       </template>
-    </v-toolbar>
-    <template v-if="open">
-      <v-list v-if="data?.items?.length" lines="two" class="pt-0">
-        <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" :exceptions="exceptions" :show-skipped="showSkipped" />
-      </v-list>
-      <template v-if="data.count > options.offset">
+      <template v-if="!pending && !(data.items.length)">
         <v-divider />
-        <v-pagination v-model="options.page" :length="length" class="my-4" />
+        <v-card-text>
+          No resources for the selected kinds found
+        </v-card-text>
       </template>
-    </template>
-    <template v-if="!pending && !(data.items.length)">
-      <v-divider />
-      <v-card-text>
-        No resources for the selected kinds found
-      </v-card-text>
-    </template>
-  </v-card>
+    </v-card>
+  </app-row>
 </template>
 
 <script setup lang="ts">
