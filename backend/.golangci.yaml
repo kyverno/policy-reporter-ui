@@ -1,3 +1,4 @@
+version: "2"
 linters:
   enable:
     - asasalint
@@ -5,39 +6,47 @@ linters:
     - bidichk
     - bodyclose
     - containedctx
+    - copyloopvar
     - decorder
     - dogsled
     - durationcheck
-    - errcheck
     - errname
-    - copyloopvar
     - gochecknoinits
-    - gofmt
-    - gofumpt
-    - goimports
     - goprintffuncname
     - gosec
-    - gosimple
-    - govet
     - grouper
     - importas
-    - ineffassign
     - makezero
     - misspell
     - noctx
     - nolintlint
     - nosprintfhostport
     - paralleltest
-    - staticcheck
-    - tenv
+    - prealloc
     - thelper
     - tparallel
-    - typecheck
     - unconvert
-    - unused
     - wastedassign
     - whitespace
-    - prealloc
-
-run:
-  timeout: 15m
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
