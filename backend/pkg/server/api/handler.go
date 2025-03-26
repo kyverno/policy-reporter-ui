@@ -50,12 +50,13 @@ func (h *Handler) Config(ctx *gin.Context) {
 		}
 
 		ctx.JSON(http.StatusOK, Config{
-			Clusters: clusters,
-			Default:  cluster,
-			User:     h.config.User,
-			Sources:  h.config.Sources,
-			Banner:   h.config.Banner,
-			OAuth:    h.config.OAuth,
+			Clusters:    clusters,
+			Default:     cluster,
+			User:        h.config.User,
+			Sources:     h.config.Sources,
+			Banner:      h.config.Banner,
+			OAuth:       h.config.OAuth,
+			DisplayMode: h.config.DisplayMode,
 		})
 		return
 	}

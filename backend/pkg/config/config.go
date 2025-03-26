@@ -147,6 +147,9 @@ func (a Cluster) FromValues(values secrets.Values) Cluster {
 	if values.Password != "" {
 		a.BasicAuth.Password = values.Password
 	}
+	if values.BasicAuthSecret != "" {
+		a.BasicAuth.SecretRef = values.BasicAuthSecret
+	}
 
 	for _, p := range values.Plugins {
 		a.Plugins = append(a.Plugins, Plugin{
@@ -155,8 +158,9 @@ func (a Cluster) FromValues(values secrets.Values) Cluster {
 			SkipTLS:     p.SkipTLS,
 			Certificate: p.Certificate,
 			BasicAuth: BasicAuth{
-				Username: p.Username,
-				Password: p.Password,
+				Username:  p.Username,
+				Password:  p.Password,
+				SecretRef: p.BasicAuthSecret,
 			},
 		})
 	}

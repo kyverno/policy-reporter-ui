@@ -15,26 +15,28 @@ import (
 )
 
 type Plugin struct {
-	Name        string `json:"name" mapstructure:"name"`
-	Host        string `json:"host" mapstructure:"host"`
-	Certificate string `json:"certificate" mapstructure:"certificate"`
-	SkipTLS     bool   `json:"skipTLS" mapstructure:"skipTLS"`
-	Username    string `json:"username" mapstructure:"username"`
-	Password    string `json:"password" mapstructure:"password"`
+	Name            string `json:"name" mapstructure:"name"`
+	Host            string `json:"host" mapstructure:"host"`
+	Certificate     string `json:"certificate" mapstructure:"certificate"`
+	SkipTLS         bool   `json:"skipTLS" mapstructure:"skipTLS"`
+	Username        string `json:"username" mapstructure:"username"`
+	Password        string `json:"password" mapstructure:"password"`
+	BasicAuthSecret string `json:"basicAuthSecret" mapstructure:"basicAuthSecret"`
 }
 
 type Values struct {
-	Host        string   `json:"host" mapstructure:"host"`
-	Plugins     []Plugin `json:"plugins" mapstructure:"plugins"`
-	Certificate string   `json:"certificate" mapstructure:"certificate"`
-	SkipTLS     bool     `json:"skipTLS" mapstructure:"skipTLS"`
-	Username    string   `json:"username" mapstructure:"username"`
-	Password    string   `json:"password" mapstructure:"password"`
+	Host            string   `json:"host" mapstructure:"host"`
+	Plugins         []Plugin `json:"plugins" mapstructure:"plugins"`
+	Certificate     string   `json:"certificate" mapstructure:"certificate"`
+	SkipTLS         bool     `json:"skipTLS" mapstructure:"skipTLS"`
+	Username        string   `json:"username" mapstructure:"username"`
+	Password        string   `json:"password" mapstructure:"password"`
+	BasicAuthSecret string   `json:"basicAuthSecret" mapstructure:"basicAuthSecret"`
 
 	// OAuth Values
 	Provider string `json:"provider" mapstructure:"provider"`
 	// OpenIDConnect
-	DiscoveryURL string `json:"domain" mapstructure:"discoveryURL"`
+	DiscoveryURL string `json:"domain" mapstructure:"discoveryUrl"`
 	// OAuth + OpenIDConnect
 	ClientID     string `json:"clientId" mapstructure:"clientId"`
 	ClientSecret string `json:"clientSecret" mapstructure:"clientSecret"`
@@ -77,7 +79,15 @@ func (c *k8sClient) Get(ctx context.Context, name string) (Values, error) {
 		values.Password = string(password)
 	}
 
+	if secretRef, ok := secret.Data["basicAuthSecret"]; ok {
+		values.BasicAuthSecret = string(secretRef)
+	}
+
 	if domain, ok := secret.Data["domain"]; ok {
+		values.DiscoveryURL = string(domain)
+	}
+
+	if domain, ok := secret.Data["discoveryUrl"]; ok {
 		values.DiscoveryURL = string(domain)
 	}
 
