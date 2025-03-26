@@ -37,10 +37,11 @@ func MapConfig(c *Config) *api.Config {
 	}
 
 	return &api.Config{
-		Clusters: clusters,
-		Default:  current,
-		OAuth:    oauth,
-		Banner:   c.UI.Banner,
+		Clusters:    clusters,
+		Default:     current,
+		OAuth:       oauth,
+		Banner:      c.UI.Banner,
+		DisplayMode: c.UI.DisplayMode,
 		Boards: api.Boards{
 			Permissions: auth.Permissions{
 				AccessControl: auth.AccessControl(c.Boards.AccessControl),
