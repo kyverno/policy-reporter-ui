@@ -83,14 +83,15 @@ type Logo struct {
 }
 
 type Config struct {
-	User     any       `json:"user"`
-	Logo     Logo      `json:"logo"`
-	Clusters []Cluster `json:"clusters"`
-	Sources  []Source  `json:"sources"`
-	Default  string    `json:"default"`
-	Boards   Boards    `json:"-"`
-	Banner   string    `json:"banner"`
-	OAuth    bool      `json:"oauth"`
+	User        any       `json:"user"`
+	Logo        Logo      `json:"logo"`
+	DisplayMode string    `json:"displayMode"`
+	Clusters    []Cluster `json:"clusters"`
+	Sources     []Source  `json:"sources"`
+	Default     string    `json:"default"`
+	Boards      Boards    `json:"-"`
+	Banner      string    `json:"banner"`
+	OAuth       bool      `json:"oauth"`
 }
 
 type NavigationItem struct {
