@@ -153,23 +153,6 @@ func (r *Resolver) Proxy(cluster Cluster) (*httputil.ReverseProxy, error) {
 	return proxy.New(target, options, proxyOptions), nil
 }
 
-func (r *Resolver) LoadBasicAuth(ctx context.Context, secretRef string) (*BasicAuth, error) {
-	if r.secrets == nil {
-		return nil, ErrMissingClient
-	}
-
-	values, err := r.secrets.Get(ctx, secretRef)
-	if err != nil {
-		return nil, err
-	}
-
-	return &BasicAuth{
-		Username:  values.Username,
-		Password:  values.Password,
-		SecretRef: secretRef,
-	}, nil
-}
-
 func (r *Resolver) LoadSecret(ctx context.Context, secretRef string) (secrets.Values, error) {
 	if r.secrets == nil {
 		clientset, err := r.Clientset()
@@ -187,6 +170,16 @@ func (r *Resolver) LoadSecret(ctx context.Context, secretRef string) (secrets.Va
 	}
 
 	zap.L().Info("values loaded from secret", zap.String("secretRef", secretRef))
+
+	if values.SecretRef != "" {
+		nested, err := r.secrets.Get(ctx, values.SecretRef)
+		if err != nil {
+			return secrets.Values{}, err
+		}
+		values = values.Merge(nested)
+		zap.L().Info("auth values loaded from secret", zap.String("secretRef", values.SecretRef))
+	}
+
 	return values, nil
 }
 
