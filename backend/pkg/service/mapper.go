@@ -5,7 +5,6 @@ import (
 	"sort"
 
 	plugin "github.com/kyverno/policy-reporter-plugins/sdk/api"
-	pluginAPI "github.com/kyverno/policy-reporter-plugins/sdk/api"
 	"golang.org/x/exp/maps"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
@@ -503,7 +502,7 @@ func MapPolicyDetails(details *PolicyDetails, policy *plugin.Policy) *PolicyDeta
 	details.Title = policy.Title
 	details.Description = policy.Description
 	details.Severity = policy.Severity
-	details.References = utils.Map(policy.References, func(ref pluginAPI.Reference) string {
+	details.References = utils.Map(policy.References, func(ref plugin.Reference) string {
 		return ref.URL
 	})
 
@@ -524,16 +523,16 @@ func MapPolicyDetails(details *PolicyDetails, policy *plugin.Policy) *PolicyDeta
 		}
 	}
 
-	details.Additional = utils.Map(policy.Additional, func(d pluginAPI.Details) Details {
+	details.Additional = utils.Map(policy.Additional, func(d plugin.Details) Details {
 		return Details{
 			Title: d.Title,
-			Items: utils.Map(d.Items, func(i pluginAPI.DetailsItem) Item {
+			Items: utils.Map(d.Items, func(i plugin.DetailsItem) Item {
 				return Item{Title: i.Title, Value: i.Value}
 			}),
 		}
 	})
 
-	details.Details = utils.Map(policy.Details, func(i pluginAPI.DetailsItem) Item {
+	details.Details = utils.Map(policy.Details, func(i plugin.DetailsItem) Item {
 		return Item{Title: i.Title, Value: i.Value}
 	})
 

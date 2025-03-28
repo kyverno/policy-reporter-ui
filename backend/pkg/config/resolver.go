@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"errors"
+	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"time"
@@ -272,6 +273,20 @@ func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) ([]gin.Han
 	if err != nil {
 		zap.L().Error("failed to create openIDConnect provider", zap.Error(err))
 		return nil, err
+	}
+
+	provider.HTTPClient = api.NewHTTPClient()
+	if oid.Certificate != "" {
+		pool, err := api.LoadCerts(oid.Certificate)
+		if err != nil {
+			zap.L().Error("failed to load certificate for OIDC provider", zap.Error(err), zap.String("path", r.config.OpenIDConnect.Certificate))
+			return nil, err
+		}
+		provider.HTTPClient.Transport.(*http.Transport).TLSClientConfig.RootCAs = pool
+	}
+
+	if oid.SkipTLS {
+		provider.HTTPClient.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify = true
 	}
 
 	goth.UseProviders(provider)
