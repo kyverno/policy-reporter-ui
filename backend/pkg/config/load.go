@@ -24,8 +24,7 @@ func Load(c *Config, cfgFile string) error {
 	}
 
 	err := k.Load(env.Provider("PR_", ".", func(s string) string {
-		return strings.Replace(strings.ToLower(
-			strings.TrimPrefix(s, "PR_")), "_", ".", -1)
+		return strings.ReplaceAll(strings.ToLower(strings.TrimPrefix(s, "PR_")), "_", ".")
 	}), nil)
 	if err != nil {
 		return err
