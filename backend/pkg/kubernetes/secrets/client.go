@@ -12,26 +12,26 @@ import (
 	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes"
+	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
 type Plugin struct {
-	Name            string `json:"name" mapstructure:"name"`
-	Host            string `json:"host" mapstructure:"host"`
-	Certificate     string `json:"certificate" mapstructure:"certificate"`
-	SkipTLS         bool   `json:"skipTLS" mapstructure:"skipTLS"`
-	Username        string `json:"username" mapstructure:"username"`
-	Password        string `json:"password" mapstructure:"password"`
-	BasicAuthSecret string `json:"basicAuthSecret" mapstructure:"basicAuthSecret"`
+	Name        string `json:"name" mapstructure:"name"`
+	Host        string `json:"host" mapstructure:"host"`
+	Certificate string `json:"certificate" mapstructure:"certificate"`
+	SkipTLS     bool   `json:"skipTLS" mapstructure:"skipTLS"`
+	Username    string `json:"username" mapstructure:"username"`
+	Password    string `json:"password" mapstructure:"password"`
 }
 
 type Values struct {
-	Host            string   `json:"host" mapstructure:"host"`
-	Plugins         []Plugin `json:"plugins" mapstructure:"plugins"`
-	Certificate     string   `json:"certificate" mapstructure:"certificate"`
-	SkipTLS         bool     `json:"skipTLS" mapstructure:"skipTLS"`
-	Username        string   `json:"username" mapstructure:"username"`
-	Password        string   `json:"password" mapstructure:"password"`
-	BasicAuthSecret string   `json:"basicAuthSecret" mapstructure:"basicAuthSecret"`
+	Host        string   `json:"host" mapstructure:"host"`
+	Plugins     []Plugin `json:"plugins" mapstructure:"plugins"`
+	Certificate string   `json:"certificate" mapstructure:"certificate"`
+	SkipTLS     bool     `json:"skipTLS" mapstructure:"skipTLS"`
+	Username    string   `json:"username" mapstructure:"username"`
+	Password    string   `json:"password" mapstructure:"password"`
+	SecretRef   string   `json:"secretRef" mapstructure:"secretRef"`
 
 	// OAuth Values
 	Provider string `json:"provider" mapstructure:"provider"`
@@ -40,6 +40,23 @@ type Values struct {
 	// OAuth + OpenIDConnect
 	ClientID     string `json:"clientId" mapstructure:"clientId"`
 	ClientSecret string `json:"clientSecret" mapstructure:"clientSecret"`
+}
+
+func (v Values) Merge(n Values) Values {
+	v.Username = utils.Fallback(v.Username, n.Username)
+	v.Password = utils.Fallback(v.Password, n.Password)
+
+	plugins := make([]Plugin, 0, len(v.Plugins))
+	for _, p := range v.Plugins {
+		p.Username = utils.Fallback(p.Username, n.Username)
+		p.Password = utils.Fallback(p.Password, n.Password)
+
+		plugins = append(plugins, p)
+	}
+
+	v.Plugins = plugins
+
+	return v
 }
 
 type Client interface {
@@ -79,8 +96,8 @@ func (c *k8sClient) Get(ctx context.Context, name string) (Values, error) {
 		values.Password = string(password)
 	}
 
-	if secretRef, ok := secret.Data["basicAuthSecret"]; ok {
-		values.BasicAuthSecret = string(secretRef)
+	if secretRef, ok := secret.Data["secretRef"]; ok {
+		values.SecretRef = string(secretRef)
 	}
 
 	if domain, ok := secret.Data["domain"]; ok {

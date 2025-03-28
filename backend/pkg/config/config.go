@@ -149,14 +149,14 @@ func (a Cluster) FromValues(values secrets.Values) Cluster {
 	if values.SkipTLS {
 		a.SkipTLS = values.SkipTLS
 	}
+	if values.SecretRef != "" {
+		a.SecretRef = values.SecretRef
+	}
 	if values.Username != "" {
 		a.BasicAuth.Username = values.Username
 	}
 	if values.Password != "" {
 		a.BasicAuth.Password = values.Password
-	}
-	if values.BasicAuthSecret != "" {
-		a.BasicAuth.SecretRef = values.BasicAuthSecret
 	}
 
 	for _, p := range values.Plugins {
@@ -166,9 +166,8 @@ func (a Cluster) FromValues(values secrets.Values) Cluster {
 			SkipTLS:     p.SkipTLS,
 			Certificate: p.Certificate,
 			BasicAuth: BasicAuth{
-				Username:  p.Username,
-				Password:  p.Password,
-				SecretRef: p.BasicAuthSecret,
+				Username: p.Username,
+				Password: p.Password,
 			},
 		})
 	}
