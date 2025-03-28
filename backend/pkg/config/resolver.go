@@ -262,24 +262,24 @@ func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) ([]gin.Han
 	}
 
 	zap.L().Debug("setup openIDConnect", zap.String("callback", oid.Callback()), zap.String("discovery", oid.Discovery()))
-	provider, err := openidConnect.New(oid.ClientID, oid.ClientSecret, oid.Callback(), oid.Discovery(), oid.Scopes...)
-	if err != nil {
-		zap.L().Error("failed to create openIDConnect provider", zap.Error(err))
-		return nil, err
-	}
 
-	provider.HTTPClient = api.NewHTTPClient()
+	client := api.NewHTTPClient()
 	if oid.Certificate != "" {
 		pool, err := api.LoadCerts(oid.Certificate)
 		if err != nil {
 			zap.L().Error("failed to load certificate for OIDC provider", zap.Error(err), zap.String("path", r.config.OpenIDConnect.Certificate))
 			return nil, err
 		}
-		provider.HTTPClient.Transport.(*http.Transport).TLSClientConfig.RootCAs = pool
+		client.Transport.(*http.Transport).TLSClientConfig.RootCAs = pool
+	}
+	if oid.SkipTLS {
+		client.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify = true
 	}
 
-	if oid.SkipTLS {
-		provider.HTTPClient.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify = true
+	provider, err := openidConnect.New(oid.ClientID, oid.ClientSecret, oid.Callback(), oid.Discovery(), client, oid.Scopes...)
+	if err != nil {
+		zap.L().Error("failed to create openIDConnect provider", zap.Error(err))
+		return nil, err
 	}
 
 	goth.UseProviders(provider)

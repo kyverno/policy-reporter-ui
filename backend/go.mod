@@ -15,7 +15,7 @@ require (
 	github.com/knadh/koanf/providers/file v1.1.2
 	github.com/knadh/koanf/v2 v2.1.2
 	github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20250314142931-ce125a5d61fe
-	github.com/markbates/goth v1.80.1-0.20250315001629-8b2bdca3779e
+	github.com/markbates/goth v0.0.0-00010101000000-000000000000
 	github.com/spf13/cobra v1.9.1
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394
@@ -104,3 +104,5 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.6.0 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
+
+replace github.com/markbates/goth => github.com/fjogeleit/goth v1.80.3
