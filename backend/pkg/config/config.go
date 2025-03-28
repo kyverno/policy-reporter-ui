@@ -26,6 +26,8 @@ type OpenIDConnect struct {
 	ClientSecret string   `koanf:"clientSecret"`
 	GroupClaim   string   `koanf:"groupClaim"`
 	Scopes       []string `koanf:"scopes"`
+	SkipTLS      bool     `koanf:"skipTLS"`
+	Certificate  string   `koanf:"certificate"`
 }
 
 func (a OpenIDConnect) BasePath() string {
@@ -57,6 +59,12 @@ func (a OpenIDConnect) FromValues(values secrets.Values) OpenIDConnect {
 	}
 	if values.ClientSecret != "" {
 		a.ClientSecret = values.ClientSecret
+	}
+	if values.Certificate != "" {
+		a.Certificate = values.Certificate
+	}
+	if values.SkipTLS {
+		a.SkipTLS = values.SkipTLS
 	}
 
 	return a
