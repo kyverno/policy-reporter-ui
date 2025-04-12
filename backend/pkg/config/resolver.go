@@ -243,7 +243,10 @@ func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) ([]gin.Ha
 	}
 
 	goth.UseProviders(provider)
-	auth.Setup(engine, r.config.OAuth.BasePath(), r.config.AuthGroupClaim(), config.Provider, r.config.TempDir)
+	auth.Setup(engine, r.config.OAuth.BasePath(), r.config.AuthGroupClaim(), config.Provider, auth.SessionStorage{
+		Type:    r.config.Server.Sessions.Storage,
+		TempDir: r.config.Server.Sessions.TempDir,
+	})
 
 	return []gin.HandlerFunc{auth.Provider(r.config.OAuth.Provider), auth.Auth(r.config.OAuth.BasePath())}, nil
 }
@@ -284,7 +287,10 @@ func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) ([]gin.Han
 
 	goth.UseProviders(provider)
 
-	auth.Setup(engine, r.config.OpenIDConnect.BasePath(), r.config.AuthGroupClaim(), "openid-connect", r.config.TempDir)
+	auth.Setup(engine, r.config.OpenIDConnect.BasePath(), r.config.AuthGroupClaim(), "openid-connect", auth.SessionStorage{
+		Type:    r.config.Server.Sessions.Storage,
+		TempDir: r.config.Server.Sessions.TempDir,
+	})
 
 	return []gin.HandlerFunc{auth.Provider("openid-connect"), auth.Auth(r.config.OpenIDConnect.BasePath())}, nil
 }
