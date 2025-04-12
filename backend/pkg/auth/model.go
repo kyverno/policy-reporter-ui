@@ -74,6 +74,10 @@ func ProfileFrom(ctx *gin.Context) *Profile {
 	if !ok {
 		return nil
 	}
+	defer func() *Profile {
+		recover()
+		return nil
+	}()
 
 	profile := session.Get("profile")
 
