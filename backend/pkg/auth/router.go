@@ -33,7 +33,7 @@ func Setup(engine *gin.Engine, basePath, groupKey, provider string, storage Sess
 		gothic.Store = authStore
 		engine.Use(sessions.Sessions(SessionKey, NewStore(authStore)))
 	} else {
-		authStore := gsessions.NewCookieStore([]byte("auth-store"))
+		authStore := NewCookieStore([]byte("auth-store"))
 		authStore.Options = &gsessions.Options{
 			HttpOnly: true,
 			MaxAge:   86400 * 30,
