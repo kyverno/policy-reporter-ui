@@ -6,6 +6,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth"
+	"go.uber.org/zap"
 )
 
 type Profile struct {
@@ -75,7 +76,9 @@ func ProfileFrom(ctx *gin.Context) *Profile {
 		return nil
 	}
 	defer func() *Profile {
-		recover()
+		if r := recover(); r != nil {
+			zap.L().Debug("recover from", zap.Any("recover", r))
+		}
 		return nil
 	}()
 
