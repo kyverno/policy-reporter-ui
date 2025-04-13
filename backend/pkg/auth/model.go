@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/gin-contrib/sessions"
@@ -74,9 +75,10 @@ func ProfileFrom(ctx *gin.Context) *Profile {
 	if !ok {
 		return nil
 	}
-	defer func() *Profile {
-		recover()
-		return nil
+	defer func() {
+		if r := recover(); r != nil {
+			ClearCookie(ctx)
+		}
 	}()
 
 	profile := session.Get("profile")
@@ -90,4 +92,8 @@ func ProfileFrom(ctx *gin.Context) *Profile {
 	}
 
 	return nil
+}
+
+func ClearCookie(ctx *gin.Context) {
+	http.SetCookie(ctx.Writer, &http.Cookie{Name: SessionKey, MaxAge: -1, HttpOnly: true})
 }

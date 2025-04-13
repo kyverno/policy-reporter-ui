@@ -21,6 +21,7 @@ func NewHandler(basePath, groupClaim string) *Handler {
 func (h *Handler) Callback(ctx *gin.Context) {
 	user, err := gothic.CompleteUserAuth(ctx.Writer, ctx.Request)
 	if err != nil {
+		ClearCookie(ctx)
 		zap.L().Error("failed to complete user", zap.Error(err))
 		_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -44,6 +45,7 @@ func (h *Handler) Callback(ctx *gin.Context) {
 func (h *Handler) Login(ctx *gin.Context) {
 	user, err := gothic.CompleteUserAuth(ctx.Writer, ctx.Request)
 	if err != nil {
+		ClearCookie(ctx)
 		gothic.BeginAuthHandler(ctx.Writer, ctx.Request)
 		return
 	}
@@ -64,6 +66,7 @@ func (h *Handler) Logout(ctx *gin.Context) {
 
 	session := sessions.Default(ctx)
 	session.Clear()
+	ClearCookie(ctx)
 
 	if err := session.Save(); err != nil {
 		zap.L().Error("failed to save session", zap.Error(err))
