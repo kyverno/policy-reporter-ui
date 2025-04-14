@@ -13,7 +13,10 @@ import (
 
 const SessionKey = "auth-session"
 
-var GroupClaim string = ""
+var (
+	GroupClaim string = ""
+	keyPair           = []byte("auth-store")
+)
 
 type SessionStorage struct {
 	Storage  string
@@ -24,14 +27,15 @@ type SessionStorage struct {
 	Password string
 }
 
-func Setup(engine *gin.Engine, basePath, groupKey, provider string, storage SessionStorage) {
+func Setup(engine *gin.Engine, basePath, groupKey, provider string, s SessionStorage) {
 	gob.Register(Profile{})
 	gob.Register(map[string]any{})
 
 	GroupClaim = groupKey
 
-	if storage.Storage == "filesystem" {
-		authStore := gsessions.NewFilesystemStore(storage.TempDir, []byte("auth-store"))
+	switch s.Storage {
+	case "filesystem":
+		authStore := gsessions.NewFilesystemStore(s.TempDir, keyPair)
 		authStore.MaxLength(2147483647)
 		authStore.Options = &gsessions.Options{
 			HttpOnly: true,
@@ -41,13 +45,13 @@ func Setup(engine *gin.Engine, basePath, groupKey, provider string, storage Sess
 
 		gothic.Store = authStore
 		engine.Use(sessions.Sessions(SessionKey, NewStore(authStore)))
-	} else if storage.Storage == "redis" {
+	case "redis":
 		authStore := NewRedisStore(&redis.Options{
-			Addr:     storage.Addr,
-			Username: storage.Username,
-			Password: storage.Password,
-			DB:       storage.Database,
-		}, []byte("auth-store"))
+			Addr:     s.Addr,
+			Username: s.Username,
+			Password: s.Password,
+			DB:       s.Database,
+		}, keyPair)
 
 		authStore.MaxLength(2147483647)
 		authStore.Options = &gsessions.Options{

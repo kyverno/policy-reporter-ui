@@ -9,14 +9,13 @@ import (
 
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
-	gsessions "github.com/gorilla/sessions"
 	"github.com/redis/go-redis/v9"
 )
 
 func NewRedisStore(config *redis.Options, keyPairs ...[]byte) *RedisStore {
 	fs := &RedisStore{
 		Codecs: securecookie.CodecsFromPairs(keyPairs...),
-		Options: &gsessions.Options{
+		Options: &sessions.Options{
 			Path:   "/",
 			MaxAge: 86400 * 30,
 		},
@@ -34,7 +33,7 @@ func NewRedisStore(config *redis.Options, keyPairs ...[]byte) *RedisStore {
 // This store is still experimental and not well tested. Feedback is welcome.
 type RedisStore struct {
 	Codecs  []securecookie.Codec
-	Options *gsessions.Options // default configuration
+	Options *sessions.Options // default configuration
 	client  *redis.Client
 }
 
@@ -59,8 +58,8 @@ func (s *RedisStore) Get(r *http.Request, name string) (*sessions.Session, error
 // New returns a session for the given name without adding it to the registry.
 //
 // See CookieStore.New().
-func (s *RedisStore) New(r *http.Request, name string) (*gsessions.Session, error) {
-	session := gsessions.NewSession(s, name)
+func (s *RedisStore) New(r *http.Request, name string) (*sessions.Session, error) {
+	session := sessions.NewSession(s, name)
 	opts := *s.Options
 	session.Options = &opts
 	session.IsNew = true
@@ -85,13 +84,13 @@ var base32RawStdEncoding = base32.StdEncoding.WithPadding(base32.NoPadding)
 // deleted from the store path. With this process it enforces the properly
 // session cookie handling so no need to trust in the cookie management in the
 // web browser.
-func (s *RedisStore) Save(r *http.Request, w http.ResponseWriter, session *gsessions.Session) error {
+func (s *RedisStore) Save(r *http.Request, w http.ResponseWriter, session *sessions.Session) error {
 	// Delete if max-age is <= 0
 	if session.Options.MaxAge <= 0 {
 		if err := s.erase(session); err != nil && !os.IsNotExist(err) {
 			return err
 		}
-		http.SetCookie(w, gsessions.NewCookie(session.Name(), "", session.Options))
+		http.SetCookie(w, sessions.NewCookie(session.Name(), "", session.Options))
 		return nil
 	}
 
@@ -109,7 +108,7 @@ func (s *RedisStore) Save(r *http.Request, w http.ResponseWriter, session *gsess
 	if err != nil {
 		return err
 	}
-	http.SetCookie(w, gsessions.NewCookie(session.Name(), encoded, session.Options))
+	http.SetCookie(w, sessions.NewCookie(session.Name(), encoded, session.Options))
 	return nil
 }
 
@@ -126,7 +125,7 @@ func (s *RedisStore) MaxAge(age int) {
 	}
 }
 
-func (s *RedisStore) save(session *gsessions.Session) error {
+func (s *RedisStore) save(session *sessions.Session) error {
 	encoded, err := securecookie.EncodeMulti(session.Name(), session.Values, s.Codecs...)
 	if err != nil {
 		return err
@@ -138,7 +137,7 @@ func (s *RedisStore) save(session *gsessions.Session) error {
 	return r.Err()
 }
 
-func (s *RedisStore) load(session *gsessions.Session) error {
+func (s *RedisStore) load(session *sessions.Session) error {
 	fdata, err := s.client.Get(context.Background(), session.ID).Result()
 	if err != nil {
 		return err
@@ -149,7 +148,7 @@ func (s *RedisStore) load(session *gsessions.Session) error {
 	return nil
 }
 
-func (s *RedisStore) erase(session *gsessions.Session) error {
+func (s *RedisStore) erase(session *sessions.Session) error {
 	r := s.client.Del(context.Background(), session.ID)
 	return r.Err()
 }
