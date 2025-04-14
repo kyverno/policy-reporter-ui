@@ -243,7 +243,10 @@ func (r *Resolver) SetupOAuth(ctx context.Context, engine *gin.Engine) ([]gin.Ha
 	}
 
 	goth.UseProviders(provider)
-	auth.Setup(engine, r.config.OAuth.BasePath(), r.config.AuthGroupClaim(), config.Provider, r.config.TempDir)
+	auth.Setup(engine, r.config.OAuth.BasePath(), r.config.AuthGroupClaim(), config.Provider, auth.SessionStorage{
+		Storage: r.config.Server.Sessions.Storage,
+		TempDir: r.config.Server.Sessions.TempDir,
+	})
 
 	return []gin.HandlerFunc{auth.Provider(r.config.OAuth.Provider), auth.Auth(r.config.OAuth.BasePath())}, nil
 }
@@ -284,7 +287,14 @@ func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) ([]gin.Han
 
 	goth.UseProviders(provider)
 
-	auth.Setup(engine, r.config.OpenIDConnect.BasePath(), r.config.AuthGroupClaim(), "openid-connect", r.config.TempDir)
+	auth.Setup(engine, r.config.OpenIDConnect.BasePath(), r.config.AuthGroupClaim(), "openid-connect", auth.SessionStorage{
+		Storage:  r.config.Server.Sessions.Storage,
+		TempDir:  r.config.Server.Sessions.TempDir,
+		Addr:     r.config.Server.Sessions.Addr,
+		Database: r.config.Server.Sessions.Database,
+		Username: r.config.Server.Sessions.Username,
+		Password: r.config.Server.Sessions.Password,
+	})
 
 	return []gin.HandlerFunc{auth.Provider("openid-connect"), auth.Auth(r.config.OpenIDConnect.BasePath())}, nil
 }
@@ -383,7 +393,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	if !r.config.UI.Disabled {
 		var uiMiddleware []gin.HandlerFunc
 		if r.config.AuthEnabled() {
-			uiMiddleware = append(uiMiddleware, auth.Valid(r.config.AuthBasePath(), r.config.AuthGroupClaim()))
+			uiMiddleware = append(uiMiddleware, auth.Valid(r.config.AuthBasePath()))
 		}
 
 		zap.L().Info("register UI", zap.String("path", r.config.UI.Path))
