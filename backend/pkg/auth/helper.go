@@ -7,14 +7,14 @@ import (
 	"go.uber.org/zap"
 )
 
-func mapGroups(user goth.User, claim string) []string {
+func mapGroups(user goth.User) []string {
 	groups := make([]string, 0)
 
-	if claim == "" {
+	if GroupClaim == "" {
 		return groups
 	}
 
-	rawGroups, ok := user.RawData[claim]
+	rawGroups, ok := user.RawData[GroupClaim]
 	if !ok {
 		keys := make([]string, 0, len(user.RawData))
 		for k := range user.RawData {

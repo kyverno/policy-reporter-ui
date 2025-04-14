@@ -26,7 +26,7 @@ func Provider(provider string) gin.HandlerFunc {
 	}
 }
 
-func Valid(basePath, groupClaim string) gin.HandlerFunc {
+func Valid(basePath string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		providerName, err := gothic.GetProviderName(ctx.Request)
 		if err != nil {
@@ -72,7 +72,7 @@ func Valid(basePath, groupClaim string) gin.HandlerFunc {
 		}
 
 		newProfile := NewProfile(user)
-		newProfile.AssignGroups(mapGroups(user, groupClaim))
+		newProfile.AssignGroups(mapGroups(user))
 
 		session.Set("profile", newProfile)
 		if err := session.Save(); err != nil {

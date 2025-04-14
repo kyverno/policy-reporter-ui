@@ -188,11 +188,21 @@ type UI struct {
 	Logo        Logo   `koanf:"logo"`
 }
 
+type Sessions struct {
+	Storage  string `koanf:"type"`
+	TempDir  string `koanf:"tempDir"`
+	Addr     string `koanf:"address"`
+	Username string `koanf:"username"`
+	Password string `koanf:"password"`
+	Database int    `koanf:"database"`
+}
+
 type Server struct {
-	Port          int  `koanf:"port"`
-	CORS          bool `koanf:"cors"`
-	Debug         bool `koanf:"debug"`
-	OverwriteHost bool `koanf:"overwriteHost"`
+	Port          int      `koanf:"port"`
+	CORS          bool     `koanf:"cors"`
+	Debug         bool     `koanf:"debug"`
+	OverwriteHost bool     `koanf:"overwriteHost"`
+	Sessions      Sessions `koanf:"sessions"`
 }
 
 type Source struct {
@@ -249,7 +259,6 @@ type CustomBoard struct {
 type Config struct {
 	KubeConfig    clientcmd.ConfigOverrides
 	Namespace     string         `koanf:"namespace"`
-	TempDir       string         `koanf:"tempDir"`
 	Clusters      []Cluster      `koanf:"clusters"`
 	Sources       []Source       `koanf:"sources"`
 	Server        Server         `koanf:"server"`
