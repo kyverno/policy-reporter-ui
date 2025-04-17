@@ -34,8 +34,14 @@ func Setup(engine *gin.Engine, basePath, groupKey, provider string, s SessionSto
 	GroupClaim = groupKey
 
 	switch s.Storage {
-	case "filesystem":
-		authStore := gsessions.NewFilesystemStore(s.TempDir, keyPair)
+	case "redis":
+		authStore := NewRedisStore(&redis.Options{
+			Addr:     s.Addr,
+			Username: s.Username,
+			Password: s.Password,
+			DB:       s.Database,
+		}, keyPair)
+
 		authStore.MaxLength(2147483647)
 		authStore.Options = &gsessions.Options{
 			HttpOnly: true,
@@ -45,14 +51,8 @@ func Setup(engine *gin.Engine, basePath, groupKey, provider string, s SessionSto
 
 		gothic.Store = authStore
 		engine.Use(sessions.Sessions(SessionKey, NewStore(authStore)))
-	case "redis":
-		authStore := NewRedisStore(&redis.Options{
-			Addr:     s.Addr,
-			Username: s.Username,
-			Password: s.Password,
-			DB:       s.Database,
-		}, keyPair)
-
+	default:
+		authStore := gsessions.NewFilesystemStore(s.TempDir, keyPair)
 		authStore.MaxLength(2147483647)
 		authStore.Options = &gsessions.Options{
 			HttpOnly: true,
