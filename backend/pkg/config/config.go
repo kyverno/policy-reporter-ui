@@ -189,7 +189,7 @@ type UI struct {
 }
 
 type Sessions struct {
-	Storage  string `koanf:"type"`
+	Storage  string `koanf:"storage"`
 	TempDir  string `koanf:"tempDir"`
 	Addr     string `koanf:"address"`
 	Username string `koanf:"username"`
