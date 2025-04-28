@@ -1,8 +1,6 @@
 module github.com/kyverno/policy-reporter-ui
 
-go 1.24.0
-
-toolchain go1.24.2
+go 1.24.2
 
 require (
 	github.com/gin-contrib/cors v1.7.5
