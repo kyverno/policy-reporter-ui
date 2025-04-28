@@ -266,7 +266,7 @@ func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) ([]gin.Han
 
 	zap.L().Debug("setup openIDConnect", zap.String("callback", oid.Callback()), zap.String("discovery", oid.Discovery()))
 
-	client := api.NewHTTPClient()
+	client := auth.NewHTTPClient()
 	if oid.Certificate != "" {
 		pool, err := api.LoadCerts(oid.Certificate)
 		if err != nil {
