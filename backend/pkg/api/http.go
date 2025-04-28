@@ -10,6 +10,7 @@ import (
 func NewHTTPClient() *http.Client {
 	return &http.Client{
 		Transport: &http.Transport{
+			Proxy: http.ProxyFromEnvironment,
 			DialContext: (&net.Dialer{
 				Timeout:   10 * time.Second,
 				KeepAlive: 60 * time.Second,
