@@ -279,6 +279,8 @@ func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) ([]gin.Han
 		client.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify = true
 	}
 
+	client.Transport = api.NewLoggingRoundTripper(client.Transport)
+
 	provider, err := openidConnect.New(oid.ClientID, oid.ClientSecret, oid.Callback(), oid.Discovery(), client, oid.Scopes...)
 	if err != nil {
 		zap.L().Error("failed to create openIDConnect provider", zap.Error(err))
