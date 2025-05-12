@@ -3,6 +3,8 @@ package auth
 import (
 	"fmt"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth"
 	"go.uber.org/zap"
 )
@@ -40,4 +42,19 @@ func mapGroups(user goth.User) []string {
 	zap.L().Debug("mapped user grous", zap.String("user", user.NickName), zap.String("email", user.Email), zap.Strings("groups", groups))
 
 	return groups
+}
+
+func GetSession(ctx *gin.Context) sessions.Session {
+	s, ok := ctx.Get(sessions.DefaultKey)
+	if !ok {
+		zap.L().Debug("session not found", zap.String("name", sessions.DefaultKey))
+		return nil
+	}
+
+	session, ok := s.(sessions.Session)
+	if !ok {
+		return nil
+	}
+
+	return session
 }
