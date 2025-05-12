@@ -120,13 +120,8 @@ func logout(ctx *gin.Context) {
 		zap.L().Error("failed to logout from provider", zap.Error(err))
 	}
 
-	s, ok := ctx.Get(sessions.DefaultKey)
-	if !ok {
-		return
-	}
-
-	session, ok := s.(sessions.Session)
-	if !ok {
+	session := GetSession(ctx)
+	if session == nil {
 		return
 	}
 
