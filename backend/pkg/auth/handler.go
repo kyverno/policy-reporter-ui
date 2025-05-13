@@ -65,7 +65,6 @@ func (h *Handler) Logout(ctx *gin.Context) {
 
 	session := sessions.Default(ctx)
 	session.Clear()
-	ClearCookie(ctx)
 
 	if err := session.Save(); err != nil {
 		zap.L().Error("failed to save session", zap.Error(err))

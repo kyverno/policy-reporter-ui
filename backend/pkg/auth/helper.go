@@ -53,6 +53,7 @@ func GetSession(ctx *gin.Context) sessions.Session {
 
 	session, ok := s.(sessions.Session)
 	if !ok {
+		zap.L().Debug("session empty", zap.String("name", sessions.DefaultKey))
 		return nil
 	}
 
