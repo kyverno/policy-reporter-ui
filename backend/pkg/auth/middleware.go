@@ -108,7 +108,7 @@ func abort(ctx *gin.Context, basePath, err string) {
 
 	logout(ctx)
 
-	if ctx.Request.URL.Path == basePath {
+	if ctx.Request.URL.Path == "/" {
 		zap.L().Debug("redirect request", zap.String("path", ctx.Request.URL.Path), zap.String("basePath", basePath))
 		ctx.Redirect(http.StatusSeeOther, basePath+"login")
 	} else {
