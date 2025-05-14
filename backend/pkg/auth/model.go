@@ -7,6 +7,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth"
+	"go.uber.org/zap"
 )
 
 type Profile struct {
@@ -59,11 +60,13 @@ func NewProfile(user goth.User) Profile {
 func Session(ctx *gin.Context) (sessions.Session, bool) {
 	val, ok := ctx.Get(sessions.DefaultKey)
 	if !ok {
+		zap.L().Debug("session not found")
 		return nil, false
 	}
 
 	session, ok := val.(sessions.Session)
 	if !ok {
+		zap.L().Debug("session is empty")
 		return nil, false
 	}
 
@@ -77,6 +80,7 @@ func ProfileFrom(ctx *gin.Context) *Profile {
 	}
 	defer func() {
 		if r := recover(); r != nil {
+			zap.L().Debug("unable to get profile from session", zap.Any("error", r))
 			ClearCookie(ctx)
 		}
 	}()
