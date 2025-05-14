@@ -40,6 +40,7 @@ func (s *Server) RegisterUI(path string, middleware []gin.HandlerFunc) {
 	handler := append(s.middelware, middleware...)
 
 	s.engine.NoRoute(append(handler, func(c *gin.Context) {
+		zap.L().Debug("serving static file server", zap.String("path", c.Request.URL.Path), zap.Any("url", c.Request.URL))
 		fileServer.ServeHTTP(c.Writer, c.Request)
 	})...)
 }
