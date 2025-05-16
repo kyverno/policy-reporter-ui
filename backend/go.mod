@@ -24,7 +24,7 @@ require (
 	golang.org/x/sync v0.14.0
 	golang.org/x/text v0.25.0
 	k8s.io/api v0.33.0
-	k8s.io/apimachinery v0.33.0
+	k8s.io/apimachinery v0.33.1
 	k8s.io/client-go v0.33.0
 )
 
