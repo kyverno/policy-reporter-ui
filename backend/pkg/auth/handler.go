@@ -44,11 +44,13 @@ func (h *Handler) Callback(ctx *gin.Context) {
 func (h *Handler) Login(ctx *gin.Context) {
 	user, err := gothic.CompleteUserAuth(ctx.Writer, ctx.Request)
 	if err != nil {
+		zap.L().Debug("failed to complete user auth, restart auth process", zap.Error(err))
 		ClearCookie(ctx)
 		gothic.BeginAuthHandler(ctx.Writer, ctx.Request)
 		return
 	}
 
+	zap.L().Debug("auth completed", zap.String("user", user.UserID))
 	profile := NewProfile(user)
 	profile.AssignGroups(mapGroups(user))
 
@@ -65,7 +67,6 @@ func (h *Handler) Logout(ctx *gin.Context) {
 
 	session := sessions.Default(ctx)
 	session.Clear()
-	ClearCookie(ctx)
 
 	if err := session.Save(); err != nil {
 		zap.L().Error("failed to save session", zap.Error(err))

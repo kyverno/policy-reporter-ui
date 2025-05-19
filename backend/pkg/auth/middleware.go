@@ -109,8 +109,10 @@ func abort(ctx *gin.Context, basePath, err string) {
 	logout(ctx)
 
 	if ctx.Request.URL.Path == "/" {
+		zap.L().Debug("redirect request", zap.String("path", ctx.Request.URL.Path), zap.String("basePath", basePath), zap.String("target", basePath+"login"))
 		ctx.Redirect(http.StatusSeeOther, basePath+"login")
 	} else {
+		zap.L().Debug("abort request", zap.String("path", ctx.Request.URL.Path), zap.String("basePath", basePath))
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 	}
 }
@@ -118,6 +120,7 @@ func abort(ctx *gin.Context, basePath, err string) {
 func logout(ctx *gin.Context) {
 	if err := gothic.Logout(ctx.Writer, ctx.Request); err != nil {
 		zap.L().Error("failed to logout from provider", zap.Error(err))
+		ClearCookie(ctx)
 	}
 
 	session := GetSession(ctx)
