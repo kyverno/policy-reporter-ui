@@ -7,7 +7,7 @@ require (
 	github.com/gin-contrib/gzip v1.2.3
 	github.com/gin-contrib/sessions v1.0.3
 	github.com/gin-contrib/zap v1.1.5
-	github.com/gin-gonic/gin v1.10.0
+	github.com/gin-gonic/gin v1.10.1
 	github.com/gorilla/securecookie v1.1.2
 	github.com/gorilla/sessions v1.4.0
 	github.com/gosimple/slug v1.15.0
