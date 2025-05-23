@@ -5,7 +5,7 @@ go 1.24.2
 require (
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-contrib/gzip v1.2.3
-	github.com/gin-contrib/sessions v1.0.3
+	github.com/gin-contrib/sessions v1.0.4
 	github.com/gin-contrib/zap v1.1.5
 	github.com/gin-gonic/gin v1.10.1
 	github.com/gorilla/securecookie v1.1.2
