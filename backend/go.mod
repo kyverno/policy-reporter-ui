@@ -15,7 +15,7 @@ require (
 	github.com/knadh/koanf/providers/env v1.1.0
 	github.com/knadh/koanf/providers/file v1.2.0
 	github.com/knadh/koanf/v2 v2.2.1
-	github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20250625081929-eb351b584039
+	github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20250708085952-0c7b5b46d661
 	github.com/markbates/goth v0.0.0-00010101000000-000000000000
 	github.com/redis/go-redis/v9 v9.11.0
 	github.com/spf13/cobra v1.9.1
@@ -31,7 +31,7 @@ require (
 require (
 	cloud.google.com/go/compute/metadata v0.7.0 // indirect
 	github.com/bytedance/sonic v1.13.3 // indirect
-	github.com/bytedance/sonic/loader v0.2.4 // indirect
+	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -49,7 +49,7 @@ require (
 	github.com/go-openapi/swag v0.23.1 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.26.0 // indirect
+	github.com/go-playground/validator/v10 v10.27.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
@@ -100,7 +100,7 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
-	k8s.io/kube-openapi v0.0.0-20250628140032-d90c4fd18f59 // indirect
+	k8s.io/kube-openapi v0.0.0-20250701173324-9bd5c66d9911 // indirect
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
