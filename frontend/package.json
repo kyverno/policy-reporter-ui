@@ -17,7 +17,7 @@
     "nuxt": "^3.17.7",
     "sass": "^1.69.5",
     "vite-plugin-vuetify": "^2.0.1",
-    "vue": "^3.3.8",
+    "vue": "^3.5.18",
     "vue-router": "^4.2.5"
   },
   "dependencies": {
