@@ -16,7 +16,7 @@
     "@types/lodash.debounce": "^4.0.9",
     "nuxt": "^3.17.7",
     "sass": "^1.69.5",
-    "vite-plugin-vuetify": "^2.0.1",
+    "vite-plugin-vuetify": "^2.1.2",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5"
   },
