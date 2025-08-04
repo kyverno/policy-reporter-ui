@@ -50,7 +50,7 @@ export default defineNuxtConfig({
     head: {
       title: 'Policy Reporter UI',
       htmlAttrs: {
-        lang: 'de'
+        lang: 'en'
       },
       meta: [
         { charset: 'utf-8' },
