@@ -15,7 +15,7 @@
     "@nuxt/devtools": "latest",
     "@types/lodash.debounce": "^4.0.9",
     "nuxt": "^3.17.7",
-    "sass": "^1.69.5",
+    "sass": "^1.90.0",
     "vite-plugin-vuetify": "^2.1.2",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5"
@@ -23,7 +23,7 @@
   "dependencies": {
     "@highlightjs/vue-plugin": "^2.1.0",
     "@pinia/nuxt": "^0.11.2",
-    "@vueuse/nuxt": "^13.6.0",
+    "@vueuse/nuxt": "^13.7.0",
     "axios": "^1.11.0",
     "chart.js": "^4.4.0",
     "chroma-js": "^3.1.1",
