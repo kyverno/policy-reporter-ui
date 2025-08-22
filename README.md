@@ -11,7 +11,7 @@ Policy Reporter UI is an optional, standalone UI to visualize the processed info
 * Resource Dashboards
 * Policy Dashboards
 * Authentication with OAUth2 or OpenIDConnect
-* Custom Dashooards
+* Custom Dashboards
 * Multi Cluster Support
 * Colorblind Themes
 
@@ -21,4 +21,4 @@ You can find more information about the different features in the [Official Docu
 
 ## Development
 
-Detailed isntructions about the development setup can be found in the [DEVELOPMENT.md](./DEVELOPMENT.md) docs.
+Detailed instructions about the development setup can be found in the [DEVELOPMENT.md](./DEVELOPMENT.md) docs.
