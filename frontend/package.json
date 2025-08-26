@@ -15,7 +15,7 @@
     "@nuxt/devtools": "latest",
     "@types/lodash.debounce": "^4.0.9",
     "nuxt": "^3.17.7",
-    "sass": "^1.90.0",
+    "sass": "^1.91.0",
     "vite-plugin-vuetify": "^2.1.2",
     "vue": "^3.5.20",
     "vue-router": "^4.2.5"
