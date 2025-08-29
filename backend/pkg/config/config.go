@@ -67,6 +67,10 @@ func (a OpenIDConnect) FromValues(values secrets.Values) OpenIDConnect {
 		a.SkipTLS = values.SkipTLS
 	}
 
+	if values.CallbackURL != "" {
+		a.CallbackURL = values.CallbackURL
+	}
+
 	return a
 }
 
@@ -89,6 +93,10 @@ func (a OAuth) FromValues(values secrets.Values) OAuth {
 	}
 	if values.ClientID != "" {
 		a.ClientID = values.ClientID
+	}
+
+	if values.CallbackURL != "" {
+		a.CallbackURL = values.CallbackURL
 	}
 
 	return a

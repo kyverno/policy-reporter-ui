@@ -40,6 +40,7 @@ type Values struct {
 	// OAuth + OpenIDConnect
 	ClientID     string `json:"clientId" mapstructure:"clientId"`
 	ClientSecret string `json:"clientSecret" mapstructure:"clientSecret"`
+	CallbackURL  string `json:"callbackUrl" mapstructure:"callbackUrl"`
 }
 
 func (v Values) Merge(n Values) Values {
@@ -114,6 +115,10 @@ func (c *k8sClient) Get(ctx context.Context, name string) (Values, error) {
 
 	if clientSecret, ok := secret.Data["clientSecret"]; ok {
 		values.ClientSecret = string(clientSecret)
+	}
+
+	if callbackUrl, ok := secret.Data["callbackUrl"]; ok {
+		values.CallbackURL = string(callbackUrl)
 	}
 
 	if skipTLS, ok := secret.Data["skipTLS"]; ok {
