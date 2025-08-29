@@ -1,9 +1,21 @@
 <template>
   <v-layout v-if="layout">
     <v-app-bar elevation="1" prominent>
-      <v-app-bar-nav-icon icon="mdi-menu" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-avatar :image="logo" rounded="lg" class="ml-4" v-if="!config.logo.disabled" />
-      <v-toolbar-title>Policy Reporter{{ config.banner ? ` - ${config.banner}` : ''}}</v-toolbar-title>
+      <v-app-bar-nav-icon
+        icon="mdi-menu"
+        @click.stop="drawer = !drawer"
+      ></v-app-bar-nav-icon>
+      <v-avatar
+        :image="logo"
+        rounded="lg"
+        class="ml-4"
+        v-if="!config.logo.disabled"
+      />
+      <v-toolbar-title
+        >Policy Reporter{{
+          config.banner ? ` - ${config.banner}` : ""
+        }}</v-toolbar-title
+      >
       <template #append>
         <form-cluster-select />
         <form-display-mode-select />
@@ -18,49 +30,81 @@
           <template v-for="item in layout.sources" :key="item.path">
             <template v-if="item.children">
               <v-list-item
-                  base-color="header-item"
-                  :key="item.path"
-                  :title="item.title"
-                  :to="item.path"
-                  exact
+                base-color="header-item"
+                :key="item.path"
+                :title="item.title"
+                :to="item.path"
+                exact
               />
               <v-divider class="mb-1" />
               <v-list-item
-                  base-color="sub-item"
-                  v-for="child in item.children"
-                  :key="child.path"
-                  :title="child.title"
-                  :to="child.path"
-                  class="pl-4"
-                  exact
+                base-color="sub-item"
+                v-for="child in item.children"
+                :key="child.path"
+                :title="child.title"
+                :to="child.path"
+                class="pl-4"
+                exact
               />
               <v-divider class="mb-1" />
             </template>
 
-            <v-list-item :to="item.path" exact lines="one" base-color="header-item" v-else>
+            <v-list-item
+              :to="item.path"
+              exact
+              lines="one"
+              base-color="header-item"
+              v-else
+            >
               <v-list-item-title>{{ item.title }}</v-list-item-title>
             </v-list-item>
           </template>
 
           <div class="mb-1 mt-8" />
 
-          <v-list-item v-if="layout.policies.length" base-color="header" title="Policy Dashboard" to="/policies" exact />
+          <v-list-item
+            v-if="layout.policies.length"
+            base-color="header"
+            title="Policy Dashboard"
+            to="/policies"
+            exact
+          />
           <template v-for="item in layout.policies" :key="item.path">
-            <v-list-item :to="item.path" exact lines="one" base-color="header-item">
+            <v-list-item
+              :to="item.path"
+              exact
+              lines="one"
+              base-color="header-item"
+            >
               <v-list-item-title>{{ item.title }}</v-list-item-title>
             </v-list-item>
           </template>
 
           <div class="mb-1 mt-8" />
         </template>
-        <v-list-item base-color="header" v-if="layout.customBoards.length" title="Custom Boards" />
+        <v-list-item
+          base-color="header"
+          v-if="layout.customBoards.length"
+          title="Custom Boards"
+        />
         <template v-for="item in layout.customBoards" :key="item.path">
-          <v-list-item base-color="header-item" :title="item.title" :to="item.path" :exact="item.exact"></v-list-item>
+          <v-list-item
+            base-color="header-item"
+            :title="item.title"
+            :to="item.path"
+            :exact="item.exact"
+          ></v-list-item>
         </template>
 
         <div class="mb-1 mt-8" />
 
-        <v-list-item title="Notification Targets" to="/targets" exact base-color="header-item" v-if="layout.targets" />
+        <v-list-item
+          title="Notification Targets"
+          to="/targets"
+          exact
+          base-color="header-item"
+          v-if="layout.targets"
+        />
       </v-list>
     </v-navigation-drawer>
 
@@ -68,7 +112,9 @@
       <v-container fluid v-if="config.error">
         <app-row>
           <v-card class="pa-2">
-            <v-alert variant="outlined" type="error">Failed to access API: {{ config.error }}</v-alert>
+            <v-alert variant="outlined" type="error"
+              >Failed to access API: {{ config.error }}</v-alert
+            >
           </v-card>
         </app-row>
       </v-container>
@@ -83,20 +129,27 @@ import { useTheme } from "vuetify";
 import type { LayoutConfig } from "~/modules/core/types";
 import { useConfigStore } from "~/store/config";
 
-const drawer = ref(true)
+const drawer = ref(true);
 
-const { data: layout } = useAPI((api) => api.layout(), { default: (): LayoutConfig => ({ sources: [], customBoards: [], policies: [], targets: false }) })
+const { data: layout } = useAPI((api) => api.layout(), {
+  default: (): LayoutConfig => ({
+    sources: [],
+    customBoards: [],
+    policies: [],
+    targets: false,
+  }),
+});
 
-const theme = useTheme()
-const config = useConfigStore()
+const theme = useTheme();
+const config = useConfigStore();
 
-const logo = computed(() => config.logo.path || '/logo.png')
+const logo = computed(() => config.logo.path || "./logo.png");
 
 const bg = computed(() => {
   if (theme.current.value.dark) {
-    return 'bg-grey-darken-3'
+    return "bg-grey-darken-3";
   }
 
-  return 'bg-grey-lighten-4'
-})
+  return "bg-grey-lighten-4";
+});
 </script>
