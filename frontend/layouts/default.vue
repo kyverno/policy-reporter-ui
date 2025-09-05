@@ -1,5 +1,6 @@
 <template>
   <v-layout v-if="layout">
+  //added the profile picture
     <v-app-bar elevation="1" prominent>
       <v-app-bar-nav-icon
         icon="mdi-menu"
