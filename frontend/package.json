@@ -24,13 +24,13 @@
     "@highlightjs/vue-plugin": "^2.1.0",
     "@pinia/nuxt": "^0.11.2",
     "@vueuse/nuxt": "^13.9.0",
-    "axios": "^1.11.0",
+    "axios": "^1.12.2",
     "chart.js": "^4.4.0",
     "chroma-js": "^3.1.1",
     "highlight.js": "^11.9.0",
     "lodash.debounce": "^4.0.8",
     "pinia": "^3.0.3",
     "vue-chartjs": "^5.2.0",
-    "vuetify": "^3.9.7"
+    "vuetify": "^3.10.1"
   }
 }
