@@ -113,4 +113,4 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
-replace github.com/markbates/goth => github.com/fjogeleit/goth v1.81.0
+replace github.com/markbates/goth => github.com/fjogeleit/goth v1.82.0
