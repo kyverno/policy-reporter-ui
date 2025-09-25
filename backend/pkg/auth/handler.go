@@ -5,7 +5,9 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
+	"github.com/markbates/goth/providers/openidConnect"
 	"go.uber.org/zap"
 )
 
@@ -61,6 +63,8 @@ func (h *Handler) Login(ctx *gin.Context) {
 }
 
 func (h *Handler) Logout(ctx *gin.Context) {
+	endSessionEndopoint := GetEndSessionEndpoint(ctx.Request)
+
 	if err := gothic.Logout(ctx.Writer, ctx.Request); err != nil {
 		zap.L().Error("failed to logout from provider", zap.Error(err))
 	}
@@ -73,6 +77,11 @@ func (h *Handler) Logout(ctx *gin.Context) {
 	}
 
 	ClearCookie(ctx)
+
+	if endSessionEndopoint != "" {
+		ctx.Redirect(http.StatusTemporaryRedirect, endSessionEndopoint)
+		return
+	}
 
 	ctx.Redirect(http.StatusTemporaryRedirect, h.basePath+"login")
 }
@@ -88,4 +97,22 @@ func (h *Handler) Profile(ctx *gin.Context) {
 		"id":   profile.ID,
 		"name": profile.GetName(),
 	})
+}
+
+func GetEndSessionEndpoint(req *http.Request) string {
+	providerName, err := gothic.GetProviderName(req)
+	if err != nil {
+		return ""
+	}
+
+	provider, err := goth.GetProvider(providerName)
+	if err != nil {
+		return ""
+	}
+
+	if p, ok := provider.(*openidConnect.Provider); ok {
+		return p.OpenIDConfig.EndSessionEndpoint
+	}
+
+	return ""
 }
