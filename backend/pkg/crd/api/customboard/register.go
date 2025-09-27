@@ -1,5 +1,5 @@
 package customboard
 
 const (
-	GroupName = "policyreporter-ui.kyverno.io"
+	GroupName = "ui.policyreporter.kyverno.io"
 )

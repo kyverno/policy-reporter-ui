@@ -22,12 +22,9 @@ import (
 
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-// +genclient:nonNamespaced
-// +kubebuilder:object:root=true
 // +kubebuilder:storageversion
-// +kubebuilder:resource:path=customboards,scope="Cluster",shortName=cb
+// +kubebuilder:resource:path=namespacecustomboards,scope="Namespace",shortName=ncb
 // +kubebuilder:printcolumn:name="Name",type=string,JSONPath=`.metadata.name`,priority=1
-// +kubebuilder:printcolumn:name="Namespaces",type=array,JSONPath=`.summary.namespaces`
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 // NamespaceCustomBoard is the Schema for the namespace customboards API
@@ -59,5 +56,5 @@ type NamespaceCustomBoard struct {
 type NamespaceCustomBoardList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []CustomBoard `json:"items"`
+	Items           []NamespaceCustomBoard `json:"items"`
 }
