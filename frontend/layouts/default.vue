@@ -90,7 +90,7 @@ const { data: layout } = useAPI((api) => api.layout(), { default: (): LayoutConf
 const theme = useTheme()
 const config = useConfigStore()
 
-const logo = computed(() => config.logo.path || '/logo.png')
+const logo = computed(() => config.logo.path || './logo.png')
 
 const bg = computed(() => {
   if (theme.current.value.dark) {
