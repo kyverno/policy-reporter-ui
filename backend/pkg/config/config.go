@@ -246,6 +246,7 @@ type CustomBoard struct {
 	AccessControl AccessControl `koanf:"accessControl"`
 	Filter        struct {
 		Include Filter `koanf:"include"`
+		Exclude Filter `koanf:"exclude"`
 	} `koanf:"filter"`
 	Display    string `json:"display"`
 	Namespaces struct {
