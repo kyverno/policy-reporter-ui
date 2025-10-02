@@ -22,14 +22,15 @@ import (
 	context "context"
 	time "time"
 
-	apicustomboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
-	versioned "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
-	internalinterfaces "github.com/kyverno/policy-reporter-ui/pkg/crd/client/informers/externalversions/internalinterfaces"
-	customboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/client/listers/customboard/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
+
+	apicustomboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
+	versioned "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
+	internalinterfaces "github.com/kyverno/policy-reporter-ui/pkg/crd/client/informers/externalversions/internalinterfaces"
+	customboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/client/listers/customboard/v1alpha1"
 )
 
 // NamespaceCustomBoardInformer provides access to a shared informer and lister for

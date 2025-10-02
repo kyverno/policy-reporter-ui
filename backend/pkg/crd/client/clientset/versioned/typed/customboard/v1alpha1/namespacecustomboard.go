@@ -21,12 +21,13 @@ package v1alpha1
 import (
 	context "context"
 
-	customboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
-	scheme "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	gentype "k8s.io/client-go/gentype"
+
+	customboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
+	scheme "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned/scheme"
 )
 
 // NamespaceCustomBoardsGetter has a method to return a NamespaceCustomBoardInterface.

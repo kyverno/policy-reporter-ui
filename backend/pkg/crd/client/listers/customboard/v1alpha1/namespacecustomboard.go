@@ -19,10 +19,11 @@ limitations under the License.
 package v1alpha1
 
 import (
-	customboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	listers "k8s.io/client-go/listers"
 	cache "k8s.io/client-go/tools/cache"
+
+	customboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
 )
 
 // NamespaceCustomBoardLister helps list NamespaceCustomBoards.

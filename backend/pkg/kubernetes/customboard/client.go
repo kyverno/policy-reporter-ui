@@ -3,12 +3,13 @@ package targetconfig
 import (
 	"fmt"
 
+	"go.uber.org/zap"
+	"k8s.io/client-go/tools/cache"
+
 	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
 	ui "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
 	informer "github.com/kyverno/policy-reporter-ui/pkg/crd/client/informers/externalversions"
 	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
-	"go.uber.org/zap"
-	"k8s.io/client-go/tools/cache"
 )
 
 type Client struct {
@@ -16,8 +17,8 @@ type Client struct {
 	client     ui.Interface
 }
 
-func (c *Client) ConfigureInformer(cbInformer, ncbInformer cache.SharedIndexInformer) {
-	cbInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+func (c *Client) ConfigureInformer(cbInformer, ncbInformer cache.SharedIndexInformer) error {
+	_, err := cbInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			cb := obj.(*v1alpha1.CustomBoard)
 			zap.L().Info("new custom board", zap.String("name", cb.Name))
@@ -37,8 +38,11 @@ func (c *Client) ConfigureInformer(cbInformer, ncbInformer cache.SharedIndexInfo
 			c.collection.Remove(cb.Name)
 		},
 	})
+	if err != nil {
+		return err
+	}
 
-	ncbInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+	_, err = ncbInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			cb := obj.(*v1alpha1.NamespaceCustomBoard)
 			zap.L().Info("new namespace custom board", zap.String("name", cb.Name), zap.String("namespace", cb.Namespace))
@@ -58,6 +62,7 @@ func (c *Client) ConfigureInformer(cbInformer, ncbInformer cache.SharedIndexInfo
 			c.collection.Remove(fmt.Sprintf("%s-%s", cb.Name, cb.Namespace))
 		},
 	})
+	return err
 }
 
 func (c *Client) Run(stopChan chan struct{}) {
@@ -66,7 +71,10 @@ func (c *Client) Run(stopChan chan struct{}) {
 	cbInformer := factory.Ui().V1alpha1().CustomBoards().Informer()
 	ncbInformer := factory.Ui().V1alpha1().NamespaceCustomBoards().Informer()
 
-	c.ConfigureInformer(cbInformer, ncbInformer)
+	if err := c.ConfigureInformer(cbInformer, ncbInformer); err != nil {
+		zap.L().Error("Failed to configure custom board informer", zap.Error(err))
+		return
+	}
 
 	factory.Start(stopChan)
 
@@ -84,7 +92,6 @@ func (c *Client) Run(stopChan chan struct{}) {
 }
 
 func NewClient(client ui.Interface, targets *customboard.Collection) *Client {
-
 	return &Client{
 		client:     client,
 		collection: targets,

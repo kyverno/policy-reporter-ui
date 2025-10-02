@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gosimple/slug"
+
 	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
 )
 
