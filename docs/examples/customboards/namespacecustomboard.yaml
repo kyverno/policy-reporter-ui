@@ -1,0 +1,15 @@
+kind: NamespaceCustomBoard
+apiVersion: ui.policyreporter.kyverno.io/v1alpha1
+metadata:
+  name: fail-board
+  namespace: kube-system
+spec:
+  title: Kube System Failures
+  display: results
+  sources:
+    list: [kyverno, KyvernoValidatingPolicy]
+  filter:
+    results:
+      include: ["fail"]
+  accessControl:
+    emails: []

@@ -25,14 +25,14 @@ func (c *Collection) Remove(key string) {
 
 func (c *Collection) Boards() []*CustomBoard {
 	c.mx.RLock()
-	defer c.mx.Unlock()
+	defer c.mx.RUnlock()
 
 	return utils.ToList(c.boards)
 }
 
 func (c *Collection) Board(id string) *CustomBoard {
 	c.mx.RLock()
-	defer c.mx.Unlock()
+	defer c.mx.RUnlock()
 
 	return utils.FindInMap(c.boards, func(b *CustomBoard) bool {
 		return b.ID == id
@@ -40,6 +40,9 @@ func (c *Collection) Board(id string) *CustomBoard {
 }
 
 func (c *Collection) Length() int {
+	c.mx.RLock()
+	defer c.mx.RUnlock()
+
 	return len(c.boards)
 }
 

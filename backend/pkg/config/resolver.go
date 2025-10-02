@@ -413,7 +413,12 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 }
 
 func (r *Resolver) CustomBoardInformer() (*kcb.Client, error) {
-	client, err := ui.NewForConfig(r.k8sConfig)
+	k8sConfig, err := r.K8sConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := ui.NewForConfig(k8sConfig)
 	if err != nil {
 		return nil, err
 	}

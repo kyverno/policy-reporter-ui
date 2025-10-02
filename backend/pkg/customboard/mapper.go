@@ -1,6 +1,8 @@
 package customboard
 
 import (
+	"fmt"
+
 	"github.com/gosimple/slug"
 	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
 )
@@ -24,7 +26,7 @@ func MapCustomBoardToModel(cb *v1alpha1.CustomBoard) *CustomBoard {
 
 func MapNamespaceCustomBoardToModel(cb *v1alpha1.NamespaceCustomBoard) *CustomBoard {
 	return &CustomBoard{
-		ID:            slug.Make(cb.Spec.Title),
+		ID:            fmt.Sprintf("%s-%s", cb.Namespace, cb.Name),
 		Name:          cb.Spec.Title,
 		AccessControl: MapAccessControl(cb.Spec.AccessControl),
 		Filter: FilterList{

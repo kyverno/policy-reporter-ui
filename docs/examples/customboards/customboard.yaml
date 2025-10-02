@@ -1,0 +1,17 @@
+kind: CustomBoard
+apiVersion: ui.policyreporter.kyverno.io/v1alpha1
+metadata:
+  name: kyverno-results
+spec:
+  title: Kyverno Results
+  display: resources
+  namespaces:
+    labelSelector:
+      kubernetes.io/metadata.name: '*'
+  sources:
+    list: [kyverno]
+  filter:
+    results:
+      include: ["fail", "pass"]
+  accessControl:
+    groups: []
