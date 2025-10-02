@@ -35,6 +35,14 @@ type CustomBoard struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
+	// +required
+	Spec CustomBoardSpec `json:"spec"`
+}
+
+type CustomBoardSpec struct {
+	// +optional
+	Title string `json:"title,omitempty"`
+
 	// AccessControl is an optional reference to the custom boards access control
 	// +optional
 	AccessControl *AccessControl `json:"accessControl,omitempty"`
@@ -57,6 +65,9 @@ type CustomBoard struct {
 
 	// +optional
 	ClusterScope *ClusterScope `json:"clusterScope,omitempty"`
+
+	// +optional
+	Filter *Filter `json:"filter,omitempty"`
 }
 
 // +kubebuilder:object:root=true

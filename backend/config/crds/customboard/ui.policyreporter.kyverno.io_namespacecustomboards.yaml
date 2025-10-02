@@ -30,37 +30,12 @@ spec:
         description: NamespaceCustomBoard is the Schema for the namespace customboards
           API
         properties:
-          accessControl:
-            description: AccessControl is an optional reference to the custom boards
-              access control
-            oneOf:
-            - required:
-              - emails
-            - required:
-              - groups
-            properties:
-              emails:
-                description: Source is an identifier for the policy engine that manages
-                  this report
-                items:
-                  type: string
-                type: array
-              groups:
-                description: Rule is the name or identifier of the rule within the
-                  policy
-                items:
-                  type: string
-                type: array
-            type: object
           apiVersion:
             description: |-
               APIVersion defines the versioned schema of this representation of an object.
               Servers should convert recognized schemas to the latest internal value, and
               may reject unrecognized values.
               More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-            type: string
-          display:
-            description: Allowed values are "resources" or "results".
             type: string
           kind:
             description: |-
@@ -72,22 +47,101 @@ spec:
             type: string
           metadata:
             type: object
-          policyReports:
-            description: PolicyReportSelector allows to select visualized reports
+          spec:
             properties:
-              labelSelector:
-                additionalProperties:
-                  type: string
+              accessControl:
+                description: AccessControl is an optional reference to the custom
+                  boards access control
+                oneOf:
+                - required:
+                  - emails
+                - required:
+                  - groups
+                properties:
+                  emails:
+                    description: Source is an identifier for the policy engine that
+                      manages this report
+                    items:
+                      type: string
+                    type: array
+                  groups:
+                    description: Rule is the name or identifier of the rule within
+                      the policy
+                    items:
+                      type: string
+                    type: array
                 type: object
+              display:
+                description: Allowed values are "resources" or "results".
+                type: string
+              filter:
+                properties:
+                  clusterKinds:
+                    properties:
+                      exclude:
+                        items:
+                          type: string
+                        type: array
+                      include:
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  namespaceKinds:
+                    properties:
+                      exclude:
+                        items:
+                          type: string
+                        type: array
+                      include:
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  results:
+                    properties:
+                      exclude:
+                        items:
+                          type: string
+                        type: array
+                      include:
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  severities:
+                    properties:
+                      exclude:
+                        items:
+                          type: string
+                        type: array
+                      include:
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                type: object
+              policyReports:
+                description: PolicyReportSelector allows to select visualized reports
+                properties:
+                  labelSelector:
+                    additionalProperties:
+                      type: string
+                    type: object
+                type: object
+              sources:
+                description: SourceSelector allows to select visualized sources
+                properties:
+                  list:
+                    items:
+                      type: string
+                    type: array
+                type: object
+              title:
+                type: string
             type: object
-          sources:
-            description: SourceSelector allows to select visualized sources
-            properties:
-              list:
-                items:
-                  type: string
-                type: array
-            type: object
+        required:
+        - spec
         type: object
     served: true
     storage: true

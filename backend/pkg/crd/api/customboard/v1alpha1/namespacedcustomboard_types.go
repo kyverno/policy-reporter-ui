@@ -32,6 +32,14 @@ type NamespaceCustomBoard struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
+	// +required
+	Spec NamespaceCustomBoardSpec `json:"spec"`
+}
+
+type NamespaceCustomBoardSpec struct {
+	// +optional
+	Title string `json:"title,omitempty"`
+
 	// AccessControl is an optional reference to the custom boards access control
 	// +optional
 	AccessControl *AccessControl `json:"accessControl,omitempty"`
@@ -47,6 +55,9 @@ type NamespaceCustomBoard struct {
 	// PolicyReportSelector allows to select visualized reports
 	// +optional
 	PolicyReportSelector *PolicyReportSelector `json:"policyReports,omitempty"`
+
+	// +optional
+	Filter *Filter `json:"filter,omitempty"`
 }
 
 // +kubebuilder:object:root=true

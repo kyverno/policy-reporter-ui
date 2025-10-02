@@ -13,6 +13,7 @@ import (
 
 	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
 	"github.com/kyverno/policy-reporter-ui/pkg/auth"
+	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/reports"
 	"github.com/kyverno/policy-reporter-ui/pkg/service"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
@@ -21,7 +22,7 @@ import (
 type Handler struct {
 	config       *Config
 	clients      map[string]*model.Endpoints
-	customBoards map[string]CustomBoard
+	customBoards *customboard.Collection
 	service      *service.Service
 	reporter     *reports.ReportGenerator
 }
@@ -65,7 +66,7 @@ func (h *Handler) Config(ctx *gin.Context) {
 }
 
 func (h *Handler) ListCustomBoards(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, utils.ToList(h.customBoards))
+	ctx.JSON(http.StatusOK, utils.Map(h.customBoards.Boards(), MapCustomBoard))
 }
 
 func (h *Handler) ListPolicySources(ctx *gin.Context) {
@@ -147,11 +148,13 @@ func (h *Handler) GetResourceDetails(ctx *gin.Context) {
 func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	var err error
 
-	config, ok := h.customBoards[ctx.Param("id")]
-	if !ok {
+	board := h.customBoards.Board(ctx.Param("id"))
+	if board == nil {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
 	}
+
+	config := MapCustomBoard(board)
 
 	if profile := auth.ProfileFrom(ctx); profile != nil {
 		if !config.Allowed(profile) {
@@ -262,24 +265,27 @@ func (h *Handler) Layout(ctx *gin.Context) {
 		return
 	}
 
-	var boards map[string]CustomBoard
+	boards := make(map[string]CustomBoard, 0)
+	list := utils.Map(h.customBoards.Boards(), MapCustomBoard)
 
 	if profile := auth.ProfileFrom(ctx); profile != nil {
-		boards = make(map[string]CustomBoard, len(h.customBoards))
+		boards = make(map[string]CustomBoard, h.customBoards.Length())
 
-		for key, board := range h.customBoards {
+		for _, board := range list {
 			if !board.Allowed(profile) {
 				continue
 			}
 
-			boards[key] = board
+			boards[board.ID] = board
 		}
 
 		if !h.config.Boards.Allowed(profile) {
 			sources = nil
 		}
 	} else {
-		boards = h.customBoards
+		for _, board := range list {
+			boards[board.ID] = board
+		}
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -458,7 +464,7 @@ func (h *Handler) NamespaceReport(ctx *gin.Context) {
 	}
 }
 
-func NewHandler(config *Config, apis map[string]*model.Endpoints, customBoards map[string]CustomBoard) *Handler {
+func NewHandler(config *Config, apis map[string]*model.Endpoints, customBoards *customboard.Collection) *Handler {
 	sources := make(map[string]model.SourceConfig, len(config.Sources))
 	for _, s := range config.Sources {
 		sources[s.Name] = model.SourceConfig{Results: s.Excludes.Results, Exceptions: s.Exceptions, ViewType: s.ViewType, Severities: s.Excludes.Severities}
