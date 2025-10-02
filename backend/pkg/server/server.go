@@ -14,6 +14,7 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
+	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
 )
 
@@ -61,7 +62,7 @@ func (s *Server) RegisterCluster(name string, client *core.Client, plugins map[s
 	zap.L().Debug("cluster registered", zap.String("name", name), zap.String("id", id))
 }
 
-func (s *Server) RegisterAPI(c *api.Config, customBoards map[string]api.CustomBoard) {
+func (s *Server) RegisterAPI(c *api.Config, customBoards *customboard.Collection) {
 	handler := api.NewHandler(c, s.apis, customBoards)
 
 	s.engine.GET("healthz", handler.Healthz)

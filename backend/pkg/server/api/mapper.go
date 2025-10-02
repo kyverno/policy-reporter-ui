@@ -7,6 +7,8 @@ import (
 	plugin "github.com/kyverno/policy-reporter-plugins/sdk/api"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
+	"github.com/kyverno/policy-reporter-ui/pkg/auth"
+	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/service"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
@@ -188,4 +190,49 @@ func policyID(p plugin.PolicyListItem) string {
 	}
 
 	return fmt.Sprintf("%s/%s", p.Namespace, p.Name)
+}
+
+func MapFilter(f customboard.Filter) Includes {
+	if f.NamespaceKinds == nil {
+		f.NamespaceKinds = make([]string, 0)
+	}
+	if f.ClusterKinds == nil {
+		f.ClusterKinds = make([]string, 0)
+	}
+	if f.Results == nil {
+		f.Results = make([]string, 0)
+	}
+	if f.Severities == nil {
+		f.Severities = make([]string, 0)
+	}
+
+	return Includes{
+		NamespaceKinds: f.NamespaceKinds,
+		ClusterKinds:   f.ClusterKinds,
+		Results:        f.Results,
+		Severities:     f.Severities,
+	}
+}
+
+func MapCustomBoard(c *customboard.CustomBoard) CustomBoard {
+	return CustomBoard{
+		Name:    c.Name,
+		ID:      c.ID,
+		Display: c.Display,
+		Filter:  MapFilter(c.Filter.Include),
+		Namespaces: Namespaces{
+			Selector: c.Namespaces.Selector,
+			List:     c.Namespaces.List,
+		},
+		Sources: Sources{
+			List: c.Sources.List,
+		},
+		Permissions: auth.Permissions{
+			AccessControl: auth.AccessControl(c.AccessControl),
+		},
+		PolicyReports: PolicyReports{
+			Selector: c.PolicyReports.Selector,
+		},
+		ClusterScope: c.ClusterScope.Enabled,
+	}
 }

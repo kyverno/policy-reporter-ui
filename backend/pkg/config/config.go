@@ -5,6 +5,7 @@ import (
 
 	"k8s.io/client-go/tools/clientcmd"
 
+	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/logging"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
@@ -234,49 +235,25 @@ type Boards struct {
 	AccessControl AccessControl `koanf:"accessControl"`
 }
 
-type Filter struct {
-	NamespaceKinds []string `koanf:"namespaceKinds"`
-	ClusterKinds   []string `koanf:"clusterKinds"`
-	Results        []string `koanf:"results"`
-	Severities     []string `koanf:"severities"`
-}
-
-type CustomBoard struct {
-	Name          string        `koanf:"name"`
-	AccessControl AccessControl `koanf:"accessControl"`
-	Filter        struct {
-		Include Filter `koanf:"include"`
-	} `koanf:"filter"`
-	Display    string `json:"display"`
-	Namespaces struct {
-		Selector map[string]string `koanf:"selector"`
-		List     []string          `koanf:"list"`
-	} `koanf:"namespaces"`
-	Sources struct {
-		List []string `koanf:"list"`
-	} `koanf:"sources"`
-	PolicyReports struct {
-		Selector map[string]string `koanf:"selector"`
-	} `koanf:"policyReports"`
-	ClusterScope struct {
-		Enabled bool `koanf:"enabled"`
-	} `koanf:"clusterScope"`
+type CRDs struct {
+	CustomBoard bool `koanf:"customBoard"`
 }
 
 // Config structure
 type Config struct {
 	KubeConfig    clientcmd.ConfigOverrides
-	Namespace     string         `koanf:"namespace"`
-	Clusters      []Cluster      `koanf:"clusters"`
-	Sources       []Source       `koanf:"sources"`
-	Server        Server         `koanf:"server"`
-	UI            UI             `koanf:"ui"`
-	Logging       logging.Config `koanf:"logging"`
-	OpenIDConnect OpenIDConnect  `koanf:"openIDConnect"`
-	OAuth         OAuth          `koanf:"oauth"`
-	Boards        Boards         `mastructure:"boards"`
-	CustomBoards  []CustomBoard  `koanf:"customBoards"`
-	Local         bool           `koanf:"local"`
+	Namespace     string                    `koanf:"namespace"`
+	Clusters      []Cluster                 `koanf:"clusters"`
+	Sources       []Source                  `koanf:"sources"`
+	Server        Server                    `koanf:"server"`
+	UI            UI                        `koanf:"ui"`
+	Logging       logging.Config            `koanf:"logging"`
+	OpenIDConnect OpenIDConnect             `koanf:"openIDConnect"`
+	OAuth         OAuth                     `koanf:"oauth"`
+	Boards        Boards                    `koanf:"boards"`
+	CustomBoards  []customboard.CustomBoard `koanf:"customBoards"`
+	CRDs          CRDs                      `koanf:"crds"`
+	Local         bool                      `koanf:"local"`
 }
 
 func (c *Config) AuthEnabled() bool {

@@ -4,6 +4,7 @@ import (
 	"github.com/gosimple/slug"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/auth"
+	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
@@ -67,7 +68,7 @@ func MapConfig(c *Config) *api.Config {
 	}
 }
 
-func MapCustomBoards(customBoards []CustomBoard) map[string]api.CustomBoard {
+func MapCustomBoards(customBoards []customboard.CustomBoard) map[string]api.CustomBoard {
 	configs := make(map[string]api.CustomBoard, len(customBoards))
 
 	for _, c := range customBoards {
@@ -109,7 +110,7 @@ func MapClusterPermissions(c *Config) map[string]auth.Permissions {
 	return permissions
 }
 
-func MapFilter(f Filter) api.Includes {
+func MapFilter(f customboard.Filter) api.Includes {
 	if f.NamespaceKinds == nil {
 		f.NamespaceKinds = make([]string, 0)
 	}

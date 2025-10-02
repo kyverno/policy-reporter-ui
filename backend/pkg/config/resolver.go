@@ -11,6 +11,7 @@ import (
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
+	"github.com/gosimple/slug"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"go.uber.org/zap"
@@ -22,6 +23,9 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/proxy"
 	"github.com/kyverno/policy-reporter-ui/pkg/auth"
+	ui "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
+	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
+	kcb "github.com/kyverno/policy-reporter-ui/pkg/kubernetes/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/logging"
 	"github.com/kyverno/policy-reporter-ui/pkg/server"
@@ -34,10 +38,11 @@ var (
 )
 
 type Resolver struct {
-	config    *Config
-	secrets   secrets.Client
-	k8sConfig *rest.Config
-	clientset *k8s.Clientset
+	config       *Config
+	secrets      secrets.Client
+	k8sConfig    *rest.Config
+	clientset    *k8s.Clientset
+	customBoards *customboard.Collection
 }
 
 func (r *Resolver) CoreClient(cluster Cluster) (*core.Client, error) {
@@ -402,9 +407,37 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 		serv.RegisterUI(r.config.UI.Path, uiMiddleware)
 	}
 
-	serv.RegisterAPI(MapConfig(r.config), MapCustomBoards(r.config.CustomBoards))
+	serv.RegisterAPI(MapConfig(r.config), r.CustomBoards())
 
 	return serv, nil
+}
+
+func (r *Resolver) CustomBoardInformer() (*kcb.Client, error) {
+	k8sConfig, err := r.K8sConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := ui.NewForConfig(k8sConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return kcb.NewClient(client, r.CustomBoards()), nil
+}
+
+func (r *Resolver) CustomBoards() *customboard.Collection {
+	if r.customBoards != nil {
+		return r.customBoards
+	}
+
+	r.customBoards = customboard.NewCollection(utils.Map(r.config.CustomBoards, func(c customboard.CustomBoard) *customboard.CustomBoard {
+		c.ID = slug.Make(c.Name)
+
+		return &c
+	})...)
+
+	return r.customBoards
 }
 
 func (r *Resolver) Logger() *zap.Logger {

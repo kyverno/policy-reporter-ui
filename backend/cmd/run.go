@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/config"
@@ -34,7 +35,26 @@ func newRunCMD() *cobra.Command {
 
 			logger.Info("Server starts", zap.Int("port", c.Server.Port))
 
-			return serv.Start()
+			g := &errgroup.Group{}
+			g.Go(serv.Start)
+
+			if c.CRDs.CustomBoard {
+				g.Go(func() error {
+					informer, err := resolver.CustomBoardInformer()
+					if err != nil {
+						return err
+					}
+
+					stop := make(chan struct{})
+					informer.Run(stop)
+					logger.Info("custom board informer starts")
+					<-stop
+
+					return nil
+				})
+			}
+
+			return g.Wait()
 		},
 	}
 
