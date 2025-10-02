@@ -27,7 +27,6 @@ import (
 // +kubebuilder:storageversion
 // +kubebuilder:resource:path=customboards,scope="Cluster",shortName=cb
 // +kubebuilder:printcolumn:name="Name",type=string,JSONPath=`.metadata.name`,priority=1
-// +kubebuilder:printcolumn:name="Namespaces",type=array,JSONPath=`.summary.namespaces`
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 // CustomBoard is the Schema for the customboards API

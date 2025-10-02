@@ -21,9 +21,6 @@ spec:
       name: Name
       priority: 1
       type: string
-    - jsonPath: .summary.namespaces
-      name: Namespaces
-      type: array
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date

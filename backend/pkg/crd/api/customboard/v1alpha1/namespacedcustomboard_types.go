@@ -23,7 +23,7 @@ import (
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:storageversion
-// +kubebuilder:resource:path=namespacecustomboards,scope="Namespace",shortName=ncb
+// +kubebuilder:resource:path=namespacecustomboards,scope="Namespaced",shortName=ncb
 // +kubebuilder:printcolumn:name="Name",type=string,JSONPath=`.metadata.name`,priority=1
 // +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 

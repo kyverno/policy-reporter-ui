@@ -14,7 +14,7 @@ spec:
     shortNames:
     - ncb
     singular: namespacecustomboard
-  scope: Namespace
+  scope: Namespaced
   versions:
   - additionalPrinterColumns:
     - jsonPath: .metadata.name
