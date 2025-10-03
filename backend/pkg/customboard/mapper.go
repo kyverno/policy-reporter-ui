@@ -98,3 +98,17 @@ func MapPolicyReports(pr *v1alpha1.PolicyReportSelector) PolicyReportSelector {
 		Selector: pr.LabelSelector,
 	}
 }
+
+func MapFilterFields(f FilterList) FilterList {
+	f.Include.ClusterKinds = append(f.Include.ClusterKinds, f.ClusterKinds.Include...)
+	f.Include.NamespaceKinds = append(f.Include.NamespaceKinds, f.NamespaceKinds.Include...)
+	f.Include.Results = append(f.Include.Results, f.Results.Include...)
+	f.Include.Severities = append(f.Include.Severities, f.Severities.Include...)
+
+	f.Exclude.ClusterKinds = append(f.Exclude.ClusterKinds, f.ClusterKinds.Exclude...)
+	f.Exclude.NamespaceKinds = append(f.Exclude.NamespaceKinds, f.NamespaceKinds.Exclude...)
+	f.Exclude.Results = append(f.Exclude.Results, f.Results.Exclude...)
+	f.Exclude.Severities = append(f.Exclude.Severities, f.Severities.Exclude...)
+
+	return f
+}

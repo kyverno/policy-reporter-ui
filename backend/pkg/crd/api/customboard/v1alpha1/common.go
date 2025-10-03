@@ -43,13 +43,13 @@ type ValueFilter struct {
 
 type Filter struct {
 	// +optional
-	NamespaceKinds ValueFilter `json:"namespaceKinds,omitempty"`
+	NamespaceKinds ValueFilter `json:"namespaceKinds"`
 	// +optional
-	ClusterKinds ValueFilter `json:"clusterKinds,omitempty"`
+	ClusterKinds ValueFilter `json:"clusterKinds"`
 	// +optional
-	Results ValueFilter `json:"results,omitempty"`
+	Results ValueFilter `json:"results"`
 	// +optional
-	Severities ValueFilter `json:"severities,omitempty"`
+	Severities ValueFilter `json:"severities"`
 }
 
 // +kubebuilder:oneOf:={required:{labelSelector}}

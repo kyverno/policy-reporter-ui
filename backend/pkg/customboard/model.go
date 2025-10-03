@@ -5,6 +5,11 @@ type AccessControl struct {
 	Groups []string `koanf:"groups"`
 }
 
+type ValueFilter struct {
+	Include []string `koanf:"include"`
+	Exclude []string `koanf:"exclude"`
+}
+
 type Filter struct {
 	NamespaceKinds []string `koanf:"namespaceKinds"`
 	ClusterKinds   []string `koanf:"clusterKinds"`
@@ -28,6 +33,11 @@ type PolicyReportSelector struct {
 type FilterList struct {
 	Include Filter `koanf:"include"`
 	Exclude Filter `koanf:"exclude"`
+
+	NamespaceKinds ValueFilter `koanf:"namespaceKinds"`
+	ClusterKinds   ValueFilter `koanf:"clusterKinds"`
+	Results        ValueFilter `koanf:"results"`
+	Severities     ValueFilter `koanf:"severities"`
 }
 
 type ClusterScope struct {

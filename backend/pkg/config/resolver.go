@@ -433,6 +433,7 @@ func (r *Resolver) CustomBoards() *customboard.Collection {
 
 	r.customBoards = customboard.NewCollection(utils.Map(r.config.CustomBoards, func(c customboard.CustomBoard) *customboard.CustomBoard {
 		c.ID = slug.Make(c.Name)
+		c.Filter = customboard.MapFilterFields(c.Filter)
 
 		return &c
 	})...)
