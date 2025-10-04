@@ -219,6 +219,7 @@ export type ResourceDetails = {
 export type PolicyDetails = {
     title: string;
     name: string;
+    status: Status[];
     namespaces: string[];
     references?: string[];
     description: string;

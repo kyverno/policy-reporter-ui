@@ -134,6 +134,7 @@ type PolicyDetails struct {
 	Details     []Item       `json:"details,omitempty"`
 	Additional  []Details    `json:"additional,omitempty"`
 	References  []string     `json:"references,omitempty"`
+	Status      []string     `json:"status,omitempty"`
 	ShowDetails bool         `json:"showDetails"`
 	Exceptions  bool         `json:"exceptions"`
 }

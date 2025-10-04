@@ -95,12 +95,14 @@ const bg = useBGColor()
 
 const filter = inject<Ref<Filter>>(APIFilter, ref<Filter>({}))
 
+const status = useStatusInjection()
+
 const { data, refresh } = useAPI(
     (api) => api.namespacedResults({
       ...filter.value,
       sources: [props.source],
       policies: props.policy ? [props.policy] : undefined,
-      status: props.status ? props.status : undefined,
+      status: props.status ? props.status : status.value,
       namespaces: [props.namespace],
       search: searchText.value ? searchText.value : undefined,
     }, {
