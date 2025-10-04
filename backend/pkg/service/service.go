@@ -71,7 +71,7 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 	query.Set("policies", policy)
 
 	config, ok := s.configs[source]
-	if ok {
+	if ok && len(config.Results) > 0 {
 		query["status"] = config.EnabledResults()
 	}
 
@@ -137,6 +137,7 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 		Namespaces: namespaces,
 		Title:      title,
 		Name:       policy,
+		Status:     config.EnabledResults(),
 		Exceptions: s.configs[source].Exceptions,
 		Chart: PolicyCharts{
 			Findings:       MapFindingsToSourceStatusChart(title, findings),

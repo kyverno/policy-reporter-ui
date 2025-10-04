@@ -82,7 +82,7 @@ const props = defineProps<{
   category?: string;
   exceptions?: boolean;
   resource: string;
-  Status?: Status;
+  status?: Status;
 }>()
 
 const bg = useBGColor()
@@ -107,6 +107,8 @@ const options = reactive({
 
 const open = ref(true)
 const searchText = ref('')
+const status = useStatusInjection()
+
 const { data, refresh } = useAPI(
     (api) => api.results(props.resource, {
       page: options.page,
@@ -115,6 +117,7 @@ const { data, refresh } = useAPI(
       sources: props.source ? [props.source] : undefined,
       categories: props.category ? [props.category] : undefined,
       search: !!searchText.value ? searchText.value : undefined,
+      status: props.status ? [props.status] : status.value,
     }),
     {
       default: () => ({ items: [], count: 0 }),

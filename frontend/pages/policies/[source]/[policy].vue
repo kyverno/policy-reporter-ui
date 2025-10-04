@@ -63,4 +63,6 @@ const { data, refresh } = useAPI((api) => api.policyDetails(
 watch(route, onChange(refresh))
 watch(status, onChange(refresh))
 watch(filter, onChange(refresh))
+
+useStatusProvider(data)
 </script>
