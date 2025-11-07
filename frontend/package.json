@@ -29,7 +29,7 @@
     "chroma-js": "^3.1.1",
     "highlight.js": "^11.9.0",
     "lodash.debounce": "^4.0.8",
-    "pinia": "^3.0.3",
+    "pinia": "^3.0.4",
     "vue-chartjs": "^5.3.3",
     "vuetify": "^3.10.8"
   }
