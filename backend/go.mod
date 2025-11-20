@@ -19,7 +19,7 @@ require (
 	github.com/markbates/goth v0.0.0-00010101000000-000000000000
 	github.com/redis/go-redis/v9 v9.16.0
 	github.com/spf13/cobra v1.10.1
-	go.uber.org/zap v1.27.0
+	go.uber.org/zap v1.27.1
 	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b
 	golang.org/x/sync v0.18.0
 	golang.org/x/text v0.30.0
