@@ -62,7 +62,8 @@
       <h1 class="mui--text-display2">Namespace Report</h1>
     </header>
 
-    {{ range $key, $validation := . }}
+    {{ $status := .Status }}
+    {{ range $key, $validation := .Validations }}
       <section class="mui-panel policy">
         <h2 style="margin-bottom: 0.15rem; margin-top: 0;">Namespace: {{ or $validation.Name "Cluster Scoped" }}</h2>
         {{ $pass := 0 }}
@@ -76,19 +77,19 @@
           <colgroup>
             <col style="width:30%">
             <col style="width:30%">
-            <col style="width:10%">
-            <col style="width:10%">
-            <col style="width:10%">
-            <col style="width:10%">
+            {{ if contains $status "pass" }}<col style="width:10%">{{ end }}
+            {{ if contains $status "warning" }}<col style="width:10%">{{ end }}
+            {{ if contains $status "fail" }}<col style="width:10%">{{ end }}
+            {{ if contains $status "error" }}<col style="width:10%">{{ end }}
           </colgroup>
           <thead>
             <tr>
               <th>Policy</th>
               <th>Rule</th>
-              <th class="mui--text-right">Pass</th>
-              <th class="mui--text-right">Warning</th>
-              <th class="mui--text-right">Fail</th>
-              <th class="mui--text-right">Error</th>
+              {{ if contains $status "pass" }}<th class="mui--text-right">Pass</th>{{ end }}
+              {{ if contains $status "warning" }}<th class="mui--text-right">Warning</th>{{ end }}
+              {{ if contains $status "fail" }}<th class="mui--text-right">Fail</th>{{ end }}
+              {{ if contains $status "error" }}<th class="mui--text-right">Error</th>{{ end }}
             </tr>
           </thead>
           {{ $pass := 0 }}
@@ -107,10 +108,10 @@
             <tr>
               <td>{{ $val.Policy.Title }}</td>
               <td>{{ $ruleName }}</td>
-              <td class="mui--text-right"><div class="chip pass">{{ $rule.Summary.Pass }}</div></td>
-              <td class="mui--text-right"><div class="chip warning">{{ $rule.Summary.Warning }}</div></td>
-              <td class="mui--text-right"><spdivan class="chip fail">{{ $rule.Summary.Fail }}</spdivan></td>
-              <td class="mui--text-right"><div class="chip error">{{ $rule.Summary.Error }}</div></td>
+              {{ if contains $status "pass" }}<td class="mui--text-right"><div class="chip pass">{{ $rule.Summary.Pass }}</div></td>{{ end }}
+              {{ if contains $status "warning" }}<td class="mui--text-right"><div class="chip warning">{{ $rule.Summary.Warning }}</div></td>{{ end }}
+              {{ if contains $status "fail" }}<td class="mui--text-right"><spdivan class="chip fail">{{ $rule.Summary.Fail }}</spdivan></td>{{ end }}
+              {{ if contains $status "error" }}<td class="mui--text-right"><div class="chip error">{{ $rule.Summary.Error }}</div></td>{{ end }}
             </tr>
             {{ end }}
           {{ end }}
@@ -118,10 +119,10 @@
           <tfoot>
             <tr>
               <td colspan="2" style="font-weight: bold;">Summary</td>
-              <td class="mui--text-right"><div style="font-weight: bold;" class="chip pass">{{ $pass }}</div></td>
-              <td class="mui--text-right"><div style="font-weight: bold;" class="chip warning">{{ $warning }}</div></td>
-              <td class="mui--text-right"><div style="font-weight: bold;" class="chip fail">{{ $fail }}</div></td>
-              <td class="mui--text-right"><div style="font-weight: bold;" class="chip error">{{ $error }}</div></td>
+              {{ if contains $status "pass" }}<td class="mui--text-right"><div style="font-weight: bold;" class="chip pass">{{ $pass }}</div></td>{{ end }}
+              {{ if contains $status "warning" }}<td class="mui--text-right"><div style="font-weight: bold;" class="chip warning">{{ $warning }}</div></td>{{ end }}
+              {{ if contains $status "fail" }}<td class="mui--text-right"><div style="font-weight: bold;" class="chip fail">{{ $fail }}</div></td>{{ end }}
+              {{ if contains $status "error" }}<td class="mui--text-right"><div style="font-weight: bold;" class="chip error">{{ $error }}</div></td>{{ end }}
             </tr>
           </tfoot>
         </table>
@@ -141,16 +142,16 @@
         <div style="border: 1px solid #ccc; border-radius: 4px; padding: 8px; margin-bottom: 1.5rem;">
           <div class="mui-container-fluid" style="padding-left: 0; margin-bottom: 8px;">
             <div class="mui-row" style="padding-bottom: 8px;">
-              <div class="mui-col-xs-3 mui--text-center">Pass</div>
-              <div class="mui-col-xs-3 mui--text-center">Warning</div>
-              <div class="mui-col-xs-3 mui--text-center">Fail</div>
-              <div class="mui-col-xs-3 mui--text-center">Error</div>
+              {{ if contains $status "pass" }}<div class="mui-col-xs-3 mui--text-center">Pass</div>{{ end }}
+              {{ if contains $status "warning" }}<div class="mui-col-xs-3 mui--text-center">Warning</div>{{ end }}
+              {{ if contains $status "fail" }}<div class="mui-col-xs-3 mui--text-center">Fail</div>{{ end }}
+              {{ if contains $status "error" }}<div class="mui-col-xs-3 mui--text-center">Error</div>{{ end }}
             </div>
             <div class="mui-row">
-              <div class="mui-col-xs-3"><div style="width: 100%;" class="mui--text-center chip pass">{{ $val.Summary.Pass }}</div></div>
-              <div class="mui-col-xs-3"><div style="width: 100%;" class="mui--text-center chip warning">{{ $val.Summary.Warning }}</div></div>
-              <div class="mui-col-xs-3"><div style="width: 100%;" class="mui--text-center chip fail">{{ $val.Summary.Fail }}</div></div>
-              <div class="mui-col-xs-3"><div style="width: 100%;" class="mui--text-center chip error">{{ $val.Summary.Error }}</div></div>
+              {{ if contains $status "pass" }}<div class="mui-col-xs-3"><div style="width: 100%;" class="mui--text-center chip pass">{{ $val.Summary.Pass }}</div></div>{{ end }}
+              {{ if contains $status "warning" }}<div class="mui-col-xs-3"><div style="width: 100%;" class="mui--text-center chip warning">{{ $val.Summary.Warning }}</div></div>{{ end }}
+              {{ if contains $status "fail" }}<div class="mui-col-xs-3"><div style="width: 100%;" class="mui--text-center chip fail">{{ $val.Summary.Fail }}</div></div>{{ end }}
+              {{ if contains $status "error" }}<div class="mui-col-xs-3"><div style="width: 100%;" class="mui--text-center chip error">{{ $val.Summary.Error }}</div></div>{{ end }}
             </div>
           </div>
         </div>
