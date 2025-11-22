@@ -72,11 +72,11 @@ export class CoreAPI {
     return exec<PolicyDetails>(`/api/config/${this.cluster}/${source}/policy/details`, { baseURL: this.baseURL, params: applyExcludes({ policies: [policy], namespace, status, kinds }, [...this.nsExcludes, ...this.clusterExcludes], source) })
   }
 
-  policyHTMLReport (source: string, filter: { namespaces: string[]; categories: string[]; kinds: string[]; clusterScope: boolean; }) {
+  policyHTMLReport (source: string, filter: { namespaces: string[]; categories: string[]; kinds: string[]; clusterScope: boolean; status: Status[]; }) {
     return exec<BlobPart>(`/api/config/${this.cluster}/${source}/policy-report`, { baseURL: this.baseURL, params: filter, responseType: 'blob' })
   }
 
-  namespaceHTMLReport (source: string, filter: { namespaces: string[]; categories: string[]; kinds: string[]; }) {
+  namespaceHTMLReport (source: string, filter: { namespaces: string[]; categories: string[]; kinds: string[]; status: Status[]; }) {
     return exec<BlobPart>(`/api/config/${this.cluster}/${source}/namespace-report`, { baseURL: this.baseURL, params: filter, responseType: 'blob' })
   }
 
