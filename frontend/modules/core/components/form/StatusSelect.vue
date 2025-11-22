@@ -2,7 +2,7 @@
   <v-select
       multiple
       clearable
-      density="compact"
+      :density="density || 'compact'"
       :items="items"
       variant="outlined"
       hide-details
@@ -24,9 +24,10 @@
 </template>
 
 <script lang="ts" setup>
+import type { Density } from "vuetify/lib/composables/density.mjs";
 import {Status} from "../../types";
 
-const props = defineProps<{ source?: string; modelValue?: Status[] }>();
+const props = defineProps<{ source?: string; modelValue?: Status[]; density?: Density }>();
 
 const selected = ref<Status[]>(props.modelValue || []);
 

@@ -14,7 +14,10 @@
             <form-category-select :source="source" v-model="categories" />
           </app-row>
           <app-row>
-            <form-namespace-select :source="source" v-model="namespaces" />
+            <form-namespace-select :source="source" v-model="namespaces"/>
+          </app-row>
+          <app-row>
+            <form-status-select :source="source" v-model="status" density="default" />
           </app-row>
           <app-row>
             <policy-kind-select :source="source" v-model="kinds" />
@@ -35,6 +38,7 @@
 
 <script setup lang="ts">
 import { callAPI } from "~/modules/core/composables/api";
+import type { Status } from "../../types";
 
 const props = defineProps<{ source: string; category?: string }>()
 
@@ -43,6 +47,7 @@ const report = ref<string>('policy-report')
 const categories = ref<string[]>(props.category ? [props.category] : [])
 const namespaces = ref<string[]>([])
 const kinds = ref<string[]>([])
+const status = ref<Status[]>([])
 const clusterScope = ref<boolean>(true)
 
 const loading = ref<boolean>(false)
@@ -63,12 +68,12 @@ const request = async () => {
 
   try {
     if (report.value === 'policy-report') {
-      response = await callAPI((api) => api.policyHTMLReport(props.source, { categories: categories.value , namespaces: namespaces.value, kinds: kinds.value, clusterScope: clusterScope.value }))
+      response = await callAPI((api) => api.policyHTMLReport(props.source, { categories: categories.value , namespaces: namespaces.value, kinds: kinds.value, clusterScope: clusterScope.value, status: status.value }))
     } else {
-      response = await callAPI((api) => api.namespaceHTMLReport(props.source, { categories: categories.value , namespaces: namespaces.value, kinds: kinds.value }))
+      response = await callAPI((api) => api.namespaceHTMLReport(props.source, { categories: categories.value , namespaces: namespaces.value, kinds: kinds.value, status: status.value }))
     }
   } catch (error) {
-    err.value = error
+    err.value = error as Error
     return
   } finally {
     loading.value = false
