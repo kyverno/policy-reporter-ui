@@ -420,6 +420,7 @@ func (h *Handler) PolicyReport(ctx *gin.Context) {
 		ClusterScope: ctx.Request.URL.Query().Get("clusterScope") != "0",
 		Categories:   ctx.Request.URL.Query()["categories"],
 		Kinds:        ctx.Request.URL.Query()["kinds"],
+		Status:       ctx.Request.URL.Query()["status"],
 	})
 	if err != nil {
 		zap.L().Error("failed to load generate report data", zap.String("cluster", ctx.Param("cluster")), zap.Error(err))
@@ -434,7 +435,11 @@ func (h *Handler) PolicyReport(ctx *gin.Context) {
 		return
 	}
 
-	if err = tmpl.Execute(ctx.Writer, data); err != nil {
+	if err = tmpl.Execute(ctx.Writer, map[string]any{
+		"Validations": data,
+		"Status":      ctx.Request.URL.Query()["status"],
+	}); err != nil {
+		zap.L().Error("failed to generate report", zap.Error(err))
 		ctx.AbortWithStatus(http.StatusInternalServerError)
 	}
 }
@@ -445,6 +450,7 @@ func (h *Handler) NamespaceReport(ctx *gin.Context) {
 		Policies:   ctx.Request.URL.Query()["policies"],
 		Categories: ctx.Request.URL.Query()["categories"],
 		Kinds:      ctx.Request.URL.Query()["kinds"],
+		Status:     ctx.Request.URL.Query()["status"],
 	})
 	if err != nil {
 		zap.L().Error("failed to load generate report data", zap.String("cluster", ctx.Param("cluster")), zap.Error(err))
@@ -459,7 +465,11 @@ func (h *Handler) NamespaceReport(ctx *gin.Context) {
 		return
 	}
 
-	if err = tmpl.Execute(ctx.Writer, data); err != nil {
+	if err = tmpl.Execute(ctx.Writer, map[string]any{
+		"Validations": data,
+		"Status":      ctx.Request.URL.Query()["status"],
+	}); err != nil {
+		zap.L().Error("failed to generate report", zap.Error(err))
 		ctx.AbortWithStatus(http.StatusInternalServerError)
 	}
 }
@@ -476,5 +486,12 @@ func NewHandler(config *Config, apis map[string]*model.Endpoints, customBoards *
 var funcMap = template.FuncMap{
 	"add": func(i, j int) int {
 		return i + j
+	},
+	"contains": func(slice []string, item string) bool {
+		if len(slice) == 0 {
+			return true
+		}
+
+		return utils.Contains(slice, item)
 	},
 }
