@@ -9,7 +9,7 @@
         "@vueuse/nuxt": "^14.0.0",
         "axios": "^1.13.2",
         "chart.js": "^4.5.1",
-        "chroma-js": "^3.1.1",
+        "chroma-js": "^3.1.4",
         "highlight.js": "^11.9.0",
         "lodash.debounce": "^4.0.8",
         "pinia": "^3.0.4",
@@ -561,7 +561,7 @@
 
     "chownr": ["chownr@3.0.0", "", {}, "sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g=="],
 
-    "chroma-js": ["chroma-js@3.1.2", "", {}, "sha512-IJnETTalXbsLx1eKEgx19d5L6SRM7cH4vINw/99p/M11HCuXGRWL+6YmCm7FWFGIo6dtWuQoQi1dc5yQ7ESIHg=="],
+    "chroma-js": ["chroma-js@3.1.4", "", {}, "sha512-PLUFupqtew/yJt2WuwMk5RSxcJToAxocYYS/afh899yCxbPQs7YXQ954lgpTi+bPuxSX8IWSIMsmZ+Zfk+DgGQ=="],
 
     "citty": ["citty@0.1.6", "", { "dependencies": { "consola": "^3.2.3" } }, "sha512-tskPPKEs8D2KPafUypv2gxwJP8h/OaJmC82QQGGDQcHvXX43xF2VDACcJVmZ0EuSxkpO9Kc4MlrA3q0+FG58AQ=="],
 
