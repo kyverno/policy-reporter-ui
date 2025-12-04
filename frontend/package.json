@@ -31,6 +31,6 @@
     "lodash.debounce": "^4.0.8",
     "pinia": "^3.0.4",
     "vue-chartjs": "^5.3.3",
-    "vuetify": "^3.11.1"
+    "vuetify": "^3.11.2"
   }
 }
