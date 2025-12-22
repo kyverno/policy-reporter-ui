@@ -105,7 +105,7 @@ const options = reactive({
 
 const kinds = inject<Ref<string[]>>(NamespacedKinds, ref<string[]>([]))
 const status = useStatusInjection()
-const severities = useSeveritiesInjection()
+const severities = useSeverityFilter()
 
 const open = ref(true)
 const searchText = ref('')
