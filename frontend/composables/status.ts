@@ -19,3 +19,13 @@ export const useStatusProvider = (data?: Ref<{ status: Status[] } | null>) => {
 export const useStatusInjection = () => {
     return inject(ShowedStatus, ref([Status.SKIP, Status.PASS, Status.WARN, Status.FAIL, Status.ERROR]))
 }
+
+export const useStatusFilter = () => {
+    const status = useStatusInjection()
+
+    if (status.value.length === 5) {
+        return ref(undefined)
+    }
+
+    return status
+}

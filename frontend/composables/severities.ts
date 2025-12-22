@@ -19,3 +19,13 @@ export const useSeveritiesProvider = (data?: Ref<{ severities: Severity[] } | nu
 export const useSeveritiesInjection = () => {
     return inject(ShowedSeverities, ref([Severity.UNKNOWN,Severity.INFO,Severity.LOW,Severity.MEDIUM,Severity.HIGH,Severity.CRITICAL]))
 }
+
+export const useSeverityFilter = () => {
+    const severities = useSeveritiesInjection()
+
+    if (severities.value.length === 6) {
+        return ref(undefined)
+    }
+
+    return severities
+}
