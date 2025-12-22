@@ -46,8 +46,13 @@ const open = ref(true)
 const filter = inject<Ref<Filter>>(APIFilter, ref<Filter>({}))
 const kinds = inject<Ref<string[]>>(NamespacedKinds, ref<string[]>([]))
 
+const statusFilter = useStatusFilter()
+const severities = useSeverityFilter()
+
 const combinedFilter = computed(() => ({
   ...filter.value,
+  status: statusFilter.value,
+  severities: severities.value,
   namespaces: [props.namespace as string],
   kinds: kinds.value.length ? kinds.value : undefined,
   search: search.value,
@@ -68,7 +73,7 @@ const { data, refresh, pending } = useAPI(
 );
 
 const status = useStatusInjection()
-const showSkipped = computed(() => data.value?.items.some(item => status.value.includes(Status.SKIP) && !!item[Status.SKIP]))
+const showSkipped = computed(() => data.value?.items.some(item => status.value?.includes(Status.SKIP) && !!item[Status.SKIP]))
 
 watch(combinedFilter, onChange(() => {
   if (options.page !== 1) {
