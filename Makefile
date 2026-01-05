@@ -37,11 +37,11 @@ endif
 #########
 TOOLS_DIR      					   := $(PWD)/.tools
 KO             					   := $(TOOLS_DIR)/ko
-KO_VERSION     					   := v0.16.0
+KO_VERSION     					   := v0.18.0
 GCI                                := $(TOOLS_DIR)/gci
-GCI_VERSION                        := v0.13.5
+GCI_VERSION                        := v0.13.7
 GOFUMPT                            := $(TOOLS_DIR)/gofumpt
-GOFUMPT_VERSION                    := v0.7.0
+GOFUMPT_VERSION                    := v0.9.1
 
 $(KO):
 	@echo Install ko... >&2
