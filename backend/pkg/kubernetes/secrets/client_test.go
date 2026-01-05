@@ -16,7 +16,7 @@ import (
 const secretName = "secret-values"
 
 func newFakeClient() v1.SecretInterface {
-	return fake.NewSimpleClientset(&corev1.Secret{
+	return fake.NewClientset(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      secretName,
 			Namespace: "default",
