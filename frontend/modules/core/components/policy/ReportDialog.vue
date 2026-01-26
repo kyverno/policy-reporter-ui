@@ -79,14 +79,32 @@ const request = async () => {
     loading.value = false
   }
 
-  const url = window.URL.createObjectURL(new Blob([response], { type: 'text/html; charset=utf-8' }))
-  const link = document.createElement('a')
+  if (!response) {
+    return
+  }
 
-  link.href = url
-  link.setAttribute('target', '_blank')
+  // Firefox applies CSP to blob: URLs, causing "Access to blob:... from script denied" errors.
+  // To avoid this, open a new window and write the HTML directly instead of navigating to a blob: URL.
+  const blob = new Blob([response], { type: 'text/html; charset=utf-8' })
+  const html = await blob.text()
 
-  document.body.appendChild(link)
-  link.click()
-  URL.revokeObjectURL(url)
+  const newWindow = window.open('', '_blank', 'noopener,noreferrer')
+
+  if (!newWindow) {
+    // Fallback: if popup blocker prevents opening a new window, trigger download instead
+    const downloadUrl = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.download = 'report.html'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(downloadUrl)
+    return
+  }
+
+  newWindow.document.open()
+  newWindow.document.write(html)
+  newWindow.document.close()
 }
 </script>
