@@ -66,7 +66,7 @@ func MapSourceCategoryTreeToNavi(sources []core.SourceCategoryTree) []Navigation
 }
 
 func MapSourcesToPolicyNavi(sources []core.SourceCategoryTree) []NavigationItem {
-	sourceBoards := make([]NavigationItem, 0)
+	sourceBoards := make([]NavigationItem, 0, len(sources))
 	for _, source := range sources {
 		sourceBoards = append(sourceBoards, NavigationItem{
 			Title: utils.Title(source.Name),
