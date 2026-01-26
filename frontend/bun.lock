@@ -11,18 +11,18 @@
         "axios": "^1.13.2",
         "chart.js": "^4.5.1",
         "chroma-js": "^3.2.0",
-        "highlight.js": "^11.9.0",
+        "highlight.js": "^11.11.1",
         "lodash.debounce": "^4.0.8",
         "pinia": "^3.0.4",
         "vue-chartjs": "^5.3.3",
         "vuetify": "^3.11.6",
       },
       "devDependencies": {
-        "@mdi/font": "^7.3.67",
+        "@mdi/font": "^7.4.47",
         "@nuxt/devtools": "latest",
         "@types/lodash.debounce": "^4.0.9",
         "nuxt": "^4.2.2",
-        "sass": "^1.97.1",
+        "sass": "^1.97.2",
         "vite-plugin-vuetify": "^2.1.2",
         "vue": "^3.5.26",
         "vue-router": "^4.6.4",
@@ -1160,7 +1160,7 @@
 
     "safer-buffer": ["safer-buffer@2.1.2", "", {}, "sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg=="],
 
-    "sass": ["sass@1.97.1", "", { "dependencies": { "chokidar": "^4.0.0", "immutable": "^5.0.2", "source-map-js": ">=0.6.2 <2.0.0" }, "optionalDependencies": { "@parcel/watcher": "^2.4.1" }, "bin": { "sass": "sass.js" } }, "sha512-uf6HoO8fy6ClsrShvMgaKUn14f2EHQLQRtpsZZLeU/Mv0Q1K5P0+x2uvH6Cub39TVVbWNSrraUhDAoFph6vh0A=="],
+    "sass": ["sass@1.97.2", "", { "dependencies": { "chokidar": "^4.0.0", "immutable": "^5.0.2", "source-map-js": ">=0.6.2 <2.0.0" }, "optionalDependencies": { "@parcel/watcher": "^2.4.1" }, "bin": { "sass": "sass.js" } }, "sha512-y5LWb0IlbO4e97Zr7c3mlpabcbBtS+ieiZ9iwDooShpFKWXf62zz5pEPdwrLYm+Bxn1fnbwFGzHuCLSA9tBmrw=="],
 
     "sax": ["sax@1.4.3", "", {}, "sha512-yqYn1JhPczigF94DMS+shiDMjDowYO6y9+wB/4WgO0Y19jWYk0lQ4tuG5KI7kj4FTp1wxPj5IFfcrz/s1c3jjQ=="],
 
