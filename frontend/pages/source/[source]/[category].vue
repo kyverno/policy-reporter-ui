@@ -9,7 +9,7 @@
     <GraphSourceSeverities v-if="data.type === 'severity'" :data="data" :source="source" :category="category" />
     <GraphSourceStatus v-else :data="data" :source="source" :category="category" />
     <template v-if="data.showResults.length === 0">
-      <app-row>
+      <app-row v-if="data.clusterScope">
         <resource-cluster-list :details="false" :exceptions="data.exceptions" />
       </app-row>
       <resource-namespace-section v-if="data.namespaces.length" :namespaces="data.namespaces" :exceptions="data.exceptions" />

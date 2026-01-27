@@ -11,7 +11,7 @@
         <results :source="source" :title="`${capilize(source)}: Results without resource information`" />
       </app-row>
     </template>
-    <app-row>
+    <app-row v-if="data.clusterScope">
       <resource-cluster-list :details="data.multiSource"  :exceptions="data.exceptions" />
     </app-row>
     <resource-namespace-section v-if="data.namespaces.length" :namespaces="data.namespaces">
