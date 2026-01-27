@@ -3,7 +3,7 @@
     <GraphSourceSeverities v-if="data.type === 'severity'" :data="data" :source="source" />
     <GraphSourceStatus v-else :data="data" :source="source" />
     <template v-if="data.showResults.length === 0">
-      <v-row>
+      <v-row v-if="data.clusterScope">
         <v-col>
           <resource-cluster-list :source="route.params.source" :details="false" :exceptions="data.exceptions" />
         </v-col>
