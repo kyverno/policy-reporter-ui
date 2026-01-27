@@ -231,7 +231,12 @@ type AccessControl struct {
 	Groups []string `koanf:"groups"`
 }
 
+type ClusterScope struct {
+	Enabled *bool `koanf:"enabled"`
+}
+
 type Boards struct {
+	ClusterScope  ClusterScope  `koanf:"clusterScope"`
 	AccessControl AccessControl `koanf:"accessControl"`
 }
 

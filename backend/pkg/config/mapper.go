@@ -37,6 +37,11 @@ func MapConfig(c *Config) *api.Config {
 		oauth = c.OAuth.Enabled
 	}
 
+	clusterScope := true
+	if c.Boards.ClusterScope.Enabled != nil {
+		clusterScope = *c.Boards.ClusterScope.Enabled
+	}
+
 	return &api.Config{
 		Clusters:    clusters,
 		Default:     current,
@@ -44,6 +49,7 @@ func MapConfig(c *Config) *api.Config {
 		Banner:      c.UI.Banner,
 		DisplayMode: c.UI.DisplayMode,
 		Boards: api.Boards{
+			ClusterScope: clusterScope,
 			Permissions: auth.Permissions{
 				AccessControl: auth.AccessControl(c.Boards.AccessControl),
 			},
@@ -66,37 +72,6 @@ func MapConfig(c *Config) *api.Config {
 			}
 		}),
 	}
-}
-
-func MapCustomBoards(customBoards []customboard.CustomBoard) map[string]api.CustomBoard {
-	configs := make(map[string]api.CustomBoard, len(customBoards))
-
-	for _, c := range customBoards {
-		id := slug.Make(c.Name)
-
-		configs[id] = api.CustomBoard{
-			Name:    c.Name,
-			ID:      id,
-			Display: c.Display,
-			Filter:  MapFilter(c.Filter.Include),
-			Namespaces: api.Namespaces{
-				Selector: c.Namespaces.Selector,
-				List:     c.Namespaces.List,
-			},
-			Sources: api.Sources{
-				List: c.Sources.List,
-			},
-			Permissions: auth.Permissions{
-				AccessControl: auth.AccessControl(c.AccessControl),
-			},
-			PolicyReports: api.PolicyReports{
-				Selector: c.PolicyReports.Selector,
-			},
-			ClusterScope: c.ClusterScope.Enabled,
-		}
-	}
-
-	return configs
 }
 
 func MapClusterPermissions(c *Config) map[string]auth.Permissions {
