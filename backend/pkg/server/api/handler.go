@@ -348,7 +348,7 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 		Cluster:      ctx.Param("cluster"),
 		Sources:      sources,
 		Namespaces:   namespaces,
-		ClusterScope: true,
+		ClusterScope: h.config.Boards.ClusterScope,
 	}, ctx.Request.URL.Query())
 	if err != nil {
 		zap.L().Error("failed to generate dashboard", zap.Error(err))

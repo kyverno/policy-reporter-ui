@@ -75,6 +75,7 @@ type CustomBoard struct {
 
 type Boards struct {
 	auth.Permissions
+	ClusterScope bool `json:"-"`
 }
 
 type Logo struct {
