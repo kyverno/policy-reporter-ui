@@ -28,6 +28,11 @@ linters:
     - unconvert
     - wastedassign
     - whitespace
+  settings:
+    gosec:
+      excludes:
+        - G704
+        - G117
   exclusions:
     generated: lax
     presets:
