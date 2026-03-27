@@ -17,14 +17,14 @@
     "nuxt": "^4.3.1",
     "sass": "^1.97.2",
     "vite-plugin-vuetify": "^2.1.2",
-    "vue": "^3.5.26",
+    "vue": "^3.5.29",
     "vue-router": "^4.6.4"
   },
   "dependencies": {
     "@highlightjs/vue-plugin": "^2.1.0",
     "@pinia/nuxt": "^0.11.3",
     "@vueuse/nuxt": "^14.2.1",
-    "axios": "^1.13.5",
+    "axios": "^1.13.6",
     "chart.js": "^4.5.1",
     "chroma-js": "^3.2.0",
     "highlight.js": "^11.11.1",
