@@ -14,7 +14,7 @@ require (
 	github.com/knadh/koanf/parsers/yaml v1.1.0
 	github.com/knadh/koanf/providers/env v1.1.0
 	github.com/knadh/koanf/providers/file v1.2.1
-	github.com/knadh/koanf/v2 v2.3.2
+	github.com/knadh/koanf/v2 v2.3.4
 	github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20260105084430-095e87f714a0
 	github.com/markbates/goth v0.0.0-00010101000000-000000000000
 	github.com/redis/go-redis/v9 v9.18.0
