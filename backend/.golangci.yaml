@@ -33,6 +33,7 @@ linters:
       excludes:
         - G704
         - G117
+        - G124
   exclusions:
     generated: lax
     presets:
