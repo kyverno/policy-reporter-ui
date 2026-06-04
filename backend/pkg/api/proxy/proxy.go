@@ -67,6 +67,7 @@ func WithSkipTLS() ProxyOption {
 
 func New(target *url.URL, options []DirectorOption, proxyOptions []ProxyOption) *httputil.ReverseProxy {
 	proxy := httputil.NewSingleHostReverseProxy(target)
+	//nolint:staticcheck
 	original := proxy.Director
 
 	proxy.ErrorHandler = func(w http.ResponseWriter, req *http.Request, err error) {
@@ -81,6 +82,7 @@ func New(target *url.URL, options []DirectorOption, proxyOptions []ProxyOption) 
 		)
 	}
 
+	//nolint:staticcheck
 	proxy.Director = func(req *http.Request) {
 		for _, o := range options {
 			o(target, req)
