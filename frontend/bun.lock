@@ -15,7 +15,7 @@
         "lodash.debounce": "^4.0.8",
         "pinia": "^3.0.4",
         "vue-chartjs": "^5.3.3",
-        "vuetify": "^3.11.8",
+        "vuetify": "^4.1.1",
       },
       "devDependencies": {
         "@mdi/font": "^7.4.47",
@@ -1408,7 +1408,7 @@
 
     "vue-virtual-scroller": ["vue-virtual-scroller@3.0.4", "", { "peerDependencies": { "vue": "^3.3.0" } }, "sha512-3qh3c9VUVysuXynaa4fVZ3ncx3VgD7EPRiQcj+jUVZl5u/TTkD3c27XvSEu3JGJfsJt/vVTVziZ3djiiHtW4cQ=="],
 
-    "vuetify": ["vuetify@3.12.8", "", { "peerDependencies": { "typescript": ">=4.7", "vite-plugin-vuetify": ">=2.1.0", "vue": "^3.5.0", "webpack-plugin-vuetify": ">=3.1.0" }, "optionalPeers": ["typescript", "vite-plugin-vuetify", "webpack-plugin-vuetify"] }, "sha512-gvmOWeLd6CG7LVh2Qonft5YrIb7MpbKZglRjg0ItEloSbu6hfUII2RZmRSVxGKYdiXTf7J1hI3BRSHr8J9LkxA=="],
+    "vuetify": ["vuetify@4.1.1", "", { "peerDependencies": { "typescript": ">=4.7", "vite-plugin-vuetify": ">=2.1.0", "vue": "^3.5.0", "webpack-plugin-vuetify": ">=3.1.0" }, "optionalPeers": ["typescript", "vite-plugin-vuetify", "webpack-plugin-vuetify"] }, "sha512-m75ZkDIBwstDhID/zPtQmh9m601G/C4wnvCmlA6hgvhD7EOwR9I4DClpxPQiNTd1toKWHCr3kD2XJqU1fh0tYA=="],
 
     "webidl-conversions": ["webidl-conversions@3.0.1", "", {}, "sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ=="],
 
