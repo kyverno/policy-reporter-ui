@@ -1,28 +1,25 @@
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import { join } from 'node:path'
 
+// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   ssr: false,
-
   router: {
     options: {
       hashMode: true
     }
   },
-
+  compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  css: ['vuetify/lib/styles/main.sass', '@mdi/font/css/materialdesignicons.min.css'],
+  css: [
+    'vuetify/styles',
+    '@mdi/font/css/materialdesignicons.min.css',
+  ],
   build: { transpile: ["vuetify"] },
 
   modules: [
     '@pinia/nuxt',
     '@vueuse/nuxt',
-    async (options, nuxt) => {
-      nuxt.hooks.hook("vite:extendConfig", (config) =>
-        // @ts-ignore
-        config.plugins.push(vuetify())
-      );
-    },
   ],
 
   runtimeConfig: {
@@ -31,18 +28,21 @@ export default defineNuxtConfig({
     }
   },
 
-  nitro: {
-    output: {
-      publicDir: join(__dirname, 'dist')
-    }
-  },
-
   vite: {
+    plugins: [
+      vuetify({ autoImport: true }),
+    ],
     vue: {
       template: {
         transformAssetUrls,
       },
     },
+  },
+
+  nitro: {
+    output: {
+      publicDir: join(__dirname, 'dist')
+    }
   },
 
   app: {
@@ -55,7 +55,6 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { hid: 'description', name: 'description', content: '' },
         { name: 'format-detection', content: 'telephone=no' }
       ],
       link: [
@@ -64,5 +63,4 @@ export default defineNuxtConfig({
     }
   },
 
-  compatibilityDate: '2024-07-28',
 })
