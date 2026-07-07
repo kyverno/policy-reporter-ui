@@ -17,7 +17,7 @@ require (
 	github.com/knadh/koanf/v2 v2.3.5
 	github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20260428142140-4ac6de3ef17f
 	github.com/markbates/goth v0.0.0-00010101000000-000000000000
-	github.com/redis/go-redis/v9 v9.20.0
+	github.com/redis/go-redis/v9 v9.20.1
 	github.com/spf13/cobra v1.10.2
 	go.uber.org/zap v1.28.0
 	golang.org/x/exp v0.0.0-20260529124908-c761662dc8c9
