@@ -49,7 +49,7 @@ func (s *Server) RegisterUI(path string, middleware []gin.HandlerFunc) {
 func (s *Server) RegisterCluster(name string, client *core.Client, plugins map[string]*plugin.Client, proxy *httputil.ReverseProxy) {
 	id := slug.Make(name)
 
-	s.apis[id] = &model.Endpoints{Core: client, Plugins: plugins}
+	s.apis[id] = &model.Endpoints{Name: name, Core: client, Plugins: plugins}
 	group := s.proxies.Group(id)
 
 	group.Group("core").Any("/*proxy", func(ctx *gin.Context) {
@@ -80,6 +80,7 @@ func (s *Server) RegisterAPI(c *api.Config, customBoards *customboard.Collection
 
 	s.api.GET("config/:cluster/layout", handler.Layout)
 	s.api.GET("config/:cluster/dashboard", handler.Dashboard)
+	s.api.GET("config/clusters", handler.ClustersDashboard)
 }
 
 func NewServer(engine *gin.Engine, port int, middleware []gin.HandlerFunc) *Server {

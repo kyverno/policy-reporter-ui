@@ -156,6 +156,14 @@ export class CoreAPI {
     return exec<Source[]>('/proxy/'+this.cluster+'/core/v2/sources/categories', { baseURL: this.baseURL, params: { id, ...applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) } })
   }
 
+  clustersDashboard (filter?: Filter) {
+    return exec<Dashboard>(`/api/config/clusters`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
+  }
+
+  totalResults (cluster?: string, pagination?: Pagination, filter?: Filter) {
+    return exec<ResourceResultList>(`/proxy/${cluster ?? this.cluster}/core/v2/total-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]), ...pagination } })
+  }
+
   setPrefix (prefix: string): void {
     this.cluster = prefix
     cluster.value = prefix

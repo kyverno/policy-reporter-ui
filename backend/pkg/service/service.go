@@ -120,7 +120,7 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 	var clusterResult map[string]int
 	g.Go(func() error {
 		var err error
-		clusterResult, err = client.GetClusterStatusCounts(ctx, source, query)
+		clusterResult, err = client.GetClusterScopeStatusCounts(ctx, source, query)
 
 		return err
 	})
@@ -392,6 +392,104 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster, id string, query
 	}, nil
 }
 
+func (s *Service) ClustersDashboard(ctx context.Context, o DashboardOptions, query url.Values) (*Dashboard, error) {
+	g := &errgroup.Group{}
+
+	combinedFilter, _, _ := BuildFilters(query)
+	combinedFilter.Set("namespaced", strconv.FormatBool(!o.ClusterScope))
+
+	clusterResults := make(map[string]ClusterFinding, 0)
+	showResults := make([]string, 0, len(o.Sources))
+
+	mx := &sync.Mutex{}
+
+	combinedFilter["status"] = o.Status
+
+	total := Total{
+		Count:     0,
+		PerResult: make(map[string]int),
+	}
+
+	sx := &sync.Mutex{}
+	sourceMap := make(map[string]bool, 0)
+	for cluster, endpoint := range s.endpoints {
+		g.Go(func() error {
+			findings, err := endpoint.Core.GetFindings(ctx, combinedFilter)
+			if err != nil {
+				return err
+			}
+
+			mx.Lock()
+			clusterResults[cluster] = ClusterFinding{
+				Name:     endpoint.Name,
+				Findings: findings,
+			}
+
+			total.Count += findings.Total
+
+			for result, count := range findings.PerResult {
+				total.PerResult[result] += count
+			}
+			mx.Unlock()
+
+			return nil
+		})
+
+		g.Go(func() error {
+			list, err := endpoint.Core.ListSources(ctx, combinedFilter)
+			if err != nil {
+				return err
+			}
+
+			sx.Lock()
+			for _, source := range list {
+				sourceMap[source] = true
+			}
+			sx.Unlock()
+			return nil
+		})
+	}
+
+	if err := g.Wait(); err != nil {
+		return nil, err
+	}
+
+	sources := utils.Keys(sourceMap)
+	statusMap := make(map[string]bool, 0)
+	for _, cluster := range clusterResults {
+		for s := range cluster.Findings.PerResult {
+			statusMap[s] = true
+		}
+	}
+
+	status := utils.Keys(statusMap)
+	if len(status) == 0 {
+		status = allStatus
+	}
+
+	return &Dashboard{
+		Title:          "Cluster Dashboard",
+		Type:           model.Status,
+		FilterSources:  make([]string, 0),
+		ClusterScope:   o.ClusterScope,
+		Sources:        sources,
+		MultipleSource: len(sources) > 1,
+		SingleSource:   false,
+		Exceptions:     false,
+		ShowResults:    showResults,
+		SourcesNavi:    nil,
+		Status:         status,
+		Severities:     allSeverities,
+		Display:        o.Display,
+		NamespaceKinds: o.NamespaceKinds,
+		ClusterKinds:   o.ClusterKinds,
+		Charts: Charts{
+			Clusters: MapClusterChartVariant("Clusters", clusterResults, model.Status, status),
+		},
+		Total: total,
+	}, nil
+}
+
 func (s *Service) Dashboard(ctx context.Context, o DashboardOptions, query url.Values) (*Dashboard, error) {
 	if s.viewType(o.Sources) == model.Severity {
 		config, ok := s.configs[o.Sources[0]]
@@ -465,7 +563,7 @@ func (s *Service) Dashboard(ctx context.Context, o DashboardOptions, query url.V
 
 		if o.ClusterScope {
 			g.Go(func() error {
-				result, err := client.GetClusterStatusCounts(ctx, source, clusterFilter)
+				result, err := client.GetClusterScopeStatusCounts(ctx, source, clusterFilter)
 				if err != nil {
 					return err
 				}
@@ -597,7 +695,7 @@ func (s *Service) SeverityDashboard(ctx context.Context, o DashboardOptions, que
 
 		if o.ClusterScope {
 			g.Go(func() error {
-				result, err := client.GetClusterSeverityCounts(ctx, source, clusterFilter)
+				result, err := client.GetClusterScopeSeverityCounts(ctx, source, clusterFilter)
 				if err != nil {
 					return err
 				}

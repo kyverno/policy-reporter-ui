@@ -294,6 +294,7 @@ func (h *Handler) Layout(ctx *gin.Context) {
 		"policies":     MapSourcesToPolicyNavi(sources),
 		"customBoards": MapCustomBoardsToNavi(boards),
 		"profile":      profile,
+		"clusters":     len(h.config.Clusters) > 1,
 	})
 }
 
@@ -348,6 +349,27 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 		Cluster:      ctx.Param("cluster"),
 		Sources:      sources,
 		Namespaces:   namespaces,
+		ClusterScope: h.config.Boards.ClusterScope,
+	}, ctx.Request.URL.Query())
+	if err != nil {
+		zap.L().Error("failed to generate dashboard", zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dashboard)
+}
+
+func (h *Handler) ClustersDashboard(ctx *gin.Context) {
+	if profile := auth.ProfileFrom(ctx); profile != nil {
+		if !h.config.Boards.Allowed(profile) {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+	}
+
+	dashboard, err := h.service.ClustersDashboard(ctx, service.DashboardOptions{
+		Cluster:      ctx.Param("cluster"),
 		ClusterScope: h.config.Boards.ClusterScope,
 	}, ctx.Request.URL.Query())
 	if err != nil {

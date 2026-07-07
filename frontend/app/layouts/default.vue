@@ -58,9 +58,14 @@
           <v-list-item base-color="header-item" :title="item.title" :to="item.path" :exact="item.exact"></v-list-item>
         </template>
 
-        <div class="mb-1 mt-8" />
+        <div class="mb-1 mt-8" v-if="layout.targets" />
 
         <v-list-item title="Notification Targets" to="/targets" exact base-color="header-item" v-if="layout.targets" />
+
+        <div class="mb-1 mt-8" v-if="layout.clusters" />
+        
+        <v-list-item base-color="header" title="Cluster Summary Dashboard" to="/clusters" exact v-if="layout.clusters" />
+
       </v-list>
     </v-navigation-drawer>
 
@@ -85,7 +90,7 @@ import { useConfigStore } from "~/store/config";
 
 const drawer = ref(true)
 
-const { data: layout } = useAPI((api) => api.layout(), { default: (): LayoutConfig => ({ sources: [], customBoards: [], policies: [], targets: false }) })
+const { data: layout } = useAPI((api) => api.layout(), { default: (): LayoutConfig => ({ sources: [], customBoards: [], policies: [], targets: false, clusters: false }) })
 
 const theme = useTheme()
 const config = useConfigStore()
