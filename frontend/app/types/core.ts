@@ -128,6 +128,7 @@ export type Navigation = {
 
 export type LayoutConfig = {
     targets: boolean;
+    clusters: boolean;
     profile?: Profile;
     sources: Navigation[];
     policies: Navigation[];
@@ -183,6 +184,10 @@ export type Dashboard = {
     type: ViewType;
     charts: {
         clusterScope: ClusterScope;
+        clusters?: {
+            preview?: Chart
+            complete: Chart
+        };
         namespaceScope: {
             [source: string]: NamespaceCharts
         };

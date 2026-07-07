@@ -156,6 +156,47 @@ func MapSeverityFindingsToSourceStatusChart(title string, findings *core.Finding
 	}
 }
 
+func MapClusterChartVariant(title string, findings map[string]ClusterFinding, chartType string, status []string) *ChartVariants {
+	chart := &ChartVariants{
+		Complete: MapClusterFindingToChart(title, findings, chartType, status),
+	}
+
+	if len(findings) > 8 {
+		prev := make(map[string]ClusterFinding, 8)
+		clusters := maps.Keys(findings)
+		sort.Strings(clusters)
+
+		for _, v := range clusters {
+			if hasFailure(findings[v].Findings.PerResult) {
+				prev[v] = findings[v]
+			}
+
+			if len(prev) >= 7 {
+				break
+			}
+		}
+
+		if len(prev) == 0 {
+			for _, v := range clusters[0:6] {
+				prev[v] = findings[v]
+			}
+		} else if len(prev) < 7 {
+			for _, v := range clusters {
+				if _, ok := prev[v]; !ok {
+					prev[v] = findings[v]
+				}
+				if len(prev) >= 7 {
+					break
+				}
+			}
+		}
+
+		chart.Preview = MapClusterFindingToChart(title, prev, chartType, status)
+	}
+
+	return chart
+}
+
 func MapNamespaceScopeChartVariant(title string, namespaces core.NamespaceStatusCounts, chartType string, status []string, defaults []string) *ChartVariants {
 	chart := &ChartVariants{
 		Complete: MapNamespaceStatusCountsToChart(title, namespaces, chartType, status, defaults),
@@ -239,6 +280,58 @@ func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStat
 
 	datasets := make([]*Dataset, 0, len(sets))
 	for _, s := range defaults {
+		if set, ok := sets[s]; ok {
+			datasets = append(datasets, set)
+		}
+	}
+
+	return &Chart{
+		Name:     title,
+		Labels:   labels,
+		Datasets: datasets,
+		Type:     chartTyp,
+	}
+}
+
+func MapClusterFindingToChart(title string, clusters map[string]ClusterFinding, chartTyp string, status []string) *Chart {
+	sets := make(map[string]*Dataset)
+
+	for _, s := range status {
+		sets[s] = &Dataset{Label: utils.Title(s), Data: make([]int, 0)}
+	}
+
+	labels := make([]string, 0, len(clusters))
+	sorting := map[string]int{}
+	index := 0
+
+	for _, results := range clusters {
+		labels = append(labels, results.Name)
+		sorting[results.Name] = index
+		index++
+
+		for _, s := range status {
+			if _, ok := sets[s]; ok {
+				sets[s].Data = append(sets[s].Data, results.Findings.PerResult[s])
+			}
+		}
+	}
+
+	sort.Slice(labels, func(i, j int) bool {
+		return labels[i] < labels[j]
+	})
+
+	// sorting Data to the same order as related labels
+	for _, set := range sets {
+		data := make([]int, 0, len(set.Data))
+		for _, label := range labels {
+			data = append(data, set.Data[sorting[label]])
+		}
+
+		set.Data = data
+	}
+
+	datasets := make([]*Dataset, 0, len(sets))
+	for _, s := range allStatus {
 		if set, ok := sets[s]; ok {
 			datasets = append(datasets, set)
 		}

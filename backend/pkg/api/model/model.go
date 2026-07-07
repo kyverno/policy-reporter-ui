@@ -27,6 +27,7 @@ const (
 )
 
 type Endpoints struct {
+	Name    string
 	Core    *core.Client
 	Plugins map[string]*plugin.Client
 }

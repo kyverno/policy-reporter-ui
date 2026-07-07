@@ -45,12 +45,18 @@ type ChartVariants struct {
 type Charts struct {
 	ClusterScope   map[string]map[string]int `json:"clusterScope"`
 	NamespaceScope map[string]*ChartVariants `json:"namespaceScope"`
+	Clusters       *ChartVariants            `json:"clusters"`
 	Findings       any                       `json:"findings"`
 }
 
 type Total struct {
 	Count     int            `json:"count"`
 	PerResult map[string]int `json:"perResult"`
+}
+
+type ClusterFinding struct {
+	Name     string         `json:"name"`
+	Findings *core.Findings `json:"findings"`
 }
 
 type Dashboard struct {

@@ -102,7 +102,7 @@ func (c *Client) GetNamespaceSeverityCounts(ctx context.Context, source string, 
 	return api.DecodeMap[string, map[string]int](resp.Body)
 }
 
-func (c *Client) GetClusterStatusCounts(ctx context.Context, source string, query url.Values) (map[string]int, error) {
+func (c *Client) GetClusterScopeStatusCounts(ctx context.Context, source string, query url.Values) (map[string]int, error) {
 	resp, err := c.Get(ctx, fmt.Sprintf("/v2/cluster-scoped/%s/status-counts", source), query)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (c *Client) GetClusterStatusCounts(ctx context.Context, source string, quer
 	return api.DecodeMap[string, int](resp.Body)
 }
 
-func (c *Client) GetClusterSeverityCounts(ctx context.Context, source string, query url.Values) (map[string]int, error) {
+func (c *Client) GetClusterScopeSeverityCounts(ctx context.Context, source string, query url.Values) (map[string]int, error) {
 	resp, err := c.Get(ctx, fmt.Sprintf("/v2/cluster-scoped/%s/severity-counts", source), query)
 	if err != nil {
 		return nil, err

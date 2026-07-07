@@ -71,7 +71,7 @@ const { data, refresh, pending } = useAPI(
 );
 
 const status = useStatusInjection()
-const showSkipped = computed(() => data.value.items.some(item => status.value?.includes(Status.SKIP) && !!(item as any)[Status.SKIP]))
+const showSkipped = computed(() => data.value.items.some(item => status.value?.includes(Status.SKIP) && !!item.status[Status.SKIP]))
 
 watch(combinedFilter, onChange(() => {
   if (options.page !== 1) {

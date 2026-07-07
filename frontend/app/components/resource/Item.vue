@@ -1,6 +1,6 @@
 <template>
   <v-divider />
-  <v-list-item :to="{ name: 'resource-id-type', query: rsFilter, params: { id: item.id, type: viewType }}">
+  <v-list-item :to="item.id ? { name: 'resource-id-type', query: rsFilter, params: { id: item.id, type: viewType }} : undefined">
     <template v-if="details" v-slot:prepend>
       <v-btn class="mr-2" variant="text" :icon="!open ? `mdi-chevron-up` : `mdi-chevron-down`" @click.stop.prevent="open = !open"></v-btn>
     </template>
@@ -9,10 +9,10 @@
     </v-list-item-title>
     <v-list-item-subtitle>{{ item.apiVersion }} {{ item.kind }}</v-list-item-subtitle>
     <template v-if="viewType === 'severity'" v-slot:append>
-      <resource-severities-chips :items="item.severities as any" :id="item.id" :category="category" :exceptions="exceptions" />
+      <resource-severities-chips :items="item.severities" :id="item.id" :category="category" :exceptions="exceptions" />
     </template>
     <template v-else v-slot:append>
-      <resource-status-chips :items="item.status as any" :id="item.id" :category="category" :exceptions="exceptions" :show-skipped="showSkipped" :showed="showed" />
+      <resource-status-chips :items="item.status" :id="item.id" :category="category" :exceptions="exceptions" :show-skipped="showSkipped" :showed="showed" />
     </template>
   </v-list-item>
   <resource-source-results v-if="open" :id="item.id" :filter="filter" :show-skipped="showSkipped" :showed="showed" />

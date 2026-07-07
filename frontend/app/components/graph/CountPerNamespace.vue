@@ -46,7 +46,7 @@ const chart = computed(() => {
       plugins: {
         title: {
           display: true,
-          text: `${props.title ?? capilize(props.data.name )} ${config.value.title}`
+          text: props.title ?? `${capilize(props.data.name)} ${config.value.title}`
         },
         legend: {
           display: true,
