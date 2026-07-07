@@ -10,23 +10,26 @@
     density="compact"
     prepend-inner-icon="mdi-kubernetes"
     style="min-width: 140px;"
-    @update:model-value="input"
+    @update:model-value="select"
     v-if="clusters.length > 1"
   />
 </template>
 
 <script lang="ts" setup>
 import { useConfigStore } from "~/store/config";
-import type { CoreAPI } from "~/core/api";
 import { cluster } from "~/core/api";
+
+const router = useRouter()
+const route = useRoute()
 
 const store = useConfigStore()
 const { $coreAPI } = useNuxtApp()
 
 const clusters = computed(() => store.clusters.map(c => ({ title: c.name, value: c.slug })))
 
-const input = (slug: string) => {
-  ($coreAPI as CoreAPI).setPrefix(slug)
+const select = (slug: string) => {
+  $coreAPI.setPrefix(slug)
+  router.push({ name: route.name as string, query: { ...route.query, cluster: slug }, params: route.params })
 }
 
 </script>
