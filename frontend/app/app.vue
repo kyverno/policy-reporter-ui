@@ -6,6 +6,17 @@
 
 <script lang="ts" setup>
 import { cluster } from "~/core/api";
+const { $coreAPI } = useNuxtApp()
+
+const router = useRouter()
+const route = useRoute()
+
+const start = computed(() => route.query.cluster as string || '')
+
+if (start.value) {
+  $coreAPI.setPrefix(start.value)
+  router.push({ name: route.name as string, query: { ...route.query, cluster: undefined }, params: route.params })
+}
 </script>
 
 <style>
