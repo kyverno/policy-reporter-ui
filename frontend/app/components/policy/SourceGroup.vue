@@ -1,0 +1,54 @@
+<template>
+  <app-row>
+    <v-card>
+      <v-toolbar color="category">
+        <v-toolbar-title>{{ source.title }}</v-toolbar-title>
+        <template #append>
+          <CollapseBtn v-model="open"/>
+        </template>
+      </v-toolbar>
+      <div v-show="open">
+        <v-divider/>
+        <v-card-text>
+          <GraphBarPerCategory :source="source.chart" />
+        </v-card-text>
+        <policy-list v-for="item in categories"
+                     :key="item"
+                     :category="item"
+                     :pending="pending"
+                     :policies="data[item] || []"
+        />
+      </div>
+    </v-card>
+  </app-row>
+</template>
+
+<script lang="ts" setup>
+import { APIFilter, NamespacedKinds } from "~/provider/dashboard";
+import type { Filter, PolicyResult, SourceDetails } from "~/types/core";
+import type { Ref } from "vue";
+
+
+const props = defineProps<{ source: SourceDetails; }>();
+
+const open = ref(true)
+
+const filter = inject<Ref<Filter>>(APIFilter, ref<Filter>({}))
+const kinds = inject<Ref<string[]>>(NamespacedKinds, ref<string[]>([]))
+
+const combinedFilter = computed(() => ({
+  ...filter.value,
+  kinds: kinds.value.length ? kinds.value : undefined,
+}))
+
+const { data, refresh, pending } = useAPI(
+    (api) => api.policies(props.source.name, combinedFilter.value),
+    { default: (): { [category: string]: PolicyResult[] } => ({}) }
+);
+
+const categories = computed(() => Object.keys(data.value || {}))
+
+watch(combinedFilter, onChange(refresh))
+
+useStatusProvider(ref({ status: props.source.status }))
+</script>
