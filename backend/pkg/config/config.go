@@ -244,21 +244,27 @@ type CRDs struct {
 	CustomBoard bool `koanf:"customBoard"`
 }
 
+type AutoMemoryLimit struct {
+	Enabled bool    `mapstructure:"enabled"`
+	Ratio   float64 `mapstructure:"ratio"`
+}
+
 // Config structure
 type Config struct {
-	KubeConfig    clientcmd.ConfigOverrides
-	Namespace     string                    `koanf:"namespace"`
-	Clusters      []Cluster                 `koanf:"clusters"`
-	Sources       []Source                  `koanf:"sources"`
-	Server        Server                    `koanf:"server"`
-	UI            UI                        `koanf:"ui"`
-	Logging       logging.Config            `koanf:"logging"`
-	OpenIDConnect OpenIDConnect             `koanf:"openIDConnect"`
-	OAuth         OAuth                     `koanf:"oauth"`
-	Boards        Boards                    `koanf:"boards"`
-	CustomBoards  []customboard.CustomBoard `koanf:"customBoards"`
-	CRDs          CRDs                      `koanf:"crds"`
-	Local         bool                      `koanf:"local"`
+	KubeConfig      clientcmd.ConfigOverrides
+	Namespace       string                    `koanf:"namespace"`
+	Clusters        []Cluster                 `koanf:"clusters"`
+	Sources         []Source                  `koanf:"sources"`
+	Server          Server                    `koanf:"server"`
+	UI              UI                        `koanf:"ui"`
+	Logging         logging.Config            `koanf:"logging"`
+	OpenIDConnect   OpenIDConnect             `koanf:"openIDConnect"`
+	OAuth           OAuth                     `koanf:"oauth"`
+	Boards          Boards                    `koanf:"boards"`
+	CustomBoards    []customboard.CustomBoard `koanf:"customBoards"`
+	CRDs            CRDs                      `koanf:"crds"`
+	Local           bool                      `koanf:"local"`
+	AutoMemoryLimit AutoMemoryLimit           `koanf:"autoMemoryLimit"`
 }
 
 func (c *Config) AuthEnabled() bool {
