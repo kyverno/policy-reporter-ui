@@ -27,7 +27,6 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 	kcb "github.com/kyverno/policy-reporter-ui/pkg/kubernetes/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
-	"github.com/kyverno/policy-reporter-ui/pkg/logging"
 	"github.com/kyverno/policy-reporter-ui/pkg/server"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
@@ -339,8 +338,8 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	if r.config.Logging.Server {
 		middleware = append(
 			middleware,
-			ginzap.Ginzap(r.Logger(), time.RFC3339, true),
-			ginzap.RecoveryWithZap(r.Logger(), true),
+			ginzap.Ginzap(zap.L(), time.RFC3339, true),
+			ginzap.RecoveryWithZap(zap.L(), true),
 		)
 	} else {
 		middleware = append(middleware, gin.Recovery())
@@ -439,10 +438,6 @@ func (r *Resolver) CustomBoards() *customboard.Collection {
 	})...)
 
 	return r.customBoards
-}
-
-func (r *Resolver) Logger() *zap.Logger {
-	return logging.New(r.config.Logging)
 }
 
 func NewResolver(config *Config) *Resolver {

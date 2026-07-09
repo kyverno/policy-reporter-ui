@@ -13,7 +13,7 @@ type Config struct {
 	Development bool   `mapstructure:"development"`
 }
 
-func New(config Config) *zap.Logger {
+func New(config Config) (*zap.Logger, error) {
 	encoder := zap.NewProductionEncoderConfig()
 	if config.Development {
 		encoder = zap.NewDevelopmentEncoderConfig()
@@ -44,9 +44,12 @@ func New(config Config) *zap.Logger {
 		ErrorOutputPaths:  []string{"stderr"},
 	}
 
-	logger, _ := cnfg.Build()
+	logger, err := cnfg.Build()
+	if err != nil {
+		return nil, err
+	}
 
 	zap.ReplaceGlobals(logger)
 
-	return logger
+	return logger, nil
 }
