@@ -13,11 +13,11 @@ limitations under the License.
 
 package v1alpha1
 
-type Display string
+type ResultView string
 
 const (
-	DisplayResources Display = "resources"
-	DisplayResults   Display = "results"
+	DisplayResources ResultView = "resources"
+	DisplayResults   ResultView = "results"
 )
 
 // +kubebuilder:oneOf:={required:{emails}}
@@ -65,17 +65,29 @@ type NamespaceSelector struct {
 
 // SourceSelector allows to select the visualized sources via list
 type SourceSelector struct {
-	// +optional
+	// +required
 	List []string `json:"list"`
 }
 
 // PolicyReportSelector allows to select the visualized reports via label selector
 type PolicyReportSelector struct {
-	// +optional
+	// +required
 	LabelSelector map[string]string `json:"labelSelector"`
 }
 
 type ClusterScope struct {
 	// +required
 	Enabled bool `json:"enabled"`
+}
+
+// RenderOptions defines the rendering options for a custom board
+type RenderOptions struct {
+	// +kubebuilder:validation:Enum=detailed;compact
+	// +kubebuilder:default=detailed
+	// +optional
+	DashboardMode string `json:"dashboardMode"`
+	// +kubebuilder:validation:Enum=resources;results
+	// +kubebuilder:default=resources
+	// +optional
+	ResultView ResultView `json:"resultView"`
 }

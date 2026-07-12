@@ -3,7 +3,7 @@
       multiple
       clearable
       density="compact"
-      :items="store.kinds.namespaced"
+      :items="store!.kinds.namespaced"
       variant="outlined"
       hide-details
       label="Kinds"
@@ -14,7 +14,7 @@
   >
     <template v-slot:selection="{ item, index }">
       <v-chip v-if="index < 2">
-        <span>{{ item.title }}</span>
+        <span>{{ item }}</span>
       </v-chip>
       <span v-if="index === 2" class="text-caption align-self-center">
         (+{{ selected.length - 2 }} others)
@@ -32,7 +32,7 @@ const { store } = useSourceStore(props.source)
 
 const input = defineRouteQuery('kinds', selected);
 
-watch(() => store.kinds.namespaced, (current) => {
+watch(() => store!.kinds.namespaced, (current) => {
   input(selected.value.filter((s) => current.includes(s)));
 });
 

@@ -293,6 +293,64 @@ func MapNamespaceStatusCountsToChart(title string, namespaces core.NamespaceStat
 	}
 }
 
+func MapNamespaceStatusCountsToList(counts map[string]core.NamespaceStatusCounts, status []string, defaults []string) *List {
+	if len(status) == 0 {
+		status = defaults
+	}
+
+	items := make(map[string]*ListItem)
+	for _, namespaces := range counts {
+		for namespace, results := range namespaces {
+			item, ok := items[namespace]
+			if !ok {
+				item = &ListItem{
+					Name:       namespace,
+					APIVersion: "v1",
+					Kind:       "Namespace",
+				}
+
+				items[namespace] = item
+			}
+
+			for s, v := range results {
+				if !utils.Contains(status, s) {
+					continue
+				}
+
+				switch s {
+				case StatusPass:
+					item.Status.Pass = v
+				case StatusWarn:
+					item.Status.Warn = v
+				case StatusFail:
+					item.Status.Fail = v
+				case StatusError:
+					item.Status.Error = v
+				case StatusSkip:
+					item.Status.Skip = v
+				case SeverityUnknown:
+					item.Severities.Unknown = v
+				case SeverityInfo:
+					item.Severities.Info = v
+				case SeverityLow:
+					item.Severities.Low = v
+				case SeverityMedium:
+					item.Severities.Medium = v
+				case SeverityHigh:
+					item.Severities.High = v
+				case SeverityCritical:
+					item.Severities.Critical = v
+				}
+			}
+		}
+	}
+
+	return &List{
+		Items: utils.ToList(items),
+		Count: len(items),
+	}
+}
+
 func MapClusterFindingToChart(title string, clusters map[string]ClusterFinding, chartTyp string, status []string) *Chart {
 	sets := make(map[string]*Dataset)
 
@@ -345,7 +403,7 @@ func MapClusterFindingToChart(title string, clusters map[string]ClusterFinding, 
 	}
 }
 
-func MapNamespaceStatusCountsToCharts(findings map[string]core.NamespaceStatusCounts, chartType string, status []string, defaults []string) map[string]*ChartVariants {
+func MapNamespaceCountsToCharts(findings map[string]core.NamespaceStatusCounts, chartType string, status []string, defaults []string) map[string]*ChartVariants {
 	charts := make(map[string]*ChartVariants, len(findings))
 
 	for source, namespaces := range findings {

@@ -236,8 +236,9 @@ type ClusterScope struct {
 }
 
 type Boards struct {
-	ClusterScope  ClusterScope  `koanf:"clusterScope"`
-	AccessControl AccessControl `koanf:"accessControl"`
+	RenderOptions customboard.RenderOptions `koanf:"renderOptions"`
+	ClusterScope  ClusterScope              `koanf:"clusterScope"`
+	AccessControl AccessControl             `koanf:"accessControl"`
 }
 
 type CRDs struct {

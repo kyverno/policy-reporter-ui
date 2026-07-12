@@ -469,7 +469,6 @@ func (s *Service) ClustersDashboard(ctx context.Context, o DashboardOptions, que
 
 	return &Dashboard{
 		Title:          "Cluster Dashboard",
-		Type:           model.Status,
 		FilterSources:  make([]string, 0),
 		ClusterScope:   o.ClusterScope,
 		Sources:        sources,
@@ -480,7 +479,11 @@ func (s *Service) ClustersDashboard(ctx context.Context, o DashboardOptions, que
 		SourcesNavi:    nil,
 		Status:         status,
 		Severities:     allSeverities,
-		Display:        o.Display,
+		RenderOptions: RenderOptions{
+			DashboardMode: o.RenderOptions.DashboardMode,
+			ResultView:    o.RenderOptions.ResultView,
+			DataType:      utils.Fallback(o.RenderOptions.DataType, model.Status),
+		},
 		NamespaceKinds: o.NamespaceKinds,
 		ClusterKinds:   o.ClusterKinds,
 		Charts: Charts{
@@ -602,7 +605,6 @@ func (s *Service) Dashboard(ctx context.Context, o DashboardOptions, query url.V
 	}
 
 	return &Dashboard{
-		Type:           model.Status,
 		FilterSources:  make([]string, 0),
 		ClusterScope:   o.ClusterScope,
 		MultipleSource: len(o.Sources) > 1,
@@ -614,14 +616,19 @@ func (s *Service) Dashboard(ctx context.Context, o DashboardOptions, query url.V
 		SourcesNavi:    MapFindingSourcesToSourceItem(findings),
 		Status:         o.Status,
 		Severities:     o.Severities,
-		Display:        o.Display,
+		RenderOptions: RenderOptions{
+			DashboardMode: o.RenderOptions.DashboardMode,
+			ResultView:    o.RenderOptions.ResultView,
+			DataType:      utils.Fallback(o.RenderOptions.DataType, model.Status),
+		},
 		NamespaceKinds: o.NamespaceKinds,
 		ClusterKinds:   o.ClusterKinds,
 		Charts: Charts{
 			ClusterScope:   clusterResults,
 			Findings:       findingChart,
-			NamespaceScope: MapNamespaceStatusCountsToCharts(namespaceResults, model.Status, o.Status, allStatus),
+			NamespaceScope: MapNamespaceCountsToCharts(namespaceResults, model.Status, o.Status, allStatus),
 		},
+		Summary: MapNamespaceStatusCountsToList(namespaceResults, o.Status, allStatus),
 		Total: Total{
 			Count:     findings.Total,
 			PerResult: findings.PerResult,
@@ -734,7 +741,6 @@ func (s *Service) SeverityDashboard(ctx context.Context, o DashboardOptions, que
 	}
 
 	return &Dashboard{
-		Type:           model.Severity,
 		FilterSources:  make([]string, 0),
 		ClusterScope:   o.ClusterScope,
 		MultipleSource: len(o.Sources) > 1,
@@ -746,14 +752,19 @@ func (s *Service) SeverityDashboard(ctx context.Context, o DashboardOptions, que
 		SourcesNavi:    MapFindingSourcesToSourceItem(findings),
 		Status:         o.Status,
 		Severities:     o.Severities,
-		Display:        o.Display,
+		RenderOptions: RenderOptions{
+			DashboardMode: o.RenderOptions.DashboardMode,
+			ResultView:    o.RenderOptions.ResultView,
+			DataType:      utils.Fallback(o.RenderOptions.DataType, model.Severity),
+		},
 		NamespaceKinds: o.NamespaceKinds,
 		ClusterKinds:   o.ClusterKinds,
 		Charts: Charts{
 			ClusterScope:   clusterResults,
 			Findings:       findingChart,
-			NamespaceScope: MapNamespaceStatusCountsToCharts(namespaceResults, model.Severity, o.Severities, allSeverities),
+			NamespaceScope: MapNamespaceCountsToCharts(namespaceResults, model.Severity, o.Severities, allSeverities),
 		},
+		Summary: MapNamespaceStatusCountsToList(namespaceResults, o.Severities, allSeverities),
 		Total: Total{
 			Count:     findings.Total,
 			PerResult: findings.PerResult,

@@ -58,8 +58,8 @@
       <v-divider />
       <template v-if="source">
         <v-card-text style="position: relative;">
-          <GraphCountPerNamespace v-if="showExpanded" :data="data.charts.namespaceScope[source].complete" />
-          <GraphCountPerNamespace v-else :data="data.charts.namespaceScope[source].preview" />
+          <GraphCountPerNamespace v-if="showExpanded" :data="data.charts.namespaceScope[source]!.complete" />
+          <GraphCountPerNamespace v-else :data="data.charts.namespaceScope[source]!.preview!" />
 
           <v-btn v-if="hasPreview" variant="outlined" size="small" @click="expand = !expand" style="position: absolute; bottom: 10px; right: 10px;" rounded="0">
             <span v-if="showExpanded">Show preview</span>
@@ -72,7 +72,7 @@
             Cluster Scoped Results
           </v-card-title>
           <v-card-text>
-            <GraphClusterResultCounts :data="data.charts.clusterScope[source]" class="px-0 pb-0" />
+            <GraphClusterResultCounts :data="data.charts.clusterScope[source]!" class="px-0 pb-0" />
           </v-card-text>
         </template>
       </template>
@@ -93,10 +93,10 @@ const source = ref('');
 
 const expand = ref(false)
 
-const hasPreview = computed(() => !!props.data.charts.namespaceScope[source.value].preview)
+const hasPreview = computed(() => !!props.data.charts.namespaceScope[source.value]!.preview)
 
 const showExpanded = computed(() => {
-  if (!props.data.charts.namespaceScope[source.value].preview) {
+  if (!props.data.charts.namespaceScope[source.value]!.preview) {
     return true
   }
 

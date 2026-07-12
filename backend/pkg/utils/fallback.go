@@ -1,7 +1,8 @@
 package utils
 
-func Fallback(s, f string) string {
-	if s != "" {
+func Fallback[T comparable](s, f T) T {
+	var zero T
+	if s != zero {
 		return s
 	}
 

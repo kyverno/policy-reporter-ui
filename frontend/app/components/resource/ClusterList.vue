@@ -16,7 +16,7 @@
       <v-list v-if="data?.items?.length && open" lines="two">
         <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" :exceptions="exceptions" />
       </v-list>
-      <template v-if="data && (data.count > options.offset && open)">
+      <template v-if="paginated">
         <v-divider />
         <v-pagination v-model="options.page" :length="length" class="my-4" />
       </template>
@@ -35,7 +35,7 @@ import { type Filter, type Pagination } from '~/types/core'
 import type { Ref } from "vue";
 import { ClusterKinds, APIFilter } from "~/provider/dashboard";
 
-defineProps<{ details: boolean; exceptions?: boolean; }>()
+const props = defineProps<{ details: boolean; exceptions?: boolean; perPage?: number }>()
 
 const search = ref('')
 const open = ref(true)
@@ -44,11 +44,19 @@ const kinds = inject<Ref<string[]>>(ClusterKinds, ref<string[]>([]))
 
 const options = reactive<Pagination>({
   page: 1,
-  offset: 8,
+  offset: props.perPage ?? 8,
 })
 
 const length = computed(() => {
   return Math.ceil((data.value?.count || 0) / options.offset)
+})
+
+const paginated = computed(() => {
+  if (!data.value) return false
+
+  if (options.offset < 1) return false
+
+  return data.value.count > options.offset && open.value
 })
 
 const combinedFilter = computed(() => ({

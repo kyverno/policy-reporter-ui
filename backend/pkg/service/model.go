@@ -19,6 +19,20 @@ const (
 	SeverityCritical = "critical"
 )
 
+type ListItem struct {
+	APIVersion string          `json:"apiVersion"`
+	Kind       string          `json:"kind"`
+	Name       string          `json:"name"`
+	ID         string          `json:"id"`
+	Status     core.Status     `json:"status"`
+	Severities core.Severities `json:"severities"`
+}
+
+type List struct {
+	Items []*ListItem `json:"items"`
+	Count int         `json:"count"`
+}
+
 type SourceItem struct {
 	Title string `json:"title"`
 	Name  string `json:"name"`
@@ -59,25 +73,31 @@ type ClusterFinding struct {
 	Findings *core.Findings `json:"findings"`
 }
 
+type RenderOptions struct {
+	DashboardMode string `json:"dashboardMode"`
+	ResultView    string `json:"resultView"`
+	DataType      string `json:"dataType"`
+}
+
 type Dashboard struct {
-	Title          string       `json:"title"`
-	Type           string       `json:"type"`
-	Display        string       `json:"display"`
-	FilterSources  []string     `json:"filterSources,omitempty"`
-	ClusterScope   bool         `json:"clusterScope"`
-	Sources        []string     `json:"sources"`
-	Namespaces     []string     `json:"namespaces"`
-	SingleSource   bool         `json:"singleSource"`
-	MultipleSource bool         `json:"multiSource"`
-	Exceptions     bool         `json:"exceptions"`
-	Charts         Charts       `json:"charts"`
-	SourcesNavi    []SourceItem `json:"sourcesNavi"`
-	Total          Total        `json:"total"`
-	ShowResults    []string     `json:"showResults"`
-	Status         []string     `json:"status"`
-	Severities     []string     `json:"severities"`
-	NamespaceKinds []string     `json:"namespaceKinds"`
-	ClusterKinds   []string     `json:"clusterKinds"`
+	Title          string        `json:"title"`
+	RenderOptions  RenderOptions `json:"renderOptions"`
+	FilterSources  []string      `json:"filterSources,omitempty"`
+	ClusterScope   bool          `json:"clusterScope"`
+	Sources        []string      `json:"sources"`
+	Namespaces     []string      `json:"namespaces"`
+	SingleSource   bool          `json:"singleSource"`
+	MultipleSource bool          `json:"multiSource"`
+	Exceptions     bool          `json:"exceptions"`
+	Charts         Charts        `json:"charts"`
+	SourcesNavi    []SourceItem  `json:"sourcesNavi"`
+	Total          Total         `json:"total"`
+	ShowResults    []string      `json:"showResults"`
+	Status         []string      `json:"status"`
+	Severities     []string      `json:"severities"`
+	NamespaceKinds []string      `json:"namespaceKinds"`
+	ClusterKinds   []string      `json:"clusterKinds"`
+	Summary        *List         `json:"summary"`
 }
 
 type ResourceDetails struct {
@@ -164,6 +184,7 @@ type ExceptionRequest struct {
 }
 
 type DashboardOptions struct {
+	RenderOptions  RenderOptions
 	Status         []string
 	Severities     []string
 	Sources        []string
@@ -171,6 +192,5 @@ type DashboardOptions struct {
 	NamespaceKinds []string
 	ClusterKinds   []string
 	Cluster        string
-	Display        string
 	ClusterScope   bool
 }

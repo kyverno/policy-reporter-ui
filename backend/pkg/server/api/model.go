@@ -65,7 +65,7 @@ type CustomBoard struct {
 	auth.Permissions `json:"-"`
 	Name             string        `json:"name"`
 	ID               string        `json:"id"`
-	Display          string        `json:"display"`
+	RenderOptions    RenderOptions `json:"options"`
 	Filter           Includes      `json:"filter"`
 	ClusterScope     bool          `json:"-"`
 	Namespaces       Namespaces    `json:"-"`
@@ -73,9 +73,15 @@ type CustomBoard struct {
 	PolicyReports    PolicyReports `json:"-"`
 }
 
+type RenderOptions struct {
+	DashboardMode string `json:"dashboardMode"`
+	ResultView    string `json:"resultView"`
+}
+
 type Boards struct {
 	auth.Permissions
-	ClusterScope bool `json:"-"`
+	RenderOptions RenderOptions `json:"-"`
+	ClusterScope  bool          `json:"-"`
 }
 
 type Logo struct {

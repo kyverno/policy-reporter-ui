@@ -14,7 +14,7 @@
   >
     <template #selection="{ item, index }">
       <v-chip v-if="index <= 1" size="small" label>
-        <span>{{ (item as any).title }}</span>
+        <span>{{ item }}</span>
       </v-chip>
       <span v-if="index === 2" class="grey--text caption ml-2 d-inline-flex align-center">
         (+{{ selected.length - 2 }} others)
@@ -24,14 +24,11 @@
 </template>
 
 <script lang="ts" setup>
-import { APIFilter } from "~/provider/dashboard";
 import { useDebounce } from "~/composables/router";
 
 const props = defineProps<{ modelValue: string[]; items: string[]; }>();
 
-const emit = defineEmits<{ 'update:modelValue': string[] }>();
-
-const filter = inject(APIFilter, ref({}))
+const emit = defineEmits<{ 'update:modelValue': string[][] }>();
 
 const selected = ref<string[]>([]);
 

@@ -31,16 +31,12 @@ import { Status } from "~/types/core";
 
 const route = useRoute()
 const router = useRouter()
-const source = computed<string>(() => route.params.source as string)
-const policy = computed<string>(() => route.params.policy as string)
+
+const { filter, clusterKinds, kinds, source, policy } = useFilter()
 
 const { load } = useSourceStore(source.value)
 await load(source.value)
 
-const kinds = ref<string[]>([])
-const clusterKinds = ref<string[]>([])
-
-const filter = computed(() => ({ kinds: [...kinds.value, ...clusterKinds.value] }))
 
 provide(APIFilter, filter)
 
