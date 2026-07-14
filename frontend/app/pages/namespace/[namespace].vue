@@ -1,6 +1,7 @@
 <template>
   <page-layout
-    :title="'Namespace Dashboard'"
+    title="Namespace Dashboard"
+    hide-report
     v-model:kinds="kinds"
     :source="source"
     v-if="namespace"
