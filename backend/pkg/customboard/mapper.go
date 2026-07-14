@@ -6,6 +6,7 @@ import (
 	"github.com/gosimple/slug"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
+	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
 func MapCustomBoardToModel(cb *v1alpha1.CustomBoard) *CustomBoard {
@@ -17,7 +18,11 @@ func MapCustomBoardToModel(cb *v1alpha1.CustomBoard) *CustomBoard {
 			Include: MapIncludeFilter(cb.Spec.Filter),
 			Exclude: MapExcludeFilter(cb.Spec.Filter),
 		},
-		Display:       string(cb.Spec.Display),
+		Display: string(cb.Spec.Display),
+		RenderOptions: RenderOptions{
+			ResultView:    string(utils.Fallback(cb.Spec.Display, cb.Spec.RenderOptions.ResultView)),
+			DashboardMode: cb.Spec.RenderOptions.DashboardMode,
+		},
 		Namespaces:    NamespaceSelector{Selector: cb.Spec.NamespaceSelector.LabelSelector, List: cb.Spec.NamespaceSelector.List},
 		Sources:       MapSources(cb.Spec.SourceSelector),
 		PolicyReports: MapPolicyReports(cb.Spec.PolicyReportSelector),

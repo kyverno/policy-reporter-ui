@@ -216,10 +216,13 @@ func MapFilter(f customboard.Filter) Includes {
 
 func MapCustomBoard(c *customboard.CustomBoard) CustomBoard {
 	return CustomBoard{
-		Name:    c.Name,
-		ID:      c.ID,
-		Display: c.Display,
-		Filter:  MapFilter(c.Filter.Include),
+		Name: c.Name,
+		ID:   c.ID,
+		RenderOptions: RenderOptions{
+			DashboardMode: utils.Fallback(c.RenderOptions.DashboardMode, c.Display),
+			ResultView:    c.RenderOptions.ResultView,
+		},
+		Filter: MapFilter(c.Filter.Include),
 		Namespaces: Namespaces{
 			Selector: c.Namespaces.Selector,
 			List:     c.Namespaces.List,

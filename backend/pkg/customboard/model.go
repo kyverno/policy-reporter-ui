@@ -44,6 +44,11 @@ type ClusterScope struct {
 	Enabled bool `koanf:"enabled"`
 }
 
+type RenderOptions struct {
+	DashboardMode string `koanf:"dashboardMode"`
+	ResultView    string `koanf:"resultView"`
+}
+
 type CustomBoard struct {
 	ID            string
 	Name          string               `koanf:"name"`
@@ -52,6 +57,14 @@ type CustomBoard struct {
 	Sources       SourceSelector       `koanf:"sources"`
 	Filter        FilterList           `koanf:"filter"`
 	PolicyReports PolicyReportSelector `koanf:"policyReports"`
-	Display       string               `json:"display"`
+	Display       string               `koanf:"display"`
+	RenderOptions RenderOptions        `koanf:"renderOptions"`
 	ClusterScope  ClusterScope         `koanf:"clusterScope"`
+}
+
+func (c *CustomBoard) ResultView() string {
+	if c.RenderOptions.ResultView != "" {
+		return c.RenderOptions.ResultView
+	}
+	return c.Display
 }

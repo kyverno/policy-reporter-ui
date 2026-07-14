@@ -5,7 +5,7 @@
                v-model:cluster-kinds="clusterKinds"
                :source="source"
   >
-    <resource-scroller :list="sources">
+    <resource-scroller :list="sources" class="mt-6">
       <template #default="{ item }">
         <policy-source-group :source="item" />
       </template>
@@ -15,16 +15,10 @@
 </template>
 
 <script setup lang="ts">
-const route = useRoute()
-const source = computed(() => route.params.source as string)
+const { filter, clusterKinds, kinds, source } = useFilter()
 
 const { load } = useSourceStore(source.value)
 await load(source.value)
-
-const kinds = ref<string[]>([])
-const clusterKinds = ref<string[]>([])
-
-const filter = computed(() => ({ sources: [source.value], kinds: [...kinds.value, ...clusterKinds.value] }))
 
 const { data: sources, refresh, error } = useAPI((api) => api.policySources(filter.value))
 

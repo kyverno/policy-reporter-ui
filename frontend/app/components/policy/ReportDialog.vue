@@ -1,7 +1,7 @@
 <template>
     <v-dialog v-model="open" max-width="500">
       <template v-slot:activator="{ props }">
-        <v-btn v-bind="props" rounded="4" class="mr-4" variant="tonal" color="white" height="40">Generate Report</v-btn>
+        <v-btn v-bind="props" rounded="4" class="mr-4" variant="tonal" color="white" height="40" :block="block">Generate Report</v-btn>
       </template>
 
       <v-card title="Generate HTML Report">
@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import type { Status } from "~/types/core";
 
-const props = defineProps<{ source: string; category?: string }>()
+const props = defineProps<{ source: string; category?: string; block?: boolean }>()
 
 const open = ref(false)
 const report = ref<string>('policy-report')

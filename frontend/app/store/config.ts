@@ -14,7 +14,7 @@ type State = {
     logo: {
         disabled: boolean;
         path?: string;
-    }
+    };
 }
 
 export const useConfigStore = defineStore('config', {

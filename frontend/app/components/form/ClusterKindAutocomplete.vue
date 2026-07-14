@@ -3,7 +3,7 @@
     multiple
     clearable
     density="compact"
-    :items="store.kinds.cluster"
+    :items="store!.kinds.cluster"
     variant="outlined"
     hide-details
     label="Cluster Kinds"
@@ -11,11 +11,11 @@
     :model-value="selected"
     @update:model-value="input"
     v-bind="$attrs"
-    v-if="store.kinds.cluster.length"
+    v-if="store!.kinds.cluster.length"
   >
     <template v-slot:selection="{ item, index }">
       <v-chip v-if="index < 2">
-        <span>{{ item.title }}</span>
+        <span>{{ item }}</span>
       </v-chip>
       <span v-if="index === 2" class="text-caption align-self-center">
         (+{{ selected.length - 2 }} others)
@@ -33,7 +33,7 @@ const { store } = useSourceStore(props.source)
 
 const input = defineRouteQuery('cluster-kinds', selected);
 
-watch(() => store.kinds.cluster, (current) => {
+watch(() => store!.kinds.cluster, (current) => {
   input(selected.value.filter((s) => current.includes(s)));
 });
 

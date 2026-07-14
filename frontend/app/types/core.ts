@@ -159,6 +159,7 @@ export type NamespaceScope = {
 export type Findings = Chart
 
 export type ViewType = 'severity' | 'status' | ''
+export type Mode = 'detailed' | 'compact' | ''
 
 export type ClusterCharts = {
     [key in Status | Severity]: number;
@@ -174,14 +175,17 @@ export type Dashboard = {
     filterSources: string[];
     multiSource: boolean;
     showResults: string[];
-    display: string;
+    renderOptions: {
+        resultView: string;
+        dashboardMode: Mode;
+        dataType: ViewType;
+    }
     status: Status[];
     severities: Severity[];
     namespaceKinds: string[];
     clusterKinds: string[];
     singleSource: boolean;
     exceptions: boolean;
-    type: ViewType;
     charts: {
         clusterScope: ClusterScope;
         clusters?: {
@@ -196,6 +200,7 @@ export type Dashboard = {
     namespaces: string[];
     sources: string[];
     sourcesNavi: Array<{ title: string; name: string }>
+    summary: ResourceResultList
     total: {
         count: number;
         perResult: {
@@ -267,7 +272,7 @@ export type Config = {
     logo: {
         disabled: boolean;
         path?: string;
-    }
+    };
 }
 
 export type SourceFindings = { source: string; counts: { [key in Partial<Status>]: number }, total: number; }

@@ -1,0 +1,14 @@
+kind: CustomBoard
+apiVersion: ui.policyreporter.kyverno.io/v1alpha1
+metadata:
+  name: kyverno-results
+spec:
+  title: System
+  renderOptions:
+    #resultView: "resources"
+    dashboardMode: "compact"
+  namespaces:
+    list:
+      - kube-system
+      - kyverno
+      - policy-reporter

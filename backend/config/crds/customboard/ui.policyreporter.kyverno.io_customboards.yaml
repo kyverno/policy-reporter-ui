@@ -78,7 +78,9 @@ spec:
                 - enabled
                 type: object
               display:
-                description: Allowed values are "resources" or "results".
+                description: |-
+                  Allowed values are "resources" or "results".
+                  NOTE: "Name" is being deprecated in favor of "renderOptions.resultView".
                 type: string
               filter:
                 properties:
@@ -151,6 +153,24 @@ spec:
                     additionalProperties:
                       type: string
                     type: object
+                required:
+                - labelSelector
+                type: object
+              renderOptions:
+                description: NamespaceSelector allows to select visualized namespaces
+                properties:
+                  dashboardMode:
+                    default: detailed
+                    enum:
+                    - detailed
+                    - compact
+                    type: string
+                  resultView:
+                    default: resources
+                    enum:
+                    - resources
+                    - results
+                    type: string
                 type: object
               sources:
                 description: SourceSelector allows to select visualized sources
@@ -159,6 +179,8 @@ spec:
                     items:
                       type: string
                     type: array
+                required:
+                - list
                 type: object
               title:
                 type: string

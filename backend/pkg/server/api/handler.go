@@ -203,7 +203,10 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 			SingleSource:   len(sources) == 1,
 			MultipleSource: len(sources) > 1,
 			Namespaces:     make([]string, 0),
-			Display:        config.Display,
+			RenderOptions: service.RenderOptions{
+				DashboardMode: utils.Fallback(config.RenderOptions.DashboardMode, "detailed"),
+				ResultView:    config.RenderOptions.ResultView,
+			},
 			Severities:     config.Filter.Severities,
 			Status:         config.Filter.Results,
 			NamespaceKinds: config.Filter.NamespaceKinds,
@@ -223,12 +226,15 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 		Cluster:        ctx.Param("cluster"),
 		Sources:        sources,
 		Namespaces:     namespaces,
-		Display:        config.Display,
 		ClusterScope:   config.ClusterScope,
 		Status:         config.Filter.Results,
 		Severities:     config.Filter.Severities,
 		NamespaceKinds: config.Filter.NamespaceKinds,
 		ClusterKinds:   config.Filter.ClusterKinds,
+		RenderOptions: service.RenderOptions{
+			DashboardMode: utils.Fallback(config.RenderOptions.DashboardMode, "detailed"),
+			ResultView:    config.RenderOptions.ResultView,
+		},
 	}, query)
 	if err != nil {
 		zap.L().Error("failed to generate dashboard", zap.Error(err))
@@ -350,6 +356,10 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 		Sources:      sources,
 		Namespaces:   namespaces,
 		ClusterScope: h.config.Boards.ClusterScope,
+		RenderOptions: service.RenderOptions{
+			DashboardMode: utils.Fallback(h.config.Boards.RenderOptions.DashboardMode, "detailed"),
+			ResultView:    h.config.Boards.RenderOptions.ResultView,
+		},
 	}, ctx.Request.URL.Query())
 	if err != nil {
 		zap.L().Error("failed to generate dashboard", zap.Error(err))

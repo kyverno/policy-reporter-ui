@@ -49,6 +49,10 @@ func MapConfig(c *Config) *api.Config {
 		Banner:      c.UI.Banner,
 		DisplayMode: c.UI.DisplayMode,
 		Boards: api.Boards{
+			RenderOptions: api.RenderOptions{
+				DashboardMode: c.Boards.RenderOptions.DashboardMode,
+				ResultView:    c.Boards.RenderOptions.ResultView,
+			},
 			ClusterScope: clusterScope,
 			Permissions: auth.Permissions{
 				AccessControl: auth.AccessControl(c.Boards.AccessControl),

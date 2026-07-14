@@ -46,7 +46,7 @@ type NamespaceCustomBoardSpec struct {
 
 	// Allowed values are "resources" or "results".
 	// +optional
-	Display Display `json:"display,omitempty"`
+	Display ResultView `json:"display,omitempty"`
 
 	// SourceSelector allows to select visualized sources
 	// +optional
