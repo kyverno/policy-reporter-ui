@@ -1,6 +1,6 @@
 <template>
   <v-divider />
-  <v-list-item :to="item.id ? { name: 'resource-id-type', query: rsFilter, params: { id: item.id, type: viewType }} : undefined">
+  <v-list-item :to="item.id ? { name: 'resource-id-type', query: rsFilter, params: { id: item.id, type: viewType }} : to">
     <template v-if="details" v-slot:prepend>
       <v-btn class="mr-2" variant="text" :icon="!open ? `mdi-chevron-up` : `mdi-chevron-down`" @click.stop.prevent="open = !open"></v-btn>
     </template>
@@ -32,6 +32,7 @@ const props = defineProps({
   exceptions: { type: Boolean, default: false },
   filter: { type: Object as PropType<Filter>, required: false },
   showSkipped: { type: Boolean, default: false },
+  to: { type: [Object, String], required: false },
 })
 
 const rsFilter = computed(() => {

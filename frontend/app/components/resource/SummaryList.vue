@@ -8,7 +8,7 @@
       </template>
     </v-toolbar>
       <v-list v-if="data?.items?.length && open" lines="two">
-        <resource-item v-for="item in filtered" :key="item.id" :item="item" :details="false" />
+        <resource-item v-for="item in filtered" :key="item.id" :item="item" :details="false" :to="{ name: link, params: { namespace: item.name, category, source }}" />
       </v-list>
       <template v-if="!data?.items?.length">
         <v-divider />
@@ -23,7 +23,7 @@
 import { type ResourceResultList } from '~/types/core'
 import CollapseBtn from "~/components/CollapseBtn.vue";
 
-const props = defineProps<{ data: ResourceResultList; }>()
+const props = defineProps<{ data: ResourceResultList; category?: string; source?: string; customBoard?: string; }>()
 
 const search = ref('')
 const open = ref(true)
@@ -33,5 +33,17 @@ const filtered = computed(() => {
     return props.data.items
   }
   return props.data.items.filter((item) => item.name.toLowerCase().includes(search.value.toLowerCase()))
+})
+
+const link = computed(() => {
+  if (props.customBoard) return 'custom-boards-id-namespace-namespace'
+
+  if (props.category && props.source) return 'source-source-category-namespace-namespace'
+
+  if (props.category) return 'source-source-category-namespace-namespace'
+  
+  if (props.source) return 'source-source-namespace-namespace'
+
+  return 'namespace-namespace'
 })
 </script>

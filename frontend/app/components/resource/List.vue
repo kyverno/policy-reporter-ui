@@ -10,7 +10,7 @@
       </v-toolbar>
       <template v-if="open">
         <v-list v-if="data?.items?.length" lines="two" class="pt-0">
-          <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" :exceptions="exceptions" :show-skipped="showSkipped" />
+          <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" :exceptions="exceptions" :show-skipped="showSkipped" :to="to" />
         </v-list>
         <template v-if="data.count > options.offset">
           <v-divider />
@@ -32,11 +32,13 @@ import type { Ref } from "vue";
 import { Status, type Filter, type Pagination } from "~/types/core";
 import { NamespacedKinds, APIFilter } from "~/provider/dashboard";
 
-const props = defineProps<{
-  namespace: string;
-  details: boolean;
-  exceptions?: boolean;
-}>()
+const props = defineProps({ 
+  namespace: { type: String, required: true },
+  details: { type: Boolean, required: true },
+  exceptions: { type: Boolean, required: false },
+  perPage: { type: Number, required: false, default: 8 },
+  to: { type: [String, Object], required: false },
+});
 
 const search = ref('')
 const open = ref(true)
@@ -58,7 +60,7 @@ const combinedFilter = computed(() => ({
 
 const options = reactive<Pagination>({
   page: 1,
-  offset: 8,
+  offset: props.perPage,
 })
 
 const length = computed(() => Math.ceil((data.value?.count || 0) / options.offset))

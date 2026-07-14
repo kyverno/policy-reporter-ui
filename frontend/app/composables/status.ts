@@ -16,7 +16,7 @@ export const useStatusProvider = (data?: Ref<{ status: Status[] } | null>) => {
         return [Status.SKIP, Status.PASS, Status.WARN, Status.FAIL, Status.ERROR]
     }))
 }
-export const useStatusInjection = () => {
+export const useStatusInjection = (): Ref<Exclude<Status, Status.SUMMARY>[]> => {
     return inject(ShowedStatus, ref([Status.SKIP, Status.PASS, Status.WARN, Status.FAIL, Status.ERROR]))
 }
 

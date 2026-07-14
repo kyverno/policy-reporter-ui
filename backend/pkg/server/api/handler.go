@@ -370,6 +370,48 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dashboard)
 }
 
+func (h *Handler) Namespace(ctx *gin.Context) {
+	if profile := auth.ProfileFrom(ctx); profile != nil {
+		if !h.config.Boards.Allowed(profile) {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+	}
+
+	endpoints, ok := h.clients[ctx.Param("cluster")]
+	if !ok {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+	sources, _ := ctx.GetQueryArray("sources")
+	if len(sources) == 0 {
+		var err error
+		sources, err = endpoints.Core.ListSources(ctx, url.Values{})
+		if err != nil {
+			zap.L().Error("failed to list sources from core api", zap.Error(err), zap.String("cluster", ctx.Param("cluster")))
+			ctx.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	dashboard, err := h.service.Namespace(ctx, service.DashboardOptions{
+		Cluster:      ctx.Param("cluster"),
+		Sources:      sources,
+		ClusterScope: h.config.Boards.ClusterScope,
+		RenderOptions: service.RenderOptions{
+			DashboardMode: utils.Fallback(h.config.Boards.RenderOptions.DashboardMode, "detailed"),
+			ResultView:    h.config.Boards.RenderOptions.ResultView,
+		},
+	}, ctx.Request.URL.Query())
+	if err != nil {
+		zap.L().Error("failed to generate dashboard", zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dashboard)
+}
+
 func (h *Handler) ClustersDashboard(ctx *gin.Context) {
 	if profile := auth.ProfileFrom(ctx); profile != nil {
 		if !h.config.Boards.Allowed(profile) {
