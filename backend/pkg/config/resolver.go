@@ -130,7 +130,7 @@ func (r *Resolver) Proxy(cluster Cluster) (*httputil.ReverseProxy, error) {
 		return nil, err
 	}
 
-	options := make([]proxy.DirectorOption, 0)
+	options := make([]proxy.RewriteOption, 0)
 	proxyOptions := make([]proxy.ProxyOption, 0)
 	basicAuth := cluster.BasicAuth
 
