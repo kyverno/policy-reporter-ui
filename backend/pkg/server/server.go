@@ -73,6 +73,7 @@ func (s *Server) RegisterAPI(c *api.Config, customBoards *customboard.Collection
 	s.api.POST("config/:cluster/resource/:id/exception", handler.CreateException)
 	s.api.GET("config/:cluster/policy-sources", handler.ListPolicySources)
 	s.api.GET("config/:cluster/namespaces", handler.ListNamespaces)
+	s.api.GET("config/:cluster/namespace", handler.Namespace)
 	s.api.GET("config/:cluster/:source/policy/details", handler.GetPolicyDetails)
 	s.api.GET("config/:cluster/:source/policies", handler.Policies)
 	s.api.GET("config/:cluster/:source/policy-report", handler.PolicyReport)

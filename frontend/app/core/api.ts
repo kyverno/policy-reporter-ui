@@ -96,6 +96,10 @@ export class CoreAPI {
     return exec<string[]>(`/api/config/${this.cluster}/namespaces`, { baseURL: this.baseURL, params: { ...filter } })
   }
 
+  namespace (filter?: Filter) {
+    return exec<Dashboard>(`/api/config/${this.cluster}/namespace`, { baseURL: this.baseURL, params: { ...filter } })
+  }
+
   namespacedKinds (sources?: string[]) {
     return exec<string[]>('/proxy/'+this.cluster+'/core/v1/namespaced-resources/kinds', { baseURL: this.baseURL, params: { sources } })
   }

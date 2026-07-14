@@ -14,7 +14,7 @@
         :hide-cluster="!data.clusterScope"
         :type="dataType"
       />
-      <resource-summary-list class="mt-6" :data="data.summary" />
+      <resource-summary-list class="mt-6" :data="data.summary" :source="source" />
     </template>
     <template v-else>
       <LazyGraphSourceSeverities

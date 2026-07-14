@@ -9,7 +9,7 @@
   >
     <template v-if="isCompact">
       <LazyGraphSourceCard :data="data.charts.clusterScope[source!]!" :source="source!" :hide-cluster="!data.clusterScope" :type="dataType" />
-      <resource-summary-list class="mt-6" :data="data.summary" />
+      <resource-summary-list class="mt-6" :data="data.summary" :source="source" :category="category" />
     </template>
     <template v-else>
       <LazyGraphSourceSeverities v-if="isSeverity" :data="data" :source="source" :category="category" />

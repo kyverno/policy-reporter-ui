@@ -16,7 +16,7 @@
           :hide-cluster="!data.clusterScope"
           :type="dataType"
         />
-        <resource-summary-list :details="false" class="mt-6" :data="data.summary" />
+        <resource-summary-list :details="false" class="mt-6" :data="data.summary" :custom-board="id" />
       </template>
       <template v-else>
         <GraphSourceCharts :data="data" :hide-cluster="!data.clusterScope" />

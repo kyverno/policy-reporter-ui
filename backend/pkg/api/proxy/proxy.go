@@ -14,36 +14,36 @@ import (
 )
 
 type (
-	DirectorOption = func(target *url.URL, req *http.Request)
-	ProxyOption    = func(proxy *httputil.ReverseProxy)
+	RewriteOption = func(target *url.URL, req *httputil.ProxyRequest)
+	ProxyOption   = func(proxy *httputil.ReverseProxy)
 )
 
-func WithLogging() DirectorOption {
-	return func(target *url.URL, req *http.Request) {
+func WithLogging() RewriteOption {
+	return func(target *url.URL, req *httputil.ProxyRequest) {
 		zap.L().Debug(
 			"Proxy",
-			zap.String("proto", req.Proto),
-			zap.String("method", req.Method),
-			zap.String("referer", req.Header.Get("Referer")),
-			zap.String("user-agent", req.Header.Get("User-Agent")),
-			zap.String("forward-host", req.Host),
+			zap.String("proto", req.In.Proto),
+			zap.String("method", req.In.Method),
+			zap.String("referer", req.In.Header.Get("Referer")),
+			zap.String("user-agent", req.In.Header.Get("User-Agent")),
+			zap.String("forward-host", req.In.Host),
 			zap.String("origin-host", target.Host),
-			zap.String("path", req.URL.Path),
+			zap.String("path", req.In.URL.Path),
 		)
 	}
 }
 
-func WithHostOverwrite() DirectorOption {
-	return func(target *url.URL, req *http.Request) {
-		req.Header.Add("X-Forwarded-Host", req.Host)
-		req.Header.Add("X-Origin-Host", target.Host)
-		req.Host = target.Host
+func WithHostOverwrite() RewriteOption {
+	return func(target *url.URL, req *httputil.ProxyRequest) {
+		req.Out.Header.Add("X-Forwarded-Host", req.In.Host)
+		req.Out.Header.Add("X-Origin-Host", target.Host)
+		req.Out.Host = target.Host
 	}
 }
 
-func WithAuth(username, password string) DirectorOption {
-	return func(_ *url.URL, req *http.Request) {
-		req.SetBasicAuth(username, password)
+func WithAuth(username, password string) RewriteOption {
+	return func(_ *url.URL, req *httputil.ProxyRequest) {
+		req.Out.SetBasicAuth(username, password)
 	}
 }
 
@@ -65,10 +65,13 @@ func WithSkipTLS() ProxyOption {
 	}
 }
 
-func New(target *url.URL, options []DirectorOption, proxyOptions []ProxyOption) *httputil.ReverseProxy {
-	proxy := httputil.NewSingleHostReverseProxy(target)
-	//nolint:staticcheck
-	original := proxy.Director
+func New(target *url.URL, options []RewriteOption, proxyOptions []ProxyOption) *httputil.ReverseProxy {
+	proxy := &httputil.ReverseProxy{
+		Rewrite: func(req *httputil.ProxyRequest) {
+			req.SetURL(target)
+		},
+	}
+	original := proxy.Rewrite
 
 	proxy.ErrorHandler = func(w http.ResponseWriter, req *http.Request, err error) {
 		zap.L().Error(
@@ -82,8 +85,7 @@ func New(target *url.URL, options []DirectorOption, proxyOptions []ProxyOption) 
 		)
 	}
 
-	//nolint:staticcheck
-	proxy.Director = func(req *http.Request) {
+	proxy.Rewrite = func(req *httputil.ProxyRequest) {
 		for _, o := range options {
 			o(target, req)
 		}

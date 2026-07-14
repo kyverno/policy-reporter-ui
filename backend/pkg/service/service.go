@@ -772,6 +772,44 @@ func (s *Service) SeverityDashboard(ctx context.Context, o DashboardOptions, que
 	}, nil
 }
 
+func (s *Service) Namespace(ctx context.Context, o DashboardOptions, query url.Values) (*Dashboard, error) {
+	if len(o.Status) == 0 {
+		o.Status = s.filterEnabled(o.Sources, func(c model.SourceConfig) []string {
+			return c.EnabledResults()
+		})
+	}
+
+	if len(o.Severities) == 0 {
+		o.Severities = s.filterEnabled(o.Sources, func(c model.SourceConfig) []string {
+			return c.EnabledSeverities()
+		})
+	}
+
+	if o.Namespaces == nil {
+		o.Namespaces = make([]string, 0)
+	}
+
+	singleSource := len(o.Sources) == 1
+
+	var exceptions bool
+	if singleSource {
+		exceptions = s.configs[o.Sources[0]].Exceptions
+	}
+
+	return &Dashboard{
+		FilterSources:  make([]string, 0),
+		MultipleSource: len(o.Sources) > 1,
+		SingleSource:   singleSource,
+		Exceptions:     exceptions,
+		Sources:        o.Sources,
+		Status:         o.Status,
+		Severities:     o.Severities,
+		RenderOptions: RenderOptions{
+			DataType: s.viewType(o.Sources),
+		},
+	}, nil
+}
+
 func BuildFilters(baseFilter url.Values) (url.Values, url.Values, url.Values) {
 	namespaceFilter := url.Values{}
 	clusterFilter := url.Values{}

@@ -11,10 +11,10 @@ import {injectSourceContext} from "~/composables/source";
 
 defineProps({
   id: { type: String, required: true },
-  items: { type: Object as PropType<{ [status in Status]: number }>, required: true },
+  items: { type: Object as PropType<{ pass: number; fail: number; warn: number; skip: number; error: number; }>, required: true },
   exceptions: { type: Boolean, default: false },
   showSkipped: { type: Boolean, default: false },
-  showed: { type: Array as PropType<Status[]>, default: false },
+  showed: { type: Array as PropType<Exclude<Status, Status.SUMMARY>[]>, default: false },
   category: { type: String, default: undefined },
 })
 
