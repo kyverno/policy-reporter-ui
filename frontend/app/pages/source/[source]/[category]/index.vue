@@ -34,17 +34,11 @@ import { APIFilter } from "~/provider/dashboard";
 
 const { kinds, clusterKinds, filter, source, category } = useFilter()
 
-const store = useSourceStore(source.value)
-await store.load(source.value)
-
 const { data, refresh } = useAPI((api) => api.dashboard(filter.value));
 const { isSeverity, dataType, mode, isCompact } = useDashboardHelper(data)
 
 watch(filter, onChange(refresh))
 
 provide(APIFilter, filter)
-useStatusProvider(data)
-useSeveritiesProvider(data)
-useSourceContext(source)
-useDashboardType(data)
+useDashboardProvider(data)
 </script>

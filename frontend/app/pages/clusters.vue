@@ -17,7 +17,7 @@
           </v-card-text>
           <v-card-text style="height: 100%" v-else>
             <GraphCountPerNamespace
-              :data="data.charts.clusters.preview"
+              :data="data.charts.clusters.preview!"
               title="Results per Cluster"
             />
           </v-card-text>
@@ -57,9 +57,6 @@ import { useConfigStore } from '~/store/config';
 import type { Dashboard } from '~/types/core';
 
 const config = useConfigStore();
-
-const store = useSourceStore();
-await store.load();
 
 const kinds = ref<string[]>([]);
 const clusterKinds = ref<string[]>([]);

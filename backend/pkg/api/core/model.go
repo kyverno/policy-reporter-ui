@@ -94,6 +94,31 @@ type PolicyResult struct {
 	Properties map[string]string `json:"properties,omitempty"`
 }
 
+type ResourceResult struct {
+	ID         string `json:"id"`
+	UID        string `json:"uid"`
+	Namespace  string `json:"namespace,omitempty"`
+	APIVersion string `json:"apiVersion,omitempty"`
+	Source     string `json:"source"`
+	Kind       string `json:"kind"`
+	Name       string `json:"name"`
+	Status     struct {
+		Pass  int `json:"pass"`
+		Warn  int `json:"warn"`
+		Fail  int `json:"fail"`
+		Error int `json:"error"`
+		Skip  int `json:"skip"`
+	} `json:"status"`
+	Severities struct {
+		Unknown  int `json:"unknown"`
+		Info     int `json:"info"`
+		Low      int `json:"low"`
+		Medium   int `json:"medium"`
+		High     int `json:"high"`
+		Critical int `json:"critical"`
+	} `json:"severities"`
+}
+
 type Paginated[T any] struct {
 	Items []T `json:"items"`
 	Count int `json:"count"`

@@ -22,16 +22,16 @@
         <GraphSourceCharts :data="data" :hide-cluster="!data.clusterScope" />
         <v-row v-if="data.clusterScope">
           <v-col>
-            <result-cluster-table v-if="showResults" :sources="data.sources" />
-            <resource-cluster-list v-else :details="data.multiSource" />
+            <custom-board-cluster-table v-if="showResults" :sources="data.sources" :id="id" />
+            <custom-board-cluster-list v-else :details="data.multiSource" :id="id" />
           </v-col>
         </v-row>
         <resource-namespace-section v-if="data.namespaces.length" :namespaces="data.namespaces">
           <template #default="{ namespaces }">
             <resource-scroller :list="namespaces" :default-loadings="3">
               <template #default="{ item }">
-                <result-table v-if="showResults" :namespace="item" :sources="data.sources" />
-                <resource-list v-else :namespace="item" :details="data.multiSource" />
+                <custom-board-table v-if="showResults" :namespace="item" :sources="data.sources" :id="id" />
+                <custom-board-list v-else :namespace="item" :details="data.multiSource" :id="id" />
               </template>
             </resource-scroller>
           </template>
@@ -63,30 +63,15 @@ const { showResults, dataType, mode, isCompact } = useDashboardHelper(data)
 
 const source = computed(() => data.value.singleSource ? data.value.sources[0] : undefined)
 
-const store = useSourceStore(id.value)
-
-watchEffect(() => {
-  if (!data.value) return;
-
-  store.load(data.value.sources)
-
-  if (data.value.clusterKinds.length > 0) {
-    clusterKinds.value = data.value.clusterKinds
-  }
-  if (data.value.namespaceKinds.length > 0) {
-    kinds.value = data.value.namespaceKinds
-  }
-})
-
 watch(filter, onChange(refresh))
 
 provide(APIFilter, computed(() => ({
   ...filter.value,
-  sources: data.value?.filterSources,
+  sources: data.value?.sources,
   namespaces: data.value?.namespaces,
+  apis: data.value?.filter.resources,
+  clusterApis: data.value?.filter.clusterResources,
 })))
 
-useStatusProvider(data)
-useSeveritiesProvider(data)
-useDashboardType(data)
+useDashboardProvider(data)
 </script>

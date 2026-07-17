@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import {type PolicyResult, Status} from "~/types/core";
+import { type PolicyResult, Status } from "~/types/core";
 
 const props = defineProps<{ category: string; policies: PolicyResult[]; pending: boolean; }>()
 
@@ -45,6 +45,6 @@ const list = computed(() => {
 
 const status = useStatusInjection()
 
-const showed = computed(() => status.value.filter((s) => s !== Status.SKIP))
+const showed = computed(() => status.value.filter((s) => ![Status.SKIP, Status.SUMMARY].includes(s))) as Ref<Exclude<Status, Status.SKIP | Status.SUMMARY>[]>
 const summary = computed(() => status.value.includes(Status.SUMMARY))
 </script>

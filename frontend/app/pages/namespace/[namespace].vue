@@ -4,7 +4,7 @@
     hide-report
     v-model:kinds="kinds"
     :source="source"
-    v-if="namespace"
+    v-if="data"
   >
     <template #append>
         <v-btn variant="text" class="mr-3" color="white" prepend-icon="mdi-arrow-left" :to="{ name: 'index', query: { ...route.query, mode: 'compact' } }">back</v-btn>
@@ -32,12 +32,8 @@ const source = computed(() => {
   return data.value?.sources[0]
 })
 
-const store = useSourceStore();
-await store.load();
-
 provide(APIFilter, filter);
 
 useSourceContext(source);
-useStatusProvider(data)
-useSeveritiesProvider(data)
+useDashboardProvider(data)
 </script>

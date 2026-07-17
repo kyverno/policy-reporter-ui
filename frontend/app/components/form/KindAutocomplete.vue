@@ -3,7 +3,7 @@
       multiple
       clearable
       density="compact"
-      :items="store!.kinds.namespaced"
+      :items="kinds"
       variant="outlined"
       hide-details
       label="Kinds"
@@ -24,15 +24,15 @@
 </template>
 
 <script lang="ts" setup>
-const props = defineProps<{ source?: string; modelValue: string[] }>();
+const props = defineProps<{ modelValue: string[] }>();
 
 const selected = ref<string[]>(props.modelValue);
 
-const { store } = useSourceStore(props.source)
+const kinds = useNamespacedKindsInjection()
 
 const input = defineRouteQuery('kinds', selected);
 
-watch(() => store!.kinds.namespaced, (current) => {
+watch(kinds, (current) => {
   input(selected.value.filter((s) => current.includes(s)));
 });
 

@@ -35,7 +35,7 @@ func (c *Client) GetPolicy(ctx context.Context, name string) (*plugin.Policy, er
 }
 
 func (c *Client) CreateException(ctx context.Context, request *plugin.ExceptionRequest) (*plugin.ExceptionResponse, error) {
-	resp, err := c.Post(ctx, "/v1/policies/exception", request)
+	resp, err := c.Post(ctx, "/v1/policies/exception", request, url.Values{})
 	if err != nil {
 		return nil, fmt.Errorf("create exception endoint failed: %w", err)
 	}

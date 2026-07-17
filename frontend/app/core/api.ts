@@ -17,6 +17,7 @@ import {
   type Dashboard,
   type ResourceDetails,
   type SourceDetails,
+  type PolicyFilter,
   type PolicyDetails,
   type ExceptionResponse,
   type ExceptionPolicy,
@@ -65,7 +66,7 @@ export class CoreAPI {
   }
 
   policySources (filter?: Filter) {
-    return exec<SourceDetails[]>(`/api/config/${this.cluster}/policy-sources`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
+    return exec<{ filter: PolicyFilter; sources: SourceDetails[] }>(`/api/config/${this.cluster}/policy-sources`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 
   policyDetails (source: string, policy: string, namespace?: string, status?: Status[], kinds?: string[] ) {
@@ -166,6 +167,22 @@ export class CoreAPI {
 
   totalResults (cluster?: string, pagination?: Pagination, filter?: Filter) {
     return exec<ResourceResultList>(`/proxy/${cluster ?? this.cluster}/core/v2/total-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]), ...pagination } })
+  }
+
+  customBoardResourceResults (id: string, filter?: Filter, pagination?: Pagination) {
+    return exec<ResourceResultList>(`/api/config/${this.cluster}/custom-board/${id}/resource-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
+  }
+
+  customBoardResults (id: string, filter?: Filter, pagination?: Pagination) {
+    return exec<ResultList>(`/api/config/${this.cluster}/custom-board/${id}/results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
+  }
+
+  customBoardClusterResourceResults (id: string, filter?: Filter, pagination?: Pagination) {
+    return exec<ResourceResultList>(`/api/config/${this.cluster}/custom-board/${id}/cluster-resource-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
+  }
+
+  customBoardClusterResults (id: string, filter?: Filter, pagination?: Pagination) {
+    return exec<ResultList>(`/api/config/${this.cluster}/custom-board/${id}/cluster-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   setPrefix (prefix: string): void {

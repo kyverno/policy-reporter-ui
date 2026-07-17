@@ -2,7 +2,7 @@
   <v-autocomplete
       multiple
       clearable
-      :items="store!.namespaces"
+      :items="namespaces"
       variant="outlined"
       hide-details
       label="Namespaces"
@@ -22,11 +22,11 @@
 </template>
 
 <script lang="ts" setup>
-const props = defineProps<{ source: string; modelValue: string[] }>();
+const props = defineProps<{ modelValue: string[] }>();
 
 const selected = ref<string[]>(props.modelValue);
 
-const { store } = useSourceStore(props.source)
+const namespaces = useNamespacesInjection()
 
 const emit = defineEmits<{ 'update:modelValue': [namespaces: string[]] }>()
 

@@ -14,7 +14,7 @@ type Client struct {
 	auth    *BasicAuth
 }
 
-func (c *Client) Post(ctx context.Context, path string, payload any) (*http.Response, error) {
+func (c *Client) Post(ctx context.Context, path string, payload any, query url.Values) (*http.Response, error) {
 	body := new(bytes.Buffer)
 
 	if err := json.NewEncoder(body).Encode(payload); err != nil {
@@ -32,6 +32,7 @@ func (c *Client) Post(ctx context.Context, path string, payload any) (*http.Resp
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("User-Agent", "Policy Reporter UI")
+	req.URL.RawQuery = query.Encode()
 
 	return c.http.Do(req)
 }

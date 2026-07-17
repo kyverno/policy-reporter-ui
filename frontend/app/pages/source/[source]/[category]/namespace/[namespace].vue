@@ -4,7 +4,7 @@
     hide-report
     v-model:kinds="kinds"
     :source="source"
-    v-if="namespace"
+    v-if="data"
   >
     <template #append>
         <v-btn variant="text" class="mr-3" color="white" prepend-icon="mdi-arrow-left" :to="{ name: 'source-source-category', params: { source, category }, query: { ...route.query, mode: 'compact' } }">back</v-btn>
@@ -26,12 +26,8 @@ const { data, refresh } = useAPI(api => api.namespace(filter.value))
 
 watch(filter, onChange(refresh))
 
-const store = useSourceStore(source.value);
-await store.load(source.value);
-
 provide(APIFilter, filter);
 
 useSourceContext(source);
-useStatusProvider(data)
-useSeveritiesProvider(data)
+useDashboardProvider(data);
 </script>
