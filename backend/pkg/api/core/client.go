@@ -52,6 +52,26 @@ func (c *Client) ListSourceCategoryTree(ctx context.Context, query url.Values) (
 	return api.DecodeList[SourceCategoryTree](resp.Body)
 }
 
+func (c *Client) ListNamespaceScopedCategories(ctx context.Context, query url.Values) ([]string, error) {
+	resp, err := c.Get(ctx, "/v1/namespaced-resources/categories", query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.DecodeList[string](resp.Body)
+}
+
+func (c *Client) ListClusterScopedCategories(ctx context.Context, query url.Values) ([]string, error) {
+	resp, err := c.Get(ctx, "/v1/cluster-resources/categories", query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.DecodeList[string](resp.Body)
+}
+
 func (c *Client) ListResourceCategories(ctx context.Context, id string, query url.Values) ([]SourceCategoryTree, error) {
 	resp, err := c.Get(ctx, fmt.Sprintf("/v2/resource/%s/source-categories", id), query)
 	if err != nil {
@@ -157,6 +177,26 @@ func (c *Client) ListNamespaces(ctx context.Context, query url.Values) ([]string
 	return api.DecodeList[string](resp.Body)
 }
 
+func (c *Client) ListNamespacedKinds(ctx context.Context, query url.Values) ([]string, error) {
+	resp, err := c.Get(ctx, "/v1/namespaced-resources/kinds", query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.DecodeList[string](resp.Body)
+}
+
+func (c *Client) ListClusterKinds(ctx context.Context, query url.Values) ([]string, error) {
+	resp, err := c.Get(ctx, "/v1/cluster-resources/kinds", query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.DecodeList[string](resp.Body)
+}
+
 func (c *Client) ListPolicies(ctx context.Context, query url.Values) ([]Policy, error) {
 	resp, err := c.Get(ctx, "/v2/policies", query)
 	if err != nil {
@@ -167,14 +207,34 @@ func (c *Client) ListPolicies(ctx context.Context, query url.Values) ([]Policy, 
 	return api.DecodeList[Policy](resp.Body)
 }
 
-func (c *Client) ResolveNamespaceSelector(ctx context.Context, selector map[string]string) ([]string, error) {
-	resp, err := c.Post(ctx, "/v2/namespaces/resolve-selector", selector)
+func (c *Client) ResolveNamespaceSelector(ctx context.Context, selector map[string]string, query url.Values) ([]string, error) {
+	resp, err := c.Post(ctx, "/v2/namespaces/resolve-selector", selector, query)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	return api.DecodeList[string](resp.Body)
+}
+
+func (c *Client) ListNamespaceScopedResourceResults(ctx context.Context, query url.Values) (*Paginated[ResourceResult], error) {
+	resp, err := c.Get(ctx, "/v2/namespace-scoped/resource-results", query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.Decode[Paginated[ResourceResult]](resp.Body)
+}
+
+func (c *Client) ListClusterScopedResourceResults(ctx context.Context, query url.Values) (*Paginated[ResourceResult], error) {
+	resp, err := c.Get(ctx, "/v2/cluster-scoped/resource-results", query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.Decode[Paginated[ResourceResult]](resp.Body)
 }
 
 func (c *Client) ListNamespaceScopedResults(ctx context.Context, query url.Values) (*Paginated[PolicyResult], error) {

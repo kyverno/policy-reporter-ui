@@ -95,7 +95,29 @@ spec:
                           type: string
                         type: array
                     type: object
+                  clusterResources:
+                    properties:
+                      exclude:
+                        items:
+                          type: string
+                        type: array
+                      include:
+                        items:
+                          type: string
+                        type: array
+                    type: object
                   namespaceKinds:
+                    properties:
+                      exclude:
+                        items:
+                          type: string
+                        type: array
+                      include:
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  resources:
                     properties:
                       exclude:
                         items:

@@ -11,10 +11,12 @@ type ValueFilter struct {
 }
 
 type Filter struct {
-	NamespaceKinds []string `koanf:"namespaceKinds"`
-	ClusterKinds   []string `koanf:"clusterKinds"`
-	Results        []string `koanf:"results"`
-	Severities     []string `koanf:"severities"`
+	NamespaceKinds   []string `koanf:"namespaceKinds"`
+	ClusterKinds     []string `koanf:"clusterKinds"`
+	Results          []string `koanf:"results"`
+	Severities       []string `koanf:"severities"`
+	Resources        []string `koanf:"resources"`
+	ClusterResources []string `koanf:"clusterResources"`
 }
 
 type NamespaceSelector struct {
@@ -32,12 +34,13 @@ type PolicyReportSelector struct {
 
 type FilterList struct {
 	Include Filter `koanf:"include"`
-	Exclude Filter `koanf:"exclude"`
 
-	NamespaceKinds ValueFilter `koanf:"namespaceKinds"`
-	ClusterKinds   ValueFilter `koanf:"clusterKinds"`
-	Results        ValueFilter `koanf:"results"`
-	Severities     ValueFilter `koanf:"severities"`
+	NamespaceKinds   ValueFilter `koanf:"namespaceKinds"`
+	ClusterKinds     ValueFilter `koanf:"clusterKinds"`
+	Results          ValueFilter `koanf:"results"`
+	Severities       ValueFilter `koanf:"severities"`
+	Resources        ValueFilter `koanf:"resources"`
+	ClusterResources ValueFilter `koanf:"clusterResources"`
 }
 
 type ClusterScope struct {

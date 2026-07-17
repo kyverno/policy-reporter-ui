@@ -34,10 +34,6 @@ const router = useRouter()
 
 const { filter, clusterKinds, kinds, source, policy } = useFilter()
 
-const { load } = useSourceStore(source.value)
-await load(source.value)
-
-
 provide(APIFilter, filter)
 
 const status = computed<Status[] | undefined>(() => {
@@ -61,4 +57,6 @@ watch(status, onChange(refresh))
 watch(filter, onChange(refresh))
 
 useStatusProvider(data)
+useNamespacedKindProvider(data)
+useClusterKindProvider(data)
 </script>

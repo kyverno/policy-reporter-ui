@@ -41,8 +41,8 @@ const { mdAndUp } = useDisplay()
 
 const props = defineProps<{ title?: string; category?: string; source?: string; store?: string; nsScoped?: boolean; kinds?: string[]; clusterKinds?: string[]; hideReport?: boolean; mode?: Mode }>()
 
-const kinds = ref<string[]>(props.kinds ?? [])
-const clusterKinds = ref<string[]>(props.clusterKinds ?? [])
+const kinds = ref<string[]>(props.kinds || [])
+const clusterKinds = ref<string[]>(props.clusterKinds || [])
 const mode = ref<Mode>(props.mode ?? '')
 
 provide(NamespacedKinds, kinds)

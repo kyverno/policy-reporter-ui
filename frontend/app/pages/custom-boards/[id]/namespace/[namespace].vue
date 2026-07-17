@@ -28,27 +28,12 @@ const { data, refresh, error } = useAPI((api) => api.customBoard(id.value, filte
 
 const source = computed(() => data.value.singleSource ? data.value.sources[0] : undefined)
 
-const store = useSourceStore(id.value)
-
-watchEffect(() => {
-  if (!data.value) return;
-
-  store.load(data.value.sources)
-
-  if (data.value.namespaceKinds.length > 0) {
-    kinds.value = data.value.namespaceKinds
-  }
-})
-
 watch(filter, onChange(refresh))
 
 provide(APIFilter, computed(() => ({
   ...filter.value,
-  sources: data.value?.filterSources,
   namespaces: [namespace.value],
 })))
 
-useStatusProvider(data)
-useSeveritiesProvider(data)
-useDashboardType(data)
+useDashboardProvider(data)
 </script>

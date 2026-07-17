@@ -2,7 +2,7 @@
   <v-autocomplete
       multiple
       clearable
-      :items="store.kinds.namespaced"
+      :items="kinds"
       variant="outlined"
       hide-details
       label="Kinds"
@@ -13,7 +13,7 @@
   >
     <template v-slot:selection="{ item, index }">
       <v-chip v-if="index < 2">
-        <span>{{ item.title }}</span>
+        <span>{{ item }}</span>
       </v-chip>
       <span v-if="index === 2" class="text-caption align-self-center">
         (+{{ modelValue.length - 2 }} others)
@@ -23,9 +23,9 @@
 </template>
 
 <script lang="ts" setup>
-const props = defineProps<{ source: string; modelValue: string[] }>();
+const props = defineProps<{ modelValue: string[] }>();
 
-const { store } = useSourceStore(props.source)
+const kinds = useNamespacedKindsInjection()
 
 const emit = defineEmits<{ 'update:modelValue': [kinds: string[]] }>()
 </script>

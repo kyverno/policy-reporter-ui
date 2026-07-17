@@ -21,23 +21,27 @@ type DefaultFilter struct {
 }
 
 type Excludes struct {
-	NamespaceKinds []string `json:"namespaceKinds"`
-	ClusterKinds   []string `json:"clusterKinds"`
-	Results        []string `json:"results"`
-	Severities     []string `json:"severities"`
+	NamespaceKinds   []string `json:"namespaceKinds"`
+	ClusterKinds     []string `json:"clusterKinds"`
+	Results          []string `json:"results"`
+	Severities       []string `json:"severities"`
+	Resources        []string `json:"resources"`
+	ClusterResources []string `json:"clusterResources"`
 }
 
 type Includes struct {
-	NamespaceKinds []string `json:"namespaceKinds"`
-	ClusterKinds   []string `json:"clusterKinds"`
-	Results        []string `json:"results"`
-	Severities     []string `json:"severities"`
+	NamespaceKinds   []string `json:"namespaceKinds"`
+	ClusterKinds     []string `json:"clusterKinds"`
+	Results          []string `json:"results"`
+	Severities       []string `json:"severities"`
+	Resources        []string `json:"resources"`
+	ClusterResources []string `json:"clusterResources"`
 }
 
 type Source struct {
 	Name       string   `json:"name"`
-	ViewType   string   `mapstructure:"type"`
-	Exceptions bool     `mapstructure:"exceptions"`
+	ViewType   string   `json:"type"`
+	Exceptions bool     `json:"exceptions"`
 	Excludes   Excludes `json:"excludes"`
 }
 

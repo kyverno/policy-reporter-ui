@@ -43,7 +43,7 @@ export const useSourceStore = (key?: string) => {
         } else if (Array.isArray(source) && !source.length) {
             source = undefined
         }
-    
+
         return Promise.all([
             callAPI(api => api.namespaces({ sources: source as string[] })),
             callAPI(api => api.namespacedKinds(source as string[])),

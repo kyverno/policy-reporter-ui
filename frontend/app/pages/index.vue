@@ -38,8 +38,6 @@
 import { APIFilter } from "~/provider/dashboard";
 
 const router = useRouter()
-const store = useSourceStore()
-await store.load()
 
 const { kinds, clusterKinds, filter } = useFilter()
 
@@ -70,13 +68,6 @@ const source = computed(() => {
   return data.value?.sources[0]
 })
 
-watch(source, (s?: string) => {
-  if (!s) return
-  
-  store.load(s)
-})
-
 useSourceContext(source)
-useStatusProvider(data)
-useSeveritiesProvider(data)
+useDashboardProvider(data)
 </script>

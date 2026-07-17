@@ -50,6 +50,10 @@ type Filter struct {
 	Results ValueFilter `json:"results"`
 	// +optional
 	Severities ValueFilter `json:"severities"`
+	// +optional
+	Resources ValueFilter `json:"resources"`
+	// +optional
+	ClusterResources ValueFilter `json:"clusterResources"`
 }
 
 // +kubebuilder:oneOf:={required:{labelSelector}}

@@ -1,7 +1,6 @@
 <template>
-    <v-chip :prepend-icon="`mdi-${icons[severity]}`" :color="`severity-${severity}`" variant="flat">
+    <v-chip :prepend-icon="`mdi-${icons[severity]}`" :color="`severity-${severity}`" variant="flat" :title="tooltip">
         <div class="text-right" style="min-width: 32px;">{{ count || 0 }}</div>
-        <v-tooltip :text="tooltip" location="top" activator="parent" />
     </v-chip>
 </template>
 
