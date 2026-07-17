@@ -922,11 +922,17 @@ func (s *Service) Namespace(ctx context.Context, o DashboardOptions, query url.V
 		"sources":    query["sources"],
 		"categories": query["categories"],
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	clusterKinds, err := client.ListClusterKinds(ctx, url.Values{
 		"sources":    query["sources"],
 		"categories": query["categories"],
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &Dashboard{
 		MultipleSource: len(o.Sources) > 1,
