@@ -1,10 +1,10 @@
-import {type Dashboard, Status} from "~/types/core";
-import {ShowedStatus} from "~/provider/dashboard";
-import type {Ref} from "vue";
+import { Status } from "~/types/core";
+import { ShowedStatus } from "~/provider/dashboard";
+import type { Ref } from "vue";
 
-export const useStatusProvider = (data?: Ref<{ status: Status[] } | null>) => {
+export const useStatusProvider = (data: Ref<{ filter: { status: Status[] } } | null>) => {
     provide(ShowedStatus, computed(() => {
-        const status = data?.value?.status
+        const status = data?.value?.filter.status
         if (status && status.length) {
             return [Status.SKIP, Status.PASS, Status.WARN, Status.FAIL, Status.ERROR, Status.SUMMARY].reduce<Status[]>((acc, s) => {
                 if (status.includes(s)) { return [...acc, s] }
@@ -16,7 +16,8 @@ export const useStatusProvider = (data?: Ref<{ status: Status[] } | null>) => {
         return [Status.SKIP, Status.PASS, Status.WARN, Status.FAIL, Status.ERROR]
     }))
 }
-export const useStatusInjection = (): Ref<Exclude<Status, Status.SUMMARY>[]> => {
+
+export const useStatusInjection = (): Ref<Status[]> => {
     return inject(ShowedStatus, ref([Status.SKIP, Status.PASS, Status.WARN, Status.FAIL, Status.ERROR]))
 }
 

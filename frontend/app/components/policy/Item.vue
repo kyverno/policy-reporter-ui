@@ -44,7 +44,7 @@ const props = defineProps({
   item: { type: Object as PropType<PolicyResult>, required: true },
   details: { type: Boolean, default: false },
   filter: { type: Object as PropType<Filter>, required: false },
-  showStatus: { type: Array as PropType<Status[]>, required: true },
+  showStatus: { type: Array as PropType<Exclude<Status, Status.SUMMARY>[]>, required: true },
   summary: { type: Boolean, default: false },
 })
 

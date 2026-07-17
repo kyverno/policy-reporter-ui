@@ -68,10 +68,12 @@ func MapConfig(c *Config) *api.Config {
 				ViewType:   s.ViewType,
 				Exceptions: s.Exceptions,
 				Excludes: api.Excludes{
-					NamespaceKinds: s.Excludes.NamespaceKinds,
-					ClusterKinds:   s.Excludes.ClusterKinds,
-					Results:        s.Excludes.Results,
-					Severities:     s.Excludes.Severities,
+					NamespaceKinds:   s.Excludes.NamespaceKinds,
+					ClusterKinds:     s.Excludes.ClusterKinds,
+					Resources:        s.Excludes.Resources,
+					ClusterResources: s.Excludes.ClusterResources,
+					Results:          s.Excludes.Results,
+					Severities:       s.Excludes.Severities,
 				},
 			}
 		}),

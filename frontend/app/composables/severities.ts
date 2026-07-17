@@ -2,9 +2,9 @@ import {Severity} from "~/types/core";
 import {ShowedSeverities} from "~/provider/dashboard";
 import type {Ref} from "vue";
 
-export const useSeveritiesProvider = (data?: Ref<{ severities: Severity[] } | null>) => {
+export const useSeveritiesProvider = (data?: Ref<{ filter: { severities: Severity[] } } | null>) => {
     provide(ShowedSeverities, computed(() => {
-        const severities = data?.value?.severities
+        const severities = data?.value?.filter.severities
         if (severities && severities.length) {
             return [Severity.UNKNOWN,Severity.INFO,Severity.LOW,Severity.MEDIUM,Severity.HIGH,Severity.CRITICAL].reduce<Severity[]>((acc, s) => {
                 if (severities.includes(s)) { return [...acc, s] }

@@ -1,4 +1,8 @@
 export const APIFilter = Symbol('default filter for dashboard  resources')
+export const ShowedCategories = Symbol('show category options')
+export const ShowedNamespaces = Symbol('show namespace options')
+export const ShowedNamespacedKinds = Symbol('show kind options')
+export const ShowedClusterKinds = Symbol('show cluster kind options')
 export const ShowedStatus = Symbol('show status chip')
 export const ShowedSeverities = Symbol('show severity chip')
 export const NamespacedKinds = Symbol('namespaced kind filters')

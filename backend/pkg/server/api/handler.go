@@ -88,7 +88,18 @@ func (h *Handler) ListPolicySources(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, details)
+	client := h.clients[ctx.Param("cluster")].Core
+
+	nsKinds, _ := client.ListNamespacedKinds(ctx, url.Values{})
+	clusterKinds, _ := client.ListClusterKinds(ctx, url.Values{})
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"filter": gin.H{
+			"namespaceKinds": nsKinds,
+			"clusterKinds":   clusterKinds,
+		},
+		"sources": details,
+	})
 }
 
 func (h *Handler) ListNamespaces(ctx *gin.Context) {
@@ -147,20 +158,10 @@ func (h *Handler) GetResourceDetails(ctx *gin.Context) {
 
 func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	var err error
-
-	board := h.customBoards.Board(ctx.Param("id"))
-	if board == nil {
-		ctx.AbortWithStatus(http.StatusNotFound)
+	config, status := h.resolveCustomBoard(ctx)
+	if status != 0 {
+		ctx.AbortWithStatus(status)
 		return
-	}
-
-	config := MapCustomBoard(board)
-
-	if profile := auth.ProfileFrom(ctx); profile != nil {
-		if !config.Allowed(profile) {
-			ctx.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
 	}
 
 	endpoints, ok := h.clients[ctx.Param("cluster")]
@@ -182,9 +183,17 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 			return
 		}
 	}
+
 	var namespaces []string
 	if len(config.Namespaces.Selector) > 0 {
-		ns, err := endpoints.Core.ResolveNamespaceSelector(ctx, config.Namespaces.Selector)
+		nsQuery := ctx.Request.URL.Query()
+		appendFilter(nsQuery, "sources", config.Sources.List)
+		appendFilter(nsQuery, "apis", config.Filter.Resources)
+		appendFilter(nsQuery, "kinds", config.Filter.NamespaceKinds)
+		appendFilter(nsQuery, "status", config.Filter.Results)
+		appendFilter(nsQuery, "severities", config.Filter.Severities)
+
+		ns, err := endpoints.Core.ResolveNamespaceSelector(ctx, config.Namespaces.Selector, nsQuery)
 		if err != nil {
 			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -209,10 +218,13 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 				AllowedResultViews: config.RenderOptions.AllowedResultViews,
 				DefaultResultView:  config.RenderOptions.DefaultResultView,
 			},
-			Severities:     config.Filter.Severities,
-			Status:         config.Filter.Results,
-			NamespaceKinds: config.Filter.NamespaceKinds,
-			ClusterKinds:   config.Filter.ClusterKinds,
+			Filter: service.Filter{
+				Severities:     config.Filter.Severities,
+				Status:         config.Filter.Results,
+				NamespaceKinds: config.Filter.NamespaceKinds,
+				ClusterKinds:   config.Filter.ClusterKinds,
+				Resources:      config.Filter.Resources,
+			},
 			Charts: service.Charts{
 				ClusterScope:   make(map[string]map[string]int),
 				NamespaceScope: make(map[string]*service.ChartVariants),
@@ -225,14 +237,16 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	query["namespaces"] = namespaces
 
 	dashboard, err := h.service.Dashboard(ctx, service.DashboardOptions{
-		Cluster:        ctx.Param("cluster"),
-		Sources:        sources,
-		Namespaces:     namespaces,
-		ClusterScope:   config.ClusterScope,
-		Status:         config.Filter.Results,
-		Severities:     config.Filter.Severities,
-		NamespaceKinds: config.Filter.NamespaceKinds,
-		ClusterKinds:   config.Filter.ClusterKinds,
+		Cluster:          ctx.Param("cluster"),
+		Sources:          sources,
+		Namespaces:       namespaces,
+		ClusterScope:     config.ClusterScope,
+		Status:           config.Filter.Results,
+		Severities:       config.Filter.Severities,
+		NamespaceKinds:   config.Filter.NamespaceKinds,
+		ClusterKinds:     config.Filter.ClusterKinds,
+		Resources:        config.Filter.Resources,
+		ClusterResources: config.Filter.ClusterResources,
 		RenderOptions: service.RenderOptions{
 			DashboardMode:      utils.Fallback(config.RenderOptions.DashboardMode, "detailed"),
 			ResultView:         config.RenderOptions.ResultView,
@@ -246,10 +260,114 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 		return
 	}
 
-	dashboard.FilterSources = query["sources"]
+	dashboard.Filter.Sources = query["sources"]
 	dashboard.Title = config.Name
 
 	ctx.JSON(http.StatusOK, dashboard)
+}
+
+func (h *Handler) GetCustomBoardResourceResults(ctx *gin.Context) {
+	config, status := h.resolveCustomBoard(ctx)
+	if status != 0 {
+		ctx.AbortWithStatus(status)
+		return
+	}
+
+	endpoints, ok := h.clients[ctx.Param("cluster")]
+	if !ok {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	query := ctx.Request.URL.Query()
+	applyCustomBoardFilter(query, config)
+
+	results, err := endpoints.Core.ListNamespaceScopedResourceResults(ctx, query)
+	if err != nil {
+		zap.L().Error("failed to fetch resource results", zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, results)
+}
+
+func (h *Handler) GetCustomBoardResults(ctx *gin.Context) {
+	config, status := h.resolveCustomBoard(ctx)
+	if status != 0 {
+		ctx.AbortWithStatus(status)
+		return
+	}
+
+	endpoints, ok := h.clients[ctx.Param("cluster")]
+	if !ok {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	query := ctx.Request.URL.Query()
+	applyCustomBoardFilter(query, config)
+
+	results, err := endpoints.Core.ListNamespaceScopedResults(ctx, query)
+	if err != nil {
+		zap.L().Error("failed to fetch results", zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, results)
+}
+
+func (h *Handler) GetCustomBoardClusterResourceResults(ctx *gin.Context) {
+	config, status := h.resolveCustomBoard(ctx)
+	if status != 0 {
+		ctx.AbortWithStatus(status)
+		return
+	}
+
+	endpoints, ok := h.clients[ctx.Param("cluster")]
+	if !ok {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	query := ctx.Request.URL.Query()
+	applyCustomBoardClusterFilter(query, config)
+
+	results, err := endpoints.Core.ListClusterScopedResourceResults(ctx, query)
+	if err != nil {
+		zap.L().Error("failed to fetch resource results", zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, results)
+}
+
+func (h *Handler) GetCustomBoardClusterResults(ctx *gin.Context) {
+	config, status := h.resolveCustomBoard(ctx)
+	if status != 0 {
+		ctx.AbortWithStatus(status)
+		return
+	}
+
+	endpoints, ok := h.clients[ctx.Param("cluster")]
+	if !ok {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	query := ctx.Request.URL.Query()
+	applyCustomBoardClusterFilter(query, config)
+
+	results, err := endpoints.Core.ListClusterScopedResults(ctx, query)
+	if err != nil {
+		zap.L().Error("failed to fetch cluster scoped results", zap.Error(err))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, results)
 }
 
 func (h *Handler) Layout(ctx *gin.Context) {
@@ -342,6 +460,7 @@ func (h *Handler) Dashboard(ctx *gin.Context) {
 		namespaces, err = h.service.Namespaces(ctx, ctx.Param("cluster"), url.Values{
 			"sources":    query["sources"],
 			"kinds":      query["kinds"],
+			"apis":       query["apis"],
 			"categories": query["categories"],
 			"policies":   query["policies"],
 		})
@@ -552,10 +671,32 @@ func (h *Handler) NamespaceReport(ctx *gin.Context) {
 	}
 }
 
+func (h *Handler) resolveCustomBoard(ctx *gin.Context) (CustomBoard, int) {
+	board := h.customBoards.Board(ctx.Param("id"))
+	if board == nil {
+		return CustomBoard{}, http.StatusNotFound
+	}
+
+	config := MapCustomBoard(board)
+
+	if profile := auth.ProfileFrom(ctx); profile != nil {
+		if !config.Allowed(profile) {
+			return CustomBoard{}, http.StatusUnauthorized
+		}
+	}
+
+	return config, 0
+}
+
 func NewHandler(config *Config, apis map[string]*model.Endpoints, customBoards *customboard.Collection) *Handler {
 	sources := make(map[string]model.SourceConfig, len(config.Sources))
 	for _, s := range config.Sources {
-		sources[s.Name] = model.SourceConfig{Results: s.Excludes.Results, Exceptions: s.Exceptions, ViewType: s.ViewType, Severities: s.Excludes.Severities}
+		sources[s.Name] = model.SourceConfig{
+			Results:    s.Excludes.Results,
+			Exceptions: s.Exceptions,
+			ViewType:   s.ViewType,
+			Severities: s.Excludes.Severities,
+		}
 	}
 
 	return &Handler{config, apis, customBoards, service.New(apis, sources), reports.New(apis)}
@@ -572,4 +713,32 @@ var funcMap = template.FuncMap{
 
 		return utils.Contains(slice, item)
 	},
+}
+
+func appendFilter(query url.Values, key string, values []string) {
+	if len(values) == 0 {
+		return
+	}
+
+	if _, ok := query[key]; ok {
+		query[key] = utils.Intersect(values, query[key])
+		return
+	}
+
+	query[key] = values
+}
+
+func applyCustomBoardFilter(query url.Values, config CustomBoard) {
+	appendFilter(query, "kinds", config.Filter.NamespaceKinds)
+	appendFilter(query, "apis", config.Filter.Resources)
+	appendFilter(query, "status", config.Filter.Results)
+	appendFilter(query, "severities", config.Filter.Severities)
+	appendFilter(query, "namespaces", config.Namespaces.List)
+}
+
+func applyCustomBoardClusterFilter(query url.Values, config CustomBoard) {
+	appendFilter(query, "kinds", config.Filter.ClusterKinds)
+	appendFilter(query, "apis", config.Filter.ClusterResources)
+	appendFilter(query, "status", config.Filter.Results)
+	appendFilter(query, "severities", config.Filter.Severities)
 }

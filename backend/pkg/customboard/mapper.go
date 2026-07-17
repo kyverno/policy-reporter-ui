@@ -16,7 +16,6 @@ func MapCustomBoardToModel(cb *v1alpha1.CustomBoard) *CustomBoard {
 		AccessControl: MapAccessControl(cb.Spec.AccessControl),
 		Filter: FilterList{
 			Include: MapIncludeFilter(cb.Spec.Filter),
-			Exclude: MapExcludeFilter(cb.Spec.Filter),
 		},
 		Display:         string(cb.Spec.Display),
 		AllowedDisplays: utils.Map(cb.Spec.AllowedDisplays, func(view v1alpha1.ResultView) string { return string(view) }),
@@ -38,7 +37,6 @@ func MapNamespaceCustomBoardToModel(cb *v1alpha1.NamespaceCustomBoard) *CustomBo
 		AccessControl: MapAccessControl(cb.Spec.AccessControl),
 		Filter: FilterList{
 			Include: MapIncludeFilter(cb.Spec.Filter),
-			Exclude: MapExcludeFilter(cb.Spec.Filter),
 		},
 		Display:         string(cb.Spec.Display),
 		AllowedDisplays: utils.Map(cb.Spec.AllowedDisplays, func(view v1alpha1.ResultView) string { return string(view) }),
@@ -66,23 +64,12 @@ func MapIncludeFilter(f *v1alpha1.Filter) Filter {
 	}
 
 	return Filter{
-		NamespaceKinds: f.NamespaceKinds.Include,
-		ClusterKinds:   f.ClusterKinds.Include,
-		Results:        f.Results.Include,
-		Severities:     f.Severities.Include,
-	}
-}
-
-func MapExcludeFilter(f *v1alpha1.Filter) Filter {
-	if f == nil {
-		return Filter{}
-	}
-
-	return Filter{
-		NamespaceKinds: f.NamespaceKinds.Exclude,
-		ClusterKinds:   f.ClusterKinds.Exclude,
-		Results:        f.Results.Exclude,
-		Severities:     f.Severities.Exclude,
+		NamespaceKinds:   f.NamespaceKinds.Include,
+		ClusterKinds:     f.ClusterKinds.Include,
+		Results:          f.Results.Include,
+		Severities:       f.Severities.Include,
+		Resources:        f.Resources.Include,
+		ClusterResources: f.ClusterResources.Include,
 	}
 }
 
@@ -111,11 +98,7 @@ func MapFilterFields(f FilterList) FilterList {
 	f.Include.NamespaceKinds = append(f.Include.NamespaceKinds, f.NamespaceKinds.Include...)
 	f.Include.Results = append(f.Include.Results, f.Results.Include...)
 	f.Include.Severities = append(f.Include.Severities, f.Severities.Include...)
-
-	f.Exclude.ClusterKinds = append(f.Exclude.ClusterKinds, f.ClusterKinds.Exclude...)
-	f.Exclude.NamespaceKinds = append(f.Exclude.NamespaceKinds, f.NamespaceKinds.Exclude...)
-	f.Exclude.Results = append(f.Exclude.Results, f.Results.Exclude...)
-	f.Exclude.Severities = append(f.Exclude.Severities, f.Severities.Exclude...)
-
+	f.Include.Resources = append(f.Include.Resources, f.Resources.Include...)
+	f.Include.ClusterResources = append(f.Include.ClusterResources, f.ClusterResources.Include...)
 	return f
 }

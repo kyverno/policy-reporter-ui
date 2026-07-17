@@ -219,10 +219,12 @@ type Source struct {
 	Exceptions bool   `koanf:"exceptions"`
 	ViewType   string `koanf:"type"`
 	Excludes   struct {
-		NamespaceKinds []string `koanf:"namespaceKinds"`
-		ClusterKinds   []string `koanf:"clusterKinds"`
-		Results        []string `koanf:"results"`
-		Severities     []string `koanf:"severities"`
+		NamespaceKinds   []string `koanf:"namespaceKinds"`
+		ClusterKinds     []string `koanf:"clusterKinds"`
+		Resources        []string `koanf:"resources"`
+		ClusterResources []string `koanf:"clusterResources"`
+		Results          []string `koanf:"results"`
+		Severities       []string `koanf:"severities"`
 	} `koanf:"excludes"`
 }
 

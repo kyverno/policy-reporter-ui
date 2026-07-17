@@ -38,6 +38,65 @@ func MapFindingSourcesToSourceItem(findings *core.Findings) []SourceItem {
 	return sourceItems
 }
 
+func MergeFindings(findings1 *core.Findings, findings2 *core.Findings) *core.Findings {
+	findingSources := make(map[string]bool, 0)
+	for _, f := range findings1.Counts {
+		findingSources[f.Source] = true
+	}
+	for _, f := range findings2.Counts {
+		findingSources[f.Source] = true
+	}
+
+	results := make(map[string]bool, 0)
+	for r := range findings1.PerResult {
+		results[r] = true
+	}
+	for r := range findings2.PerResult {
+		results[r] = true
+	}
+
+	counts1 := make(map[string]core.FindingCounts, 0)
+	for _, c := range findings1.Counts {
+		counts1[c.Source] = c
+	}
+	counts2 := make(map[string]core.FindingCounts, 0)
+	for _, c := range findings2.Counts {
+		counts2[c.Source] = c
+	}
+
+	counts := make([]core.FindingCounts, 0, len(findingSources))
+	for f := range findingSources {
+		c := core.FindingCounts{Source: f, Counts: make(map[string]int, 0)}
+		count1, ok1 := counts1[f]
+		count2, ok2 := counts2[f]
+
+		if ok1 {
+			for status, count := range count1.Counts {
+				c.Counts[status] += count
+			}
+		}
+
+		if ok2 {
+			for status, count := range count2.Counts {
+				c.Counts[status] += count
+			}
+		}
+
+		counts = append(counts, c)
+	}
+
+	perResults := make(map[string]int, len(results))
+	for r := range results {
+		perResults[r] = findings1.PerResult[r] + findings2.PerResult[r]
+	}
+
+	return &core.Findings{
+		Counts:    counts,
+		Total:     findings1.Total + findings2.Total,
+		PerResult: perResults,
+	}
+}
+
 func MapFindingSourcesToFindingCharts(findings *core.Findings) map[string]*Chart {
 	charts := make(map[string]*Chart, 0)
 	totals := make(map[string]int, 0)

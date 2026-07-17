@@ -50,5 +50,5 @@ const categories = computed(() => Object.keys(data.value || {}))
 
 watch(combinedFilter, onChange(refresh))
 
-useStatusProvider(ref({ status: props.source.status }))
+useStatusProvider(ref({ filter: { status: props.source.status } }))
 </script>

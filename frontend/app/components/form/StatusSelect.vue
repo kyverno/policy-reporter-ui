@@ -14,7 +14,7 @@
   >
     <template v-slot:selection="{ item, index }">
       <v-chip v-if="index < 2">
-        <span>{{ item.title }}</span>
+        <span>{{ item }}</span>
       </v-chip>
       <span v-if="index === 2" class="text-caption align-self-center">
         (+{{ selected.length - 2 }} others)
@@ -27,7 +27,7 @@
 import type { Density } from "vuetify/lib/composables/density.mjs";
 import {Status} from "~/types/core";
 
-const props = defineProps<{ source?: string; modelValue?: Status[]; density?: Density }>();
+const props = defineProps<{ modelValue?: Status[]; density?: Density }>();
 
 const selected = ref<Status[]>(props.modelValue || []);
 
@@ -40,7 +40,7 @@ const items: Status[] = [
 
 const input = defineRouteQuery('status', selected);
 
-const emit = defineEmits<{ 'update:modelValue': [status: string[]] }>()
+const emit = defineEmits<{ 'update:modelValue': [status: Status[]] }>()
 
 watch(selected, (current) => {
   emit('update:modelValue', current)

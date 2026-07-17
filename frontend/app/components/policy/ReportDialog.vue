@@ -11,16 +11,16 @@
             <form-report-select v-model="report" />
           </app-row>
           <app-row v-if="!category">
-            <form-category-select :source="source" v-model="categories" />
+            <form-category-select v-model="categories" />
           </app-row>
           <app-row>
-            <form-namespace-select :source="source" v-model="namespaces"/>
+            <form-namespace-select v-model="namespaces"/>
           </app-row>
           <app-row>
-            <form-status-select :source="source" v-model="status" density="default" />
+            <form-status-select v-model="status" density="default" />
           </app-row>
           <app-row>
-            <policy-kind-select :source="source" v-model="kinds" />
+            <policy-kind-select v-model="kinds" />
           </app-row>
           <app-row v-if="report === 'policy-report'">
             <v-switch v-model="clusterScope" hide-details label="Cluster Scoped Resources" color="info" />

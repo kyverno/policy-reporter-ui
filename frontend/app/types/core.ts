@@ -170,10 +170,21 @@ export type NamespaceCharts = {
     preview?: Chart
     complete: Chart
 }
+
+export type DashboardFilter = {
+    status: Status[];
+    severities: Severity[];
+    namespaceKinds: string[];
+    clusterKinds: string[];
+    sources: string[];
+    resources: string[];
+    clusterResources: string[];
+    categories: string[];
+}
+
 export type Dashboard = {
     title?: string;
     clusterScope: boolean;
-    filterSources: string[];
     multiSource: boolean;
     showResults: string[];
     renderOptions: {
@@ -183,12 +194,9 @@ export type Dashboard = {
         dashboardMode: Mode;
         dataType: ViewType;
     }
-    status: Status[];
-    severities: Severity[];
-    namespaceKinds: string[];
-    clusterKinds: string[];
     singleSource: boolean;
     exceptions: boolean;
+    filter: DashboardFilter;
     charts: {
         clusterScope: ClusterScope;
         clusters?: {
@@ -228,14 +236,23 @@ export type ResourceDetails = {
     severityResults: { [key in Severity]: number; }
     chart?: Chart
     sources: SourceDetails[]
+    filter: {
+        status: Status[];
+        severities: Severity[];
+    };
+}
+
+export type PolicyFilter = {
     status: Status[];
     severities: Severity[];
+    namespaceKinds: string[];
+    clusterKinds: string[];
 }
 
 export type PolicyDetails = {
     title: string;
     name: string;
-    status: Status[];
+    filter: PolicyFilter;
     namespaces: string[];
     references?: string[];
     description: string;
@@ -347,6 +364,8 @@ export type ResourceStatusCount = {
 export type Filter = {
     kinds?: string[];
     clusterKinds?: string[];
+    apis?: string[];
+    clusterApis?: string[];
     categories?: string[];
     namespaces?: string[];
     severities?: Severity[];

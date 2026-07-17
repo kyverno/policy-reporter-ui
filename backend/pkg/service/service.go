@@ -124,6 +124,29 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 
 		return err
 	})
+
+	var nsKinds []string
+	g.Go(func() error {
+		var err error
+		nsKinds, err = client.ListNamespacedKinds(ctx, url.Values{
+			"sources":  query["sources"],
+			"policies": query["policies"],
+		})
+
+		return err
+	})
+
+	var clusterKinds []string
+	g.Go(func() error {
+		var err error
+		clusterKinds, err = client.ListClusterKinds(ctx, url.Values{
+			"sources":  query["sources"],
+			"policies": query["policies"],
+		})
+
+		return err
+	})
+
 	if err := g.Wait(); err != nil {
 		return nil, err
 	}
@@ -137,7 +160,12 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 		Namespaces: namespaces,
 		Title:      title,
 		Name:       policy,
-		Status:     config.EnabledResults(),
+		Filter: PolicyFilter{
+			Status:         config.EnabledResults(),
+			Severities:     config.EnabledSeverities(),
+			NamespaceKinds: nsKinds,
+			ClusterKinds:   clusterKinds,
+		},
 		Exceptions: s.configs[source].Exceptions,
 		Chart: PolicyCharts{
 			Findings:       MapFindingsToSourceStatusChart(title, findings),
@@ -382,13 +410,15 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster, id string, query
 	}
 
 	return &ResourceDetails{
-		Resource:        resource,
-		Sources:         list,
-		Chart:           chart,
-		Status:          status,
+		Resource: resource,
+		Sources:  list,
+		Chart:    chart,
+		Filter: Filter{
+			Status:     status,
+			Severities: severities,
+		},
 		Results:         SumResourceCounts(statusCounts),
 		SeverityResults: SumResourceSeverityCounts(severityCounts),
-		Severities:      severities,
 	}, nil
 }
 
@@ -469,7 +499,6 @@ func (s *Service) ClustersDashboard(ctx context.Context, o DashboardOptions, que
 
 	return &Dashboard{
 		Title:          "Cluster Dashboard",
-		FilterSources:  make([]string, 0),
 		ClusterScope:   o.ClusterScope,
 		Sources:        sources,
 		MultipleSource: len(sources) > 1,
@@ -477,15 +506,19 @@ func (s *Service) ClustersDashboard(ctx context.Context, o DashboardOptions, que
 		Exceptions:     false,
 		ShowResults:    showResults,
 		SourcesNavi:    nil,
-		Status:         status,
-		Severities:     allSeverities,
+		Filter: Filter{
+			Sources:        make([]string, 0),
+			Severities:     allSeverities,
+			Status:         status,
+			NamespaceKinds: o.NamespaceKinds,
+			ClusterKinds:   o.ClusterKinds,
+			Resources:      o.Resources,
+		},
 		RenderOptions: RenderOptions{
 			DashboardMode: o.RenderOptions.DashboardMode,
 			ResultView:    o.RenderOptions.ResultView,
 			DataType:      utils.Fallback(o.RenderOptions.DataType, model.Status),
 		},
-		NamespaceKinds: o.NamespaceKinds,
-		ClusterKinds:   o.ClusterKinds,
 		Charts: Charts{
 			Clusters: MapClusterChartVariant("Clusters", clusterResults, model.Status, status),
 		},
@@ -509,7 +542,6 @@ func (s *Service) Dashboard(ctx context.Context, o DashboardOptions, query url.V
 	g := &errgroup.Group{}
 
 	combinedFilter, namespaceFilter, clusterFilter := BuildFilters(query)
-	combinedFilter.Set("namespaced", strconv.FormatBool(!o.ClusterScope))
 
 	namespaceResults := make(map[string]core.NamespaceStatusCounts, len(o.Sources))
 	clusterResults := make(map[string]map[string]int, len(o.Sources))
@@ -534,10 +566,87 @@ func (s *Service) Dashboard(ctx context.Context, o DashboardOptions, query url.V
 	namespaceFilter["status"] = o.Status
 	clusterFilter["status"] = o.Status
 
+	appendFilter(namespaceFilter, "apis", o.Resources)
+	appendFilter(clusterFilter, "apis", o.ClusterResources)
+
+	appendFilter(namespaceFilter, "kinds", o.NamespaceKinds)
+	appendFilter(clusterFilter, "kinds", o.ClusterKinds)
+
 	var findings *core.Findings
 	g.Go(func() error {
 		var err error
-		findings, err = client.GetFindings(ctx, combinedFilter)
+		findings, err = client.GetFindings(ctx, namespaceFilter)
+		if err != nil {
+			return err
+		}
+
+		if o.ClusterScope {
+			findings2, err := client.GetFindings(ctx, clusterFilter)
+			if err != nil {
+				return err
+			}
+			if findings.Total == 0 {
+				return nil
+			}
+
+			findings = MergeFindings(findings, findings2)
+		}
+
+		return nil
+	})
+
+	nsKinds := o.NamespaceKinds
+	if len(nsKinds) == 0 {
+		g.Go(func() error {
+			var err error
+			nsKinds, err = client.ListNamespacedKinds(ctx, url.Values{
+				"namespaces": query["namespaces"],
+				"sources":    o.Sources,
+				"status":     o.Status,
+				"apis":       o.Resources,
+			})
+
+			return err
+		})
+	}
+
+	clusterKinds := o.ClusterKinds
+	if len(clusterKinds) == 0 && o.ClusterScope {
+		g.Go(func() error {
+			var err error
+			clusterKinds, err = client.ListClusterKinds(ctx, url.Values{
+				"sources": o.Sources,
+				"status":  o.Status,
+				"apis":    o.ClusterResources,
+			})
+
+			return err
+		})
+	}
+
+	var categories []string
+	g.Go(func() error {
+		var err error
+		categories, err = client.ListNamespaceScopedCategories(ctx, url.Values{
+			"sources":    o.Sources,
+			"apis":       o.Resources,
+			"namespaces": o.Namespaces,
+		})
+		if err != nil {
+			return err
+		}
+
+		if o.ClusterScope {
+			clusterScope, err := client.ListClusterScopedCategories(ctx, url.Values{
+				"sources": o.Sources,
+				"apis":    o.ClusterResources,
+			})
+			if err != nil {
+				return err
+			}
+
+			categories = append(categories, clusterScope...)
+		}
 
 		return err
 	})
@@ -605,7 +714,6 @@ func (s *Service) Dashboard(ctx context.Context, o DashboardOptions, query url.V
 	}
 
 	return &Dashboard{
-		FilterSources:  make([]string, 0),
 		ClusterScope:   o.ClusterScope,
 		MultipleSource: len(o.Sources) > 1,
 		SingleSource:   singleSource,
@@ -614,15 +722,21 @@ func (s *Service) Dashboard(ctx context.Context, o DashboardOptions, query url.V
 		Namespaces:     o.Namespaces,
 		ShowResults:    showResults,
 		SourcesNavi:    MapFindingSourcesToSourceItem(findings),
-		Status:         o.Status,
-		Severities:     o.Severities,
+		Filter: Filter{
+			Sources:          make([]string, 0),
+			Severities:       o.Severities,
+			Status:           o.Status,
+			NamespaceKinds:   nsKinds,
+			ClusterKinds:     clusterKinds,
+			Resources:        o.Resources,
+			ClusterResources: o.ClusterResources,
+			Categories:       categories,
+		},
 		RenderOptions: RenderOptions{
 			DashboardMode: o.RenderOptions.DashboardMode,
 			ResultView:    o.RenderOptions.ResultView,
 			DataType:      utils.Fallback(o.RenderOptions.DataType, model.Status),
 		},
-		NamespaceKinds: o.NamespaceKinds,
-		ClusterKinds:   o.ClusterKinds,
 		Charts: Charts{
 			ClusterScope:   clusterResults,
 			Findings:       findingChart,
@@ -741,7 +855,6 @@ func (s *Service) SeverityDashboard(ctx context.Context, o DashboardOptions, que
 	}
 
 	return &Dashboard{
-		FilterSources:  make([]string, 0),
 		ClusterScope:   o.ClusterScope,
 		MultipleSource: len(o.Sources) > 1,
 		SingleSource:   singleSource,
@@ -750,15 +863,19 @@ func (s *Service) SeverityDashboard(ctx context.Context, o DashboardOptions, que
 		Namespaces:     o.Namespaces,
 		ShowResults:    showResults,
 		SourcesNavi:    MapFindingSourcesToSourceItem(findings),
-		Status:         o.Status,
-		Severities:     o.Severities,
+		Filter: Filter{
+			Sources:        make([]string, 0),
+			Severities:     o.Severities,
+			Status:         o.Status,
+			NamespaceKinds: o.NamespaceKinds,
+			ClusterKinds:   o.ClusterKinds,
+			Resources:      o.Resources,
+		},
 		RenderOptions: RenderOptions{
 			DashboardMode: o.RenderOptions.DashboardMode,
 			ResultView:    o.RenderOptions.ResultView,
 			DataType:      utils.Fallback(o.RenderOptions.DataType, model.Severity),
 		},
-		NamespaceKinds: o.NamespaceKinds,
-		ClusterKinds:   o.ClusterKinds,
 		Charts: Charts{
 			ClusterScope:   clusterResults,
 			Findings:       findingChart,
@@ -796,14 +913,39 @@ func (s *Service) Namespace(ctx context.Context, o DashboardOptions, query url.V
 		exceptions = s.configs[o.Sources[0]].Exceptions
 	}
 
+	client, err := s.core(o.Cluster)
+	if err != nil {
+		return nil, err
+	}
+
+	nsKinds, err := client.ListNamespacedKinds(ctx, url.Values{
+		"sources":    query["sources"],
+		"categories": query["categories"],
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	clusterKinds, err := client.ListClusterKinds(ctx, url.Values{
+		"sources":    query["sources"],
+		"categories": query["categories"],
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return &Dashboard{
-		FilterSources:  make([]string, 0),
 		MultipleSource: len(o.Sources) > 1,
 		SingleSource:   singleSource,
 		Exceptions:     exceptions,
 		Sources:        o.Sources,
-		Status:         o.Status,
-		Severities:     o.Severities,
+		Filter: Filter{
+			Sources:        make([]string, 0),
+			Severities:     o.Severities,
+			Status:         o.Status,
+			NamespaceKinds: nsKinds,
+			ClusterKinds:   clusterKinds,
+		},
 		RenderOptions: RenderOptions{
 			DataType: s.viewType(o.Sources),
 		},
@@ -811,10 +953,14 @@ func (s *Service) Namespace(ctx context.Context, o DashboardOptions, query url.V
 }
 
 func BuildFilters(baseFilter url.Values) (url.Values, url.Values, url.Values) {
-	namespaceFilter := url.Values{}
-	clusterFilter := url.Values{}
-	combinedFilter := url.Values{}
+	namespaceFilter := url.Values{
+		"namespaced": []string{"true"},
+	}
+	clusterFilter := url.Values{
+		"namespaced": []string{"false"},
+	}
 
+	combinedFilter := url.Values{}
 	for filter, values := range baseFilter {
 		if filter == "kinds" || filter == "clusterKinds" {
 			continue
@@ -832,6 +978,14 @@ func BuildFilters(baseFilter url.Values) (url.Values, url.Values, url.Values) {
 	if val, ok := baseFilter["clusterKinds"]; ok {
 		clusterFilter["kinds"] = val
 		combinedFilter["kinds"] = append(combinedFilter["kinds"], val...)
+	}
+	if val, ok := baseFilter["apis"]; ok {
+		namespaceFilter["apis"] = val
+		combinedFilter["apis"] = val
+	}
+	if val, ok := baseFilter["clusterApis"]; ok {
+		namespaceFilter["apis"] = val
+		combinedFilter["apis"] = append(combinedFilter["apis"], val...)
 	}
 
 	return combinedFilter, namespaceFilter, clusterFilter
@@ -869,6 +1023,13 @@ func (s *Service) viewType(sources []string) string {
 	}
 
 	return model.Severity
+}
+
+func appendFilter(filter url.Values, key string, values []string) {
+	if len(values) == 0 {
+		return
+	}
+	filter[key] = utils.Unique(append(filter[key], values...))
 }
 
 func New(clients map[string]*model.Endpoints, configs map[string]model.SourceConfig) *Service {

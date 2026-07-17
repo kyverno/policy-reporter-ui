@@ -205,12 +205,20 @@ func MapFilter(f customboard.Filter) Includes {
 	if f.Severities == nil {
 		f.Severities = make([]string, 0)
 	}
+	if f.Resources == nil {
+		f.Resources = make([]string, 0)
+	}
+	if f.ClusterResources == nil {
+		f.ClusterResources = make([]string, 0)
+	}
 
 	return Includes{
-		NamespaceKinds: f.NamespaceKinds,
-		ClusterKinds:   f.ClusterKinds,
-		Results:        f.Results,
-		Severities:     f.Severities,
+		NamespaceKinds:   f.NamespaceKinds,
+		ClusterKinds:     f.ClusterKinds,
+		Results:          f.Results,
+		Severities:       f.Severities,
+		Resources:        f.Resources,
+		ClusterResources: f.ClusterResources,
 	}
 }
 

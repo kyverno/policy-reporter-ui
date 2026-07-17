@@ -81,10 +81,27 @@ type RenderOptions struct {
 	DataType           string   `json:"dataType"`
 }
 
+type Filter struct {
+	Sources          []string `json:"sources"`
+	NamespaceKinds   []string `json:"namespaceKinds"`
+	ClusterKinds     []string `json:"clusterKinds"`
+	Resources        []string `json:"resources"`
+	ClusterResources []string `json:"clusterResources"`
+	Status           []string `json:"status"`
+	Severities       []string `json:"severities"`
+	Categories       []string `json:"categories"`
+}
+
+type PolicyFilter struct {
+	Status         []string `json:"status"`
+	Severities     []string `json:"severities"`
+	NamespaceKinds []string `json:"namespaceKinds"`
+	ClusterKinds   []string `json:"clusterKinds"`
+}
+
 type Dashboard struct {
 	Title          string        `json:"title"`
 	RenderOptions  RenderOptions `json:"renderOptions"`
-	FilterSources  []string      `json:"filterSources,omitempty"`
 	ClusterScope   bool          `json:"clusterScope"`
 	Sources        []string      `json:"sources"`
 	Namespaces     []string      `json:"namespaces"`
@@ -95,10 +112,7 @@ type Dashboard struct {
 	SourcesNavi    []SourceItem  `json:"sourcesNavi"`
 	Total          Total         `json:"total"`
 	ShowResults    []string      `json:"showResults"`
-	Status         []string      `json:"status"`
-	Severities     []string      `json:"severities"`
-	NamespaceKinds []string      `json:"namespaceKinds"`
-	ClusterKinds   []string      `json:"clusterKinds"`
+	Filter         Filter        `json:"filter"`
 	Summary        *List         `json:"summary"`
 }
 
@@ -107,7 +121,7 @@ type ResourceDetails struct {
 	Results         map[string]int `json:"results"`
 	Chart           *Chart         `json:"chart"`
 	Sources         []Source       `json:"sources"`
-	Status          []string       `json:"status"`
+	Filter          Filter         `json:"filter"`
 	Severities      []string       `json:"severities"`
 	SeverityResults map[string]int `json:"severityResults"`
 }
@@ -162,7 +176,7 @@ type PolicyDetails struct {
 	Details     []Item       `json:"details,omitempty"`
 	Additional  []Details    `json:"additional,omitempty"`
 	References  []string     `json:"references,omitempty"`
-	Status      []string     `json:"status,omitempty"`
+	Filter      PolicyFilter `json:"filter,omitempty"`
 	ShowDetails bool         `json:"showDetails"`
 	Exceptions  bool         `json:"exceptions"`
 }
@@ -186,13 +200,15 @@ type ExceptionRequest struct {
 }
 
 type DashboardOptions struct {
-	RenderOptions  RenderOptions
-	Status         []string
-	Severities     []string
-	Sources        []string
-	Namespaces     []string
-	NamespaceKinds []string
-	ClusterKinds   []string
-	Cluster        string
-	ClusterScope   bool
+	RenderOptions    RenderOptions
+	Status           []string
+	Severities       []string
+	Sources          []string
+	Namespaces       []string
+	NamespaceKinds   []string
+	ClusterKinds     []string
+	Resources        []string
+	ClusterResources []string
+	Cluster          string
+	ClusterScope     bool
 }
