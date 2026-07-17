@@ -18,7 +18,8 @@ func MapCustomBoardToModel(cb *v1alpha1.CustomBoard) *CustomBoard {
 			Include: MapIncludeFilter(cb.Spec.Filter),
 			Exclude: MapExcludeFilter(cb.Spec.Filter),
 		},
-		Display: string(cb.Spec.Display),
+		Display:         string(cb.Spec.Display),
+		AllowedDisplays: utils.Map(cb.Spec.AllowedDisplays, func(view v1alpha1.ResultView) string { return string(view) }),
 		RenderOptions: RenderOptions{
 			ResultView:    string(utils.Fallback(cb.Spec.Display, cb.Spec.RenderOptions.ResultView)),
 			DashboardMode: cb.Spec.RenderOptions.DashboardMode,
@@ -39,11 +40,12 @@ func MapNamespaceCustomBoardToModel(cb *v1alpha1.NamespaceCustomBoard) *CustomBo
 			Include: MapIncludeFilter(cb.Spec.Filter),
 			Exclude: MapExcludeFilter(cb.Spec.Filter),
 		},
-		Display:       string(cb.Spec.Display),
-		Namespaces:    NamespaceSelector{List: []string{cb.Namespace}},
-		Sources:       MapSources(cb.Spec.SourceSelector),
-		PolicyReports: MapPolicyReports(cb.Spec.PolicyReportSelector),
-		ClusterScope:  ClusterScope{Enabled: false},
+		Display:         string(cb.Spec.Display),
+		AllowedDisplays: utils.Map(cb.Spec.AllowedDisplays, func(view v1alpha1.ResultView) string { return string(view) }),
+		Namespaces:      NamespaceSelector{List: []string{cb.Namespace}},
+		Sources:         MapSources(cb.Spec.SourceSelector),
+		PolicyReports:   MapPolicyReports(cb.Spec.PolicyReportSelector),
+		ClusterScope:    ClusterScope{Enabled: false},
 	}
 }
 

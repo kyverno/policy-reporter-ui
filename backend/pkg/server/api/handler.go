@@ -204,8 +204,10 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 			MultipleSource: len(sources) > 1,
 			Namespaces:     make([]string, 0),
 			RenderOptions: service.RenderOptions{
-				DashboardMode: utils.Fallback(config.RenderOptions.DashboardMode, "detailed"),
-				ResultView:    config.RenderOptions.ResultView,
+				DashboardMode:      utils.Fallback(config.RenderOptions.DashboardMode, "detailed"),
+				ResultView:         config.RenderOptions.ResultView,
+				AllowedResultViews: config.RenderOptions.AllowedResultViews,
+				DefaultResultView:  config.RenderOptions.DefaultResultView,
 			},
 			Severities:     config.Filter.Severities,
 			Status:         config.Filter.Results,
@@ -232,8 +234,10 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 		NamespaceKinds: config.Filter.NamespaceKinds,
 		ClusterKinds:   config.Filter.ClusterKinds,
 		RenderOptions: service.RenderOptions{
-			DashboardMode: utils.Fallback(config.RenderOptions.DashboardMode, "detailed"),
-			ResultView:    config.RenderOptions.ResultView,
+			DashboardMode:      utils.Fallback(config.RenderOptions.DashboardMode, "detailed"),
+			ResultView:         config.RenderOptions.ResultView,
+			AllowedResultViews: config.RenderOptions.AllowedResultViews,
+			DefaultResultView:  config.RenderOptions.DefaultResultView,
 		},
 	}, query)
 	if err != nil {

@@ -160,6 +160,7 @@ export type Findings = Chart
 
 export type ViewType = 'severity' | 'status' | ''
 export type Mode = 'detailed' | 'compact' | ''
+export type ResultView = 'resources' | 'results'
 
 export type ClusterCharts = {
     [key in Status | Severity]: number;
@@ -177,6 +178,8 @@ export type Dashboard = {
     showResults: string[];
     renderOptions: {
         resultView: string;
+        allowedResultViews: ResultView[];
+        defaultResultView: ResultView;
         dashboardMode: Mode;
         dataType: ViewType;
     }
