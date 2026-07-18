@@ -3,8 +3,6 @@ package server
 import (
 	"fmt"
 	"net/http"
-	"net/http/httputil"
-	"strings"
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
@@ -46,18 +44,10 @@ func (s *Server) RegisterUI(path string, middleware []gin.HandlerFunc) {
 	})...)
 }
 
-func (s *Server) RegisterCluster(name string, client *core.Client, plugins map[string]*plugin.Client, proxy *httputil.ReverseProxy) {
+func (s *Server) RegisterCluster(name string, client *core.Client, plugins map[string]*plugin.Client) {
 	id := slug.Make(name)
 
 	s.apis[id] = &model.Endpoints{Name: name, Core: client, Plugins: plugins}
-	group := s.proxies.Group(id)
-
-	group.Group("core").Any("/*proxy", func(ctx *gin.Context) {
-		req := ctx.Request.Clone(ctx)
-		req.URL.Path = strings.TrimPrefix(ctx.Param("proxy"), "/")
-
-		proxy.ServeHTTP(ctx.Writer, req)
-	})
 
 	zap.L().Debug("cluster registered", zap.String("name", name), zap.String("id", id))
 }

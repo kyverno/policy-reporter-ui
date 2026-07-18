@@ -23,7 +23,7 @@
         </v-card-text>
       </v-card>
     </app-row>
-    <app-row v-if="data.chart">
+    <app-row v-if="data.chart" class="mb-6">
       <v-card>
         <v-card-text>
           <graph-resource-status :data="data.chart" />

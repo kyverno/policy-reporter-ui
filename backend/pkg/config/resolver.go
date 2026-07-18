@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -21,7 +19,6 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
-	"github.com/kyverno/policy-reporter-ui/pkg/api/proxy"
 	"github.com/kyverno/policy-reporter-ui/pkg/auth"
 	ui "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
 	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
@@ -118,43 +115,6 @@ func (r *Resolver) LoadPluginSecret(ctx context.Context, plugin Plugin) (Plugin,
 	}
 
 	return plugin, nil
-}
-
-func (r *Resolver) Proxy(cluster Cluster) (*httputil.ReverseProxy, error) {
-	if cluster.Host == "" {
-		return nil, ErrMissingAPI
-	}
-
-	target, err := url.Parse(cluster.Host)
-	if err != nil {
-		return nil, err
-	}
-
-	options := make([]proxy.RewriteOption, 0)
-	proxyOptions := make([]proxy.ProxyOption, 0)
-	basicAuth := cluster.BasicAuth
-
-	if r.config.Logging.API {
-		options = append(options, proxy.WithLogging())
-	}
-
-	if r.config.Server.OverwriteHost {
-		options = append(options, proxy.WithHostOverwrite())
-	}
-
-	if basicAuth.Username != "" && basicAuth.Password != "" {
-		options = append(options, proxy.WithAuth(basicAuth.Username, basicAuth.Password))
-	}
-
-	if cluster.SkipTLS {
-		proxyOptions = append(proxyOptions, proxy.WithSkipTLS())
-	}
-
-	if cluster.Certificate != "" {
-		proxyOptions = append(proxyOptions, proxy.WithCertificate(cluster.Certificate))
-	}
-
-	return proxy.New(target, options, proxyOptions), nil
 }
 
 func (r *Resolver) LoadSecret(ctx context.Context, secretRef string) (secrets.Values, error) {
@@ -358,12 +318,6 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 			continue
 		}
 
-		proxy, err := r.Proxy(cluster)
-		if err != nil {
-			zap.L().Error("failed to resolve proxies", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("host", cluster.Host))
-			continue
-		}
-
 		client, err := r.CoreClient(cluster)
 		if err != nil {
 			zap.L().Error("failed to create core api client", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("host", cluster.Host))
@@ -393,7 +347,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 			plugins[p.Name] = pClient
 		}
 
-		serv.RegisterCluster(cluster.Name, client, plugins, proxy)
+		serv.RegisterCluster(cluster.Name, client, plugins)
 	}
 
 	if !r.config.UI.Disabled {

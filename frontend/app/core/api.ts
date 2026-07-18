@@ -102,7 +102,7 @@ export class CoreAPI {
   }
 
   namespacedResults (filter?: Filter, pagination?: Pagination) {
-    return exec<ResultList>('/api/'+this.cluster+'/namespaced-scoped/results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
+    return exec<ResultList>('/api/'+this.cluster+'/namespace-scoped/results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   clusterResults (filter?: Filter, pagination?: Pagination) {
