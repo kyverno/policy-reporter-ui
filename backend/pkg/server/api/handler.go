@@ -362,6 +362,7 @@ func (h *Handler) ListResourceResults(ctx *gin.Context) {
 		return e.Core.ListResourceResults(ctx, ctx.Param("id"), ctx.Request.URL.Query())
 	})
 }
+
 func (h *Handler) ListResourceResourceResults(ctx *gin.Context) {
 	h.forward(ctx, func(e *model.Endpoints) (any, error) {
 		return e.Core.ListResourceResourceResults(ctx, ctx.Param("id"), ctx.Request.URL.Query())
