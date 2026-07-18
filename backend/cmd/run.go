@@ -70,7 +70,7 @@ func newRunCMD() *cobra.Command {
 	clientcmd.BindOverrideFlags(&c.KubeConfig, cmd.Flags(), clientcmd.RecommendedConfigOverrideFlags("kube-"))
 
 	cmd.Flags().StringVarP(&configFile, "config", "c", "", "target configuration file")
-	cmd.Flags().BoolVar(&c.Server.OverwriteHost, "overwrite-host", false, "Overwrite Proxy Host and set Forward Header")
+	cmd.Flags().BoolVar(&c.Server.OverwriteHost, "overwrite-host", false, "deprecated: no longer in use, will be removed in future versions")
 	cmd.Flags().IntVar(&c.Server.Port, "port", 8080, "PolicyReporter UI port")
 	cmd.Flags().BoolVar(&c.Server.CORS, "dev", false, "Enable CORS Header for development")
 	cmd.Flags().BoolVar(&c.UI.Disabled, "no-ui", false, "Disable the embedded frontend")
