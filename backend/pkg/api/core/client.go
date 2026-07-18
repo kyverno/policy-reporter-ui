@@ -237,8 +237,38 @@ func (c *Client) ListClusterScopedResourceResults(ctx context.Context, query url
 	return api.Decode[Paginated[ResourceResult]](resp.Body)
 }
 
+func (c *Client) ListResourceResults(ctx context.Context, id string, query url.Values) (*Paginated[PolicyResult], error) {
+	resp, err := c.Get(ctx, fmt.Sprintf("/v2/resource/%s/results", id), query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.Decode[Paginated[PolicyResult]](resp.Body)
+}
+
+func (c *Client) ListResourceResourceResults(ctx context.Context, id string, query url.Values) ([]ResourceResult, error) {
+	resp, err := c.Get(ctx, fmt.Sprintf("/v2/resource/%s/resource-results", id), query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.DecodeList[ResourceResult](resp.Body)
+}
+
 func (c *Client) ListNamespaceScopedResults(ctx context.Context, query url.Values) (*Paginated[PolicyResult], error) {
 	resp, err := c.Get(ctx, "/v2/namespace-scoped/results", query)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.Decode[Paginated[PolicyResult]](resp.Body)
+}
+
+func (c *Client) ListResultsWithoutResource(ctx context.Context, query url.Values) (*Paginated[PolicyResult], error) {
+	resp, err := c.Get(ctx, "/v2/results-without-resources", query)
 	if err != nil {
 		return nil, err
 	}
@@ -265,6 +295,16 @@ func (c *Client) ListTargets(ctx context.Context) (map[string][]Target, error) {
 	defer resp.Body.Close()
 
 	return api.DecodeMap[string, []Target](resp.Body)
+}
+
+func (c *Client) ListTotalResults(ctx context.Context) (*Paginated[ResourceResult], error) {
+	resp, err := c.Get(ctx, "/v2/total-results", url.Values{})
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return api.Decode[Paginated[ResourceResult]](resp.Body)
 }
 
 func New(options []api.ClientOption) (*Client, error) {

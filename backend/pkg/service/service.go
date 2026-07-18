@@ -106,9 +106,25 @@ func (s *Service) PolicyDetails(ctx context.Context, cluster, source, policy str
 	var findings *core.Findings
 	g.Go(func() error {
 		var err error
-		findings, err = client.GetFindings(ctx, query)
+		q := utils.CloneMap(query)
+		q.Set("namespaced", "true")
 
-		return err
+		findings, err = client.GetFindings(ctx, q)
+		if err != nil {
+			return err
+		}
+
+		findings2, err := client.GetFindings(ctx, query)
+		if err != nil {
+			return err
+		}
+		if findings2.Total == 0 {
+			return nil
+		}
+
+		findings = MergeFindings(findings, findings2)
+
+		return nil
 	})
 	var result core.NamespaceStatusCounts
 	g.Go(func() error {
@@ -425,7 +441,7 @@ func (s *Service) ResourceDetails(ctx context.Context, cluster, id string, query
 func (s *Service) ClustersDashboard(ctx context.Context, o DashboardOptions, query url.Values) (*Dashboard, error) {
 	g := &errgroup.Group{}
 
-	combinedFilter, _, _ := BuildFilters(query)
+	combinedFilter, namespaceFilter, clusterFilter := BuildFilters(query)
 	combinedFilter.Set("namespaced", strconv.FormatBool(!o.ClusterScope))
 
 	clusterResults := make(map[string]ClusterFinding, 0)
@@ -444,9 +460,19 @@ func (s *Service) ClustersDashboard(ctx context.Context, o DashboardOptions, que
 	sourceMap := make(map[string]bool, 0)
 	for cluster, endpoint := range s.endpoints {
 		g.Go(func() error {
-			findings, err := endpoint.Core.GetFindings(ctx, combinedFilter)
+			findings, err := endpoint.Core.GetFindings(ctx, namespaceFilter)
 			if err != nil {
 				return err
+			}
+
+			if o.ClusterScope {
+				findings2, err := endpoint.Core.GetFindings(ctx, clusterFilter)
+				if err != nil {
+					return err
+				}
+				if findings.Total != 0 {
+					findings = MergeFindings(findings, findings2)
+				}
 			}
 
 			mx.Lock()

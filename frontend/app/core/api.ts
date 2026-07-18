@@ -49,140 +49,108 @@ export class CoreAPI {
     return exec<LayoutConfig>(`/api/config/${this.cluster}/layout`, { baseURL: this.baseURL })
   }
 
-  dashboard (filter?: Filter) {
-    return exec<Dashboard>(`/api/config/${this.cluster}/dashboard`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
-  }
-
-  customBoard (id: string, filter?: Filter) {
-    return exec<Dashboard>(`/api/config/${this.cluster}/custom-board/${id}`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
-  }
-
-  resource (id: string, filter?: Filter) {
-    return exec<ResourceDetails>(`/api/config/${this.cluster}/resource/${id}`, { baseURL: this.baseURL, params: filter })
-  }
-
-  createException (id: string, source: string, policies?: ExceptionPolicy[], category?: string) {
-    return exec<ExceptionResponse>(`/api/config/${this.cluster}/resource/${id}/exception`, { baseURL: this.baseURL, method: "POST", body: { policies, source, category } })
-  }
-
-  policySources (filter?: Filter) {
-    return exec<{ filter: PolicyFilter; sources: SourceDetails[] }>(`/api/config/${this.cluster}/policy-sources`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
-  }
-
-  policyDetails (source: string, policy: string, namespace?: string, status?: Status[], kinds?: string[] ) {
-    return exec<PolicyDetails>(`/api/config/${this.cluster}/${source}/policy/details`, { baseURL: this.baseURL, params: applyExcludes({ policies: [policy], namespace, status, kinds }, [...this.nsExcludes, ...this.clusterExcludes], source) })
-  }
-
-  policyHTMLReport (source: string, filter: { namespaces: string[]; categories: string[]; kinds: string[]; clusterScope: boolean; status: Status[]; }) {
-    return exec<BlobPart>(`/api/config/${this.cluster}/${source}/policy-report`, { baseURL: this.baseURL, params: filter, responseType: 'blob' })
-  }
-
-  namespaceHTMLReport (source: string, filter: { namespaces: string[]; categories: string[]; kinds: string[]; status: Status[]; }) {
-    return exec<BlobPart>(`/api/config/${this.cluster}/${source}/namespace-report`, { baseURL: this.baseURL, params: filter, responseType: 'blob' })
-  }
-
-  policies (source: string, filter?: Filter) {
-    return exec<{ [category: string]: PolicyResult[] }>(`/api/config/${this.cluster}/${source}/policies`, { baseURL: this.baseURL, params: applyExcludes(filter, this.nsExcludes)})
-  }
-
   config () {
     return exec<Config>('/api/config', { baseURL: this.baseURL })
   }
 
+  dashboard (filter?: Filter) {
+    return exec<Dashboard>(`/api/${this.cluster}/dashboard`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
+  }
+
+  customBoard (id: string, filter?: Filter) {
+    return exec<Dashboard>(`/api/${this.cluster}/custom-board/${id}`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
+  }
+
+  resource (id: string, filter?: Filter) {
+    return exec<ResourceDetails>(`/api/${this.cluster}/resource/${id}`, { baseURL: this.baseURL, params: filter })
+  }
+
+  createException (id: string, source: string, policies?: ExceptionPolicy[], category?: string) {
+    return exec<ExceptionResponse>(`/api/${this.cluster}/resource/${id}/exception`, { baseURL: this.baseURL, method: "POST", body: { policies, source, category } })
+  }
+
+  policySources (filter?: Filter) {
+    return exec<{ filter: PolicyFilter; sources: SourceDetails[] }>(`/api/${this.cluster}/policy-sources`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
+  }
+
+  policyDetails (source: string, policy: string, namespace?: string, status?: Status[], kinds?: string[] ) {
+    return exec<PolicyDetails>(`/api/${this.cluster}/${source}/policy/details`, { baseURL: this.baseURL, params: applyExcludes({ policies: [policy], namespace, status, kinds }, [...this.nsExcludes, ...this.clusterExcludes], source) })
+  }
+
+  policyHTMLReport (source: string, filter: { namespaces: string[]; categories: string[]; kinds: string[]; clusterScope: boolean; status: Status[]; }) {
+    return exec<BlobPart>(`/api/${this.cluster}/${source}/policy-report`, { baseURL: this.baseURL, params: filter, responseType: 'blob' })
+  }
+
+  namespaceHTMLReport (source: string, filter: { namespaces: string[]; categories: string[]; kinds: string[]; status: Status[]; }) {
+    return exec<BlobPart>(`/api/${this.cluster}/${source}/namespace-report`, { baseURL: this.baseURL, params: filter, responseType: 'blob' })
+  }
+
+  policies (source: string, filter?: Filter) {
+    return exec<{ [category: string]: PolicyResult[] }>(`/api/${this.cluster}/${source}/policies`, { baseURL: this.baseURL, params: applyExcludes(filter, this.nsExcludes)})
+  }
+
   targets () {
-    return exec<{ [type: string]: Target[] }>(`/proxy/${this.cluster}/core/v2/targets`, { baseURL: this.baseURL })
+    return exec<{ [type: string]: Target[] }>(`/api/${this.cluster}/targets`, { baseURL: this.baseURL })
   }
 
   namespaces (filter?: Filter) {
-    return exec<string[]>(`/api/config/${this.cluster}/namespaces`, { baseURL: this.baseURL, params: { ...filter } })
+    return exec<string[]>(`/api/${this.cluster}/namespaces`, { baseURL: this.baseURL, params: { ...filter } })
   }
 
   namespace (filter?: Filter) {
-    return exec<Dashboard>(`/api/config/${this.cluster}/namespace`, { baseURL: this.baseURL, params: { ...filter } })
-  }
-
-  namespacedKinds (sources?: string[]) {
-    return exec<string[]>('/proxy/'+this.cluster+'/core/v1/namespaced-resources/kinds', { baseURL: this.baseURL, params: { sources } })
-  }
-
-  namespacedStatusCount (source: string, filter?: Filter) {
-    return exec<NamespaceStatusCount>(`/proxy/${this.cluster}/core/v2/namespace-scoped/${source}/status-counts`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes) } })
+    return exec<Dashboard>(`/api/${this.cluster}/namespace`, { baseURL: this.baseURL, params: { ...filter } })
   }
 
   namespacedResults (filter?: Filter, pagination?: Pagination) {
-    return exec<ResultList>('/proxy/'+this.cluster+'/core/v1/namespaced-resources/results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
-  }
-
-  statusCount (source: string, filter?: Filter) {
-    return exec<{ [status in Status]: number }>(`/proxy/${this.cluster}/core/v2/namespace-scoped/${source}/status-counts`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.clusterExcludes) } })
-  }
-
-  clusterKinds (sources?: string[]) {
-    return exec<string[]>('/proxy/'+this.cluster+'/core/v1/cluster-resources/kinds', { baseURL: this.baseURL, params: { sources } })
+    return exec<ResultList>('/api/'+this.cluster+'/namespace-scoped/results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   clusterResults (filter?: Filter, pagination?: Pagination) {
-    return exec<ResultList>('/proxy/'+this.cluster+'/core/v1/cluster-resources/results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
-  }
-
-  resultsWithoutResources (filter?: Filter, pagination?: Pagination) {
-    return exec<ResultList>('/proxy/'+this.cluster+'/core/v2/results-without-resources', { baseURL: this.baseURL, params: { ...filter, ...pagination } })
-  }
-
-  countFindings (filter?: Filter) {
-    return exec<FindingCounts>('/proxy/'+this.cluster+'/core/v2/findings', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes) } })
+    return exec<ResultList>('/api/'+this.cluster+'/cluster-scoped/results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   namespacedResourceResults (filter?: Filter, pagination?: Pagination) {
-    return exec<ResourceResultList>('/proxy/'+this.cluster+'/core/v2/namespace-scoped/resource-results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
+    return exec<ResourceResultList>('/api/'+this.cluster+'/namespace-scoped/resource-results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   clusterResourceResults (filter?: Filter, pagination?: Pagination) {
-    return exec<ResourceResultList>('/proxy/'+this.cluster+'/core/v2/cluster-scoped/resource-results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.clusterExcludes), ...pagination } })
+    return exec<ResourceResultList>('/api/'+this.cluster+'/cluster-scoped/resource-results', { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.clusterExcludes), ...pagination } })
   }
 
   resourceResults (id: string, filter?: Filter) {
-    return exec<ResourceResult[]>(`/proxy/${this.cluster}/core/v2/resource/${id}/resource-results`, { baseURL: this.baseURL, params: filter })
-  }
-
-  resourceStatusCount (id: string, filter?: Filter) {
-    return exec<ResourceStatusCount[]>(`/proxy/${this.cluster}/core/v2/resource/${id}/status-counts`, { baseURL: this.baseURL, params: filter })
+    return exec<ResourceResult[]>(`/api/${this.cluster}/resource/${id}/resource-results`, { baseURL: this.baseURL, params: filter })
   }
 
   results (id: string, pagination?: Pagination, filter?: Filter) {
-    return exec<ResultList>(`/proxy/${this.cluster}/core/v2/resource/${id}/results`, { baseURL: this.baseURL, params: { ...pagination, ...filter } })
+    return exec<ResultList>(`/api/${this.cluster}/resource/${id}/results`, { baseURL: this.baseURL, params: { ...pagination, ...filter } })
   }
 
-  sources (filter?: Filter) {
-    return exec<string[]>('/proxy/'+this.cluster+'/core/v2/sources', { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
-  }
-
-  categoryTree (id?: string, filter?: Filter) {
-    return exec<Source[]>('/proxy/'+this.cluster+'/core/v2/sources/categories', { baseURL: this.baseURL, params: { id, ...applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) } })
+  resultsWithoutResources (filter?: Filter, pagination?: Pagination) {
+    return exec<ResultList>('/api/'+this.cluster+'/results-without-resource', { baseURL: this.baseURL, params: { ...filter, ...pagination } })
   }
 
   clustersDashboard (filter?: Filter) {
-    return exec<Dashboard>(`/api/config/clusters`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
+    return exec<Dashboard>(`/api/clusters`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 
   totalResults (cluster?: string, pagination?: Pagination, filter?: Filter) {
-    return exec<ResourceResultList>(`/proxy/${cluster ?? this.cluster}/core/v2/total-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]), ...pagination } })
+    return exec<ResourceResultList>(`/api/${cluster ?? this.cluster}/total-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]), ...pagination } })
   }
 
   customBoardResourceResults (id: string, filter?: Filter, pagination?: Pagination) {
-    return exec<ResourceResultList>(`/api/config/${this.cluster}/custom-board/${id}/resource-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
+    return exec<ResourceResultList>(`/api/${this.cluster}/custom-board/${id}/resource-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   customBoardResults (id: string, filter?: Filter, pagination?: Pagination) {
-    return exec<ResultList>(`/api/config/${this.cluster}/custom-board/${id}/results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
+    return exec<ResultList>(`/api/${this.cluster}/custom-board/${id}/results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   customBoardClusterResourceResults (id: string, filter?: Filter, pagination?: Pagination) {
-    return exec<ResourceResultList>(`/api/config/${this.cluster}/custom-board/${id}/cluster-resource-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
+    return exec<ResourceResultList>(`/api/${this.cluster}/custom-board/${id}/cluster-resource-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   customBoardClusterResults (id: string, filter?: Filter, pagination?: Pagination) {
-    return exec<ResultList>(`/api/config/${this.cluster}/custom-board/${id}/cluster-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
+    return exec<ResultList>(`/api/${this.cluster}/custom-board/${id}/cluster-results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   setPrefix (prefix: string): void {
