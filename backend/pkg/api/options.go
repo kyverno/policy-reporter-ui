@@ -56,3 +56,11 @@ func WithLogging() ClientOption {
 		return nil
 	}
 }
+
+func WithHTTP2() ClientOption {
+	return func(client *Client) error {
+		client.http.Transport.(*http.Transport).ForceAttemptHTTP2 = true
+
+		return nil
+	}
+}

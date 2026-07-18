@@ -45,7 +45,9 @@ func (r *Resolver) CoreClient(cluster Cluster) (*core.Client, error) {
 	options := []api.ClientOption{
 		api.WithBaseURL(cluster.Host),
 	}
-
+	if cluster.HTTP2 {
+		options = append(options, api.WithHTTP2())
+	}
 	if cluster.Certificate != "" {
 		options = append(options, api.WithCertificate(cluster.Certificate))
 	} else if cluster.SkipTLS {
