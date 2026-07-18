@@ -67,25 +67,43 @@ func (s *Server) RegisterAPI(c *api.Config, customBoards *customboard.Collection
 
 	s.engine.GET("healthz", handler.Healthz)
 	s.api.GET("config", handler.Config)
-	s.api.GET("custom-board/list", handler.ListCustomBoards)
-	s.api.GET("config/:cluster/custom-board/:id", handler.GetCustomBoard)
-	s.api.GET("config/:cluster/custom-board/:id/cluster-resource-results", handler.GetCustomBoardClusterResourceResults)
-	s.api.GET("config/:cluster/custom-board/:id/resource-results", handler.GetCustomBoardResourceResults)
-	s.api.GET("config/:cluster/custom-board/:id/cluster-results", handler.GetCustomBoardClusterResults)
-	s.api.GET("config/:cluster/custom-board/:id/results", handler.GetCustomBoardResults)
-	s.api.GET("config/:cluster/resource/:id", handler.GetResourceDetails)
-	s.api.POST("config/:cluster/resource/:id/exception", handler.CreateException)
-	s.api.GET("config/:cluster/policy-sources", handler.ListPolicySources)
-	s.api.GET("config/:cluster/namespaces", handler.ListNamespaces)
-	s.api.GET("config/:cluster/namespace", handler.Namespace)
-	s.api.GET("config/:cluster/:source/policy/details", handler.GetPolicyDetails)
-	s.api.GET("config/:cluster/:source/policies", handler.Policies)
-	s.api.GET("config/:cluster/:source/policy-report", handler.PolicyReport)
-	s.api.GET("config/:cluster/:source/namespace-report", handler.NamespaceReport)
+
+	cluster := s.api.Group(":cluster")
+
+	cluster.GET("targets", handler.ListTargets)
+	cluster.GET("total-results", handler.ListTotalResults)
+
+	cluster.GET("custom-board/:id", handler.GetCustomBoard)
+	cluster.GET("custom-board/:id/cluster-resource-results", handler.ListCustomBoardClusterResourceResults)
+	cluster.GET("custom-board/:id/resource-results", handler.ListCustomBoardResourceResults)
+	cluster.GET("custom-board/:id/cluster-results", handler.ListCustomBoardClusterScopedResults)
+	cluster.GET("custom-board/:id/results", handler.ListCustomBoardNamespaceScopedResults)
+
+	cluster.GET("resource/:id", handler.GetResourceDetails)
+	cluster.POST("resource/:id/exception", handler.CreateException)
+	cluster.GET("resource/:id/results", handler.ListResourceResults)
+	cluster.GET("resource/:id/resource-results", handler.ListResourceResourceResults)
+	cluster.GET("results-without-resource", handler.ListResultsWithoutResource)
+
+	ns := cluster.Group("namespace-scoped")
+	ns.GET("results", handler.ListNamespaceScopedResults)
+	ns.GET("resource-results", handler.ListNamespaceScopedResourceResults)
+
+	cs := cluster.Group("cluster-scoped")
+	cs.GET("results", handler.ListClusterScopedResults)
+	cs.GET("resource-results", handler.ListClusterScopedResourceResults)
+
+	cluster.GET("policy-sources", handler.ListPolicySources)
+	cluster.GET("namespaces", handler.ListNamespaces)
+	cluster.GET("namespace", handler.GetNamespace)
+	cluster.GET(":source/policy/details", handler.GetPolicyDetails)
+	cluster.GET(":source/policies", handler.ListPolicies)
+	cluster.GET(":source/policy-report", handler.GetPolicyReport)
+	cluster.GET(":source/namespace-report", handler.GetNamespaceReport)
+	cluster.GET("dashboard", handler.GetDashboard)
+	s.api.GET("clusters", handler.GetClustersDashboard)
 
 	s.api.GET("config/:cluster/layout", handler.Layout)
-	s.api.GET("config/:cluster/dashboard", handler.Dashboard)
-	s.api.GET("config/clusters", handler.ClustersDashboard)
 }
 
 func NewServer(engine *gin.Engine, port int, middleware []gin.HandlerFunc) *Server {

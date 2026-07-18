@@ -1,5 +1,5 @@
 <template>
-  <app-row class="mb-2">
+  <app-row class="mb-6">
     <v-card>
       <v-toolbar color="header">
         <v-toolbar-title>Namespace Scoped Resources</v-toolbar-title>
