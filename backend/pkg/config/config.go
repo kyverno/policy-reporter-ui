@@ -140,6 +140,7 @@ func (a Plugin) FromValues(values secrets.Values) Plugin {
 type Cluster struct {
 	Name          string        `koanf:"name"`
 	Host          string        `koanf:"host"`
+	HTTP2         bool          `koanf:"http2"`
 	Plugins       []Plugin      `koanf:"plugins"`
 	SkipTLS       bool          `koanf:"skipTLS"`
 	Certificate   string        `koanf:"certificate"`
