@@ -21,7 +21,7 @@
     "pinia": "^4.0.2",
     "vue": "^3.5.40",
     "vue-chartjs": "^5.3.4",
-    "vue-router": "^5.1.0"
+    "vue-router": "^5.2.0"
   },
   "devDependencies": {
     "@types/chroma-js": "^3.1.2",
