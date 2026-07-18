@@ -207,9 +207,11 @@ type Sessions struct {
 }
 
 type Server struct {
-	Port          int      `koanf:"port"`
-	CORS          bool     `koanf:"cors"`
-	Debug         bool     `koanf:"debug"`
+	Port  int  `koanf:"port"`
+	CORS  bool `koanf:"cors"`
+	Debug bool `koanf:"debug"`
+	// OverwriteHost is deprecated and will be removed in future versions
+	// The Proxy API was replaced with internal API routes
 	OverwriteHost bool     `koanf:"overwriteHost"`
 	Sessions      Sessions `koanf:"sessions"`
 }

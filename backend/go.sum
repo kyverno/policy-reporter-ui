@@ -25,8 +25,8 @@ github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.1 h1:5RVFMOWjMyRy8cARdy79nAmgYw3h
 github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.1/go.mod h1:ZXNYxsqcloTdSy/rNShjYzMhyjf0LaoftYK0p+A3h40=
 github.com/emicklei/go-restful/v3 v3.13.0 h1:C4Bl2xDndpU6nJ4bc1jXd+uTmYPVUwkD6bFY/oTyCes=
 github.com/emicklei/go-restful/v3 v3.13.0/go.mod h1:6n3XBCmQQb25CM2LCACGz8ukIrRry+4bhvbpWn3mrbc=
-github.com/fjogeleit/goth v1.82.0 h1:hgE5Y8Q7i9ywgxNRiL2JwJUKN9IMe99bzOW7TcjEsQ8=
-github.com/fjogeleit/goth v1.82.0/go.mod h1:FNz3T5lydfi+ls1O3adXgN9Xmn4sn/SZE4t+Sswl+Uc=
+github.com/fjogeleit/goth v1.83.0 h1:peJgZCdf3vqHE5IzKkBQXd4QK20kIYHBpFNNxnErF3w=
+github.com/fjogeleit/goth v1.83.0/go.mod h1:HzAbdnKIhyj+w/gr7Qc1vhEkJRzwdWm5RUqKww7cP5k=
 github.com/fsnotify/fsnotify v1.10.1 h1:b0/UzAf9yR5rhf3RPm9gf3ehBPpf0oZKIjtpKrx59Ho=
 github.com/fsnotify/fsnotify v1.10.1/go.mod h1:TLheqan6HD6GBK6PrDWyDPBaEV8LspOxvPSjC+bVfgo=
 github.com/fxamacker/cbor/v2 v2.9.2 h1:X4Ksno9+x3cz0TZv69ec1hxP/+tymuR8PXQJyDwfh78=
