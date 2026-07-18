@@ -9,6 +9,7 @@
         "@mdi/font": "^7.4.47",
         "@pinia/nuxt": "^1.0.1",
         "@vueuse/nuxt": "^14.3.0",
+        "chart.js": "^4.5.1",
         "chroma-js": "^3.2.0",
         "highlight.js": "^11.11.1",
         "lodash.debounce": "^4.0.8",
@@ -1588,8 +1589,6 @@
     "nuxt/vue/@vue/server-renderer": ["@vue/server-renderer@3.5.39", "", { "dependencies": { "@vue/compiler-ssr": "3.5.39", "@vue/shared": "3.5.39" }, "peerDependencies": { "vue": "3.5.39" } }, "sha512-yZSakiAGw85rZfG7UM8akMnIF+FmeiNk47uvHf2nVBBSe+dIKUhZuZq9+XgJhbV3nS5Z4ALH23/MpXofW+mbcw=="],
 
     "nuxt/vue-router/@vue-macros/common": ["@vue-macros/common@3.1.2", "", { "dependencies": { "@vue/compiler-sfc": "^3.5.22", "ast-kit": "^2.1.2", "local-pkg": "^1.1.2", "magic-string-ast": "^1.0.2", "unplugin-utils": "^0.3.0" }, "peerDependencies": { "vue": "^2.7.0 || ^3.2.25" }, "optionalPeers": ["vue"] }, "sha512-h9t4ArDdniO9ekYHAD95t9AZcAbb19lEGK+26iAjUODOIJKmObDNBSe4+6ELQAA3vtYiFPPBtHh7+cQCKi3Dng=="],
-
-    "nuxt/vue-router/@vue/devtools-api": ["@vue/devtools-api@8.1.5", "", { "dependencies": { "@vue/devtools-kit": "^8.1.5" } }, "sha512-YJipMVAKe5wT5CWf5kTYCaNV7NMNjFVxJkIkJaJ4W/nCxEBzlZzrOsYKeCymdCrFZmBS/+wTWFoUs3Jf/Q6XSQ=="],
 
     "readdir-glob/minimatch/brace-expansion": ["brace-expansion@2.1.2", "", { "dependencies": { "balanced-match": "^1.0.0" } }, "sha512-w5JZcKgdhDOgOwm8H+KgbosopHMuGcl6qbulwjtz3SM7I7P3yW1eAjzMPLrIE+NQ9vjgANKHWeMHnrT0OXW1oA=="],
 
