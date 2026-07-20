@@ -12,10 +12,15 @@ export const useDashboardType = (data: Ref<Dashboard | null>) => {
 
 export const useDashboardHelper = (data: Ref<Dashboard | undefined>) => {
     const { mode, isCompact } = useMode(data)
+    const { allowedViews, canSwitchResultView, setResultView, view } = useResultView(data)
 
-    const showResults = computed<boolean>(() => data.value?.renderOptions.resultView === 'results')
+    const showResults = computed<boolean>(() => view.value === 'results')
     const dataType = computed<ViewType>(() => data.value?.renderOptions.dataType || 'status')
     const isSeverity = computed<boolean>(() => data.value?.renderOptions.dataType === 'severity')
+
+
+    return { allowedViews, canSwitchResultView, setResultView, showResults, isSeverity, dataType, mode, isCompact, view }
+}
 
     return { showResults, isSeverity, dataType, mode, isCompact }
 }
@@ -29,3 +34,4 @@ export const useDashboardProvider = (data: Ref<Dashboard | null>) => {
     useNamespacesProvider(data)
     useCategoriesProvider(data)
 }
+

@@ -53,21 +53,41 @@ type RenderOptions struct {
 }
 
 type CustomBoard struct {
-	ID            string
-	Name          string               `koanf:"name"`
-	AccessControl AccessControl        `koanf:"accessControl"`
-	Namespaces    NamespaceSelector    `koanf:"namespaces"`
-	Sources       SourceSelector       `koanf:"sources"`
-	Filter        FilterList           `koanf:"filter"`
-	PolicyReports PolicyReportSelector `koanf:"policyReports"`
-	Display       string               `koanf:"display"`
-	RenderOptions RenderOptions        `koanf:"renderOptions"`
-	ClusterScope  ClusterScope         `koanf:"clusterScope"`
+	ID              string
+	Name            string               `koanf:"name"`
+	AccessControl   AccessControl        `koanf:"accessControl"`
+	Namespaces      NamespaceSelector    `koanf:"namespaces"`
+	Sources         SourceSelector       `koanf:"sources"`
+	Filter          FilterList           `koanf:"filter"`
+	PolicyReports   PolicyReportSelector `koanf:"policyReports"`
+	Display         string               `koanf:"display"`
+	AllowedDisplays []string             `koanf:"allowedDisplays"`
+	RenderOptions   RenderOptions        `koanf:"renderOptions"`
+	ClusterScope    ClusterScope         `koanf:"clusterScope"`
+}
+
+func (c *CustomBoard) AllowedResultViews() []string {
+	if len(c.AllowedDisplays) > 0 {
+		return c.AllowedDisplays
+	}
+
+	if c.Display != "" {
+		return []string{c.Display}
+	}
+	if c.RenderOptions.ResultView != "" {
+		return []string{c.RenderOptions.ResultView}
+	}
+
+	return []string{"resources"}
 }
 
 func (c *CustomBoard) ResultView() string {
-	if c.RenderOptions.ResultView != "" {
-		return c.RenderOptions.ResultView
+	views := c.AllowedResultViews()
+	for _, view := range views {
+		if view == c.Display {
+			return c.Display
+		}
 	}
-	return c.Display
+
+	return views[0]
 }
