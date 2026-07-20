@@ -18,7 +18,7 @@
     "chroma-js": "^3.2.0",
     "highlight.js": "^11.11.1",
     "lodash.debounce": "^4.0.8",
-    "nuxt": "^4.4.8",
+    "nuxt": "^4.5.0",
     "pinia": "^4.0.2",
     "vue": "^3.5.40",
     "vue-chartjs": "^5.3.4",
