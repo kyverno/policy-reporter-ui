@@ -78,8 +78,10 @@ type CustomBoard struct {
 }
 
 type RenderOptions struct {
-	DashboardMode string `json:"dashboardMode"`
-	ResultView    string `json:"resultView"`
+	DashboardMode      string   `json:"dashboardMode"`
+	ResultView         string   `json:"resultView"`
+	AllowedResultViews []string `json:"allowedResultViews"`
+	DefaultResultView  string   `json:"defaultResultView"`
 }
 
 type Boards struct {

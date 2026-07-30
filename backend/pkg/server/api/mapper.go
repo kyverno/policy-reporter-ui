@@ -227,8 +227,10 @@ func MapCustomBoard(c *customboard.CustomBoard) CustomBoard {
 		Name: c.Name,
 		ID:   c.ID,
 		RenderOptions: RenderOptions{
-			DashboardMode: utils.Fallback(c.RenderOptions.DashboardMode, c.Display),
-			ResultView:    c.RenderOptions.ResultView,
+			DashboardMode:      utils.Fallback(c.RenderOptions.DashboardMode, c.Display),
+			ResultView:         c.ResultView(),
+			AllowedResultViews: c.AllowedResultViews(),
+			DefaultResultView:  c.ResultView(),
 		},
 		Filter: MapFilter(c.Filter.Include),
 		Namespaces: Namespaces{

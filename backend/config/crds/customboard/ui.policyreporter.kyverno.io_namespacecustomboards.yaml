@@ -71,6 +71,17 @@ spec:
                       type: string
                     type: array
                 type: object
+              allowedDisplays:
+                description: Allowed result views a user may select. When omitted,
+                  display remains the only available view for backwards compatibility.
+                items:
+                  enum:
+                  - resources
+                  - results
+                  type: string
+                minItems: 1
+                type: array
+                uniqueItems: true
               display:
                 description: Allowed values are "resources" or "results".
                 type: string

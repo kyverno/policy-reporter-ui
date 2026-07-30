@@ -46,10 +46,19 @@ type CustomBoardSpec struct {
 	// +optional
 	AccessControl *AccessControl `json:"accessControl,omitempty"`
 
-	// Allowed values are "resources" or "results".
+	// Display defines the preferred default result view.
 	// NOTE: "Name" is being deprecated in favor of "renderOptions.resultView".
+	// +kubebuilder:validation:Enum=resources;results
 	// +optional
 	Display ResultView `json:"display,omitempty"`
+
+	// AllowedDisplays defines the result views a user may select. When omitted,
+	// Display remains the only available view for backwards compatibility.
+	// +kubebuilder:validation:items:Enum=resources;results
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:UniqueItems=true
+	// +optional
+	AllowedDisplays []ResultView `json:"allowedDisplays,omitempty"`
 
 	// NamespaceSelector allows to select visualized namespaces
 	// +required

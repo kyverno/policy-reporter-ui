@@ -135,6 +135,11 @@ func (in *CustomBoardSpec) DeepCopyInto(out *CustomBoardSpec) {
 		*out = new(AccessControl)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.AllowedDisplays != nil {
+		in, out := &in.AllowedDisplays, &out.AllowedDisplays
+		*out = make([]ResultView, len(*in))
+		copy(*out, *in)
+	}
 	in.NamespaceSelector.DeepCopyInto(&out.NamespaceSelector)
 	out.RenderOptions = in.RenderOptions
 	if in.SourceSelector != nil {
@@ -257,6 +262,11 @@ func (in *NamespaceCustomBoardSpec) DeepCopyInto(out *NamespaceCustomBoardSpec) 
 		in, out := &in.AccessControl, &out.AccessControl
 		*out = new(AccessControl)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.AllowedDisplays != nil {
+		in, out := &in.AllowedDisplays, &out.AllowedDisplays
+		*out = make([]ResultView, len(*in))
+		copy(*out, *in)
 	}
 	if in.SourceSelector != nil {
 		in, out := &in.SourceSelector, &out.SourceSelector

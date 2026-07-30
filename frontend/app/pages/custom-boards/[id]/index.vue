@@ -8,6 +8,11 @@
                :ns-scoped="!data.clusterScope"
                :store="id"
   >
+    <template #append>
+      <v-btn-toggle v-if="canSwitchResultView" :model-value="view" color="primary" mandatory density="compact" @update:model-value="setResultView">
+        <v-btn v-for="item in allowedViews" :key="item" :value="item">{{ capilize(item) }}</v-btn>
+      </v-btn-toggle>
+    </template>
     <template v-if="data.namespaces.length">
       <template v-if="isCompact">
         <LazyGraphSourceCard
@@ -59,7 +64,7 @@ const { kinds, clusterKinds, filter } = useFilter()
 const id = computed(() => route.params.id as string)
 
 const { data, refresh, error } = useAPI((api) => api.customBoard(id.value, filter.value))
-const { showResults, dataType, mode, isCompact } = useDashboardHelper(data)
+const { allowedViews, canSwitchResultView, setResultView, showResults, dataType, mode, isCompact, view } = useDashboardHelper(data)
 
 const source = computed(() => data.value.singleSource ? data.value.sources[0] : undefined)
 
