@@ -13,7 +13,7 @@
     "@highlightjs/vue-plugin": "^2.1.0",
     "@mdi/font": "^7.4.47",
     "@pinia/nuxt": "^1.0.1",
-    "@vueuse/nuxt": "^14.3.0",
+    "@vueuse/nuxt": "^14.4.0",
     "chart.js": "^4.5.1",
     "chroma-js": "^3.2.0",
     "highlight.js": "^11.11.1",
