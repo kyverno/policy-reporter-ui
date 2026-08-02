@@ -21,13 +21,12 @@ package v1alpha1
 import (
 	context "context"
 
+	uiv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
+	scheme "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	gentype "k8s.io/client-go/gentype"
-
-	customboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
-	scheme "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned/scheme"
 )
 
 // CustomBoardsGetter has a method to return a CustomBoardInterface.
@@ -38,32 +37,32 @@ type CustomBoardsGetter interface {
 
 // CustomBoardInterface has methods to work with CustomBoard resources.
 type CustomBoardInterface interface {
-	Create(ctx context.Context, customBoard *customboardv1alpha1.CustomBoard, opts v1.CreateOptions) (*customboardv1alpha1.CustomBoard, error)
-	Update(ctx context.Context, customBoard *customboardv1alpha1.CustomBoard, opts v1.UpdateOptions) (*customboardv1alpha1.CustomBoard, error)
+	Create(ctx context.Context, customBoard *uiv1alpha1.CustomBoard, opts v1.CreateOptions) (*uiv1alpha1.CustomBoard, error)
+	Update(ctx context.Context, customBoard *uiv1alpha1.CustomBoard, opts v1.UpdateOptions) (*uiv1alpha1.CustomBoard, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
-	Get(ctx context.Context, name string, opts v1.GetOptions) (*customboardv1alpha1.CustomBoard, error)
-	List(ctx context.Context, opts v1.ListOptions) (*customboardv1alpha1.CustomBoardList, error)
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*uiv1alpha1.CustomBoard, error)
+	List(ctx context.Context, opts v1.ListOptions) (*uiv1alpha1.CustomBoardList, error)
 	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *customboardv1alpha1.CustomBoard, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *uiv1alpha1.CustomBoard, err error)
 	CustomBoardExpansion
 }
 
 // customBoards implements CustomBoardInterface
 type customBoards struct {
-	*gentype.ClientWithList[*customboardv1alpha1.CustomBoard, *customboardv1alpha1.CustomBoardList]
+	*gentype.ClientWithList[*uiv1alpha1.CustomBoard, *uiv1alpha1.CustomBoardList]
 }
 
 // newCustomBoards returns a CustomBoards
 func newCustomBoards(c *UiV1alpha1Client) *customBoards {
 	return &customBoards{
-		gentype.NewClientWithList[*customboardv1alpha1.CustomBoard, *customboardv1alpha1.CustomBoardList](
+		gentype.NewClientWithList[*uiv1alpha1.CustomBoard, *uiv1alpha1.CustomBoardList](
 			"customboards",
 			c.RESTClient(),
 			scheme.ParameterCodec,
 			"",
-			func() *customboardv1alpha1.CustomBoard { return &customboardv1alpha1.CustomBoard{} },
-			func() *customboardv1alpha1.CustomBoardList { return &customboardv1alpha1.CustomBoardList{} },
+			func() *uiv1alpha1.CustomBoard { return &uiv1alpha1.CustomBoard{} },
+			func() *uiv1alpha1.CustomBoardList { return &uiv1alpha1.CustomBoardList{} },
 		),
 	}
 }

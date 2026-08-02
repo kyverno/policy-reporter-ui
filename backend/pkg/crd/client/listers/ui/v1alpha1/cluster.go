@@ -19,31 +19,30 @@ limitations under the License.
 package v1alpha1
 
 import (
+	uiv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	listers "k8s.io/client-go/listers"
 	cache "k8s.io/client-go/tools/cache"
-
-	customboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
 )
 
-// CustomBoardLister helps list CustomBoards.
+// ClusterLister helps list Clusters.
 // All objects returned here must be treated as read-only.
-type CustomBoardLister interface {
-	// List lists all CustomBoards in the indexer.
+type ClusterLister interface {
+	// List lists all Clusters in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*customboardv1alpha1.CustomBoard, err error)
-	// Get retrieves the CustomBoard from the index for a given name.
+	List(selector labels.Selector) (ret []*uiv1alpha1.Cluster, err error)
+	// Get retrieves the Cluster from the index for a given name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*customboardv1alpha1.CustomBoard, error)
-	CustomBoardListerExpansion
+	Get(name string) (*uiv1alpha1.Cluster, error)
+	ClusterListerExpansion
 }
 
-// customBoardLister implements the CustomBoardLister interface.
-type customBoardLister struct {
-	listers.ResourceIndexer[*customboardv1alpha1.CustomBoard]
+// clusterLister implements the ClusterLister interface.
+type clusterLister struct {
+	listers.ResourceIndexer[*uiv1alpha1.Cluster]
 }
 
-// NewCustomBoardLister returns a new CustomBoardLister.
-func NewCustomBoardLister(indexer cache.Indexer) CustomBoardLister {
-	return &customBoardLister{listers.New[*customboardv1alpha1.CustomBoard](indexer, customboardv1alpha1.Resource("customboard"))}
+// NewClusterLister returns a new ClusterLister.
+func NewClusterLister(indexer cache.Indexer) ClusterLister {
+	return &clusterLister{listers.New[*uiv1alpha1.Cluster](indexer, uiv1alpha1.Resource("cluster"))}
 }

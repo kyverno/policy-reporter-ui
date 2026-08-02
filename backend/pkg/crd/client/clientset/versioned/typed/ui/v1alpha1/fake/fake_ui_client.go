@@ -19,14 +19,17 @@ limitations under the License.
 package fake
 
 import (
+	v1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned/typed/ui/v1alpha1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
-
-	v1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned/typed/customboard/v1alpha1"
 )
 
 type FakeUiV1alpha1 struct {
 	*testing.Fake
+}
+
+func (c *FakeUiV1alpha1) Clusters() v1alpha1.ClusterInterface {
+	return newFakeClusters(c)
 }
 
 func (c *FakeUiV1alpha1) CustomBoards() v1alpha1.CustomBoardInterface {

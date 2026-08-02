@@ -19,11 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
+	uiv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	listers "k8s.io/client-go/listers"
 	cache "k8s.io/client-go/tools/cache"
-
-	customboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
 )
 
 // NamespaceCustomBoardLister helps list NamespaceCustomBoards.
@@ -31,7 +30,7 @@ import (
 type NamespaceCustomBoardLister interface {
 	// List lists all NamespaceCustomBoards in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*customboardv1alpha1.NamespaceCustomBoard, err error)
+	List(selector labels.Selector) (ret []*uiv1alpha1.NamespaceCustomBoard, err error)
 	// NamespaceCustomBoards returns an object that can list and get NamespaceCustomBoards.
 	NamespaceCustomBoards(namespace string) NamespaceCustomBoardNamespaceLister
 	NamespaceCustomBoardListerExpansion
@@ -39,17 +38,17 @@ type NamespaceCustomBoardLister interface {
 
 // namespaceCustomBoardLister implements the NamespaceCustomBoardLister interface.
 type namespaceCustomBoardLister struct {
-	listers.ResourceIndexer[*customboardv1alpha1.NamespaceCustomBoard]
+	listers.ResourceIndexer[*uiv1alpha1.NamespaceCustomBoard]
 }
 
 // NewNamespaceCustomBoardLister returns a new NamespaceCustomBoardLister.
 func NewNamespaceCustomBoardLister(indexer cache.Indexer) NamespaceCustomBoardLister {
-	return &namespaceCustomBoardLister{listers.New[*customboardv1alpha1.NamespaceCustomBoard](indexer, customboardv1alpha1.Resource("namespacecustomboard"))}
+	return &namespaceCustomBoardLister{listers.New[*uiv1alpha1.NamespaceCustomBoard](indexer, uiv1alpha1.Resource("namespacecustomboard"))}
 }
 
 // NamespaceCustomBoards returns an object that can list and get NamespaceCustomBoards.
 func (s *namespaceCustomBoardLister) NamespaceCustomBoards(namespace string) NamespaceCustomBoardNamespaceLister {
-	return namespaceCustomBoardNamespaceLister{listers.NewNamespaced[*customboardv1alpha1.NamespaceCustomBoard](s.ResourceIndexer, namespace)}
+	return namespaceCustomBoardNamespaceLister{listers.NewNamespaced[*uiv1alpha1.NamespaceCustomBoard](s.ResourceIndexer, namespace)}
 }
 
 // NamespaceCustomBoardNamespaceLister helps list and get NamespaceCustomBoards.
@@ -57,15 +56,15 @@ func (s *namespaceCustomBoardLister) NamespaceCustomBoards(namespace string) Nam
 type NamespaceCustomBoardNamespaceLister interface {
 	// List lists all NamespaceCustomBoards in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*customboardv1alpha1.NamespaceCustomBoard, err error)
+	List(selector labels.Selector) (ret []*uiv1alpha1.NamespaceCustomBoard, err error)
 	// Get retrieves the NamespaceCustomBoard from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*customboardv1alpha1.NamespaceCustomBoard, error)
+	Get(name string) (*uiv1alpha1.NamespaceCustomBoard, error)
 	NamespaceCustomBoardNamespaceListerExpansion
 }
 
 // namespaceCustomBoardNamespaceLister implements the NamespaceCustomBoardNamespaceLister
 // interface.
 type namespaceCustomBoardNamespaceLister struct {
-	listers.ResourceIndexer[*customboardv1alpha1.NamespaceCustomBoard]
+	listers.ResourceIndexer[*uiv1alpha1.NamespaceCustomBoard]
 }

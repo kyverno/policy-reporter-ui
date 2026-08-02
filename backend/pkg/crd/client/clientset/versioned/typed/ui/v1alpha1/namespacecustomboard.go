@@ -21,13 +21,12 @@ package v1alpha1
 import (
 	context "context"
 
+	uiv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
+	scheme "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	gentype "k8s.io/client-go/gentype"
-
-	customboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
-	scheme "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned/scheme"
 )
 
 // NamespaceCustomBoardsGetter has a method to return a NamespaceCustomBoardInterface.
@@ -38,34 +37,32 @@ type NamespaceCustomBoardsGetter interface {
 
 // NamespaceCustomBoardInterface has methods to work with NamespaceCustomBoard resources.
 type NamespaceCustomBoardInterface interface {
-	Create(ctx context.Context, namespaceCustomBoard *customboardv1alpha1.NamespaceCustomBoard, opts v1.CreateOptions) (*customboardv1alpha1.NamespaceCustomBoard, error)
-	Update(ctx context.Context, namespaceCustomBoard *customboardv1alpha1.NamespaceCustomBoard, opts v1.UpdateOptions) (*customboardv1alpha1.NamespaceCustomBoard, error)
+	Create(ctx context.Context, namespaceCustomBoard *uiv1alpha1.NamespaceCustomBoard, opts v1.CreateOptions) (*uiv1alpha1.NamespaceCustomBoard, error)
+	Update(ctx context.Context, namespaceCustomBoard *uiv1alpha1.NamespaceCustomBoard, opts v1.UpdateOptions) (*uiv1alpha1.NamespaceCustomBoard, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
-	Get(ctx context.Context, name string, opts v1.GetOptions) (*customboardv1alpha1.NamespaceCustomBoard, error)
-	List(ctx context.Context, opts v1.ListOptions) (*customboardv1alpha1.NamespaceCustomBoardList, error)
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*uiv1alpha1.NamespaceCustomBoard, error)
+	List(ctx context.Context, opts v1.ListOptions) (*uiv1alpha1.NamespaceCustomBoardList, error)
 	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *customboardv1alpha1.NamespaceCustomBoard, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *uiv1alpha1.NamespaceCustomBoard, err error)
 	NamespaceCustomBoardExpansion
 }
 
 // namespaceCustomBoards implements NamespaceCustomBoardInterface
 type namespaceCustomBoards struct {
-	*gentype.ClientWithList[*customboardv1alpha1.NamespaceCustomBoard, *customboardv1alpha1.NamespaceCustomBoardList]
+	*gentype.ClientWithList[*uiv1alpha1.NamespaceCustomBoard, *uiv1alpha1.NamespaceCustomBoardList]
 }
 
 // newNamespaceCustomBoards returns a NamespaceCustomBoards
 func newNamespaceCustomBoards(c *UiV1alpha1Client, namespace string) *namespaceCustomBoards {
 	return &namespaceCustomBoards{
-		gentype.NewClientWithList[*customboardv1alpha1.NamespaceCustomBoard, *customboardv1alpha1.NamespaceCustomBoardList](
+		gentype.NewClientWithList[*uiv1alpha1.NamespaceCustomBoard, *uiv1alpha1.NamespaceCustomBoardList](
 			"namespacecustomboards",
 			c.RESTClient(),
 			scheme.ParameterCodec,
 			namespace,
-			func() *customboardv1alpha1.NamespaceCustomBoard { return &customboardv1alpha1.NamespaceCustomBoard{} },
-			func() *customboardv1alpha1.NamespaceCustomBoardList {
-				return &customboardv1alpha1.NamespaceCustomBoardList{}
-			},
+			func() *uiv1alpha1.NamespaceCustomBoard { return &uiv1alpha1.NamespaceCustomBoard{} },
+			func() *uiv1alpha1.NamespaceCustomBoardList { return &uiv1alpha1.NamespaceCustomBoardList{} },
 		),
 	}
 }

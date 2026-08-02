@@ -21,11 +21,10 @@ package internalinterfaces
 import (
 	time "time"
 
+	versioned "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	cache "k8s.io/client-go/tools/cache"
-
-	versioned "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
 )
 
 // NewInformerFunc takes versioned.Interface and time.Duration to return a SharedIndexInformer.
@@ -35,7 +34,26 @@ type NewInformerFunc func(versioned.Interface, time.Duration) cache.SharedIndexI
 type SharedInformerFactory interface {
 	Start(stopCh <-chan struct{})
 	InformerFor(obj runtime.Object, newFunc NewInformerFunc) cache.SharedIndexInformer
+	InformerName() *cache.InformerName
 }
 
 // TweakListOptionsFunc is a function that transforms a v1.ListOptions.
 type TweakListOptionsFunc func(*v1.ListOptions)
+
+// InformerOptions holds the options for creating an informer.
+type InformerOptions struct {
+	// ResyncPeriod is the resync period for this informer.
+	// If not set, defaults to 0 (no resync).
+	ResyncPeriod time.Duration
+
+	// Indexers are the indexers for this informer.
+	Indexers cache.Indexers
+
+	// InformerName is used to uniquely identify this informer for metrics.
+	// If not set, metrics will not be published for this informer.
+	// Use cache.NewInformerName() to create an InformerName at startup.
+	InformerName *cache.InformerName
+
+	// TweakListOptions is an optional function to modify the list options.
+	TweakListOptions TweakListOptionsFunc
+}

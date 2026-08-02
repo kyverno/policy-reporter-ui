@@ -19,10 +19,9 @@ limitations under the License.
 package fake
 
 import (
+	v1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
+	uiv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned/typed/ui/v1alpha1"
 	gentype "k8s.io/client-go/gentype"
-
-	v1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
-	customboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned/typed/customboard/v1alpha1"
 )
 
 // fakeNamespaceCustomBoards implements NamespaceCustomBoardInterface
@@ -31,7 +30,7 @@ type fakeNamespaceCustomBoards struct {
 	Fake *FakeUiV1alpha1
 }
 
-func newFakeNamespaceCustomBoards(fake *FakeUiV1alpha1, namespace string) customboardv1alpha1.NamespaceCustomBoardInterface {
+func newFakeNamespaceCustomBoards(fake *FakeUiV1alpha1, namespace string) uiv1alpha1.NamespaceCustomBoardInterface {
 	return &fakeNamespaceCustomBoards{
 		gentype.NewFakeClientWithList[*v1alpha1.NamespaceCustomBoard, *v1alpha1.NamespaceCustomBoardList](
 			fake.Fake,

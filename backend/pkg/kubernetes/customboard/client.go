@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 	"k8s.io/client-go/tools/cache"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
+	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
 	ui "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
 	informer "github.com/kyverno/policy-reporter-ui/pkg/crd/client/informers/externalversions"
 	"github.com/kyverno/policy-reporter-ui/pkg/customboard"

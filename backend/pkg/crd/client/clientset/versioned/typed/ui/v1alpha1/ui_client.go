@@ -21,14 +21,14 @@ package v1alpha1
 import (
 	http "net/http"
 
-	rest "k8s.io/client-go/rest"
-
-	customboardv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
+	uiv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
 	scheme "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned/scheme"
+	rest "k8s.io/client-go/rest"
 )
 
 type UiV1alpha1Interface interface {
 	RESTClient() rest.Interface
+	ClustersGetter
 	CustomBoardsGetter
 	NamespaceCustomBoardsGetter
 }
@@ -36,6 +36,10 @@ type UiV1alpha1Interface interface {
 // UiV1alpha1Client is used to interact with features provided by the ui.policyreporter.kyverno.io group.
 type UiV1alpha1Client struct {
 	restClient rest.Interface
+}
+
+func (c *UiV1alpha1Client) Clusters() ClusterInterface {
+	return newClusters(c)
 }
 
 func (c *UiV1alpha1Client) CustomBoards() CustomBoardInterface {
@@ -87,7 +91,7 @@ func New(c rest.Interface) *UiV1alpha1Client {
 }
 
 func setConfigDefaults(config *rest.Config) {
-	gv := customboardv1alpha1.SchemeGroupVersion
+	gv := uiv1alpha1.SchemeGroupVersion
 	config.GroupVersion = &gv
 	config.APIPath = "/apis"
 	config.NegotiatedSerializer = rest.CodecFactoryForGeneratedClient(scheme.Scheme, scheme.Codecs).WithoutConversion()
