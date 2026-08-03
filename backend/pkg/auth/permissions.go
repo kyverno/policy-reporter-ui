@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/kyverno/policy-reporter-ui/pkg/cluster"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
@@ -20,6 +21,10 @@ type Permissions struct {
 }
 
 func (p Permissions) Allowed(profile *Profile) bool {
+	if profile == nil {
+		return true
+	}
+
 	if len(p.AccessControl.Emails) == 0 && len(p.AccessControl.Groups) == 0 {
 		return true
 	}
@@ -35,7 +40,16 @@ func (p Permissions) Allowed(profile *Profile) bool {
 	return false
 }
 
-func ClusterPermissions(permissions map[string]Permissions) gin.HandlerFunc {
+func NewPermissions(ac cluster.AccessControl) Permissions {
+	return Permissions{
+		AccessControl: AccessControl{
+			Emails: ac.Emails,
+			Groups: ac.Groups,
+		},
+	}
+}
+
+func ClusterPermissions(clusters *cluster.Collection) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		cluster := ctx.Param("cluster")
 		if cluster == "" && strings.HasPrefix(ctx.Request.URL.Path, "/proxy/") {
@@ -49,9 +63,11 @@ func ClusterPermissions(permissions map[string]Permissions) gin.HandlerFunc {
 		}
 
 		if profile := ProfileFrom(ctx); profile != nil {
-			if !permissions[cluster].Allowed(profile) {
-				ctx.AbortWithStatus(http.StatusUnauthorized)
-				return
+			if cl := clusters.Cluster(cluster); cl != nil {
+				if access := NewPermissions(cl.AccessControl).Allowed(profile); !access {
+					ctx.AbortWithStatus(http.StatusUnauthorized)
+					return
+				}
 			}
 		}
 

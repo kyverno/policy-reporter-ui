@@ -16,19 +16,20 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
+	"github.com/kyverno/policy-reporter-ui/pkg/cluster"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
 var ErrNoClient = errors.New("client for cluster not found")
 
 type Service struct {
-	endpoints map[string]*model.Endpoints
+	endpoints *cluster.Collection
 	configs   map[string]model.SourceConfig
 }
 
 func (s *Service) core(cluster string) (*core.Client, error) {
-	endpoints, ok := s.endpoints[cluster]
-	if !ok {
+	endpoints := s.endpoints.Cluster(cluster)
+	if endpoints == nil {
 		return nil, ErrNoClient
 	}
 
@@ -36,8 +37,8 @@ func (s *Service) core(cluster string) (*core.Client, error) {
 }
 
 func (s *Service) plugin(cluster, p string) (*plugin.Client, bool) {
-	endpoints, ok := s.endpoints[cluster]
-	if !ok {
+	endpoints := s.endpoints.Cluster(cluster)
+	if endpoints == nil {
 		return nil, false
 	}
 
@@ -458,7 +459,7 @@ func (s *Service) ClustersDashboard(ctx context.Context, o DashboardOptions, que
 
 	sx := &sync.Mutex{}
 	sourceMap := make(map[string]bool, 0)
-	for cluster, endpoint := range s.endpoints {
+	for cluster, endpoint := range s.endpoints.All() {
 		g.Go(func() error {
 			findings, err := endpoint.Core.GetFindings(ctx, namespaceFilter)
 			if err != nil {
@@ -1058,6 +1059,6 @@ func appendFilter(filter url.Values, key string, values []string) {
 	filter[key] = utils.Unique(append(filter[key], values...))
 }
 
-func New(clients map[string]*model.Endpoints, configs map[string]model.SourceConfig) *Service {
+func New(clients *cluster.Collection, configs map[string]model.SourceConfig) *Service {
 	return &Service{clients, configs}
 }

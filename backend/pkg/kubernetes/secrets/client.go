@@ -68,7 +68,7 @@ type k8sClient struct {
 	client v1.SecretInterface
 }
 
-func (c *k8sClient) Get(ctx context.Context, name string) (Values, error) {
+func (c *k8sClient) fetch(ctx context.Context, name string) (Values, error) {
 	secret, err := kubernetes.Retry(func() (*corev1.Secret, error) {
 		return c.client.Get(ctx, name, metav1.GetOptions{})
 	})
@@ -142,6 +142,26 @@ func (c *k8sClient) Get(ctx context.Context, name string) (Values, error) {
 		}
 
 		values.Plugins = append(values.Plugins, plugin)
+	}
+
+	return values, nil
+}
+
+func (c *k8sClient) Get(ctx context.Context, secretRef string) (Values, error) {
+	values, err := c.fetch(ctx, secretRef)
+	if err != nil {
+		return Values{}, err
+	}
+
+	zap.L().Debug("values loaded from secret", zap.String("secretRef", secretRef))
+
+	if values.SecretRef != "" {
+		nested, err := c.fetch(ctx, values.SecretRef)
+		if err != nil {
+			return Values{}, err
+		}
+		values = values.Merge(nested)
+		zap.L().Debug("values loaded from secret", zap.String("secretRef", values.SecretRef))
 	}
 
 	return values, nil

@@ -5,6 +5,7 @@ import (
 
 	"k8s.io/client-go/tools/clientcmd"
 
+	"github.com/kyverno/policy-reporter-ui/pkg/cluster"
 	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/logging"
@@ -107,84 +108,6 @@ func (a OAuth) BasePath() string {
 	return utils.BasePath(a.CallbackURL)
 }
 
-type Plugin struct {
-	Name        string    `koanf:"name"`
-	Host        string    `koanf:"host"`
-	SkipTLS     bool      `koanf:"skipTLS"`
-	Certificate string    `koanf:"certificate"`
-	SecretRef   string    `koanf:"secretRef"`
-	BasicAuth   BasicAuth `koanf:"basicAuth"`
-}
-
-func (a Plugin) FromValues(values secrets.Values) Plugin {
-	if values.Host != "" {
-		a.Host = values.Host
-	}
-	if values.Certificate != "" {
-		a.Certificate = values.Certificate
-	}
-	if values.SkipTLS {
-		a.SkipTLS = values.SkipTLS
-	}
-	if values.Username != "" {
-		a.BasicAuth.Username = values.Username
-	}
-	if values.Password != "" {
-		a.BasicAuth.Password = values.Password
-	}
-
-	return a
-}
-
-// Cluster configuration
-type Cluster struct {
-	Name          string        `koanf:"name"`
-	Host          string        `koanf:"host"`
-	HTTP2         bool          `koanf:"http2"`
-	Plugins       []Plugin      `koanf:"plugins"`
-	SkipTLS       bool          `koanf:"skipTLS"`
-	Certificate   string        `koanf:"certificate"`
-	SecretRef     string        `koanf:"secretRef"`
-	BasicAuth     BasicAuth     `koanf:"basicAuth"`
-	AccessControl AccessControl `koanf:"accessControl"`
-}
-
-func (a Cluster) FromValues(values secrets.Values) Cluster {
-	if values.Host != "" {
-		a.Host = values.Host
-	}
-	if values.Certificate != "" {
-		a.Certificate = values.Certificate
-	}
-	if values.SkipTLS {
-		a.SkipTLS = values.SkipTLS
-	}
-	if values.SecretRef != "" {
-		a.SecretRef = values.SecretRef
-	}
-	if values.Username != "" {
-		a.BasicAuth.Username = values.Username
-	}
-	if values.Password != "" {
-		a.BasicAuth.Password = values.Password
-	}
-
-	for _, p := range values.Plugins {
-		a.Plugins = append(a.Plugins, Plugin{
-			Host:        p.Host,
-			Name:        p.Name,
-			SkipTLS:     p.SkipTLS,
-			Certificate: p.Certificate,
-			BasicAuth: BasicAuth{
-				Username: p.Username,
-				Password: p.Password,
-			},
-		})
-	}
-
-	return a
-}
-
 type Logo struct {
 	Path     string `koanf:"path"`
 	Disabled bool   `koanf:"disabled"`
@@ -215,6 +138,10 @@ type Server struct {
 	// The Proxy API was replaced with internal API routes
 	OverwriteHost bool     `koanf:"overwriteHost"`
 	Sessions      Sessions `koanf:"sessions"`
+	Metrics       struct {
+		Enabled bool `koanf:"enabled"`
+		Port    int  `koanf:"port"`
+	} `koanf:"metrics"`
 }
 
 type Source struct {
@@ -248,6 +175,7 @@ type Boards struct {
 
 type CRDs struct {
 	CustomBoard bool `koanf:"customBoard"`
+	Cluster     bool `koanf:"cluster"`
 }
 
 type AutoMemoryLimit struct {
@@ -259,7 +187,7 @@ type AutoMemoryLimit struct {
 type Config struct {
 	KubeConfig      clientcmd.ConfigOverrides
 	Namespace       string                    `koanf:"namespace"`
-	Clusters        []Cluster                 `koanf:"clusters"`
+	Clusters        []cluster.Config          `koanf:"clusters"`
 	Sources         []Source                  `koanf:"sources"`
 	Server          Server                    `koanf:"server"`
 	UI              UI                        `koanf:"ui"`

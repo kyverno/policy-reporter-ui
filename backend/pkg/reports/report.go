@@ -11,18 +11,18 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
-	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
+	"github.com/kyverno/policy-reporter-ui/pkg/cluster"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
 type ReportGenerator struct {
-	endpoints map[string]*model.Endpoints
+	apis *cluster.Collection
 }
 
 func (g *ReportGenerator) core(cluster string) (*core.Client, bool) {
-	endpoints, ok := g.endpoints[cluster]
-	if !ok {
+	endpoints := g.apis.Cluster(cluster)
+	if endpoints == nil {
 		return nil, false
 	}
 
@@ -30,8 +30,8 @@ func (g *ReportGenerator) core(cluster string) (*core.Client, bool) {
 }
 
 func (g *ReportGenerator) plugin(cluster, p string) (*plugin.Client, bool) {
-	endpoints, ok := g.endpoints[cluster]
-	if !ok {
+	endpoints := g.apis.Cluster(cluster)
+	if endpoints == nil {
 		return nil, false
 	}
 
@@ -398,6 +398,6 @@ func (g *ReportGenerator) getPolicies(ctx context.Context, cluster, source strin
 	}), nil
 }
 
-func New(endpoints map[string]*model.Endpoints) *ReportGenerator {
-	return &ReportGenerator{endpoints: endpoints}
+func New(apis *cluster.Collection) *ReportGenerator {
+	return &ReportGenerator{apis: apis}
 }

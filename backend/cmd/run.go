@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"flag"
 	"fmt"
 
@@ -47,20 +48,45 @@ func newRunCMD() *cobra.Command {
 			g.Go(serv.Start)
 
 			if c.CRDs.CustomBoard {
-				g.Go(func() error {
-					informer, err := resolver.CustomBoardInformer()
-					if err != nil {
-						return err
-					}
+				controller, err := resolver.CustomBoardController()
+				if err != nil {
+					return err
+				}
 
-					stop := make(chan struct{})
-					informer.Run(stop)
-					logger.Info("custom board informer starts")
-					<-stop
+				err = controller.Start(cmd.Context())
+				if err != nil {
+					logger.Error("custom board controller failed", zap.Error(err))
+					return err
+				}
 
-					return nil
-				})
+				logger.Info("custom board controller configured")
 			}
+
+			if c.CRDs.Cluster {
+				controller, err := resolver.ClusterController(cmd.Context())
+				if err != nil {
+					return err
+				}
+
+				err = controller.Start(cmd.Context())
+				if err != nil {
+					logger.Error("cluster controller failed", zap.Error(err))
+					return err
+				}
+
+				logger.Info("cluster controller configured")
+			}
+
+			ctx, cancel := context.WithCancel(cmd.Context())
+			g.Go(func() error {
+				defer cancel()
+
+				mgr, err := resolver.Mgr()
+				if err != nil {
+					return err
+				}
+				return mgr.Start(ctx)
+			})
 
 			return g.Wait()
 		},
