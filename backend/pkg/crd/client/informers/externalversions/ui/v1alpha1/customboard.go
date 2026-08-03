@@ -22,15 +22,16 @@ import (
 	context "context"
 	time "time"
 
-	apiuiv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
-	versioned "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
-	internalinterfaces "github.com/kyverno/policy-reporter-ui/pkg/crd/client/informers/externalversions/internalinterfaces"
-	uiv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/client/listers/ui/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
+
+	apiuiv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
+	versioned "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
+	internalinterfaces "github.com/kyverno/policy-reporter-ui/pkg/crd/client/informers/externalversions/internalinterfaces"
+	uiv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/client/listers/ui/v1alpha1"
 )
 
 // CustomBoardInformer provides access to a shared informer and lister for

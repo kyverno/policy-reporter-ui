@@ -3,8 +3,9 @@ package cluster
 import (
 	"context"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"go.uber.org/zap"
+
+	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 )
 
 type SecretLoader struct {

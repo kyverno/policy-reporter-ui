@@ -19,9 +19,10 @@ limitations under the License.
 package fake
 
 import (
+	gentype "k8s.io/client-go/gentype"
+
 	v1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
 	uiv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned/typed/ui/v1alpha1"
-	gentype "k8s.io/client-go/gentype"
 )
 
 // fakeNamespaceCustomBoards implements NamespaceCustomBoardInterface

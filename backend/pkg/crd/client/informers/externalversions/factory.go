@@ -24,14 +24,15 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
-	internalinterfaces "github.com/kyverno/policy-reporter-ui/pkg/crd/client/informers/externalversions/internalinterfaces"
-	ui "github.com/kyverno/policy-reporter-ui/pkg/crd/client/informers/externalversions/ui"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	wait "k8s.io/apimachinery/pkg/util/wait"
 	cache "k8s.io/client-go/tools/cache"
+
+	versioned "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
+	internalinterfaces "github.com/kyverno/policy-reporter-ui/pkg/crd/client/informers/externalversions/internalinterfaces"
+	ui "github.com/kyverno/policy-reporter-ui/pkg/crd/client/informers/externalversions/ui"
 )
 
 // SharedInformerOption defines the functional option type for SharedInformerFactory.

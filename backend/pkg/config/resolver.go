@@ -21,6 +21,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+	ctrserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/auth"
@@ -32,8 +33,6 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/server"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
-
-	ctrserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 )
 
 var (

@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
-	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 	"k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
+	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 )
 
 type reconciler struct {
@@ -26,7 +27,7 @@ func newReconciler(client client.Client, collection *customboard.Collection) *re
 func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	var err error
 
-	if req.NamespacedName.Namespace != "" {
+	if req.Namespace != "" {
 		ncb := &v1alpha1.NamespaceCustomBoard{}
 		err = r.client.Get(ctx, req.NamespacedName, ncb)
 		if err == nil {

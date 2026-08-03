@@ -1,12 +1,13 @@
 package cluster
 
 import (
+	"go.uber.org/zap"
+
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
-	"go.uber.org/zap"
 )
 
 func MapAPI(cluster *v1alpha1.Cluster) Config {

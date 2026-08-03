@@ -3,12 +3,13 @@ package cluster
 import (
 	"context"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/cluster"
-	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/kyverno/policy-reporter-ui/pkg/cluster"
+	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
 )
 
 type reconciler struct {
@@ -36,11 +37,11 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 		zap.L().Debug("cluster added", zap.String("name", cl.Name))
 		r.collection.Add(cl.Name, config)
 	} else if errors.IsNotFound(err) {
-		zap.L().Debug("cluster removed", zap.String("name", req.NamespacedName.Name))
-		r.collection.Remove(req.NamespacedName.Name)
+		zap.L().Debug("cluster removed", zap.String("name", req.Name))
+		r.collection.Remove(req.Name)
 		return ctrl.Result{}, nil
 	} else {
-		zap.L().Error("failed to get cluster", zap.String("name", req.NamespacedName.Name), zap.Error(err))
+		zap.L().Error("failed to get cluster", zap.String("name", req.Name), zap.Error(err))
 		return ctrl.Result{}, err
 	}
 

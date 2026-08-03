@@ -4,8 +4,9 @@ import (
 	"sync"
 
 	"github.com/gosimple/slug"
-	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 	"go.uber.org/zap"
+
+	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
 type Collection struct {
