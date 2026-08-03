@@ -34,10 +34,8 @@ func (r *reconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Resu
 	if err == nil {
 		config := cluster.MapAPI(cl)
 		config = r.loader.LoadConfig(ctx, config)
-		zap.L().Debug("cluster added", zap.String("name", cl.Name))
 		r.collection.Add(cl.Name, config)
 	} else if errors.IsNotFound(err) {
-		zap.L().Debug("cluster removed", zap.String("name", req.Name))
 		r.collection.Remove(req.Name)
 		return ctrl.Result{}, nil
 	} else {
