@@ -1,11 +1,13 @@
 package api
 
 import (
+	"cmp"
 	"html/template"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
+	"slices"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -13,6 +15,7 @@ import (
 
 	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
 	"github.com/kyverno/policy-reporter-ui/pkg/auth"
+	"github.com/kyverno/policy-reporter-ui/pkg/cluster"
 	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/reports"
 	"github.com/kyverno/policy-reporter-ui/pkg/service"
@@ -21,7 +24,7 @@ import (
 
 type Handler struct {
 	config       *Config
-	clients      map[string]*model.Endpoints
+	clients      *cluster.Collection
 	customBoards *customboard.Collection
 	service      *service.Service
 	reporter     *reports.ReportGenerator
@@ -32,37 +35,35 @@ func (h *Handler) Healthz(ctx *gin.Context) {
 }
 
 func (h *Handler) Config(ctx *gin.Context) {
-	if profile := auth.ProfileFrom(ctx); profile != nil {
-		cluster := h.config.Default
+	profile := auth.ProfileFrom(ctx)
 
-		clusters := make([]Cluster, 0, len(h.config.Clusters))
-		for _, cl := range h.config.Clusters {
-			access := cl.Allowed(profile)
-			if access {
-				clusters = append(clusters, cl)
-			}
-			if cluster == cl.Slug && !access {
-				cluster = ""
-			}
+	var cluster string
+
+	clusters := make([]Cluster, 0, h.clients.Length())
+	for id, cl := range h.clients.All() {
+		access := cl.Allowed(profile)
+		if access {
+			clusters = append(clusters, Cluster{
+				Slug:    id,
+				Name:    cl.Name,
+				Plugins: utils.Keys(cl.Plugins),
+			})
 		}
-
-		if cluster == "" && len(clusters) > 0 {
-			cluster = clusters[0].Slug
-		}
-
-		ctx.JSON(http.StatusOK, Config{
-			Clusters:    clusters,
-			Default:     cluster,
-			User:        h.config.User,
-			Sources:     h.config.Sources,
-			Banner:      h.config.Banner,
-			OAuth:       h.config.OAuth,
-			DisplayMode: h.config.DisplayMode,
-		})
-		return
 	}
 
-	ctx.JSON(http.StatusOK, h.config)
+	if len(clusters) > 0 {
+		cluster = clusters[0].Slug
+	}
+
+	ctx.JSON(http.StatusOK, Config{
+		Clusters:    sortCluster(clusters),
+		Default:     cluster,
+		User:        h.config.User,
+		Sources:     h.config.Sources,
+		Banner:      h.config.Banner,
+		OAuth:       h.config.OAuth,
+		DisplayMode: h.config.DisplayMode,
+	})
 }
 
 func (h *Handler) ListCustomBoards(ctx *gin.Context) {
@@ -88,7 +89,7 @@ func (h *Handler) ListPolicySources(ctx *gin.Context) {
 		return
 	}
 
-	client := h.clients[ctx.Param("cluster")].Core
+	client := h.clients.Cluster(ctx.Param("cluster")).Core
 
 	nsKinds, _ := client.ListNamespacedKinds(ctx, url.Values{})
 	clusterKinds, _ := client.ListClusterKinds(ctx, url.Values{})
@@ -334,62 +335,62 @@ func (h *Handler) ListCustomBoardClusterScopedResults(ctx *gin.Context) {
 }
 
 func (h *Handler) ListNamespaceScopedResourceResults(ctx *gin.Context) {
-	h.forward(ctx, func(e *model.Endpoints) (any, error) {
+	h.forward(ctx, func(e *cluster.Cluster) (any, error) {
 		return e.Core.ListNamespaceScopedResourceResults(ctx, ctx.Request.URL.Query())
 	})
 }
 
 func (h *Handler) ListClusterScopedResourceResults(ctx *gin.Context) {
-	h.forward(ctx, func(e *model.Endpoints) (any, error) {
+	h.forward(ctx, func(e *cluster.Cluster) (any, error) {
 		return e.Core.ListClusterScopedResourceResults(ctx, ctx.Request.URL.Query())
 	})
 }
 
 func (h *Handler) ListNamespaceScopedResults(ctx *gin.Context) {
-	h.forward(ctx, func(e *model.Endpoints) (any, error) {
+	h.forward(ctx, func(e *cluster.Cluster) (any, error) {
 		return e.Core.ListNamespaceScopedResults(ctx, ctx.Request.URL.Query())
 	})
 }
 
 func (h *Handler) ListClusterScopedResults(ctx *gin.Context) {
-	h.forward(ctx, func(e *model.Endpoints) (any, error) {
+	h.forward(ctx, func(e *cluster.Cluster) (any, error) {
 		return e.Core.ListClusterScopedResults(ctx, ctx.Request.URL.Query())
 	})
 }
 
 func (h *Handler) ListResourceResults(ctx *gin.Context) {
-	h.forward(ctx, func(e *model.Endpoints) (any, error) {
+	h.forward(ctx, func(e *cluster.Cluster) (any, error) {
 		return e.Core.ListResourceResults(ctx, ctx.Param("id"), ctx.Request.URL.Query())
 	})
 }
 
 func (h *Handler) ListResourceResourceResults(ctx *gin.Context) {
-	h.forward(ctx, func(e *model.Endpoints) (any, error) {
+	h.forward(ctx, func(e *cluster.Cluster) (any, error) {
 		return e.Core.ListResourceResourceResults(ctx, ctx.Param("id"), ctx.Request.URL.Query())
 	})
 }
 
 func (h *Handler) ListResultsWithoutResource(ctx *gin.Context) {
-	h.forward(ctx, func(e *model.Endpoints) (any, error) {
+	h.forward(ctx, func(e *cluster.Cluster) (any, error) {
 		return e.Core.ListResultsWithoutResource(ctx, ctx.Request.URL.Query())
 	})
 }
 
 func (h *Handler) ListTargets(ctx *gin.Context) {
-	h.forward(ctx, func(e *model.Endpoints) (any, error) {
+	h.forward(ctx, func(e *cluster.Cluster) (any, error) {
 		return e.Core.ListTargets(ctx)
 	})
 }
 
 func (h *Handler) ListTotalResults(ctx *gin.Context) {
-	h.forward(ctx, func(e *model.Endpoints) (any, error) {
+	h.forward(ctx, func(e *cluster.Cluster) (any, error) {
 		return e.Core.ListTotalResults(ctx)
 	})
 }
 
 func (h *Handler) Layout(ctx *gin.Context) {
-	endpoints, ok := h.clients[ctx.Param("cluster")]
-	if !ok {
+	endpoints := h.clients.Cluster(ctx.Param("cluster"))
+	if endpoints == nil {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -401,8 +402,6 @@ func (h *Handler) Layout(ctx *gin.Context) {
 		return
 	}
 
-	profile, _ := ctx.Get("profile")
-
 	targets, err := endpoints.Core.ListTargets(ctx)
 	if err != nil {
 		zap.L().Error("failed to call core API", zap.Error(err))
@@ -412,9 +411,10 @@ func (h *Handler) Layout(ctx *gin.Context) {
 
 	boards := make(map[string]CustomBoard, 0)
 	list := utils.Map(h.customBoards.Boards(), MapCustomBoard)
-	showClusters := len(h.config.Clusters) > 1
+	showClusters := h.clients.Length() > 1
 
-	if profile := auth.ProfileFrom(ctx); profile != nil {
+	profile := auth.ProfileFrom(ctx)
+	if profile != nil {
 		boards = make(map[string]CustomBoard, h.customBoards.Length())
 
 		for _, board := range list {
@@ -429,6 +429,15 @@ func (h *Handler) Layout(ctx *gin.Context) {
 			sources = nil
 			targets = nil
 			showClusters = false
+		} else if showClusters {
+			allowed := 0
+			for _, cl := range h.clients.All() {
+				if access := cl.Allowed(profile); access {
+					allowed++
+				}
+			}
+
+			showClusters = allowed > 1
 		}
 	} else {
 		for _, board := range list {
@@ -454,8 +463,8 @@ func (h *Handler) GetDashboard(ctx *gin.Context) {
 		}
 	}
 
-	endpoints, ok := h.clients[ctx.Param("cluster")]
-	if !ok {
+	endpoints := h.clients.Cluster(ctx.Param("cluster"))
+	if endpoints == nil {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -521,8 +530,8 @@ func (h *Handler) GetNamespace(ctx *gin.Context) {
 		}
 	}
 
-	endpoints, ok := h.clients[ctx.Param("cluster")]
-	if !ok {
+	endpoints := h.clients.Cluster(ctx.Param("cluster"))
+	if endpoints == nil {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -584,8 +593,8 @@ func (h *Handler) ListPolicies(ctx *gin.Context) {
 		}
 	}
 
-	endpoints, ok := h.clients[ctx.Param("cluster")]
-	if !ok {
+	endpoints := h.clients.Cluster(ctx.Param("cluster"))
+	if endpoints == nil {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -602,7 +611,7 @@ func (h *Handler) ListPolicies(ctx *gin.Context) {
 		return
 	}
 
-	if plugin, ok := endpoints.Plugins[source]; ok {
+	if plugin, ok := h.clients.Cluster(ctx.Param("cluster")).Plugins[source]; ok {
 		policies, err := plugin.GetPolicies(ctx)
 		if err != nil {
 			zap.L().Error("failed to load policies from plugin", zap.String("cluster", ctx.Param("cluster")), zap.String("plugin", source), zap.Error(err))
@@ -691,7 +700,7 @@ func (h *Handler) GetNamespaceReport(ctx *gin.Context) {
 	}
 }
 
-func (h *Handler) resolveCustomBoard(ctx *gin.Context) (*model.Endpoints, CustomBoard, int) {
+func (h *Handler) resolveCustomBoard(ctx *gin.Context) (*cluster.Cluster, CustomBoard, int) {
 	board := h.customBoards.Board(ctx.Param("id"))
 	if board == nil {
 		return nil, CustomBoard{}, http.StatusNotFound
@@ -705,15 +714,15 @@ func (h *Handler) resolveCustomBoard(ctx *gin.Context) (*model.Endpoints, Custom
 		}
 	}
 
-	endpoints, ok := h.clients[ctx.Param("cluster")]
-	if !ok {
+	cluster := h.clients.Cluster(ctx.Param("cluster"))
+	if cluster == nil {
 		return nil, CustomBoard{}, http.StatusNotFound
 	}
 
-	return endpoints, config, 0
+	return cluster, config, 0
 }
 
-func (h *Handler) forward(ctx *gin.Context, cb func(*model.Endpoints) (any, error)) {
+func (h *Handler) forward(ctx *gin.Context, cb func(*cluster.Cluster) (any, error)) {
 	if profile := auth.ProfileFrom(ctx); profile != nil {
 		if !h.config.Boards.Allowed(profile) {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
@@ -721,13 +730,13 @@ func (h *Handler) forward(ctx *gin.Context, cb func(*model.Endpoints) (any, erro
 		}
 	}
 
-	endpoints, ok := h.clients[ctx.Param("cluster")]
-	if !ok {
+	cluster := h.clients.Cluster(ctx.Param("cluster"))
+	if cluster == nil {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
-	resp, err := cb(endpoints)
+	resp, err := cb(cluster)
 	if err != nil {
 		zap.L().Error("failed to forward request", zap.Error(err), zap.String("path", ctx.Request.URL.Path))
 		ctx.AbortWithStatus(http.StatusInternalServerError)
@@ -737,7 +746,7 @@ func (h *Handler) forward(ctx *gin.Context, cb func(*model.Endpoints) (any, erro
 	ctx.JSON(http.StatusOK, resp)
 }
 
-func NewHandler(config *Config, apis map[string]*model.Endpoints, customBoards *customboard.Collection) *Handler {
+func NewHandler(config *Config, apis *cluster.Collection, customBoards *customboard.Collection) *Handler {
 	sources := make(map[string]model.SourceConfig, len(config.Sources))
 	for _, s := range config.Sources {
 		sources[s.Name] = model.SourceConfig{
@@ -792,4 +801,17 @@ func applyCustomBoardClusterFilter(query url.Values, config CustomBoard) url.Val
 	appendFilter(query, "status", config.Filter.Results)
 	appendFilter(query, "severities", config.Filter.Severities)
 	return query
+}
+
+func sortCluster(clusters []Cluster) []Cluster {
+	slices.SortFunc(clusters, func(a, b Cluster) int {
+		if a.Slug == "default" {
+			return -1
+		}
+		if b.Slug == "default" {
+			return 1
+		}
+		return cmp.Compare(a.Slug, b.Slug)
+	})
+	return clusters
 }

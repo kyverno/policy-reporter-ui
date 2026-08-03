@@ -3,29 +3,37 @@ package config
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
+	"github.com/go-logr/zapr"
 	"github.com/gosimple/slug"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"go.uber.org/zap"
+	"k8s.io/apimachinery/pkg/runtime"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
 
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
-	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
-	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
 	"github.com/kyverno/policy-reporter-ui/pkg/auth"
-	ui "github.com/kyverno/policy-reporter-ui/pkg/crd/client/clientset/versioned"
+	"github.com/kyverno/policy-reporter-ui/pkg/cluster"
+	uiv1alpha1 "github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
 	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
+	kcl "github.com/kyverno/policy-reporter-ui/pkg/kubernetes/cluster"
 	kcb "github.com/kyverno/policy-reporter-ui/pkg/kubernetes/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/server"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
+
+	ctrserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 )
 
 var (
@@ -39,114 +47,31 @@ type Resolver struct {
 	k8sConfig    *rest.Config
 	clientset    *k8s.Clientset
 	customBoards *customboard.Collection
+	clusters     *cluster.Collection
+	mgr          manager.Manager
 }
 
-func (r *Resolver) CoreClient(cluster Cluster) (*core.Client, error) {
-	options := []api.ClientOption{
-		api.WithBaseURL(cluster.Host),
-	}
-	if cluster.HTTP2 {
-		options = append(options, api.WithHTTP2())
-	}
-	if cluster.Certificate != "" {
-		options = append(options, api.WithCertificate(cluster.Certificate))
-	} else if cluster.SkipTLS {
-		options = append(options, api.WithSkipTLS())
-	}
-
-	if cluster.BasicAuth.Username != "" {
-		options = append(options, api.WithBaseAuth(api.BasicAuth{
-			Username: cluster.BasicAuth.Username,
-			Password: cluster.BasicAuth.Password,
-		}))
-	}
-
-	if r.config.Logging.API {
-		options = append(options, api.WithLogging())
-	}
-
-	return core.New(options)
-}
-
-func (r *Resolver) PluginClient(p Plugin) (*plugin.Client, error) {
-	options := []api.ClientOption{
-		api.WithBaseURL(p.Host),
-	}
-
-	if p.Certificate != "" {
-		options = append(options, api.WithCertificate(p.Certificate))
-	} else if p.SkipTLS {
-		options = append(options, api.WithSkipTLS())
-	}
-
-	if p.BasicAuth.Username != "" {
-		options = append(options, api.WithBaseAuth(api.BasicAuth{
-			Username: p.BasicAuth.Username,
-			Password: p.BasicAuth.Password,
-		}))
-	}
-
-	if r.config.Logging.API {
-		options = append(options, api.WithLogging())
-	}
-
-	return plugin.New(options)
-}
-
-func (r *Resolver) LoadClusterSecret(ctx context.Context, cluster Cluster) (Cluster, error) {
-	if cluster.SecretRef != "" {
-		values, err := r.LoadSecret(ctx, cluster.SecretRef)
-		if err != nil {
-			return cluster, err
-		}
-
-		cluster = cluster.FromValues(values)
-	}
-
-	return cluster, nil
-}
-
-func (r *Resolver) LoadPluginSecret(ctx context.Context, plugin Plugin) (Plugin, error) {
-	if plugin.SecretRef != "" {
-		values, err := r.LoadSecret(ctx, plugin.SecretRef)
-		if err != nil {
-			return plugin, err
-		}
-
-		plugin = plugin.FromValues(values)
-	}
-
-	return plugin, nil
-}
-
-func (r *Resolver) LoadSecret(ctx context.Context, secretRef string) (secrets.Values, error) {
+func (r *Resolver) SecretClient() (secrets.Client, error) {
 	if r.secrets == nil {
 		clientset, err := r.Clientset()
 		if err != nil {
-			return secrets.Values{}, err
+			return nil, err
 		}
 
 		zap.L().Debug("create secret client", zap.String("namespace", r.config.Namespace))
 		r.secrets = secrets.NewClient(clientset.CoreV1().Secrets(r.config.Namespace))
 	}
 
-	values, err := r.secrets.Get(ctx, secretRef)
+	return r.secrets, nil
+}
+
+func (r *Resolver) LoadSecret(ctx context.Context, secretRef string) (secrets.Values, error) {
+	client, err := r.SecretClient()
 	if err != nil {
 		return secrets.Values{}, err
 	}
 
-	zap.L().Info("values loaded from secret", zap.String("secretRef", secretRef))
-
-	if values.SecretRef != "" {
-		nested, err := r.secrets.Get(ctx, values.SecretRef)
-		if err != nil {
-			return secrets.Values{}, err
-		}
-		values = values.Merge(nested)
-		zap.L().Info("auth values loaded from secret", zap.String("secretRef", values.SecretRef))
-	}
-
-	return values, nil
+	return client.Get(ctx, secretRef)
 }
 
 func (r *Resolver) K8sConfig() (*rest.Config, error) {
@@ -178,11 +103,13 @@ func (r *Resolver) Clientset() (*k8s.Clientset, error) {
 
 	k8sConfig, err := r.K8sConfig()
 	if err != nil {
+		zap.L().Error("failed to create k8s config", zap.Error(err))
 		return nil, err
 	}
 
 	clientset, err := k8s.NewForConfig(k8sConfig)
 	if err != nil {
+		zap.L().Error("failed to create k8s clientset", zap.Error(err))
 		return nil, err
 	}
 
@@ -267,6 +194,32 @@ func (r *Resolver) SetupOIDC(ctx context.Context, engine *gin.Engine) ([]gin.Han
 	return []gin.HandlerFunc{auth.Provider("openid-connect"), auth.Auth(r.config.OpenIDConnect.BasePath())}, nil
 }
 
+func (r *Resolver) ClusterLoader() *cluster.SecretLoader {
+	secrets, err := r.SecretClient()
+	if err != nil {
+		return nil
+	}
+
+	return cluster.NewSecretLoader(secrets, r.config.Logging.API)
+}
+
+func (r *Resolver) ClusterCollection(ctx context.Context) *cluster.Collection {
+	if r.clusters != nil {
+		return r.clusters
+	}
+
+	loader := r.ClusterLoader()
+	if loader == nil {
+		r.clusters = cluster.NewCollection()
+		return r.clusters
+	}
+
+	clusters := loader.LoadConfigs(ctx, r.config.Clusters)
+
+	r.clusters = cluster.NewCollection(clusters...)
+	return r.clusters
+}
+
 func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	if !r.config.Server.Debug {
 		gin.SetMode(gin.ReleaseMode)
@@ -311,46 +264,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 		middleware = append(middleware, auth.ClusterPermissions(MapClusterPermissions(r.config)))
 	}
 
-	serv := server.NewServer(engine, r.config.Server.Port, middleware)
-
-	for _, cluster := range r.config.Clusters {
-		cluster, err := r.LoadClusterSecret(ctx, cluster)
-		if err != nil {
-			zap.L().Error("failed to load cluster secret", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("secretRef", cluster.SecretRef))
-			continue
-		}
-
-		client, err := r.CoreClient(cluster)
-		if err != nil {
-			zap.L().Error("failed to create core api client", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("host", cluster.Host))
-			continue
-		}
-
-		plugins := make(map[string]*plugin.Client, len(cluster.Plugins))
-		for _, p := range cluster.Plugins {
-			p, err := r.LoadPluginSecret(ctx, p)
-			if err != nil {
-				zap.L().Error(
-					"failed to load plugin secret",
-					zap.Error(err),
-					zap.String("cluster", cluster.Name),
-					zap.String("plugin", p.Name),
-					zap.String("secretRef", p.SecretRef),
-				)
-				continue
-			}
-
-			pClient, err := r.PluginClient(p)
-			if err != nil {
-				zap.L().Error("failed to create plugin client", zap.Error(err), zap.String("cluser", cluster.Name), zap.String("plugin", p.Name))
-				continue
-			}
-
-			plugins[p.Name] = pClient
-		}
-
-		serv.RegisterCluster(cluster.Name, client, plugins)
-	}
+	serv := server.NewServer(engine, r.config.Server.Port, middleware, r.ClusterCollection(ctx))
 
 	if !r.config.UI.Disabled {
 		var uiMiddleware []gin.HandlerFunc
@@ -367,18 +281,59 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	return serv, nil
 }
 
-func (r *Resolver) CustomBoardInformer() (*kcb.Client, error) {
+func (r *Resolver) Mgr() (manager.Manager, error) {
+	if r.mgr != nil {
+		return r.mgr, nil
+	}
+
 	k8sConfig, err := r.K8sConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	client, err := ui.NewForConfig(k8sConfig)
+	scheme := runtime.NewScheme()
+	err = uiv1alpha1.Install(scheme)
 	if err != nil {
 		return nil, err
 	}
 
-	return kcb.NewClient(client, r.CustomBoards()), nil
+	log.SetLogger(zapr.NewLogger(zap.L()))
+
+	port := "0"
+	if r.config.Server.Metrics.Enabled {
+		port = fmt.Sprintf(":%d", r.config.Server.Metrics.Port)
+	}
+
+	mgr, err := ctrl.NewManager(k8sConfig, ctrl.Options{
+		Scheme: scheme,
+		Metrics: ctrserver.Options{
+			BindAddress: port,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	r.mgr = mgr
+
+	return r.mgr, nil
+}
+
+func (r *Resolver) CustomBoardController() (*kcb.Client, error) {
+	mgr, err := r.Mgr()
+	if err != nil {
+		return nil, err
+	}
+
+	return kcb.NewClient(mgr, r.CustomBoards())
+}
+
+func (r *Resolver) ClusterController(ctx context.Context) (*kcl.Client, error) {
+	mgr, err := r.Mgr()
+	if err != nil {
+		return nil, err
+	}
+
+	return kcl.NewClient(mgr, r.ClusterCollection(ctx), r.ClusterLoader())
 }
 
 func (r *Resolver) CustomBoards() *customboard.Collection {

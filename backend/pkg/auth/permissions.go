@@ -20,6 +20,10 @@ type Permissions struct {
 }
 
 func (p Permissions) Allowed(profile *Profile) bool {
+	if profile == nil {
+		return true
+	}
+
 	if len(p.AccessControl.Emails) == 0 && len(p.AccessControl.Groups) == 0 {
 		return true
 	}

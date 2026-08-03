@@ -1,0 +1,12 @@
+kind: Cluster
+apiVersion: ui.policyreporter.kyverno.io/v1alpha1
+metadata:
+  name: cluster-4
+spec:
+  title: Staging Cluster
+  host: http://policy-reporter:8080
+  plugins:
+  - source: kyverno
+    host: http://policy-reporter-kyverno-plugin:8083
+  - source: KyvernoValidatingPolicy
+    host: http://policy-reporter-kyverno-plugin:8083/vpol

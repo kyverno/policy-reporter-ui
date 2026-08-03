@@ -6,12 +6,9 @@ import (
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
-	"github.com/gosimple/slug"
 	"go.uber.org/zap"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
-	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
-	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
+	"github.com/kyverno/policy-reporter-ui/pkg/cluster"
 	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
 )
@@ -22,7 +19,7 @@ type APIHandler interface {
 
 type Server struct {
 	middelware []gin.HandlerFunc
-	apis       map[string]*model.Endpoints
+	apis       *cluster.Collection
 	engine     *gin.Engine
 	api        *gin.RouterGroup
 	proxies    *gin.RouterGroup
@@ -42,14 +39,6 @@ func (s *Server) RegisterUI(path string, middleware []gin.HandlerFunc) {
 		zap.L().Debug("serving static file server", zap.String("path", c.Request.URL.Path), zap.Any("url", c.Request.URL))
 		fileServer.ServeHTTP(c.Writer, c.Request)
 	})...)
-}
-
-func (s *Server) RegisterCluster(name string, client *core.Client, plugins map[string]*plugin.Client) {
-	id := slug.Make(name)
-
-	s.apis[id] = &model.Endpoints{Name: name, Core: client, Plugins: plugins}
-
-	zap.L().Debug("cluster registered", zap.String("name", name), zap.String("id", id))
 }
 
 func (s *Server) RegisterAPI(c *api.Config, customBoards *customboard.Collection) {
@@ -96,10 +85,10 @@ func (s *Server) RegisterAPI(c *api.Config, customBoards *customboard.Collection
 	s.api.GET("config/:cluster/layout", handler.Layout)
 }
 
-func NewServer(engine *gin.Engine, port int, middleware []gin.HandlerFunc) *Server {
+func NewServer(engine *gin.Engine, port int, middleware []gin.HandlerFunc, apis *cluster.Collection) *Server {
 	return &Server{
 		middelware: middleware,
-		apis:       make(map[string]*model.Endpoints),
+		apis:       apis,
 		engine:     engine,
 		api:        engine.Group("/api", append(middleware, gzip.Gzip(gzip.DefaultCompression))...),
 		proxies:    engine.Group("/proxy", middleware...),
