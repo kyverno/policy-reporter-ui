@@ -3,7 +3,6 @@ package cluster
 import (
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
-	"github.com/kyverno/policy-reporter-ui/pkg/auth"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 )
 
@@ -98,8 +97,8 @@ func (a Config) FromValues(values secrets.Values) Config {
 }
 
 type Cluster struct {
-	Name    string
-	Core    *core.Client
-	Plugins map[string]*plugin.Client
-	auth.Permissions
+	Name          string
+	Core          *core.Client
+	Plugins       map[string]*plugin.Client
+	AccessControl AccessControl
 }

@@ -261,7 +261,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 	}
 
 	if r.config.AuthEnabled() {
-		middleware = append(middleware, auth.ClusterPermissions(MapClusterPermissions(r.config)))
+		middleware = append(middleware, auth.ClusterPermissions(r.ClusterCollection(ctx)))
 	}
 
 	serv := server.NewServer(engine, r.config.Server.Port, middleware, r.ClusterCollection(ctx))

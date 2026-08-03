@@ -4,7 +4,6 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/api"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
 	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
-	"github.com/kyverno/policy-reporter-ui/pkg/auth"
 	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 	"go.uber.org/zap"
@@ -70,12 +69,10 @@ func MapClusterToModel(name string, c Config) (*Cluster, error) {
 	}
 
 	return &Cluster{
-		Name:    c.Name,
-		Core:    core,
-		Plugins: MapPlugins(c),
-		Permissions: auth.Permissions{
-			AccessControl: auth.AccessControl(c.AccessControl),
-		},
+		Name:          c.Name,
+		Core:          core,
+		Plugins:       MapPlugins(c),
+		AccessControl: c.AccessControl,
 	}, nil
 }
 

@@ -41,8 +41,7 @@ func (h *Handler) Config(ctx *gin.Context) {
 
 	clusters := make([]Cluster, 0, h.clients.Length())
 	for id, cl := range h.clients.All() {
-		access := cl.Allowed(profile)
-		if access {
+		if access := auth.NewPermissions(cl.AccessControl).Allowed(profile); access {
 			clusters = append(clusters, Cluster{
 				Slug:    id,
 				Name:    cl.Name,
@@ -432,7 +431,7 @@ func (h *Handler) Layout(ctx *gin.Context) {
 		} else if showClusters {
 			allowed := 0
 			for _, cl := range h.clients.All() {
-				if access := cl.Allowed(profile); access {
+				if access := auth.NewPermissions(cl.AccessControl).Allowed(profile); access {
 					allowed++
 				}
 			}
