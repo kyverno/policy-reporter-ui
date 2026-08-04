@@ -741,6 +741,7 @@ func (s *Service) Dashboard(ctx context.Context, o DashboardOptions, query url.V
 	}
 
 	return &Dashboard{
+		Title:          s.endpoints.Cluster(o.Cluster).Name,
 		ClusterScope:   o.ClusterScope,
 		MultipleSource: len(o.Sources) > 1,
 		SingleSource:   singleSource,
