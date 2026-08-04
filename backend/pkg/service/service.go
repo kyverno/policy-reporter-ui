@@ -612,7 +612,11 @@ func (s *Service) Dashboard(ctx context.Context, o DashboardOptions, query url.V
 			if err != nil {
 				return err
 			}
+			if findings2.Total == 0 {
+				return nil
+			}
 			if findings.Total == 0 {
+				findings = findings2
 				return nil
 			}
 
