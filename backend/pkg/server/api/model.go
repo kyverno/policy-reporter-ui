@@ -106,6 +106,7 @@ type Config struct {
 }
 
 type NavigationItem struct {
+	ID       string           `json:"id"`
 	Title    string           `json:"title"`
 	Subtitle string           `json:"subtitle"`
 	Path     string           `json:"path"`

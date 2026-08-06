@@ -6,12 +6,9 @@ import (
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
-	"github.com/gosimple/slug"
 	"go.uber.org/zap"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/api/core"
-	"github.com/kyverno/policy-reporter-ui/pkg/api/model"
-	"github.com/kyverno/policy-reporter-ui/pkg/api/plugin"
+	"github.com/kyverno/policy-reporter-ui/pkg/cluster"
 	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/server/api"
 )
@@ -22,7 +19,7 @@ type APIHandler interface {
 
 type Server struct {
 	middelware []gin.HandlerFunc
-	apis       map[string]*model.Endpoints
+	apis       *cluster.Collection
 	engine     *gin.Engine
 	api        *gin.RouterGroup
 	proxies    *gin.RouterGroup
@@ -44,14 +41,6 @@ func (s *Server) RegisterUI(path string, middleware []gin.HandlerFunc) {
 	})...)
 }
 
-func (s *Server) RegisterCluster(name string, client *core.Client, plugins map[string]*plugin.Client) {
-	id := slug.Make(name)
-
-	s.apis[id] = &model.Endpoints{Name: name, Core: client, Plugins: plugins}
-
-	zap.L().Debug("cluster registered", zap.String("name", name), zap.String("id", id))
-}
-
 func (s *Server) RegisterAPI(c *api.Config, customBoards *customboard.Collection) {
 	handler := api.NewHandler(c, s.apis, customBoards)
 
@@ -63,17 +52,20 @@ func (s *Server) RegisterAPI(c *api.Config, customBoards *customboard.Collection
 	cluster.GET("targets", handler.ListTargets)
 	cluster.GET("total-results", handler.ListTotalResults)
 
-	cluster.GET("custom-board/:id", handler.GetCustomBoard)
-	cluster.GET("custom-board/:id/cluster-resource-results", handler.ListCustomBoardClusterResourceResults)
-	cluster.GET("custom-board/:id/resource-results", handler.ListCustomBoardResourceResults)
-	cluster.GET("custom-board/:id/cluster-results", handler.ListCustomBoardClusterScopedResults)
-	cluster.GET("custom-board/:id/results", handler.ListCustomBoardNamespaceScopedResults)
-
 	cluster.GET("resource/:id", handler.GetResourceDetails)
 	cluster.POST("resource/:id/exception", handler.CreateException)
 	cluster.GET("resource/:id/results", handler.ListResourceResults)
 	cluster.GET("resource/:id/resource-results", handler.ListResourceResourceResults)
 	cluster.GET("results-without-resource", handler.ListResultsWithoutResource)
+
+	cb := cluster.Group("custom-board")
+
+	cb.GET(":id", handler.GetCustomBoard)
+	cb.GET(":id/cluster-resource-results", handler.ListCustomBoardClusterResourceResults)
+	cb.GET(":id/resource-results", handler.ListCustomBoardResourceResults)
+	cb.GET(":id/cluster-results", handler.ListCustomBoardClusterScopedResults)
+	cb.GET(":id/results", handler.ListCustomBoardNamespaceScopedResults)
+	cb.GET(":id/resource/:resource", handler.GetCustomBoardResourceDetails)
 
 	ns := cluster.Group("namespace-scoped")
 	ns.GET("results", handler.ListNamespaceScopedResults)
@@ -96,10 +88,10 @@ func (s *Server) RegisterAPI(c *api.Config, customBoards *customboard.Collection
 	s.api.GET("config/:cluster/layout", handler.Layout)
 }
 
-func NewServer(engine *gin.Engine, port int, middleware []gin.HandlerFunc) *Server {
+func NewServer(engine *gin.Engine, port int, middleware []gin.HandlerFunc, apis *cluster.Collection) *Server {
 	return &Server{
 		middelware: middleware,
-		apis:       make(map[string]*model.Endpoints),
+		apis:       apis,
 		engine:     engine,
 		api:        engine.Group("/api", append(middleware, gzip.Gzip(gzip.DefaultCompression))...),
 		proxies:    engine.Group("/proxy", middleware...),

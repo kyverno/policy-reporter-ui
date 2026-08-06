@@ -60,7 +60,6 @@ func NewProfile(user goth.User) Profile {
 func Session(ctx *gin.Context) (sessions.Session, bool) {
 	val, ok := ctx.Get(sessions.DefaultKey)
 	if !ok {
-		zap.L().Debug("session not found")
 		return nil, false
 	}
 

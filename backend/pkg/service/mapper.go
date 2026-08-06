@@ -378,27 +378,27 @@ func MapNamespaceStatusCountsToList(counts map[string]core.NamespaceStatusCounts
 
 				switch s {
 				case StatusPass:
-					item.Status.Pass = v
+					item.Status.Pass += v
 				case StatusWarn:
-					item.Status.Warn = v
+					item.Status.Warn += v
 				case StatusFail:
-					item.Status.Fail = v
+					item.Status.Fail += v
 				case StatusError:
-					item.Status.Error = v
+					item.Status.Error += v
 				case StatusSkip:
-					item.Status.Skip = v
+					item.Status.Skip += v
 				case SeverityUnknown:
-					item.Severities.Unknown = v
+					item.Severities.Unknown += v
 				case SeverityInfo:
-					item.Severities.Info = v
+					item.Severities.Info += v
 				case SeverityLow:
-					item.Severities.Low = v
+					item.Severities.Low += v
 				case SeverityMedium:
-					item.Severities.Medium = v
+					item.Severities.Medium += v
 				case SeverityHigh:
-					item.Severities.High = v
+					item.Severities.High += v
 				case SeverityCritical:
-					item.Severities.Critical = v
+					item.Severities.Critical += v
 				}
 			}
 		}

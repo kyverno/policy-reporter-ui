@@ -38,7 +38,8 @@ INFORMER_GEN                       ?= $(TOOLS_DIR)/informer-gen
 OPENAPI_GEN                        ?= $(TOOLS_DIR)/openapi-gen
 REGISTER_GEN                       ?= $(TOOLS_DIR)/register-gen
 DEEPCOPY_GEN                       ?= $(TOOLS_DIR)/deepcopy-gen
-CODE_GEN_VERSION                   ?= v0.33.4
+CODE_GEN_VERSION                   ?= v0.36.3
+GEN_CRD_API_REFERENCE_DOCS_VERSION ?= v0.3.0
 
 $(CONTROLLER_GEN):
 	@echo Install controller-gen... >&2
@@ -95,7 +96,7 @@ codegen-client-clientset: $(CLIENT_GEN)
 		--output-dir ./pkg/crd/client/clientset \
 		--output-pkg $(CLIENTSET_PACKAGE) \
 		--input-base github.com/kyverno/policy-reporter-ui \
-		--input ./pkg/crd/api/customboard/v1alpha1
+		--input ./pkg/crd/api/ui/v1alpha1
 
 .PHONY: codegen-client-listers
 codegen-client-listers: ## Generate listers
@@ -106,7 +107,7 @@ codegen-client-listers: $(LISTER_GEN)
 		--go-header-file ./scripts/boilerplate.go.txt \
 		--output-dir ./pkg/crd/client/listers \
 		--output-pkg $(LISTERS_PACKAGE) \
-		./pkg/crd/api/customboard/v1alpha1
+		./pkg/crd/api/ui/v1alpha1
 
 .PHONY: codegen-client-informers
 codegen-client-informers: $(INFORMER_GEN)
@@ -118,7 +119,7 @@ codegen-client-informers: $(INFORMER_GEN)
 		--output-pkg $(INFORMERS_PACKAGE) \
 		--versioned-clientset-package $(CLIENTSET_PACKAGE)/versioned \
 		--listers-package $(LISTERS_PACKAGE) \
-		./pkg/crd/api/customboard/v1alpha1
+		./pkg/crd/api/ui/v1alpha1
 
 .PHONY: codegen-register
 codegen-register: $(REGISTER_GEN) ## Generate types registrations
@@ -133,8 +134,8 @@ codegen-deepcopy: $(DEEPCOPY_GEN) ## Generate deep copy functions
 .PHONY: codegen-crds
 codegen-crds: $(CONTROLLER_GEN)
 	@echo Generate crds... >&2
-	@rm -rf $(CRDS_PATH)/customboard && mkdir -p $(CRDS_PATH)/customboard
+	@rm -rf $(CRDS_PATH)/ui && mkdir -p $(CRDS_PATH)/ui
 	@$(CONTROLLER_GEN) \
-		paths=./pkg/crd/api/customboard/v1alpha1/... \
+		paths=./pkg/crd/api/ui/v1alpha1/... \
 		crd:crdVersions=v1,ignoreUnexportedFields=true,generateEmbeddedObjectMeta=false \
-		output:dir=$(CRDS_PATH)/customboard
+		output:dir=$(CRDS_PATH)/ui

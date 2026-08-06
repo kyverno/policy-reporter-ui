@@ -5,7 +5,7 @@ import (
 
 	"github.com/gosimple/slug"
 
-	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/customboard/v1alpha1"
+	"github.com/kyverno/policy-reporter-ui/pkg/crd/api/ui/v1alpha1"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 

@@ -10,28 +10,6 @@ import (
 )
 
 func MapConfig(c *Config) *api.Config {
-	clusters := make([]api.Cluster, 0, len(c.Clusters))
-	for _, cl := range c.Clusters {
-		plugins := make([]string, 0, len(cl.Plugins))
-		for _, pl := range cl.Plugins {
-			plugins = append(plugins, pl.Name)
-		}
-
-		clusters = append(clusters, api.Cluster{
-			Name:    cl.Name,
-			Slug:    slug.Make(cl.Name),
-			Plugins: plugins,
-			Permissions: auth.Permissions{
-				AccessControl: auth.AccessControl(cl.AccessControl),
-			},
-		})
-	}
-
-	current := ""
-	if len(clusters) > 0 {
-		current = clusters[0].Slug
-	}
-
 	oauth := c.OpenIDConnect.Enabled
 	if !oauth {
 		oauth = c.OAuth.Enabled
@@ -43,8 +21,6 @@ func MapConfig(c *Config) *api.Config {
 	}
 
 	return &api.Config{
-		Clusters:    clusters,
-		Default:     current,
 		OAuth:       oauth,
 		Banner:      c.UI.Banner,
 		DisplayMode: c.UI.DisplayMode,
