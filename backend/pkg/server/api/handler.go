@@ -257,6 +257,35 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dashboard)
 }
 
+func (h *Handler) GetCustomBoardResourceDetails(ctx *gin.Context) {
+	config := h.customBoards.Board(ctx.Param("id"))
+	if config == nil {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	query := ctx.Request.URL.Query()
+
+	appendFilter(query, "sources", config.Sources.List)
+	appendFilter(query, "status", config.Filter.Results.Include)
+	appendFilter(query, "severities", config.Filter.Severities.Include)
+
+	details, err := h.service.ResourceDetails(ctx, ctx.Param("cluster"), ctx.Param("resource"), query)
+	if err != nil {
+		zap.L().Error(
+			"failed to generate resource details",
+			zap.String("cluster", ctx.Param("cluster")),
+			zap.String("customBoard", ctx.Param("id")),
+			zap.String("resource", ctx.Param("resource")),
+			zap.Error(err),
+		)
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, details)
+}
+
 func (h *Handler) ListCustomBoardResourceResults(ctx *gin.Context) {
 	endpoints, config, status := h.resolveCustomBoard(ctx)
 	if status != 0 {

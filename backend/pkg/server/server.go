@@ -52,17 +52,20 @@ func (s *Server) RegisterAPI(c *api.Config, customBoards *customboard.Collection
 	cluster.GET("targets", handler.ListTargets)
 	cluster.GET("total-results", handler.ListTotalResults)
 
-	cluster.GET("custom-board/:id", handler.GetCustomBoard)
-	cluster.GET("custom-board/:id/cluster-resource-results", handler.ListCustomBoardClusterResourceResults)
-	cluster.GET("custom-board/:id/resource-results", handler.ListCustomBoardResourceResults)
-	cluster.GET("custom-board/:id/cluster-results", handler.ListCustomBoardClusterScopedResults)
-	cluster.GET("custom-board/:id/results", handler.ListCustomBoardNamespaceScopedResults)
-
 	cluster.GET("resource/:id", handler.GetResourceDetails)
 	cluster.POST("resource/:id/exception", handler.CreateException)
 	cluster.GET("resource/:id/results", handler.ListResourceResults)
 	cluster.GET("resource/:id/resource-results", handler.ListResourceResourceResults)
 	cluster.GET("results-without-resource", handler.ListResultsWithoutResource)
+
+	cb := cluster.Group("custom-board")
+
+	cb.GET(":id", handler.GetCustomBoard)
+	cb.GET(":id/cluster-resource-results", handler.ListCustomBoardClusterResourceResults)
+	cb.GET(":id/resource-results", handler.ListCustomBoardResourceResults)
+	cb.GET(":id/cluster-results", handler.ListCustomBoardClusterScopedResults)
+	cb.GET(":id/results", handler.ListCustomBoardNamespaceScopedResults)
+	cb.GET(":id/resource/:resource", handler.GetCustomBoardResourceDetails)
 
 	ns := cluster.Group("namespace-scoped")
 	ns.GET("results", handler.ListNamespaceScopedResults)
