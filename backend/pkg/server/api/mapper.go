@@ -31,17 +31,20 @@ func MapSourceCategoryTreeToNavi(sources []core.SourceCategoryTree) []Navigation
 		switch count {
 		case 0:
 			sourceBoards = append(sourceBoards, NavigationItem{
+				ID:    source.Name,
 				Title: utils.Title(source.Name),
 				Path:  fmt.Sprintf("/source/%s", source.Name),
 			})
 		case 1:
 			sourceBoards = append(sourceBoards, NavigationItem{
+				ID:       source.Name,
 				Title:    utils.Title(source.Name),
 				Subtitle: utils.Fallback(source.Categories[0].Name, "Other"),
 				Path:     fmt.Sprintf("/source/%s/%s", source.Name, source.Categories[0].Name),
 			})
 		default:
 			item := NavigationItem{
+				ID:       source.Name,
 				Title:    utils.Title(source.Name),
 				Path:     fmt.Sprintf("/source/%s", source.Name),
 				Children: make([]NavigationItem, 0, len(source.Categories)),
@@ -49,6 +52,7 @@ func MapSourceCategoryTreeToNavi(sources []core.SourceCategoryTree) []Navigation
 
 			for _, category := range source.Categories {
 				item.Children = append(item.Children, NavigationItem{
+					ID:    category.Name,
 					Title: utils.Fallback(category.Name, "Other"),
 					Path:  fmt.Sprintf("/source/%s/%s", source.Name, category.Name),
 				})
@@ -69,6 +73,7 @@ func MapSourcesToPolicyNavi(sources []core.SourceCategoryTree) []NavigationItem 
 	sourceBoards := make([]NavigationItem, 0, len(sources))
 	for _, source := range sources {
 		sourceBoards = append(sourceBoards, NavigationItem{
+			ID:    source.Name,
 			Title: utils.Title(source.Name),
 			Path:  fmt.Sprintf("/policies/%s", source.Name),
 		})
@@ -85,6 +90,7 @@ func MapCustomBoardsToNavi(boards map[string]CustomBoard) []NavigationItem {
 	customBoards := make([]NavigationItem, 0, len(boards))
 	for _, board := range boards {
 		customBoards = append(customBoards, NavigationItem{
+			ID:    board.ID,
 			Title: board.Name,
 			Path:  fmt.Sprintf("/custom-boards/%s", board.ID),
 		})
