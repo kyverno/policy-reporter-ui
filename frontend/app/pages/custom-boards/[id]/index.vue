@@ -11,11 +11,13 @@
     <template v-if="data.namespaces.length">
       <template v-if="isCompact">
         <LazyGraphSourceCard
+          v-if="data.singleSource"
           :data="data.charts.clusterScope[source!]!"
           :source="source!"
           :hide-cluster="!data.clusterScope"
           :type="dataType"
         />
+        <LazyGraphSourcesStatusCard v-else :data="data" :hide-cluster="!data.clusterScope" />
         <resource-summary-list :details="false" class="mt-6" :data="data.summary" :custom-board="id" />
       </template>
       <template v-else>
