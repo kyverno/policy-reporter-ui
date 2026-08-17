@@ -12,7 +12,7 @@
   "dependencies": {
     "@highlightjs/vue-plugin": "^2.1.0",
     "@mdi/font": "^7.4.47",
-    "@pinia/nuxt": "^1.0.1",
+    "@pinia/nuxt": "^1.0.2",
     "@vueuse/nuxt": "^14.4.0",
     "chart.js": "^4.5.1",
     "chroma-js": "^3.2.0",
