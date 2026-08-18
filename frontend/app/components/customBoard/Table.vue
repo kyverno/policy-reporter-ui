@@ -92,7 +92,6 @@ const openPolicy = (policy: string, source: string) => {
   window.open(href, '_blank')
 }
 
-
 const options = reactive({
   itemsPerPage: 10,
   page: 1,

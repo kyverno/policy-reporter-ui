@@ -14,7 +14,7 @@
         </v-card-text>
         <scroller :list="source.categories">
           <template #default="{ item }">
-            <resource-results :source="source.name" :resource="resource.id" :category="item" :exceptions="source.exceptions" :plugin="source.plugin" />
+            <custom-board-results :id="id" :source="source.name" :resource="resource.id" :category="item" :exceptions="source.exceptions" :plugin="source.plugin" />
           </template>
         </scroller>
       </div>
@@ -30,6 +30,7 @@ const open = ref(true)
 defineProps<{
   source: SourceDetails;
   resource: Resource;
+  id: string;
 }>();
 
 </script>

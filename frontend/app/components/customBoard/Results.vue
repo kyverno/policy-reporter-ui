@@ -23,6 +23,7 @@
 import { Status } from "~/types/core";
 
 const props = defineProps<{
+  id: string;
   plugin?: boolean;
   source: string;
   category?: string;
@@ -47,7 +48,7 @@ const searchText = ref('')
 const status = useStatusInjection()
 
 const { data, refresh } = useAPI(
-    (api) => api.results(props.resource, {
+    (api) => api.customBoardResourceDetailedResults(props.id, props.resource, {
       page: options.page,
       offset: options.itemsPerPage,
     }, {

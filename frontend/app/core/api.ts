@@ -61,6 +61,10 @@ export class CoreAPI {
     return exec<ResourceDetails>(`/api/${this.cluster}/resource/${id}`, { baseURL: this.baseURL, params: filter })
   }
 
+  customBoardResource (cb: string, id: string, filter?: Filter) {
+    return exec<ResourceDetails>(`/api/${this.cluster}/custom-board/${cb}/resource/${id}`, { baseURL: this.baseURL, params: filter })
+  }
+
   createException (id: string, source: string, policies?: ExceptionPolicy[], category?: string) {
     return exec<ExceptionResponse>(`/api/${this.cluster}/resource/${id}/exception`, { baseURL: this.baseURL, method: "POST", body: { policies, source, category } })
   }
@@ -139,6 +143,10 @@ export class CoreAPI {
 
   customBoardResults (id: string, filter?: Filter, pagination?: Pagination) {
     return exec<ResultList>(`/api/${this.cluster}/custom-board/${id}/results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
+  }
+
+  customBoardResourceDetailedResults (id: string, res: string, pagination?: Pagination, filter?: Filter) {
+    return exec<ResultList>(`/api/${this.cluster}/custom-board/${id}/resource/${res}/results`, { baseURL: this.baseURL, params: { ...applyExcludes(filter, this.nsExcludes), ...pagination } })
   }
 
   customBoardClusterResourceResults (id: string, filter?: Filter, pagination?: Pagination) {
