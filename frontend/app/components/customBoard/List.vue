@@ -10,7 +10,7 @@
       </v-toolbar>
       <template v-if="open">
         <v-list v-if="data?.items?.length" lines="two" class="pt-0">
-          <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" :exceptions="exceptions" :show-skipped="showSkipped" :to="to" />
+          <custom-board-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :custom-board="id" :filter="filter" :exceptions="exceptions" :show-skipped="showSkipped" />
         </v-list>
         <template v-if="data.count > options.offset">
           <v-divider />

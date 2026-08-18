@@ -1,6 +1,6 @@
 <template>
   <v-divider />
-  <v-list-item :to="item.id ? { name: 'resource-id', query: rsFilter, params: { id: item.id }} : to">
+  <v-list-item :to="item.id ? { name: 'custom-boards-id-resource-res', query: rsFilter, params: { res: item.id }} : to">
     <template v-if="details" v-slot:prepend>
       <v-btn class="mr-2" variant="text" :icon="!open ? `mdi-chevron-up` : `mdi-chevron-down`" @click.stop.prevent="open = !open"></v-btn>
     </template>
@@ -27,6 +27,7 @@ import {injectDashboardType} from "~/composables/dashboard";
 const open = ref(false)
 
 const props = defineProps({
+  customBoard: { type: String, required: true },
   item: { type: Object as PropType<ResourceResult>, required: true },
   details: { type: Boolean, default: false },
   exceptions: { type: Boolean, default: false },

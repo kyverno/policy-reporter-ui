@@ -18,6 +18,7 @@ func MapSourceCategoryTreeToNavi(sources []core.SourceCategoryTree) []Navigation
 	if len(sources) == 1 {
 		for _, category := range sources[0].Categories {
 			sourceBoards = append(sourceBoards, NavigationItem{
+				ID:    sources[0].Name,
 				Title: utils.Fallback(category.Name, "Other"),
 				Path:  fmt.Sprintf("/source/%s/%s", sources[0].Name, category.Name),
 			})

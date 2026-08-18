@@ -578,13 +578,13 @@ func (s *Service) Dashboard(ctx context.Context, o DashboardOptions, query url.V
 	cmx := &sync.Mutex{}
 
 	if len(o.Status) == 0 {
-		o.Status = s.filterEnabled(o.Sources, func(c model.SourceConfig) []string {
+		o.Status = s.FilterEnabled(o.Sources, func(c model.SourceConfig) []string {
 			return c.EnabledResults()
 		})
 	}
 
 	if len(o.Severities) == 0 {
-		o.Severities = s.filterEnabled(o.Sources, func(c model.SourceConfig) []string {
+		o.Severities = s.FilterEnabled(o.Sources, func(c model.SourceConfig) []string {
 			return c.EnabledSeverities()
 		})
 	}
@@ -801,13 +801,13 @@ func (s *Service) SeverityDashboard(ctx context.Context, o DashboardOptions, que
 	cmx := &sync.Mutex{}
 
 	if len(o.Status) == 0 {
-		o.Status = s.filterEnabled(o.Sources, func(c model.SourceConfig) []string {
+		o.Status = s.FilterEnabled(o.Sources, func(c model.SourceConfig) []string {
 			return c.EnabledResults()
 		})
 	}
 
 	if len(o.Severities) == 0 {
-		o.Severities = s.filterEnabled(o.Sources, func(c model.SourceConfig) []string {
+		o.Severities = s.FilterEnabled(o.Sources, func(c model.SourceConfig) []string {
 			return c.EnabledSeverities()
 		})
 	}
@@ -923,13 +923,13 @@ func (s *Service) SeverityDashboard(ctx context.Context, o DashboardOptions, que
 
 func (s *Service) Namespace(ctx context.Context, o DashboardOptions, query url.Values) (*Dashboard, error) {
 	if len(o.Status) == 0 {
-		o.Status = s.filterEnabled(o.Sources, func(c model.SourceConfig) []string {
+		o.Status = s.FilterEnabled(o.Sources, func(c model.SourceConfig) []string {
 			return c.EnabledResults()
 		})
 	}
 
 	if len(o.Severities) == 0 {
-		o.Severities = s.filterEnabled(o.Sources, func(c model.SourceConfig) []string {
+		o.Severities = s.FilterEnabled(o.Sources, func(c model.SourceConfig) []string {
 			return c.EnabledSeverities()
 		})
 	}
@@ -1023,7 +1023,7 @@ func BuildFilters(baseFilter url.Values) (url.Values, url.Values, url.Values) {
 	return combinedFilter, namespaceFilter, clusterFilter
 }
 
-func (s *Service) filterEnabled(sources []string, call func(c model.SourceConfig) []string) []string {
+func (s *Service) FilterEnabled(sources []string, call func(c model.SourceConfig) []string) []string {
 	mapping := map[string]bool{}
 	list := make([]string, 0)
 

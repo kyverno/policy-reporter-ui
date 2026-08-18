@@ -166,18 +166,11 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 
 	query := ctx.Request.URL.Query()
 
-	sources := config.Sources.List
-	if len(sources) > 0 {
-		query["sources"] = sources
+	if len(config.Sources.List) > 0 {
+		query["sources"] = config.Sources.List
 	}
 
-	if len(sources) == 0 {
-		sources, err = endpoints.Core.ListSources(ctx, url.Values{})
-		if err != nil {
-			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-	}
+	sources := config.Sources.Resolved
 
 	var namespaces []string
 	if len(config.Namespaces.Selector) > 0 {
@@ -360,6 +353,12 @@ func (h *Handler) ListCustomBoardClusterScopedResults(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, results)
+}
+
+func (h *Handler) ListCustomBoardResourceDetailedResults(ctx *gin.Context) {
+	h.customBoardForward(ctx, func(e *cluster.Cluster, query url.Values) (any, error) {
+		return e.Core.ListResourceResults(ctx, ctx.Param("resource"), query)
+	})
 }
 
 func (h *Handler) ListNamespaceScopedResourceResults(ctx *gin.Context) {
@@ -747,7 +746,50 @@ func (h *Handler) resolveCustomBoard(ctx *gin.Context) (*cluster.Cluster, Custom
 		return nil, CustomBoard{}, http.StatusNotFound
 	}
 
+	if len(config.Sources.List) == 0 {
+		sources, err := cluster.Core.ListSources(ctx, url.Values{})
+		if err != nil {
+			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+			return nil, CustomBoard{}, http.StatusInternalServerError
+		}
+
+		config.Sources.Resolved = sources
+	} else {
+		config.Sources.Resolved = config.Sources.List
+	}
+
+	if len(config.Filter.Results) == 0 {
+		config.Filter.Results = h.service.FilterEnabled(config.Sources.Resolved, func(c model.SourceConfig) []string {
+			return c.EnabledResults()
+		})
+	}
+
+	if len(config.Filter.Severities) == 0 {
+		config.Filter.Severities = h.service.FilterEnabled(config.Sources.Resolved, func(c model.SourceConfig) []string {
+			return c.EnabledSeverities()
+		})
+	}
+
 	return cluster, config, 0
+}
+
+func (h *Handler) customBoardForward(ctx *gin.Context, cb func(*cluster.Cluster, url.Values) (any, error)) {
+	cluster, config, status := h.resolveCustomBoard(ctx)
+	if status != 0 {
+		ctx.AbortWithStatus(status)
+		return
+	}
+
+	query := applyCustomBoardClusterFilter(ctx.Request.URL.Query(), config)
+
+	resp, err := cb(cluster, query)
+	if err != nil {
+		zap.L().Error("failed to forward request", zap.Error(err), zap.String("path", ctx.Request.URL.Path))
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, resp)
 }
 
 func (h *Handler) forward(ctx *gin.Context, cb func(*cluster.Cluster) (any, error)) {

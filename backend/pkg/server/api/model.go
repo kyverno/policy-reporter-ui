@@ -62,7 +62,8 @@ type Namespaces struct {
 }
 
 type Sources struct {
-	List []string
+	List     []string
+	Resolved []string
 }
 
 type CustomBoard struct {

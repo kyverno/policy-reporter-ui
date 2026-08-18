@@ -18,12 +18,12 @@
           <v-card-subtitle class="pb-4 text-grey-lighten-2" style="opacity: 1">{{ data.resource.apiVersion }} {{ data.resource.kind }}</v-card-subtitle>
         </div>
         <v-card-text>
-          <graph-resource-result-counts v-if="type === 'status'" :data="data.results" />
+          <graph-resource-result-counts v-if="type !== 'severity'" :data="data.results" />
           <graph-resource-severity-counts v-else :data="data.severityResults" />
         </v-card-text>
       </v-card>
     </app-row>
-    <app-row v-if="data.chart" class="mb-6">
+    <app-row v-if="data.chart">
       <v-card>
         <v-card-text>
           <graph-resource-status :data="data.chart" />
@@ -32,7 +32,7 @@
     </app-row>
     <resource-scroller :list="data.sources">
       <template #default="{ item }">
-        <resource-category-tables :source="item" :resource="data.resource" />
+        <custom-board-category-tables :id="cb" :source="item" :resource="data.resource" />
       </template>
     </resource-scroller>
   </v-container>
@@ -44,9 +44,10 @@ import type { Filter } from "~/types/core";
 
 const route = useRoute()
 const router = useRouter()
-const id = computed(() => route.params.id as string)
 
-const type = computed(() => route.params.type as string)
+const cb = computed(() => route.params.id as string)
+const id = computed(() => route.params.res as string)
+const type = computed(() => route.query.type as string)
 
 const filter = computed(() => {
   const f: Filter = {}
@@ -66,10 +67,9 @@ const filter = computed(() => {
   return f
 })
 
-const { data, refresh } = useAPI((api) => api.resource(route.params.id as string, filter.value));
+const { data, refresh } = useAPI((api) => api.customBoardResource(cb.value, id.value, filter.value));
 
 watch(filter, onChange(refresh))
 
 useStatusProvider(data)
-useSeveritiesProvider(data)
 </script>

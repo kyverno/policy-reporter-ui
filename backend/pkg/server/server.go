@@ -66,6 +66,7 @@ func (s *Server) RegisterAPI(c *api.Config, customBoards *customboard.Collection
 	cb.GET(":id/cluster-results", handler.ListCustomBoardClusterScopedResults)
 	cb.GET(":id/results", handler.ListCustomBoardNamespaceScopedResults)
 	cb.GET(":id/resource/:resource", handler.GetCustomBoardResourceDetails)
+	cb.GET(":id/resource/:resource/results", handler.ListCustomBoardResourceDetailedResults)
 
 	ns := cluster.Group("namespace-scoped")
 	ns.GET("results", handler.ListNamespaceScopedResults)

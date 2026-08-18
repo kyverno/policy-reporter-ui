@@ -14,7 +14,7 @@
     </v-list>
     <template v-else>
       <v-list v-if="data?.items?.length && open" lines="two">
-        <resource-item v-for="item in data.items" :key="item.id" :item="item" :details="details" :filter="filter" :exceptions="exceptions" :show-skipped="showSkipped" />
+        <custom-board-item v-for="item in data.items" :key="item.id" :custom-board="props.id" :item="item" :details="details" :filter="filter" :exceptions="exceptions" :show-skipped="showSkipped" />
       </v-list>
       <template v-if="data.count > options.offset">
         <v-divider />
@@ -39,7 +39,6 @@ const props = defineProps({
   details: { type: Boolean, required: true },
   exceptions: { type: Boolean, required: false },
   perPage: { type: Number, required: false, default: 8 },
-  to: { type: [String, Object], required: false },
   id: { type: String, required: true },
 });
 
