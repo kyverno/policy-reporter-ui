@@ -10,6 +10,7 @@
           :exceptions="exceptions"
           :resource="resource"
           :data="data"
+          :plugin="plugin"
           v-model:items-per-page="options.itemsPerPage"
           v-model:page="options.page"
           @search="searchText = $event"
