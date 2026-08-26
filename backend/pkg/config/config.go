@@ -30,6 +30,7 @@ type OpenIDConnect struct {
 	Scopes       []string `koanf:"scopes"`
 	SkipTLS      bool     `koanf:"skipTLS"`
 	Certificate  string   `koanf:"certificate"`
+	PKCE         bool     `koanf:"pkce"`
 }
 
 func (a OpenIDConnect) BasePath() string {

@@ -33,8 +33,8 @@ github.com/evanphx/json-patch v0.5.2 h1:xVCHIVMUu1wtM/VkR9jVZ45N3FhZfYMMYGorLCR8
 github.com/evanphx/json-patch v0.5.2/go.mod h1:ZWS5hhDbVDyob71nXKNL0+PWn6ToqBHMikGIFbs31qQ=
 github.com/evanphx/json-patch/v5 v5.9.11 h1:/8HVnzMq13/3x9TPvjG08wUGqBTmZBsCWzjTM0wiaDU=
 github.com/evanphx/json-patch/v5 v5.9.11/go.mod h1:3j+LviiESTElxA4p3EMKAB9HXj3/XEtnUf6OZxqIQTM=
-github.com/fjogeleit/goth v1.83.0 h1:peJgZCdf3vqHE5IzKkBQXd4QK20kIYHBpFNNxnErF3w=
-github.com/fjogeleit/goth v1.83.0/go.mod h1:HzAbdnKIhyj+w/gr7Qc1vhEkJRzwdWm5RUqKww7cP5k=
+github.com/fjogeleit/goth v1.84.0 h1:AQYyIFskgZvzO6vu+RadK+tlhJxEX+I251xHOvs6VkU=
+github.com/fjogeleit/goth v1.84.0/go.mod h1:HzAbdnKIhyj+w/gr7Qc1vhEkJRzwdWm5RUqKww7cP5k=
 github.com/fsnotify/fsnotify v1.10.1 h1:b0/UzAf9yR5rhf3RPm9gf3ehBPpf0oZKIjtpKrx59Ho=
 github.com/fsnotify/fsnotify v1.10.1/go.mod h1:TLheqan6HD6GBK6PrDWyDPBaEV8LspOxvPSjC+bVfgo=
 github.com/fxamacker/cbor/v2 v2.9.3 h1:oQBnFATpNdY8gJHTndDDv5Xl4QqNaz51G5LLEPhng3Q=
