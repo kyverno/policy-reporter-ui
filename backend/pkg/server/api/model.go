@@ -57,8 +57,8 @@ type PolicyReports struct {
 }
 
 type Namespaces struct {
-	Selector map[string]string
-	List     []string
+	LabelSelector map[string]string
+	List          []string
 }
 
 type Sources struct {

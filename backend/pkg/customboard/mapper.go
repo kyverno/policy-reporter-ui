@@ -20,7 +20,7 @@ func MapCustomBoardToModel(cb *v1alpha1.CustomBoard) *CustomBoard {
 			ResultView:    string(utils.Fallback(cb.Spec.Display, cb.Spec.RenderOptions.ResultView)),
 			DashboardMode: cb.Spec.RenderOptions.DashboardMode,
 		},
-		Namespaces:    NamespaceSelector{Selector: cb.Spec.NamespaceSelector.LabelSelector, List: cb.Spec.NamespaceSelector.List},
+		Namespaces:    NamespaceSelector{LabelSelector: cb.Spec.NamespaceSelector.LabelSelector, List: cb.Spec.NamespaceSelector.List},
 		Sources:       MapSources(cb.Spec.SourceSelector),
 		PolicyReports: MapPolicyReports(cb.Spec.PolicyReportSelector),
 		ClusterScope:  ClusterScope{Enabled: cb.Spec.ClusterScope == nil || cb.Spec.ClusterScope.Enabled},

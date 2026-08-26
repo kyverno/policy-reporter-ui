@@ -20,8 +20,16 @@ type Filter struct {
 }
 
 type NamespaceSelector struct {
-	Selector map[string]string `koanf:"selector"`
-	List     []string          `koanf:"list"`
+	LabelSelector map[string]string `koanf:"labelSelector"`
+	Selector      map[string]string `koanf:"selector"`
+	List          []string          `koanf:"list"`
+}
+
+func (n *NamespaceSelector) Labels() map[string]string {
+	if len(n.LabelSelector) == 0 {
+		return n.Selector
+	}
+	return n.LabelSelector
 }
 
 type SourceSelector struct {
