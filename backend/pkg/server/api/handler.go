@@ -173,7 +173,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 	sources := config.Sources.Resolved
 
 	var namespaces []string
-	if len(config.Namespaces.Selector) > 0 {
+	if len(config.Namespaces.LabelSelector) > 0 {
 		nsQuery := ctx.Request.URL.Query()
 		appendFilter(nsQuery, "sources", config.Sources.List)
 		appendFilter(nsQuery, "apis", config.Filter.Resources)
@@ -181,7 +181,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 		appendFilter(nsQuery, "status", config.Filter.Results)
 		appendFilter(nsQuery, "severities", config.Filter.Severities)
 
-		ns, err := endpoints.Core.ResolveNamespaceSelector(ctx, config.Namespaces.Selector, nsQuery)
+		ns, err := endpoints.Core.ResolveNamespaceSelector(ctx, config.Namespaces.LabelSelector, nsQuery)
 		if err != nil {
 			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 			return

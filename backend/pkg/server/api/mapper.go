@@ -239,8 +239,8 @@ func MapCustomBoard(c *customboard.CustomBoard) CustomBoard {
 		},
 		Filter: MapFilter(c.Filter.Include),
 		Namespaces: Namespaces{
-			Selector: c.Namespaces.Selector,
-			List:     c.Namespaces.List,
+			LabelSelector: c.Namespaces.Labels(),
+			List:          c.Namespaces.List,
 		},
 		Sources: Sources{
 			List: c.Sources.List,
