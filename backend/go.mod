@@ -1,6 +1,6 @@
 module github.com/kyverno/policy-reporter-ui
 
-go 1.26.4
+go 1.27.0
 
 require (
 	github.com/KimMachineGun/automemlimit v1.0.0
@@ -50,7 +50,7 @@ require (
 	github.com/go-chi/chi/v5 v5.3.2 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-openapi/jsonpointer v1.0.0 // indirect
-	github.com/go-openapi/jsonreference v1.0.0 // indirect
+	github.com/go-openapi/jsonreference v1.0.1 // indirect
 	github.com/go-openapi/swag v0.29.1 // indirect
 	github.com/go-openapi/swag/cmdutils v0.29.1 // indirect
 	github.com/go-openapi/swag/conv v0.29.1 // indirect
