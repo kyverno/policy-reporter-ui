@@ -48,6 +48,9 @@ type NamespaceCustomBoardSpec struct {
 	// +optional
 	Display ResultView `json:"display,omitempty"`
 
+	// +optional
+	RenderOptions RenderOptions `json:"renderOptions"`
+
 	// SourceSelector allows to select visualized sources
 	// +optional
 	SourceSelector *SourceSelector `json:"sources,omitempty"`

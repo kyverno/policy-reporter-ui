@@ -8,6 +8,20 @@ import (
 )
 
 func MapCustomBoardToModel(cb *v1alpha1.CustomBoard) *CustomBoard {
+	view := utils.Fallback(cb.Spec.Display, cb.Spec.RenderOptions.ResultView)
+
+	views := make([]string, 0, len(cb.Spec.RenderOptions.ResultViews))
+	for _, v := range cb.Spec.RenderOptions.ResultViews {
+		views = append(views, string(v))
+	}
+
+	if len(views) == 0 {
+		if view == "" {
+			view = v1alpha1.DisplayResources
+		}
+		views = []string{string(view)}
+	}
+
 	return &CustomBoard{
 		ID:            cb.Name,
 		Name:          cb.Spec.Title,
@@ -17,17 +31,32 @@ func MapCustomBoardToModel(cb *v1alpha1.CustomBoard) *CustomBoard {
 		},
 		Display: string(cb.Spec.Display),
 		RenderOptions: RenderOptions{
-			ResultView:    string(utils.Fallback(cb.Spec.Display, cb.Spec.RenderOptions.ResultView)),
+			ResultView:    string(view),
+			ResultViews:   views,
 			DashboardMode: cb.Spec.RenderOptions.DashboardMode,
 		},
-		Namespaces:    NamespaceSelector{LabelSelector: cb.Spec.NamespaceSelector.LabelSelector, List: cb.Spec.NamespaceSelector.List},
+		Namespaces: NamespaceSelector{LabelSelector: cb.Spec.NamespaceSelector.LabelSelector, List: cb.Spec.NamespaceSelector.List},
 		Sources:       MapSources(cb.Spec.SourceSelector),
 		PolicyReports: MapPolicyReports(cb.Spec.PolicyReportSelector),
-		ClusterScope:  ClusterScope{Enabled: cb.Spec.ClusterScope == nil || cb.Spec.ClusterScope.Enabled},
+		ClusterScope: ClusterScope{Enabled: cb.Spec.ClusterScope == nil || cb.Spec.ClusterScope.Enabled},
 	}
 }
 
 func MapNamespaceCustomBoardToModel(cb *v1alpha1.NamespaceCustomBoard) *CustomBoard {
+	view := utils.Fallback(cb.Spec.Display, cb.Spec.RenderOptions.ResultView)
+
+	views := make([]string, 0, len(cb.Spec.RenderOptions.ResultViews))
+	for _, v := range cb.Spec.RenderOptions.ResultViews {
+		views = append(views, string(v))
+	}
+
+	if len(views) == 0 {
+		if view == "" {
+			view = v1alpha1.DisplayResources
+		}
+		views = []string{string(view)}
+	}
+
 	return &CustomBoard{
 		ID:            fmt.Sprintf("%s-%s", cb.Namespace, cb.Name),
 		Name:          cb.Spec.Title,
@@ -35,8 +64,14 @@ func MapNamespaceCustomBoardToModel(cb *v1alpha1.NamespaceCustomBoard) *CustomBo
 		Filter: FilterList{
 			Include: MapIncludeFilter(cb.Spec.Filter),
 		},
-		Display:       string(cb.Spec.Display),
-		Namespaces:    NamespaceSelector{List: []string{cb.Namespace}},
+		Display: string(cb.Spec.Display),
+		RenderOptions: RenderOptions{
+			ResultView:  string(view),
+			ResultViews: views,
+		},
+		Namespaces: NamespaceSelector{
+			List: []string{cb.Namespace},
+		},
 		Sources:       MapSources(cb.Spec.SourceSelector),
 		PolicyReports: MapPolicyReports(cb.Spec.PolicyReportSelector),
 		ClusterScope:  ClusterScope{Enabled: false},

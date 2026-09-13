@@ -56,8 +56,9 @@ type ClusterScope struct {
 }
 
 type RenderOptions struct {
-	DashboardMode string `koanf:"dashboardMode"`
-	ResultView    string `koanf:"resultView"`
+	DashboardMode string   `koanf:"dashboardMode"`
+	ResultView    string   `koanf:"resultView"`
+	ResultViews   []string `koanf:"resultViews"`
 }
 
 type CustomBoard struct {
@@ -78,4 +79,16 @@ func (c *CustomBoard) ResultView() string {
 		return c.RenderOptions.ResultView
 	}
 	return c.Display
+}
+
+func (c *CustomBoard) ResultViews() []string {
+	if len(c.RenderOptions.ResultViews) > 0 {
+		return c.RenderOptions.ResultViews
+	}
+
+	view := c.ResultView()
+	if view == "" {
+		view = "resources"
+	}
+	return []string{view}
 }

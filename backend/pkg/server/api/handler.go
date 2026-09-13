@@ -174,13 +174,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 
 	var namespaces []string
 	if len(config.Namespaces.LabelSelector) > 0 {
-		nsQuery := ctx.Request.URL.Query()
-		appendFilter(nsQuery, "sources", config.Sources.List)
-		appendFilter(nsQuery, "apis", config.Filter.Resources)
-		appendFilter(nsQuery, "kinds", config.Filter.NamespaceKinds)
-		appendFilter(nsQuery, "status", config.Filter.Results)
-		appendFilter(nsQuery, "severities", config.Filter.Severities)
-
+		nsQuery := applyCustomBoardNamespaceFilter(ctx.Request.URL.Query(), config)
 		ns, err := endpoints.Core.ResolveNamespaceSelector(ctx, config.Namespaces.LabelSelector, nsQuery)
 		if err != nil {
 			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -203,6 +197,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 			RenderOptions: service.RenderOptions{
 				DashboardMode: utils.Fallback(config.RenderOptions.DashboardMode, "detailed"),
 				ResultView:    config.RenderOptions.ResultView,
+				ResultViews:   config.RenderOptions.ResultViews,
 			},
 			Filter: service.Filter{
 				Severities:     config.Filter.Severities,
@@ -236,6 +231,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 		RenderOptions: service.RenderOptions{
 			DashboardMode: utils.Fallback(config.RenderOptions.DashboardMode, "detailed"),
 			ResultView:    config.RenderOptions.ResultView,
+			ResultViews:   config.RenderOptions.ResultViews,
 		},
 	}, query)
 	if err != nil {
@@ -353,6 +349,61 @@ func (h *Handler) ListCustomBoardClusterScopedResults(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, results)
+}
+
+func (h *Handler) ListCustomBoardPolicySources(ctx *gin.Context) {
+	cluster, config, status := h.resolveCustomBoard(ctx)
+	if status != 0 {
+		ctx.AbortWithStatus(status)
+		return
+	}
+
+	query := applyCustomBoardFilter(ctx.Request.URL.Query(), config)
+
+	if len(config.Namespaces.LabelSelector) > 0 {
+		nsQuery := applyCustomBoardNamespaceFilter(ctx.Request.URL.Query(), config)
+
+		namespaces, err := cluster.Core.ResolveNamespaceSelector(
+			ctx,
+			config.Namespaces.LabelSelector,
+			nsQuery,
+		)
+		if err != nil {
+			zap.L().Error(
+				"failed to resolve custom board namespace selector",
+				zap.String("cluster", ctx.Param("cluster")),
+				zap.String("customBoard", ctx.Param("id")),
+				zap.Error(err),
+			)
+			ctx.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		appendFilter(query, "namespaces", namespaces)
+	}
+
+	details, err := h.service.PolicySources(ctx, ctx.Param("cluster"), query)
+	if err != nil {
+		zap.L().Error(
+			"failed to generate custom board policy sources",
+			zap.String("cluster", ctx.Param("cluster")),
+			zap.String("customBoard", ctx.Param("id")),
+			zap.Error(err),
+		)
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	nsKinds, _ := cluster.Core.ListNamespacedKinds(ctx, url.Values{})
+	clusterKinds, _ := cluster.Core.ListClusterKinds(ctx, url.Values{})
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"filter": gin.H{
+			"namespaceKinds": nsKinds,
+			"clusterKinds":   clusterKinds,
+		},
+		"sources": details,
+	})
 }
 
 func (h *Handler) ListCustomBoardResourceDetailedResults(ctx *gin.Context) {
@@ -868,6 +919,15 @@ func applyCustomBoardFilter(query url.Values, config CustomBoard) url.Values {
 func applyCustomBoardClusterFilter(query url.Values, config CustomBoard) url.Values {
 	appendFilter(query, "kinds", config.Filter.ClusterKinds)
 	appendFilter(query, "apis", config.Filter.ClusterResources)
+	appendFilter(query, "status", config.Filter.Results)
+	appendFilter(query, "severities", config.Filter.Severities)
+	return query
+}
+
+func applyCustomBoardNamespaceFilter(query url.Values, config CustomBoard) url.Values {
+	appendFilter(query, "sources", config.Sources.List)
+	appendFilter(query, "apis", config.Filter.Resources)
+	appendFilter(query, "kinds", config.Filter.NamespaceKinds)
 	appendFilter(query, "status", config.Filter.Results)
 	appendFilter(query, "severities", config.Filter.Severities)
 	return query

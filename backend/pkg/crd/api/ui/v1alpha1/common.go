@@ -18,6 +18,7 @@ type ResultView string
 const (
 	DisplayResources ResultView = "resources"
 	DisplayResults   ResultView = "results"
+	DisplayPolicies  ResultView = "policies"
 )
 
 // +kubebuilder:oneOf:={required:{emails}}
@@ -90,8 +91,13 @@ type RenderOptions struct {
 	// +kubebuilder:default=detailed
 	// +optional
 	DashboardMode string `json:"dashboardMode"`
-	// +kubebuilder:validation:Enum=resources;results
+	// +kubebuilder:validation:Enum=resources;results;policies
 	// +kubebuilder:default=resources
 	// +optional
 	ResultView ResultView `json:"resultView"`
+	// ResultViews controls which result views can be selected from the custom board UI.
+	// If omitted, only ResultView is available.
+	// +kubebuilder:validation:items:Enum=resources;results;policies
+	// +optional
+	ResultViews []ResultView `json:"resultViews,omitempty"`
 }

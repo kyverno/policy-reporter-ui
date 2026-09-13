@@ -192,7 +192,19 @@ spec:
                     enum:
                     - resources
                     - results
+                    - policies
                     type: string
+                  resultViews:
+                    description: |-
+                      ResultViews controls which result views can be selected from the custom board UI.
+                      If omitted, only ResultView is available.
+                    items:
+                      enum:
+                      - resources
+                      - results
+                      - policies
+                      type: string
+                    type: array
                 type: object
               sources:
                 description: SourceSelector allows to select visualized sources

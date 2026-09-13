@@ -236,6 +236,7 @@ func MapCustomBoard(c *customboard.CustomBoard) CustomBoard {
 		RenderOptions: RenderOptions{
 			DashboardMode: utils.Fallback(c.RenderOptions.DashboardMode, c.Display),
 			ResultView:    c.RenderOptions.ResultView,
+			ResultViews:   c.RenderOptions.ResultViews,
 		},
 		Filter: MapFilter(c.Filter.Include),
 		Namespaces: Namespaces{
