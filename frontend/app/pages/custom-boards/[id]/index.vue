@@ -8,7 +8,13 @@
                :ns-scoped="!data.clusterScope"
                :store="id"
   >
-    <template v-if="data.namespaces.length">
+    <template #append v-if="availableViews.length > 1">
+      <custom-board-view-selector v-model="resultView" :views="availableViews" />
+    </template>
+
+    <custom-board-policies v-if="resultView === 'policies'" :id="id" />
+
+    <template v-else-if="data.namespaces.length">
       <template v-if="isCompact">
         <LazyGraphSourceCard
           v-if="data.singleSource"
@@ -24,7 +30,7 @@
         <GraphSourceCharts :data="data" :hide-cluster="!data.clusterScope" />
         <v-row v-if="data.clusterScope">
           <v-col>
-            <custom-board-cluster-table v-if="showResults" :sources="data.sources" :id="id" />
+            <custom-board-cluster-table v-if="resultView === 'results'" :sources="data.sources" :id="id" />
             <custom-board-cluster-list v-else :details="data.multiSource" :id="id" />
           </v-col>
         </v-row>
@@ -32,7 +38,7 @@
           <template #default="{ namespaces }">
             <resource-scroller :list="namespaces" :default-loadings="3">
               <template #default="{ item }">
-                <custom-board-table v-if="showResults" :namespace="item" :sources="data.sources" :id="id" />
+                <custom-board-table v-if="resultView === 'results'" :namespace="item" :sources="data.sources" :id="id" />
                 <custom-board-list v-else :namespace="item" :details="data.multiSource" :id="id" />
               </template>
             </resource-scroller>
@@ -54,6 +60,8 @@
 <script setup lang="ts">
 import { APIFilter } from "~/provider/dashboard";
 
+type ResultView = 'resources' | 'results' | 'policies'
+
 const route = useRoute()
 
 const { kinds, clusterKinds, filter } = useFilter()
@@ -61,7 +69,30 @@ const { kinds, clusterKinds, filter } = useFilter()
 const id = computed(() => route.params.id as string)
 
 const { data, refresh, error } = useAPI((api) => api.customBoard(id.value, filter.value))
-const { showResults, dataType, mode, isCompact } = useDashboardHelper(data)
+const { dataType, mode, isCompact } = useDashboardHelper(data)
+
+const resultView = ref<ResultView>('resources')
+
+const availableViews = computed<ResultView[]>(() => {
+  const views = data.value?.renderOptions?.resultViews?.length
+    ? data.value.renderOptions.resultViews
+    : data.value?.renderOptions?.resultView
+      ? [data.value.renderOptions.resultView]
+      : ['resources']
+
+  return views.filter(
+    (view): view is ResultView =>
+      view === 'resources' ||
+      view === 'results' ||
+      view === 'policies'
+  )
+})
+
+watch(data, (board) => {
+  if (!board) return
+  const current = board.renderOptions?.resultView as ResultView
+  resultView.value = availableViews.value.includes(current) ? current : availableViews.value[0] || 'resources'
+}, { immediate: true })
 
 const source = computed(() => data.value.singleSource ? data.value.sources[0] : undefined)
 
