@@ -10,6 +10,7 @@ import (
 func MapCustomBoardToModel(cb *v1alpha1.CustomBoard) *CustomBoard {
 	return &CustomBoard{
 		ID:            cb.Name,
+		Clusters:      cb.Spec.Clusters,
 		Name:          cb.Spec.Title,
 		AccessControl: MapAccessControl(cb.Spec.AccessControl),
 		Filter: FilterList{
