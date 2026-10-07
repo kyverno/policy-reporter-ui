@@ -1,5 +1,7 @@
 package customboard
 
+import "slices"
+
 type AccessControl struct {
 	Emails []string `koanf:"emails"`
 	Groups []string `koanf:"groups"`
@@ -61,6 +63,7 @@ type RenderOptions struct {
 }
 
 type CustomBoard struct {
+	Clusters      []string `koanf:"clusters"`
 	ID            string
 	Name          string               `koanf:"name"`
 	AccessControl AccessControl        `koanf:"accessControl"`
@@ -78,4 +81,9 @@ func (c *CustomBoard) ResultView() string {
 		return c.RenderOptions.ResultView
 	}
 	return c.Display
+}
+
+// MatchesCluster reports whether the board applies to the configured cluster slug.
+func (c *CustomBoard) MatchesCluster(cluster string) bool {
+	return len(c.Clusters) == 0 || slices.Contains(c.Clusters, cluster)
 }
