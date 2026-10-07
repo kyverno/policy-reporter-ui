@@ -252,7 +252,7 @@ func (h *Handler) GetCustomBoard(ctx *gin.Context) {
 
 func (h *Handler) GetCustomBoardResourceDetails(ctx *gin.Context) {
 	config := h.customBoards.Board(ctx.Param("id"))
-	if config == nil {
+	if config == nil || !config.MatchesCluster(ctx.Param("cluster")) {
 		ctx.AbortWithStatus(http.StatusNotFound)
 		return
 	}
@@ -437,7 +437,9 @@ func (h *Handler) Layout(ctx *gin.Context) {
 	}
 
 	boards := make(map[string]CustomBoard, 0)
-	list := utils.Map(h.customBoards.Boards(), MapCustomBoard)
+	list := utils.Map(utils.Filter(h.customBoards.Boards(), func(board *customboard.CustomBoard) bool {
+		return board.MatchesCluster(ctx.Param("cluster"))
+	}), MapCustomBoard)
 	showClusters := h.clients.Length() > 1
 
 	profile := auth.ProfileFrom(ctx)
@@ -729,7 +731,7 @@ func (h *Handler) GetNamespaceReport(ctx *gin.Context) {
 
 func (h *Handler) resolveCustomBoard(ctx *gin.Context) (*cluster.Cluster, CustomBoard, int) {
 	board := h.customBoards.Board(ctx.Param("id"))
-	if board == nil {
+	if board == nil || !board.MatchesCluster(ctx.Param("cluster")) {
 		return nil, CustomBoard{}, http.StatusNotFound
 	}
 
