@@ -24,8 +24,8 @@
   </v-list-item>
   <template v-if="open">
     <v-divider />
-    <v-list-item :class="`${bg} text-pre-line`">
-      {{ item.description }}
+    <v-list-item :class="bg">
+      <PolicyDescription :description="item.description" />
     </v-list-item>
   </template>
 </template>

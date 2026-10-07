@@ -48,10 +48,10 @@
       <v-col cols="12" lg="7">
         <v-card style="height: 100%" title="Description">
           <v-divider/>
-          <v-card-text class="text-pre-line overflow-y-hidden" style="height: calc(100% - 104px)">
+          <v-card-text class="overflow-y-hidden" style="height: calc(100% - 104px)">
             <v-expand-transition>
-            <div :style="{ maxHeight: descriptionHeight }">
-              {{ policy.description }}
+            <div class="overflow-hidden" :style="{ maxHeight: descriptionHeight }">
+              <PolicyDescription :description="policy.description" />
             </div>
             </v-expand-transition>
           </v-card-text>
