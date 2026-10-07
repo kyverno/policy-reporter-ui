@@ -77,6 +77,12 @@ spec:
                 required:
                 - enabled
                 type: object
+              clusters:
+                description: Clusters restricts this board to configured cluster slugs.
+                  Empty means all clusters.
+                items:
+                  type: string
+                type: array
               display:
                 description: |-
                   Allowed values are "resources" or "results".
