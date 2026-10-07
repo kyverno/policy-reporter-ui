@@ -39,6 +39,10 @@ type CustomBoard struct {
 }
 
 type CustomBoardSpec struct {
+	// Clusters restricts this board to configured cluster slugs. Empty means all clusters.
+	// +optional
+	Clusters []string `json:"clusters,omitempty"`
+
 	// +optional
 	Title string `json:"title,omitempty"`
 
