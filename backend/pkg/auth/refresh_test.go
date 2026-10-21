@@ -37,6 +37,7 @@ func (s *failingRefreshStore) Get(r *http.Request, name string) (*gsessions.Sess
 	session.ID, session.IsNew = original.ID, original.IsNew
 	return session, nil
 }
+
 func (s *failingRefreshStore) Save(r *http.Request, w http.ResponseWriter, session *gsessions.Session) error {
 	if s.fail {
 		return errors.New("save failed")
@@ -44,6 +45,7 @@ func (s *failingRefreshStore) Save(r *http.Request, w http.ResponseWriter, sessi
 	return s.Store.Save(r, w, session)
 }
 
+//nolint:paralleltest // These scenarios mutate the global Goth provider registry and session store.
 func TestOIDCSessionRefresh(t *testing.T) {
 	registerTestProfile.Do(func() { gob.Register(Profile{}) })
 	gin.SetMode(gin.TestMode)
@@ -185,7 +187,7 @@ func TestOIDCSessionRefresh(t *testing.T) {
 			router.GET("/ui", Valid("/"), respond)
 			router.GET("/stored", respond)
 			request := func(path string, cookies []*http.Cookie) *httptest.ResponseRecorder {
-				r := httptest.NewRequest(http.MethodGet, path, nil)
+				r := httptest.NewRequestWithContext(t.Context(), http.MethodGet, path, nil)
 				for _, cookie := range cookies {
 					r.AddCookie(cookie)
 				}
@@ -228,7 +230,7 @@ func TestOIDCSessionRefresh(t *testing.T) {
 					t.Errorf("refreshed profile not persisted: %+v", actual)
 				}
 				// Read the server-side session to check secrets that JSON deliberately omits.
-				check := httptest.NewRequest(http.MethodGet, "/", nil)
+				check := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 				for _, cookie := range cookies {
 					check.AddCookie(cookie)
 				}
