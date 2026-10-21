@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -51,6 +50,12 @@ func Valid(basePath string) gin.HandlerFunc {
 			return
 		}
 
+		if err := refreshExpiredProfile(ctx, profile); err != nil {
+			logout(ctx)
+			ctx.Redirect(http.StatusTemporaryRedirect, basePath+"login")
+			return
+		}
+
 		session := sessions.Default(ctx)
 
 		sess := ProviderSession(providerName, profile)
@@ -92,7 +97,7 @@ func Auth(basePath string) gin.HandlerFunc {
 			return
 		}
 
-		if !profile.ExpiresAt.IsZero() && profile.ExpiresAt.Before(time.Now()) {
+		if err := refreshExpiredProfile(ctx, profile); err != nil {
 			abort(ctx, basePath, "expired session")
 			return
 		}
