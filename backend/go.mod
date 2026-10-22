@@ -19,7 +19,7 @@ require (
 	github.com/knadh/koanf/v2 v2.3.6
 	github.com/kyverno/policy-reporter-plugins/sdk/api v0.0.0-20260726092009-ebe9e971f90e
 	github.com/markbates/goth v0.0.0-00010101000000-000000000000
-	github.com/redis/go-redis/v9 v9.22.0
+	github.com/redis/go-redis/v9 v9.23.0
 	github.com/spf13/cobra v1.10.2
 	go.uber.org/zap v1.28.0
 	golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa
@@ -107,7 +107,7 @@ require (
 	github.com/ugorji/go/codec v1.3.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.9.2 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/atomic v1.12.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
