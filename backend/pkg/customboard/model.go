@@ -58,8 +58,9 @@ type ClusterScope struct {
 }
 
 type RenderOptions struct {
-	DashboardMode string `koanf:"dashboardMode"`
-	ResultView    string `koanf:"resultView"`
+	DashboardMode string   `koanf:"dashboardMode"`
+	ResultView    string   `koanf:"resultView"`
+	ResultViews   []string `koanf:"resultViews"`
 }
 
 type CustomBoard struct {
@@ -86,4 +87,16 @@ func (c *CustomBoard) ResultView() string {
 // MatchesCluster reports whether the board applies to the configured cluster slug.
 func (c *CustomBoard) MatchesCluster(cluster string) bool {
 	return len(c.Clusters) == 0 || slices.Contains(c.Clusters, cluster)
+}
+
+func (c *CustomBoard) ResultViews() []string {
+	if len(c.RenderOptions.ResultViews) > 0 {
+		return c.RenderOptions.ResultViews
+	}
+
+	view := c.ResultView()
+	if view == "" {
+		view = "resources"
+	}
+	return []string{view}
 }

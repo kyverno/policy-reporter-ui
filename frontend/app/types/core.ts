@@ -188,6 +188,7 @@ export type Dashboard = {
     showResults: string[];
     renderOptions: {
         resultView: string;
+        resultViews: string[];
         dashboardMode: Mode;
         dataType: ViewType;
     }
