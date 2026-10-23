@@ -115,3 +115,24 @@ bun run dev
 ```
 
 Access the UI under `http://localhost:3000`
+
+## Publishing release images
+
+The [image workflow](.github/workflows/image.yaml) runs on `v*` tags and uses
+the automatically generated `GITHUB_TOKEN` to publish images, SBOMs, signatures,
+and provenance to GHCR. It does not require a `CR_PAT` secret.
+
+The workflow requests `contents: read`, `packages: write`, and `id-token: write`
+for publishing and keyless signing. Repository and organization Actions policies
+must allow these permissions.
+
+For existing GHCR packages, ensure this repository has **Write** access under
+each package's **Settings > Manage Actions access**:
+
+* `policy-reporter-ui`
+* `sbom/policy-reporter`
+* `signatures/policy-reporter`
+
+The SBOM and signature packages are shared locations, so access to the image
+package alone is not sufficient. Package access must be configured before
+running or rerunning the release workflow.
