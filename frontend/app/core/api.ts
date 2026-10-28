@@ -73,6 +73,10 @@ export class CoreAPI {
     return exec<{ filter: PolicyFilter; sources: SourceDetails[] }>(`/api/${this.cluster}/policy-sources`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]) })
   }
 
+  customBoardPolicySources (id: string, filter?: Filter) {
+    return exec<{ filter: PolicyFilter; sources: SourceDetails[] }>(`/api/${this.cluster}/custom-board/${id}/policy-sources`, { baseURL: this.baseURL, params: applyExcludes(filter, [...this.nsExcludes, ...this.clusterExcludes]), })
+  }
+
   policyDetails (source: string, policy: string, namespace?: string, status?: Status[], kinds?: string[] ) {
     return exec<PolicyDetails>(`/api/${this.cluster}/${source}/policy/details`, { baseURL: this.baseURL, params: applyExcludes({ policies: [policy], namespace, status, kinds }, [...this.nsExcludes, ...this.clusterExcludes], source) })
   }
