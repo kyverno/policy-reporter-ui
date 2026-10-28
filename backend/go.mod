@@ -3,7 +3,7 @@ module github.com/kyverno/policy-reporter-ui
 go 1.27.3
 
 require (
-	github.com/KimMachineGun/automemlimit v1.0.0
+	github.com/KimMachineGun/automemlimit v1.0.1
 	github.com/gin-contrib/cors v1.7.9
 	github.com/gin-contrib/gzip v1.2.8
 	github.com/gin-contrib/sessions v1.1.2
