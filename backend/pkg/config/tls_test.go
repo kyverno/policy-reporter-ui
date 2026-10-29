@@ -59,7 +59,8 @@ func TestTLSConfigLoad(t *testing.T) {
 	t.Setenv("PR_SERVER_TLS_CLIENTAUTH_CAFILE", "/env/ca.crt")
 	t.Setenv("PR_SERVER_METRICS_TLS_ENABLED", "true")
 	c = &Config{}
-	if err := Load(c, filepath.Join(t.TempDir(), "missing")); err != nil {
+	t.Chdir(t.TempDir())
+	if err := Load(c, ""); err != nil {
 		t.Fatal(err)
 	}
 	if !c.Server.TLS.Enabled || !c.Server.TLS.ClientAuth.Enabled || c.Server.TLS.CertFile != "/env/tls.crt" || c.Server.TLS.ClientAuth.CAFile != "/env/ca.crt" || !c.Server.Metrics.TLS.Enabled {

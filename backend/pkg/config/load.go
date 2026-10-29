@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -15,12 +16,15 @@ import (
 func Load(c *Config, cfgFile string) error {
 	k := koanf.New("!")
 
+	explicitConfig := cfgFile != ""
 	if cfgFile == "" {
 		cfgFile = "./config.yaml"
 	}
 
 	if err := k.Load(file.Provider(cfgFile), yaml.Parser()); err != nil {
-		fmt.Printf("[ERROR] failed to load config file: %v\n", err)
+		if explicitConfig || !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("failed to load config file %s: %w", cfgFile, err)
+		}
 	}
 
 	err := k.Load(env.Provider("PR_", ".", func(s string) string {
