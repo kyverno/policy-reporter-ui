@@ -233,7 +233,10 @@ func TestMetricsListener(t *testing.T) {
 					t.Fatalf("client=%v success=%v want %v: %v", withClient, err == nil, want, err)
 				}
 				if err == nil {
-					io.Copy(io.Discard, resp.Body)
+					if _, err := io.Copy(io.Discard, resp.Body); err != nil {
+						resp.Body.Close()
+						t.Fatal(err)
+					}
 					resp.Body.Close()
 					if resp.StatusCode != http.StatusOK {
 						t.Fatalf("status %d", resp.StatusCode)
