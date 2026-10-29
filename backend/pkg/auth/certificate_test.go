@@ -94,7 +94,7 @@ func TestCertificateOrOIDCIdentity(t *testing.T) {
 		respond(c)
 	})
 	request := func(path string, state *tls.ConnectionState, cookies []*http.Cookie) *httptest.ResponseRecorder {
-		req := httptest.NewRequest(http.MethodGet, "https://ui.example"+path, nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "https://ui.example"+path, nil)
 		req.TLS = state
 		for _, cookie := range cookies {
 			req.AddCookie(cookie)
@@ -145,7 +145,7 @@ func TestCertificateOrOIDCIdentity(t *testing.T) {
 		transport := &http.Transport{TLSClientConfig: cfg}
 		defer transport.CloseIdleConnections()
 		client := &http.Client{Transport: transport, Timeout: 3 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
-		req, err := http.NewRequest(http.MethodGet, listener.URL+"/api", nil)
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, listener.URL+"/api", nil)
 		if err != nil {
 			t.Fatal(err)
 		}

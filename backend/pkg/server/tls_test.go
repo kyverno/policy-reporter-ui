@@ -20,6 +20,7 @@ import (
 )
 
 func TestTLSOptions(t *testing.T) {
+	t.Parallel()
 	ca, caKey := testCertificate(t, nil, nil, true, x509.ExtKeyUsageAny, false)
 	cert, key := testCertificate(t, ca, caKey, false, x509.ExtKeyUsageServerAuth, false)
 	dir := t.TempDir()
@@ -59,6 +60,7 @@ func TestTLSOptions(t *testing.T) {
 		"disabled mTLS with CA":         {Enabled: true, CertFile: certFile, KeyFile: keyFile, ClientAuth: ClientAuthOptions{CAFile: caFile}},
 	} {
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 			if _, err := options.Config(); err == nil {
 				t.Fatal("expected validation error")
 			}
@@ -92,7 +94,7 @@ func TestTLSOptions(t *testing.T) {
 		ts.Config.ErrorLog = log.New(io.Discard, "", 0)
 		ts.TLS = cfg
 		ts.StartTLS()
-		defer ts.Close()
+		t.Cleanup(ts.Close)
 		for _, tc := range []struct {
 			name                string
 			parent              *x509.Certificate
@@ -107,6 +109,7 @@ func TestTLSOptions(t *testing.T) {
 			{name: "wrong usage", parent: ca, key: caKey, usage: x509.ExtKeyUsageServerAuth, send: true, want: !verifyClient},
 		} {
 			t.Run(mode+"/"+tc.name, func(t *testing.T) {
+				t.Parallel()
 				clientCfg := &tls.Config{RootCAs: roots, MinVersion: tls.VersionTLS12}
 				if tc.send {
 					leaf, leafKey := testCertificate(t, tc.parent, tc.key, false, tc.usage, tc.expired)
@@ -117,7 +120,11 @@ func TestTLSOptions(t *testing.T) {
 				transport := &http.Transport{TLSClientConfig: clientCfg}
 				defer transport.CloseIdleConnections()
 				client := &http.Client{Transport: transport, Timeout: 3 * time.Second}
-				resp, err := client.Get(ts.URL)
+				req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, ts.URL, nil)
+				if err != nil {
+					t.Fatal(err)
+				}
+				resp, err := client.Do(req)
 				if err == nil {
 					defer resp.Body.Close()
 				}
@@ -126,7 +133,11 @@ func TestTLSOptions(t *testing.T) {
 				}
 			})
 		}
-		resp, err := http.Get("http://" + ts.Listener.Addr().String())
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "http://"+ts.Listener.Addr().String(), nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp, err := http.DefaultClient.Do(req)
 		if err == nil {
 			resp.Body.Close()
 			if resp.StatusCode == http.StatusNoContent {

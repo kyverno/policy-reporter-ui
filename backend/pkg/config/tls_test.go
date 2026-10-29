@@ -68,6 +68,7 @@ func TestTLSConfigLoad(t *testing.T) {
 }
 
 func TestMetricsTLSOptions(t *testing.T) {
+	t.Parallel()
 	c := &Config{}
 	options, err := NewResolver(c).metricsOptions()
 	if err != nil || options.SecureServing || options.BindAddress != "0" {
@@ -140,6 +141,7 @@ func TestMetricsTLSOptions(t *testing.T) {
 }
 
 func TestMetricsListener(t *testing.T) {
+	t.Parallel()
 	fixture := httptest.NewTLSServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
 	key := fixture.TLS.Certificates[0].PrivateKey.(crypto.Signer)
 	fixture.Close()
@@ -173,6 +175,7 @@ func TestMetricsListener(t *testing.T) {
 	roots.AddCert(parsed)
 	for _, mode := range []string{"HTTP", "TLS", "mTLS"} {
 		t.Run(mode, func(t *testing.T) {
+			t.Parallel()
 			c := &Config{}
 			c.Server.Metrics.Enabled = true
 			if mode != "HTTP" {
@@ -220,7 +223,11 @@ func TestMetricsListener(t *testing.T) {
 				transport := &http.Transport{TLSClientConfig: cfg}
 				defer transport.CloseIdleConnections()
 				client := &http.Client{Transport: transport, Timeout: 3 * time.Second}
-				resp, err := client.Get(scheme + "://" + address.GetBindAddr() + "/metrics")
+				req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, scheme+"://"+address.GetBindAddr()+"/metrics", nil)
+				if err != nil {
+					t.Fatal(err)
+				}
+				resp, err := client.Do(req)
 				want := mode != "mTLS" || withClient
 				if (err == nil) != want {
 					t.Fatalf("client=%v success=%v want %v: %v", withClient, err == nil, want, err)

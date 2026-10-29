@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
@@ -32,7 +33,7 @@ func (s *Server) Start() error {
 	if s.tlsConfig == nil {
 		return s.engine.Run(fmt.Sprintf(":%d", s.port))
 	}
-	server := &http.Server{Addr: fmt.Sprintf(":%d", s.port), Handler: s.engine.Handler(), TLSConfig: s.tlsConfig}
+	server := &http.Server{Addr: fmt.Sprintf(":%d", s.port), Handler: s.engine.Handler(), TLSConfig: s.tlsConfig, ReadHeaderTimeout: 10 * time.Second}
 	return server.ListenAndServeTLS("", "")
 }
 
