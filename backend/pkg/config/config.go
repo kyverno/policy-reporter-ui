@@ -9,6 +9,7 @@ import (
 	"github.com/kyverno/policy-reporter-ui/pkg/customboard"
 	"github.com/kyverno/policy-reporter-ui/pkg/kubernetes/secrets"
 	"github.com/kyverno/policy-reporter-ui/pkg/logging"
+	"github.com/kyverno/policy-reporter-ui/pkg/server"
 	"github.com/kyverno/policy-reporter-ui/pkg/utils"
 )
 
@@ -132,16 +133,18 @@ type Sessions struct {
 }
 
 type Server struct {
-	Port  int  `koanf:"port"`
-	CORS  bool `koanf:"cors"`
-	Debug bool `koanf:"debug"`
+	TLS   server.TLSOptions `koanf:"tls"`
+	Port  int               `koanf:"port"`
+	CORS  bool              `koanf:"cors"`
+	Debug bool              `koanf:"debug"`
 	// OverwriteHost is deprecated and will be removed in future versions
 	// The Proxy API was replaced with internal API routes
 	OverwriteHost bool     `koanf:"overwriteHost"`
 	Sessions      Sessions `koanf:"sessions"`
 	Metrics       struct {
-		Enabled bool `koanf:"enabled"`
-		Port    int  `koanf:"port"`
+		Enabled bool              `koanf:"enabled"`
+		Port    int               `koanf:"port"`
+		TLS     server.TLSOptions `koanf:"tls"`
 	} `koanf:"metrics"`
 }
 

@@ -4,6 +4,18 @@ clusters:
 
 server:
   cors: true
+  # TLS and client authentication are independently opt-in; see docs/tls.md.
+  tls:
+    enabled: false
+    clientAuth:
+      enabled: false
+  metrics:
+    enabled: false
+    port: 9090
+    tls:
+      enabled: false
+      clientAuth:
+        enabled: false
   overwriteHost: true
 
 tempDir: /private/tmp

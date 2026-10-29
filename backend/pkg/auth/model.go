@@ -73,6 +73,9 @@ func Session(ctx *gin.Context) (sessions.Session, bool) {
 }
 
 func ProfileFrom(ctx *gin.Context) *Profile {
+	if profile := certificateProfile(ctx); profile != nil {
+		return profile
+	}
 	session, ok := Session(ctx)
 	if !ok {
 		return nil

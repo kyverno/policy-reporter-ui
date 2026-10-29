@@ -32,6 +32,9 @@ jobs:
         run: |
           set -e
           cd backend && go mod tidy && git diff --exit-code
+      - name: Test server configuration and TLS
+        working-directory: backend
+        run: go test ./pkg/auth ./pkg/server ./pkg/config
       - name: Check code format
         run: |
           set -e
