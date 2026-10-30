@@ -2,9 +2,11 @@ package config
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -48,6 +50,7 @@ type Resolver struct {
 	customBoards *customboard.Collection
 	clusters     *cluster.Collection
 	mgr          manager.Manager
+	metrics      *ctrserver.Options
 }
 
 func (r *Resolver) SecretClient() (secrets.Client, error) {
@@ -220,11 +223,30 @@ func (r *Resolver) ClusterCollection(ctx context.Context) *cluster.Collection {
 }
 
 func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
+	if _, err := r.metricsOptions(); err != nil {
+		return nil, err
+	}
+	tlsConfig, err := r.config.Server.TLS.Config()
+	if err != nil {
+		return nil, err
+	}
+
 	if !r.config.Server.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	engine := gin.New()
+	if r.config.Server.TLS.ClientAuth.Mode == "oidc-or-certificate" {
+		if !r.config.OpenIDConnect.Enabled {
+			return nil, fmt.Errorf("oidc-or-certificate mode requires OpenID Connect")
+		}
+		identities := map[string]auth.Profile{}
+		for _, identity := range r.config.Server.TLS.ClientAuth.Identities {
+			fingerprint := strings.ToLower(identity.Fingerprint)
+			identities[fingerprint] = auth.Profile{ID: "certificate:" + fingerprint, Email: identity.Email, Name: identity.Name, Groups: identity.Groups}
+		}
+		engine.Use(auth.CertificateIdentities(identities))
+	}
 	if r.config.Server.CORS {
 		engine.Use(cors.Default())
 	}
@@ -263,7 +285,7 @@ func (r *Resolver) Server(ctx context.Context) (*server.Server, error) {
 		middleware = append(middleware, auth.ClusterPermissions(r.ClusterCollection(ctx)))
 	}
 
-	serv := server.NewServer(engine, r.config.Server.Port, middleware, r.ClusterCollection(ctx))
+	serv := server.NewServer(engine, r.config.Server.Port, middleware, r.ClusterCollection(ctx), tlsConfig)
 
 	if !r.config.UI.Disabled {
 		var uiMiddleware []gin.HandlerFunc
@@ -298,16 +320,14 @@ func (r *Resolver) Mgr() (manager.Manager, error) {
 
 	log.SetLogger(zapr.NewLogger(zap.L()))
 
-	port := "0"
-	if r.config.Server.Metrics.Enabled {
-		port = fmt.Sprintf(":%d", r.config.Server.Metrics.Port)
+	metrics, err := r.metricsOptions()
+	if err != nil {
+		return nil, err
 	}
 
 	mgr, err := ctrl.NewManager(k8sConfig, ctrl.Options{
-		Scheme: scheme,
-		Metrics: ctrserver.Options{
-			BindAddress: port,
-		},
+		Scheme:  scheme,
+		Metrics: metrics,
 	})
 	if err != nil {
 		return nil, err
@@ -354,4 +374,37 @@ func NewResolver(config *Config) *Resolver {
 	return &Resolver{
 		config: config,
 	}
+}
+
+func (r *Resolver) metricsOptions() (ctrserver.Options, error) {
+	if r.metrics != nil {
+		return *r.metrics, nil
+	}
+	options := ctrserver.Options{BindAddress: "0"}
+	metrics := r.config.Server.Metrics
+	if metrics.TLS.ClientAuth.Mode == "oidc-or-certificate" {
+		return options, fmt.Errorf("metrics does not support OIDC certificate identity mapping")
+	}
+	tlsConfig, err := metrics.TLS.Config()
+	if err != nil {
+		return options, fmt.Errorf("metrics: %w", err)
+	}
+	if !metrics.Enabled {
+		if metrics.TLS.Enabled {
+			return options, fmt.Errorf("metrics TLS requires server.metrics.enabled")
+		}
+		r.metrics = &options
+		return options, nil
+	}
+	options.BindAddress = fmt.Sprintf(":%d", metrics.Port)
+	if tlsConfig != nil {
+		options.SecureServing = true
+		options.TLSOpts = []func(*tls.Config){func(config *tls.Config) {
+			*config = *tlsConfig.Clone()
+			// Prevent controller-runtime from replacing the preloaded certificate with a fallback.
+			config.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) { return &tlsConfig.Certificates[0], nil }
+		}}
+	}
+	r.metrics = &options
+	return options, nil
 }

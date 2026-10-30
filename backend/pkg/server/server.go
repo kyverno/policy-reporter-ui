@@ -1,8 +1,10 @@
 package server
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
@@ -24,10 +26,15 @@ type Server struct {
 	api        *gin.RouterGroup
 	proxies    *gin.RouterGroup
 	port       int
+	tlsConfig  *tls.Config
 }
 
 func (s *Server) Start() error {
-	return s.engine.Run(fmt.Sprintf(":%d", s.port))
+	if s.tlsConfig == nil {
+		return s.engine.Run(fmt.Sprintf(":%d", s.port))
+	}
+	server := &http.Server{Addr: fmt.Sprintf(":%d", s.port), Handler: s.engine.Handler(), TLSConfig: s.tlsConfig, ReadHeaderTimeout: 10 * time.Second}
+	return server.ListenAndServeTLS("", "")
 }
 
 func (s *Server) RegisterUI(path string, middleware []gin.HandlerFunc) {
@@ -89,7 +96,7 @@ func (s *Server) RegisterAPI(c *api.Config, customBoards *customboard.Collection
 	s.api.GET("config/:cluster/layout", handler.Layout)
 }
 
-func NewServer(engine *gin.Engine, port int, middleware []gin.HandlerFunc, apis *cluster.Collection) *Server {
+func NewServer(engine *gin.Engine, port int, middleware []gin.HandlerFunc, apis *cluster.Collection, tlsConfig *tls.Config) *Server {
 	return &Server{
 		middelware: middleware,
 		apis:       apis,
@@ -97,5 +104,6 @@ func NewServer(engine *gin.Engine, port int, middleware []gin.HandlerFunc, apis 
 		api:        engine.Group("/api", append(middleware, gzip.Gzip(gzip.DefaultCompression))...),
 		proxies:    engine.Group("/proxy", middleware...),
 		port:       port,
+		tlsConfig:  tlsConfig,
 	}
 }

@@ -27,6 +27,10 @@ func Provider(provider string) gin.HandlerFunc {
 
 func Valid(basePath string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		if certificateProfile(ctx) != nil {
+			ctx.Next()
+			return
+		}
 		providerName, err := gothic.GetProviderName(ctx.Request)
 		if err != nil {
 			zap.L().Error("failed to get provider name", zap.Error(err))
@@ -46,12 +50,14 @@ func Valid(basePath string) gin.HandlerFunc {
 			zap.L().Error("profile not found", zap.Error(err))
 
 			logout(ctx)
+			ctx.Abort()
 			ctx.Redirect(http.StatusTemporaryRedirect, basePath+"login")
 			return
 		}
 
 		if err := refreshExpiredProfile(ctx, profile); err != nil {
 			logout(ctx)
+			ctx.Abort()
 			ctx.Redirect(http.StatusTemporaryRedirect, basePath+"login")
 			return
 		}
@@ -63,6 +69,7 @@ func Valid(basePath string) gin.HandlerFunc {
 			zap.L().Error("could not create session from profile", zap.Error(err))
 
 			logout(ctx)
+			ctx.Abort()
 			ctx.Redirect(http.StatusTemporaryRedirect, basePath+"login")
 			return
 		}
@@ -72,6 +79,7 @@ func Valid(basePath string) gin.HandlerFunc {
 			zap.L().Error("failed to validate session", zap.Error(err))
 
 			logout(ctx)
+			ctx.Abort()
 			ctx.Redirect(http.StatusTemporaryRedirect, basePath+"login")
 			return
 		}
@@ -90,6 +98,10 @@ func Valid(basePath string) gin.HandlerFunc {
 
 func Auth(basePath string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		if certificateProfile(ctx) != nil {
+			ctx.Next()
+			return
+		}
 		profile := ProfileFrom(ctx)
 
 		if profile == nil {
@@ -115,6 +127,7 @@ func abort(ctx *gin.Context, basePath, err string) {
 
 	if ctx.Request.URL.Path == "/" {
 		zap.L().Debug("redirect request", zap.String("path", ctx.Request.URL.Path), zap.String("basePath", basePath), zap.String("target", basePath+"login"))
+		ctx.Abort()
 		ctx.Redirect(http.StatusSeeOther, basePath+"login")
 	} else {
 		zap.L().Debug("abort request", zap.String("path", ctx.Request.URL.Path), zap.String("basePath", basePath))

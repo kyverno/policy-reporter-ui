@@ -19,6 +19,8 @@ Policy Reporter UI is an optional, standalone UI to visualize the processed info
 
 You can find more information about the different features in the [Official Documentation](https://kyverno.github.io/policy-reporter-docs/policy-reporter-ui/introduction.html)
 
+Native HTTPS and optional client-certificate authentication can be configured independently for the UI and metrics listeners. See [TLS configuration and certificate renewal](./docs/tls.md).
+
 ## Development
 
 Detailed instructions about the development setup can be found in the [DEVELOPMENT.md](./DEVELOPMENT.md) docs.
