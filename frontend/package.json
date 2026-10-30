@@ -32,6 +32,6 @@
     "@types/markdown-it": "^14.2.0",
     "@types/node": "^26.6.5",
     "vite-plugin-vuetify": "^2.1.3",
-    "vuetify": "^4.2.6"
+    "vuetify": "^4.3.1"
   }
 }
