@@ -10,7 +10,7 @@
         "@pinia/nuxt": "^1.0.1",
         "@vueuse/nuxt": "^15.0.0",
         "chart.js": "^4.6.1",
-        "chroma-js": "^3.2.0",
+        "chroma-js": "^3.3.0",
         "highlight.js": "^11.12.0",
         "lodash.debounce": "^4.0.8",
         "markdown-it": "^15.0.2",
@@ -483,7 +483,7 @@
 
     "chownr": ["chownr@3.0.0", "", {}, "sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g=="],
 
-    "chroma-js": ["chroma-js@3.2.0", "", {}, "sha512-os/OippSlX1RlWWr+QDPcGUZs0uoqr32urfxESG9U93lhUfbnlyckte84Q8P1UQY/qth983AS1JONKmLS4T0nw=="],
+    "chroma-js": ["chroma-js@3.3.0", "", {}, "sha512-afEEP0zHO4dxwrqTllKSFWs83+u+htEsmyvSe8IPjKjrfy3qmNk+vpWAdpbA2fJa14LTgkGyemC74J6v3HSUZA=="],
 
     "citty": ["citty@0.2.2", "", {}, "sha512-+6vJA3L98yv+IdfKGZHBNiGW5KHn22e/JwID0Strsz8h4S/csAu/OuICwxrg44k5MRiZHWIo8XXuJgQTriRP4w=="],
 
