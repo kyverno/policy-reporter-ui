@@ -74,9 +74,10 @@ type ClusterFinding struct {
 }
 
 type RenderOptions struct {
-	DashboardMode string `json:"dashboardMode"`
-	ResultView    string `json:"resultView"`
-	DataType      string `json:"dataType"`
+	DashboardMode string   `json:"dashboardMode"`
+	ResultView    string   `json:"resultView"`
+	ResultViews   []string `json:"resultViews"`
+	DataType      string   `json:"dataType"`
 }
 
 type Filter struct {

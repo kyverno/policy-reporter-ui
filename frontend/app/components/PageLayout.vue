@@ -26,6 +26,9 @@
           <app-row v-if="!nsScoped">
             <FormClusterKindAutocomplete style="width: 100%;" v-model="clusterKinds" :source="store || source" />
           </app-row>
+          <app-row v-if="$slots.append">
+            <slot name="append" />
+          </app-row>
         </v-container>
       </v-card>
     </app-row>

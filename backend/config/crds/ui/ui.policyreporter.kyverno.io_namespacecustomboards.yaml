@@ -153,6 +153,34 @@ spec:
                 required:
                 - labelSelector
                 type: object
+              renderOptions:
+                description: RenderOptions defines the rendering options for a custom
+                  board
+                properties:
+                  dashboardMode:
+                    default: detailed
+                    enum:
+                    - detailed
+                    - compact
+                    type: string
+                  resultView:
+                    default: resources
+                    enum:
+                    - resources
+                    - results
+                    - policies
+                    type: string
+                  resultViews:
+                    description: |-
+                      ResultViews controls which result views can be selected from the custom board UI.
+                      If omitted, only ResultView is available.
+                    items:
+                      enum:
+                      - resources
+                      - results
+                      - policies
+                      type: string
+                    type: array
               sources:
                 description: SourceSelector allows to select visualized sources
                 properties:
