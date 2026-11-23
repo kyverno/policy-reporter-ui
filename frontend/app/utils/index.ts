@@ -19,3 +19,15 @@ export const onChange = <T>(cb: () => any) => (n: T, o: T) =>  {
 
   cb()
 }
+
+export const uniqueCategories = (sources?: { categories?: string[] | null }[] | null): string[] => {
+  const categories = new Set<string>()
+
+  for (const source of sources || []) {
+    for (const category of source.categories || []) {
+      categories.add(category)
+    }
+  }
+
+  return [...categories].sort()
+}
