@@ -29,9 +29,13 @@ const filter = computed((): Filter => ({
 }))
 
 const { data, refresh, error } = useAPI((api) => api.policySources(filter.value))
+const { data: namespaces, refresh: refreshNamespaces } = useAPI((api) => api.namespaces(filter.value))
 
 watch(filter, onChange(refresh))
+watch(filter, onChange(refreshNamespaces))
 
 useNamespacedKindProvider(data)
 useClusterKindProvider(data)
+useCategoriesProvider(computed(() => ({ filter: { categories: uniqueCategories(data.value?.sources) } })))
+useNamespacesProvider(computed(() => ({ namespaces: namespaces.value || [] })))
 </script>
